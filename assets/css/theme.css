@@ -10479,15 +10479,15 @@ textarea {
 
 /* ── TYPOGRAPHY: FLUID SCALE REFINEMENT ─────────────────────── */
 @media (max-width: 767px) {
-    /* Compact headings on tiny screens */
-    .text-2xl { font-size: 1.25rem !important; }
-    .text-3xl { font-size: 1.5rem !important; }
-    .text-4xl { font-size: 1.75rem !important; }
+    /* Compact headings – body-scoped selector outranks Tailwind specificity without !important */
+    body .text-2xl { font-size: 1.25rem; }
+    body .text-3xl { font-size: 1.5rem; }
+    body .text-4xl { font-size: 1.75rem; }
 
-    /* Better container padding */
-    .p-6 { padding: 1.25rem !important; }
-    .p-8 { padding: 1.5rem !important; }
-    .gap-6 { gap: 1rem !important; }
+    /* Container padding – body-scoped selector outranks Tailwind specificity without !important */
+    body .p-6 { padding: 1.25rem; }
+    body .p-8 { padding: 1.25rem; }
+    body .gap-6 { gap: 1rem; }
 }
 
 /* ── DASHBOARD HERO PREMIUM STYLE ────────────────────────────── */
@@ -12095,5 +12095,43 @@ body.dark-mode .sidebar .sidebar-nav-item--active {
     .table-responsive::after,
     .table-responsive::before {
         display: none; /* hide scroll-hint gradients in stacked view */
+    }
+}
+
+/* ── SMALL PHONE PADDING OPTIMISATION (375–414 px) ──────────────
+   Reduce 1.5 rem / 1.25 rem paddings to 0.875 rem so dashboard
+   cards and containers make maximum use of the available viewport
+   width on the most common small phone sizes (iPhone SE, iPhone 13
+   mini, Pixel 4a, Galaxy S series).
+   This block is intentionally placed last so it overrides earlier
+   @media (max-width: 767px) and @media (max-width: 480px) rules
+   that set larger values.
+   ─────────────────────────────────────────────────────────────── */
+@media (max-width: 414px) {
+    /* Tailwind padding utilities – body scope beats Tailwind specificity (0,1,1 > 0,1,0) */
+    body .p-6 { padding: 0.875rem; }
+    body .p-8 { padding: 0.875rem; }
+
+    /* Dashboard and generic content cards – body scope (0,1,1) outranks earlier !important rules (0,1,0) */
+    body .card,
+    body .dash-stat-card,
+    body .dash-event-card,
+    body .dash-blog-card,
+    body .dash-helper-card {
+        padding: 0.875rem !important;
+    }
+
+    /* Tailwind padding utilities nested inside cards – body scope for consistent specificity */
+    body .card .p-6,
+    body .card .p-8 {
+        padding: 0.875rem !important;
+    }
+    body .card .px-6 { padding-left: 0.875rem !important; padding-right: 0.875rem !important; }
+    body .card .py-6 { padding-top: 0.875rem !important; padding-bottom: 0.875rem !important; }
+
+    /* Main content area – body scope + respect safe-area insets on notched phones */
+    body #main-content {
+        padding-left: max(0.875rem, env(safe-area-inset-left, 0px)) !important;
+        padding-right: max(0.875rem, env(safe-area-inset-right, 0px)) !important;
     }
 }
