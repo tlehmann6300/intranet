@@ -99,8 +99,8 @@
         html.style.top = '';
         html.style.width = '';
 
-        // Reset mobile push-down menu height (no-op on desktop where it stays 0px)
-        html.style.setProperty('--mobile-menu-height', '0px');
+        // Reset mobile push-down menu height (kept for backwards compatibility)
+        html.style.removeProperty('--mobile-menu-height');
     }
 
     /* ------------------------------------------------------------------ */
