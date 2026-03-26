@@ -3394,9 +3394,14 @@ body.dark-mode .sidebar {
     textarea {
         font-size: 16px !important; /* Prevents iOS zoom */
         min-height: 44px;
-        padding: 0.75rem !important;
-        width: 100%;
+        padding: 0.75rem !important; /* At least 12px for touch targets */
+        width: 100% !important; /* Always full-width unless overridden by a grid layout */
         border-radius: var(--radius-sm) !important;
+    }
+
+    /* Preserve the custom dropdown arrow right-padding for select elements */
+    select {
+        padding-right: 2.75rem !important;
     }
     
     /* Tables - Horizontal scroll without forcing white-space */
