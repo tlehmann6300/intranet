@@ -4718,6 +4718,11 @@ body:not(.dark-mode) .hero-gradient .hero-date {
     .table-responsive thead {
         display: none;
     }
+    /* Ensure tbody participates in block flow so card rows stack correctly */
+    .card-table tbody,
+    .table-responsive tbody {
+        display: block;
+    }
     .card-table tr,
     .table-responsive tr {
         display: block;
@@ -4736,7 +4741,9 @@ body:not(.dark-mode) .hero-gradient .hero-date {
         padding: 0.5rem 1rem;
         border-bottom: 1px solid var(--ibc-gray-100);
         text-align: right;
-        white-space: normal !important; /* remove nowrap in stacked view so text can wrap */
+        /* .card-table td / .table-responsive td (specificity 0,1,1) beats the global
+           th, td { white-space: nowrap } rule (specificity 0,0,1) without needing !important */
+        white-space: normal;
     }
     .card-table td:last-child,
     .table-responsive td:last-child {
