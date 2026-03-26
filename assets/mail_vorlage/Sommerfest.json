@@ -1,0 +1,4 @@
+{
+  "subject": "Einladung zum Sommerfest",
+  "content": "{Anrede},\n\nes ist wieder so weit! Ich möchte euch herzlich zu unserem diesjährigen Sommerfest einladen. Wir wollen gemeinsam die warme Jahreszeit feiern und bei kühlen Getränken und gutem Essen entspannen.\n\nStattfinden wird das Fest am {eventDateDay}, den {eventDateDayOf} {eventDateMonth} ab {EventDateHour} Uhr. Wir treffen uns am {location}.\n\nDamit wir besser planen können, tragt euch bitte hier in die Liste ein: {trainingLink}\n\n\n\nWir freuen uns auf dich!\n\n\n\nViele Grüße\n\n{accountName}"
+}
