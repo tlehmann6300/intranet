@@ -181,7 +181,7 @@ ob_start();
                     value="<?php echo htmlspecialchars($icon); ?>"
                 >
                 <!-- Icon Picker -->
-                <div class="grid grid-cols-6 sm:grid-cols-8 gap-3 p-4 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800" id="icon_picker">
+                <div class="grid grid-cols-6 sm:grid-cols-8 grid-no-stack gap-3 p-4 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800" id="icon_picker">
                     <?php
                     $iconList = [
                         'fas fa-globe', 'fas fa-envelope', 'fas fa-file', 'fas fa-chart-bar',

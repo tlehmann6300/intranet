@@ -3434,8 +3434,9 @@ body.dark-mode .sidebar {
         margin: 0 !important;
     }
     
-    /* Grid Improvements - Single column on mobile (only 3+ column grids) */
-    .grid:not(.grid-no-stack):not(.grid-cols-1):not(.grid-cols-2) {
+    /* Grid Improvements - Single column on mobile for all grids (harmonised with Tailwind sm: 640px).
+       Use .grid-no-stack on a grid that must keep its column layout on mobile. */
+    .grid:not(.grid-no-stack) {
         grid-template-columns: 1fr !important;
         gap: 1rem !important;
     }
@@ -3512,10 +3513,6 @@ body.dark-mode .sidebar {
     
     .card {
         padding: 1.25rem !important;
-    }
-    
-    .grid:not(.grid-cols-1) {
-        grid-template-columns: repeat(2, 1fr) !important;
     }
     
     main {
@@ -10445,11 +10442,6 @@ textarea {
     }
 }
 
-/* ── RESPONSIVE GRID: BETTER COLUMN BREAKPOINTS ─────────────── */
-@media (min-width: 481px) and (max-width: 767px) {
-    /* 2-column grids on larger phones */
-    .sm\:grid-cols-2 { grid-template-columns: repeat(2, 1fr) !important; }
-}
 
 @media (min-width: 768px) and (max-width: 1024px) {
     /* Tablets: 2 columns by default for stat grids */
@@ -11190,30 +11182,10 @@ body:not(.dark-mode) .sidebar p.text-xs {
 
 /* ── 4. RESPONSIVE DESIGN – SURGICAL GRID BREAKPOINTS ───────── */
 
-/* Medium Mobile (max 767px): only collapse 3+ column grids, not 2-column */
+/* Medium Mobile (max 767px): all grids collapse to single column (harmonised
+   with Tailwind sm: 640px). Grids that must keep their layout use .grid-no-stack. */
 @media (max-width: 767px) {
-    /* Allow 2-column grids to persist at smaller sizes */
-    .grid-cols-2,
-    .sm\:grid-cols-2 {
-        grid-template-columns: repeat(2, 1fr) !important;
-    }
-
     /* Better spacing for grid items on mobile */
-    .grid { gap: 0.75rem !important; }
-}
-
-/* For very narrow screens (below 480px), collapse 2-column grids too */
-@media (max-width: 480px) {
-    .grid-cols-2 {
-        grid-template-columns: 1fr !important;
-    }
-}
-
-/* Medium Mobile Refinements (481px - 767px): 2-column max for all grids */
-@media (min-width: 481px) and (max-width: 767px) {
-    .grid:not(.grid-no-stack):not(.grid-cols-1):not(.grid-cols-2) {
-        grid-template-columns: repeat(2, 1fr) !important;
-    }
     .grid { gap: 1rem !important; }
 }
 
