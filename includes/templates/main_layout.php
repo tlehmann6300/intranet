@@ -248,10 +248,13 @@ if (!isset($currentUser)) {
         }
 
         /* ── IMPROVE MAIN CONTENT AREA PADDING ──────────────────── */
-        /* On mobile, padding-top accounts for the fixed topbar height. */
+        /* On mobile, padding-top accounts for the fixed topbar height.
+           The transition uses the same duration/easing as the sidebar so the
+           push-down animation of #main-content stays perfectly in sync. */
         @media (max-width: 767px) {
             #main-content {
-                padding-top: calc(var(--topbar-safe-height) + 0.5rem) !important;
+                padding-top: calc(var(--mobile-menu-height, var(--topbar-safe-height)) + 0.5rem) !important;
+                transition: padding-top 0.3s cubic-bezier(0.32, 0.72, 0, 1);
             }
         }
 
