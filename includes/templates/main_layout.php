@@ -104,11 +104,6 @@ if (!isset($currentUser)) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
     <style>
-        /* CSS variable for mobile dropdown menu height (updated by JS on open/close) */
-        :root {
-            --mobile-menu-height: 0px;
-        }
-
         /* Mobile menu button accessibility */
         #mobile-menu-btn {
             border: none;
@@ -253,14 +248,10 @@ if (!isset($currentUser)) {
         }
 
         /* ── IMPROVE MAIN CONTENT AREA PADDING ──────────────────── */
-        /* On mobile, padding-top accounts for both the fixed topbar AND the open
-           dropdown menu height (--mobile-menu-height is set to 0 by default and
-           updated by JS to the sidebar height when the mobile menu is open).
-           The transition keeps the push-down animation smooth. */
+        /* On mobile, padding-top accounts for the fixed topbar height. */
         @media (max-width: 767px) {
             #main-content {
-                padding-top: calc(var(--topbar-safe-height) + var(--mobile-menu-height) + 0.5rem) !important;
-                transition: padding-top 0.3s ease-in-out;
+                padding-top: calc(var(--topbar-safe-height) + 0.5rem) !important;
             }
         }
 
@@ -947,16 +938,9 @@ if (!isset($currentUser)) {
             function openSidebar() {
                 if (!sidebar) return;
                 sidebar.classList.add('open');
-                if (window.innerWidth < 768) {
-                    // Mobile: vertical dropdown – push main content down instead of overlaying
-                    var menuHeight = sidebar.offsetHeight;
-                    document.documentElement.style.setProperty('--mobile-menu-height', menuHeight + 'px');
-                    // No scroll lock needed – content remains accessible below the menu
-                } else {
-                    // Desktop: slide-in overlay with scroll lock
-                    if (overlay) overlay.classList.add('active');
-                    lockBodyScroll();
-                }
+                // Show overlay and lock body scroll on all viewport sizes
+                if (overlay) overlay.classList.add('active');
+                lockBodyScroll();
                 btn?.setAttribute('aria-expanded', 'true');
                 btn?.setAttribute('aria-label', 'Menü schließen');
                 menuIconTop?.setAttribute('d', 'M6 18L18 6');
@@ -967,14 +951,9 @@ if (!isset($currentUser)) {
             function closeSidebar() {
                 if (!sidebar) return;
                 sidebar.classList.remove('open');
-                if (window.innerWidth < 768) {
-                    // Mobile: reset push-down (animate in sync with sidebar close transition)
-                    document.documentElement.style.setProperty('--mobile-menu-height', '0px');
-                } else {
-                    // Desktop: remove overlay and restore scroll
-                    if (overlay) overlay.classList.remove('active');
-                    unlockBodyScroll();
-                }
+                // Hide overlay and restore scroll on all viewport sizes
+                if (overlay) overlay.classList.remove('active');
+                unlockBodyScroll();
                 btn?.setAttribute('aria-expanded', 'false');
                 btn?.setAttribute('aria-label', 'Menü öffnen');
                 menuIconTop?.setAttribute('d', 'M4 6h16');
@@ -1060,10 +1039,14 @@ if (!isset($currentUser)) {
                 var touchEndY = e.changedTouches[0].clientY;
                 var deltaX = touchEndX - _touchStartX;
                 var deltaY = touchEndY - _touchStartY;
-                // Upward swipe when sidebar is open: close it
-                if (deltaY < -SWIPE_THRESHOLD && Math.abs(deltaX) < Math.abs(deltaY) * 1.5 && sidebar?.classList.contains('open')) {
+                // Left swipe when sidebar is open: close it
+                if (deltaX < -SWIPE_THRESHOLD && Math.abs(deltaY) < Math.abs(deltaX) * 1.5 && sidebar?.classList.contains('open')) {
                     closeSidebar();
                     syncBottomNavMoreBtn();
+                }
+                // Right swipe from near left edge when sidebar is closed: open it
+                if (deltaX > SWIPE_THRESHOLD && Math.abs(deltaY) < Math.abs(deltaX) * 1.5 && _touchStartX < 60 && !sidebar?.classList.contains('open')) {
+                    openSidebar();
                 }
             }, { passive: true });
         });
