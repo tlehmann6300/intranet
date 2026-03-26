@@ -35,7 +35,13 @@
         if (!mobileHeaderEl) return;
         var h = mobileHeaderEl.getBoundingClientRect().height;
         if (h > 0) {
-            document.documentElement.style.setProperty('--topbar-safe-height', h + 'px');
+            // Use requestAnimationFrame so the CSS-variable write is batched with
+            // the browser's next paint, preventing layout thrashing and ensuring
+            // the push-down animation of #main-content is perfectly smooth.
+            requestAnimationFrame(function () {
+                document.documentElement.style.setProperty('--topbar-safe-height', h + 'px');
+                document.documentElement.style.setProperty('--mobile-menu-height', h + 'px');
+            });
         }
     }
 
@@ -99,8 +105,11 @@
         html.style.top = '';
         html.style.width = '';
 
-        // Reset mobile push-down menu height (kept for backwards compatibility)
-        html.style.removeProperty('--mobile-menu-height');
+        // Reset mobile push-down menu height via rAF so the CSS transition on
+        // #main-content animates the padding back in sync with the sidebar closing.
+        requestAnimationFrame(function () {
+            html.style.removeProperty('--mobile-menu-height');
+        });
     }
 
     /* ------------------------------------------------------------------ */
