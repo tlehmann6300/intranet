@@ -590,7 +590,7 @@ ob_start();
                 </div>
             </div>
             <div class="max-h-64 overflow-auto w-full">
-                <table class="w-full text-sm">
+                <table class="w-full text-sm card-table">
                     <thead class="bg-gray-50 dark:bg-gray-700 sticky top-0">
                         <tr>
                             <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Artikel</th>
@@ -602,18 +602,18 @@ ob_start();
                     <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                         <?php foreach ($checkedOutStats['checkouts'] as $checkout): ?>
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
-                            <td class="px-2 py-2">
+                            <td class="px-2 py-2" data-label="Artikel">
                                 <a href="../inventory/view.php?id=<?php echo $checkout['item_id']; ?>" class="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 font-medium text-xs">
                                     <?php echo htmlspecialchars($checkout['item_name']); ?>
                                 </a>
                             </td>
-                            <td class="px-2 py-2 whitespace-nowrap text-xs text-gray-700 dark:text-gray-300">
+                            <td class="px-2 py-2 whitespace-nowrap text-xs text-gray-700 dark:text-gray-300" data-label="Menge">
                                 <?php echo $checkout['amount']; ?> <?php echo htmlspecialchars($checkout['unit']); ?>
                             </td>
-                            <td class="px-2 py-2 text-xs text-gray-700 dark:text-gray-300">
+                            <td class="px-2 py-2 text-xs text-gray-700 dark:text-gray-300" data-label="Entleiher">
                                 <?php echo htmlspecialchars($checkout['borrower_email']); ?>
                             </td>
-                            <td class="px-2 py-2 text-xs text-gray-700 dark:text-gray-300">
+                            <td class="px-2 py-2 text-xs text-gray-700 dark:text-gray-300" data-label="Rückgabe">
                                 <?php echo date('d.m.Y', strtotime($checkout['expected_return'] ?? $checkout['rented_at'])); ?>
                             </td>
                         </tr>
