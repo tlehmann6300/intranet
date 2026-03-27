@@ -161,11 +161,19 @@ if (!isset($currentUser)) {
             .badge:not(.sidebar-nav-badge) { padding: 0.375rem 0.75rem !important; font-size: 0.875rem !important; }
         }
 
+        /* Very narrow screens (under 480px): force single column for ALL grids including 2-column */
+        @media (max-width: 479px) {
+            .grid:not(.grid-no-stack):not(.grid-cols-1) {
+                grid-template-columns: 1fr !important;
+                gap: 1.5rem !important;
+            }
+        }
+
         /* Extra small screens (below Tailwind sm: breakpoint): stack 3+ column grids to single column */
         @media (max-width: 639px) {
             .grid:not(.grid-no-stack):not(.grid-cols-1):not(.grid-cols-2) {
                 grid-template-columns: 1fr !important;
-                gap: 1rem !important;
+                gap: 1.5rem !important;
             }
         }
 

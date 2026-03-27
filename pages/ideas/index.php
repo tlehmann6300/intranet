@@ -99,7 +99,7 @@ ob_start();
         </button>
     </div>
     <?php else: ?>
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="ideas-list">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6" id="ideas-list">
         <?php foreach ($ideas as $idea):
             $submitterEmail = $userInfoMap[$idea['user_id']] ?? 'unknown@example.com';
             $submitterName  = formatEntraName(explode('@', $submitterEmail)[0]);
