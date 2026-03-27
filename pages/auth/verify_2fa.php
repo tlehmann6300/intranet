@@ -223,7 +223,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify_2fa'])) {
         }
 
         .container {
-            max-width: 450px;
+            max-width: 28rem;
             width: 100%;
             background: white;
             border-radius: 20px;
