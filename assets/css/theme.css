@@ -9510,9 +9510,9 @@ body {
 }
 
 @media (max-width: 767px) {
-    /* Ensure the mobile topbar itself fills the safe area */
-    .mobile-topbar {
-        min-height: var(--topbar-safe-height) !important;
+    /* Ensure #mobile-header fills the safe area (notch / Dynamic Island) */
+    #mobile-header {
+        min-height: calc(var(--topbar-height) + env(safe-area-inset-top, 0px)) !important;
         padding-top: env(safe-area-inset-top, 0px) !important;
         display: flex;
         align-items: flex-end;
@@ -9521,7 +9521,7 @@ body {
     /* Push main content below the expanded topbar.
        Exactly matches the height of #mobile-header (incl. safe area). */
     #main-content {
-        padding-top: var(--topbar-safe-height) !important;
+        padding-top: calc(var(--topbar-height) + env(safe-area-inset-top, 0px)) !important;
     }
 }
 
