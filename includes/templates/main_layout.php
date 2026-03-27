@@ -380,7 +380,7 @@ if (!isset($currentUser)) {
 
     <!-- Mobile Header Bar (visible on small screens only) -->
     <header id="mobile-header" class="mobile-topbar md:hidden flex items-center px-3" aria-label="Mobile-Navigation">
-        <button id="mobile-menu-btn" class="mobile-topbar-btn shrink-0" aria-label="Menü öffnen" aria-expanded="false" aria-controls="sidebar">
+        <button id="mobile-menu-btn" class="mobile-topbar-btn block md:hidden shrink-0" aria-label="Menü öffnen" aria-expanded="false" aria-controls="sidebar">
             <svg class="w-5 h-5 text-white" id="menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path id="menu-icon-top" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16" class="transition-all duration-300"></path>
                 <path id="menu-icon-middle" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 12h16" class="transition-all duration-300"></path>
@@ -948,6 +948,9 @@ if (!isset($currentUser)) {
             const menuIconMiddle = document.getElementById('menu-icon-middle');
             const menuIconBottom = document.getElementById('menu-icon-bottom');
 
+            // Tailwind md breakpoint (must match tailwind.config.js screens.md = 768px)
+            var MD_BREAKPOINT = 768;
+
             // Body scroll lock helpers (iOS Safari fix)
             var _savedScrollY = 0;
             function lockBodyScroll() {
@@ -969,7 +972,9 @@ if (!isset($currentUser)) {
             // Reusable open/close helpers
             function openSidebar() {
                 if (!sidebar) return;
-                sidebar.classList.add('open');
+                // Toggle Tailwind translate classes for the slide-over effect
+                sidebar.classList.remove('-translate-x-full');
+                sidebar.classList.add('translate-x-0', 'open');
                 // Show overlay and lock body scroll on all viewport sizes
                 if (overlay) overlay.classList.add('active');
                 lockBodyScroll();
@@ -982,7 +987,9 @@ if (!isset($currentUser)) {
             }
             function closeSidebar() {
                 if (!sidebar) return;
-                sidebar.classList.remove('open');
+                // Toggle Tailwind translate classes for the slide-out effect
+                sidebar.classList.remove('translate-x-0', 'open');
+                sidebar.classList.add('-translate-x-full');
                 // Hide overlay and restore scroll on all viewport sizes
                 if (overlay) overlay.classList.remove('active');
                 unlockBodyScroll();
@@ -1057,6 +1064,18 @@ if (!isset($currentUser)) {
                 }
             });
 
+            // Auto-close sidebar on mobile when a nav link is clicked
+            if (sidebar) {
+                sidebar.querySelectorAll('nav a').forEach(function(link) {
+                    link.addEventListener('click', function() {
+                        if (window.innerWidth < MD_BREAKPOINT && sidebar.classList.contains('open')) {
+                            closeSidebar();
+                            syncBottomNavMoreBtn();
+                        }
+                    });
+                });
+            }
+
             // Touch swipe detection for sidebar (mobile only)
             var _touchStartX = 0;
             var _touchStartY = 0;
@@ -1068,7 +1087,7 @@ if (!isset($currentUser)) {
             }, { passive: true });
 
             document.addEventListener('touchend', function(e) {
-                if (window.innerWidth >= 768) return; // mobile only
+                if (window.innerWidth >= MD_BREAKPOINT) return; // mobile only
                 var touchEndX = e.changedTouches[0].clientX;
                 var touchEndY = e.changedTouches[0].clientY;
                 var deltaX = touchEndX - _touchStartX;

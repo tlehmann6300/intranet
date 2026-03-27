@@ -39,6 +39,9 @@ module.exports = {
     'hyphens-none',
     'leading-relaxed',
     'leading-loose',
+    // Sidebar mobile menu toggle classes added via JavaScript
+    'translate-x-0',
+    '-translate-x-full',
   ],
   plugins: [],
 };
