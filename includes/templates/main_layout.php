@@ -902,8 +902,10 @@ if (!isset($currentUser)) {
 
 
     <!-- Main Content -->
-    <main id="main-content" role="main" class="md:ml-64 lg:ml-72 min-h-screen px-4 pb-4 pt-[var(--topbar-height)] md:p-6 lg:p-8 2xl:p-10" style="padding-bottom: max(1rem, env(safe-area-inset-bottom, 0))">
-        <?php echo $content ?? ''; ?>
+    <main id="main-content" role="main" class="md:ml-64 lg:ml-72 min-h-screen px-4 sm:px-6 lg:px-8 pb-4 pt-[var(--topbar-height)] md:pt-6 lg:pt-8 2xl:pt-10" style="padding-bottom: max(1rem, env(safe-area-inset-bottom, 0))">
+        <div class="max-w-7xl mx-auto">
+            <?php echo $content ?? ''; ?>
+        </div>
     </main>
 
     <!-- Mobile Bottom Navigation Bar (visible on small screens only) -->
@@ -1311,7 +1313,7 @@ if (!isset($currentUser)) {
             </div>
             
             <!-- Modal Footer -->
-            <div class="px-6 py-4 bg-gray-50 dark:bg-slate-700 flex flex-col sm:flex-row gap-3">
+            <div class="px-6 py-4 bg-gray-50 dark:bg-slate-700 flex flex-col items-center md:flex-row md:justify-between gap-3">
                 <a href="<?php echo asset('pages/auth/profile.php'); ?>" class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-green-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-green-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
                     <i class="fas fa-shield-alt mr-2" aria-hidden="true"></i>
                     Jetzt einrichten
@@ -1368,7 +1370,7 @@ if (!isset($currentUser)) {
             </div>
 
             <!-- Modal Footer -->
-            <div class="px-6 py-4 bg-gray-50 dark:bg-slate-700 flex flex-col sm:flex-row gap-3">
+            <div class="px-6 py-4 bg-gray-50 dark:bg-slate-700 flex flex-col items-center md:flex-row md:justify-between gap-3">
                 <a href="<?php echo asset('pages/auth/settings.php'); ?>#aenderungsantrag" class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-orange-500 to-yellow-500 text-white rounded-lg font-semibold hover:from-orange-600 hover:to-yellow-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
                     <i class="fas fa-file-alt mr-2" aria-hidden="true"></i>
                     Zum Änderungsantrag
