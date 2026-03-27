@@ -231,9 +231,25 @@ if (!isset($currentUser)) {
             }
         }
 
+        /* ── SIDEBAR OVERLAY Z-INDEX ─────────────────────────────── */
+        /* Overlay sits above page content but below the sidebar so that
+           clicks on the dimmed backdrop reliably reach the overlay itself. */
+        @media (max-width: 767px) {
+            .sidebar-overlay {
+                z-index: 1040; /* above content, below sidebar (1050) */
+                pointer-events: none; /* inactive state: pass clicks through */
+            }
+            .sidebar-overlay.active {
+                pointer-events: auto; /* active state: capture clicks to close sidebar */
+            }
+            .sidebar.open {
+                z-index: 1050; /* above overlay (1040) */
+            }
+        }
+
         /* ── MOBILE: BODY SCROLL LOCK FIX ───────────────────────── */
         body.sidebar-open {
-            overflow: hidden;
+            overflow: hidden !important;
             position: fixed;
             width: 100%;
         }
@@ -929,6 +945,7 @@ if (!isset($currentUser)) {
             function lockBodyScroll() {
                 _savedScrollY = window.scrollY;
                 document.body.style.top = '-' + _savedScrollY + 'px';
+                document.body.style.overflow = 'hidden';
                 document.body.classList.add('sidebar-open');
             }
             function unlockBodyScroll() {
