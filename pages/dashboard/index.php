@@ -922,11 +922,11 @@ function dismissProfileReviewPrompt() {
             </div>
         </div>
     </div>
-    <div class="grid grid-cols-1 <?php echo $canAccessInvoices ? 'sm:grid-cols-3' : 'sm:grid-cols-2'; ?> gap-6">
+    <div class="grid grid-cols-1 <?php echo $canAccessInvoices ? 'md:grid-cols-2 lg:grid-cols-3' : 'md:grid-cols-2'; ?> gap-2 md:gap-6">
 
         <!-- Rentals Stat Card -->
         <a href="/pages/inventory/my_rentals.php"
-           class="dash-stat-card"
+           class="dash-stat-card w-full"
            style="--dash-stat-color: #f97316; --dash-stat-bg: rgba(249,115,22,0.09);">
             <div class="flex items-center justify-between mb-4">
                 <div class="dash-stat-icon">
@@ -946,7 +946,7 @@ function dismissProfileReviewPrompt() {
         </a>
 
         <!-- Next Event Stat Card -->
-        <div class="dash-stat-card"
+        <div class="dash-stat-card w-full"
              style="--dash-stat-color: var(--ibc-blue); --dash-stat-bg: rgba(0,102,179,0.08);">
             <div class="flex items-center justify-between mb-4">
                 <div class="dash-stat-icon">
@@ -977,7 +977,7 @@ function dismissProfileReviewPrompt() {
         <?php if ($canAccessInvoices): ?>
         <!-- Invoices Stat Card -->
         <a href="/pages/invoices/index.php"
-           class="dash-stat-card"
+           class="dash-stat-card w-full"
            style="--dash-stat-color: var(--ibc-green); --dash-stat-bg: rgba(0,166,81,0.09);">
             <div class="flex items-center justify-between mb-4">
                 <div class="dash-stat-icon">
@@ -1080,7 +1080,7 @@ function dismissProfileReviewPrompt() {
             'closed'  => ['label' => 'Anmeldung geschlossen', 'color' => 'text-amber-700 bg-amber-100 dark:bg-amber-900/40 dark:text-amber-300'],
         ];
     ?>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-6">
         <?php foreach ($events as $event): ?>
         <?php
             $ts = strtotime($event['start_time']);
@@ -1096,7 +1096,7 @@ function dismissProfileReviewPrompt() {
                 $countdown = $days > 0 ? "Noch {$days} Tag" . ($days != 1 ? 'e' : '') . ", {$hours} Std" : "Noch {$hours} Std";
             }
         ?>
-        <a href="../events/view.php?id=<?php echo (int)$event['id']; ?>" class="dash-event-card dash-event-card--<?php echo htmlspecialchars($eventStatus); ?>">
+        <a href="../events/view.php?id=<?php echo (int)$event['id']; ?>" class="dash-event-card dash-event-card--<?php echo htmlspecialchars($eventStatus); ?> w-full">
             <!-- Status accent strip -->
             <div class="dash-event-card-accent"></div>
             <!-- Card header: gradient background with date chip -->
@@ -1217,9 +1217,9 @@ function dismissProfileReviewPrompt() {
     </div>
 
     <?php if (!empty($helperEvents)): ?>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-6">
         <?php foreach ($helperEvents as $event): ?>
-        <div class="dash-helper-card">
+        <div class="dash-helper-card w-full">
             <h3 class="text-base font-bold leading-snug break-words hyphens-auto" style="color: var(--text-main)">
                 <?php echo htmlspecialchars($event['title']); ?>
             </h3>
@@ -1286,7 +1286,7 @@ function dismissProfileReviewPrompt() {
             'Vorstand'           => 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300',
         ];
     ?>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-6">
         <?php foreach ($recentBlogPosts as $post): ?>
         <?php
             $catColor = $blogCategoryColors[$post['category'] ?? ''] ?? $blogCategoryColors['Allgemein'];
@@ -1294,7 +1294,7 @@ function dismissProfileReviewPrompt() {
             $excerpt  = strip_tags($post['content'] ?? '');
             $excerpt  = strlen($excerpt) > 120 ? substr($excerpt, 0, 120) . '…' : $excerpt;
         ?>
-        <a href="../blog/view.php?id=<?php echo (int)$post['id']; ?>" class="dash-blog-card">
+        <a href="../blog/view.php?id=<?php echo (int)$post['id']; ?>" class="dash-blog-card w-full">
             <!-- Image / placeholder -->
             <div class="dash-blog-img">
                 <?php if (!empty($post['image_path']) && $post['image_path'] !== BlogPost::DEFAULT_IMAGE): ?>
@@ -1372,9 +1372,9 @@ function dismissProfileReviewPrompt() {
     
     if (!empty($visiblePolls)): 
     ?>
-    <div class="grid grid-cols-1 gap-4">
+    <div class="grid grid-cols-1 gap-2 md:gap-4">
         <?php foreach ($visiblePolls as $poll): ?>
-        <div class="dash-poll-card">
+        <div class="dash-poll-card w-full">
             <div class="dash-poll-accent"></div>
             <div class="p-4 md:p-5 flex flex-col sm:flex-row items-start gap-4">
                 <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm"
