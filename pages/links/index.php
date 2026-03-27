@@ -124,7 +124,7 @@ ob_start();
     <?php endif; ?>
 </div>
 <?php else: ?>
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
     <?php foreach ($links as $link):
         $rawUrl  = $link['url'] ?? '';
         $parsed  = parse_url($rawUrl);
