@@ -132,66 +132,76 @@ ob_start();
             <?php endif; ?>
         </div>
     <?php else: ?>
-        <div class="directory-grid-responsive grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-            <?php foreach ($members as $member): ?>
-                <?php
-                // Determine role badge color
-                $roleBadgeColors = [
-                    'vorstand_finanzen'   => 'bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-900 dark:text-purple-200 dark:border-purple-700',
-                    'vorstand_intern'     => 'bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-900 dark:text-purple-200 dark:border-purple-700',
-                    'vorstand_extern'     => 'bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-900 dark:text-purple-200 dark:border-purple-700',
-                    'ressortleiter'       => 'bg-teal-100 text-teal-800 border-teal-300 dark:bg-teal-900 dark:text-teal-200 dark:border-teal-700',
-                    'mitglied'            => 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900 dark:text-green-200 dark:border-green-700',
-                    'anwaerter'           => 'bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900 dark:text-yellow-200 dark:border-yellow-700',
-                    'alumni'              => 'bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600',
-                    'alumni_vorstand'     => 'bg-indigo-100 text-indigo-800 border-indigo-300 dark:bg-indigo-900 dark:text-indigo-200 dark:border-indigo-700',
-                    'alumni_finanz'       => 'bg-indigo-100 text-indigo-800 border-indigo-300 dark:bg-indigo-900 dark:text-indigo-200 dark:border-indigo-700',
-                    'ehrenmitglied'       => 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900 dark:text-amber-200 dark:border-amber-700',
-                ];
-                
-                // Display role: prefer Entra-derived display_role, fall back to local role label
-                $displayRoleKey = Auth::getPrimaryEntraRoleKey($member['entra_roles'] ?? null, $member['role']);
-                $badgeClass = $roleBadgeColors[$displayRoleKey] ?? 'bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600';
-                $displayRole = htmlspecialchars($member['display_role'] ?? Auth::getRoleLabel($member['role']));
-                
-                // Generate initials for fallback
-                $initials = getMemberInitials($member['first_name'], $member['last_name']);
-                
-                // Resolve profile image: prefer Entra ID photo via fetch-profile-photo.php when
-                // an e-mail address is available; fall back to the locally stored avatar otherwise.
-                $memberEmail = $member['email'] ?? '';
-                if (!empty($memberEmail)) {
-                    $imageSrc = asset('fetch-profile-photo.php') . '?email=' . urlencode($memberEmail);
-                } else {
-                    $imageSrc = asset(getProfileImageUrl($member['avatar_path'] ?? null));
-                }
-                
-                // Info snippet: Show position, or study_program + degree
-                $infoSnippet = '';
-                if (!empty($member['position'])) {
-                    $infoSnippet = $member['position'];
-                } else {
-                    // If position is empty, try study_program and degree
-                    $studyParts = [];
-                    // Check both study_program and studiengang fields
-                    $studyProgram = !empty($member['study_program']) ? $member['study_program'] : 
-                                    (!empty($member['studiengang']) ? $member['studiengang'] : '');
-                    // Check both degree and angestrebter_abschluss fields
-                    $degree = !empty($member['degree']) ? $member['degree'] : 
-                              (!empty($member['angestrebter_abschluss']) ? $member['angestrebter_abschluss'] : '');
-                    
-                    if (!empty($studyProgram)) {
-                        $studyParts[] = $studyProgram;
-                    }
-                    if (!empty($degree)) {
-                        $studyParts[] = $degree;
-                    }
-                    
-                    if (!empty($studyParts)) {
-                        $infoSnippet = implode(' - ', $studyParts);
-                    }
-                }
-                ?>
+        <?php
+        // Pre-compute display data for each member once, shared by both mobile and desktop views
+        $roleBadgeColors = [
+            'vorstand_finanzen'   => 'bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-900 dark:text-purple-200 dark:border-purple-700',
+            'vorstand_intern'     => 'bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-900 dark:text-purple-200 dark:border-purple-700',
+            'vorstand_extern'     => 'bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-900 dark:text-purple-200 dark:border-purple-700',
+            'ressortleiter'       => 'bg-teal-100 text-teal-800 border-teal-300 dark:bg-teal-900 dark:text-teal-200 dark:border-teal-700',
+            'mitglied'            => 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900 dark:text-green-200 dark:border-green-700',
+            'anwaerter'           => 'bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900 dark:text-yellow-200 dark:border-yellow-700',
+            'alumni'              => 'bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600',
+            'alumni_vorstand'     => 'bg-indigo-100 text-indigo-800 border-indigo-300 dark:bg-indigo-900 dark:text-indigo-200 dark:border-indigo-700',
+            'alumni_finanz'       => 'bg-indigo-100 text-indigo-800 border-indigo-300 dark:bg-indigo-900 dark:text-indigo-200 dark:border-indigo-700',
+            'ehrenmitglied'       => 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900 dark:text-amber-200 dark:border-amber-700',
+        ];
+        $memberDisplayData = [];
+        foreach ($members as $idx => $member) {
+            $displayRoleKey = Auth::getPrimaryEntraRoleKey($member['entra_roles'] ?? null, $member['role']);
+            $badgeClass     = $roleBadgeColors[$displayRoleKey] ?? 'bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600';
+            $displayRole    = htmlspecialchars($member['display_role'] ?? Auth::getRoleLabel($member['role']));
+            $initials       = getMemberInitials($member['first_name'], $member['last_name']);
+            $memberEmail    = $member['email'] ?? '';
+            $imageSrc       = !empty($memberEmail)
+                ? asset('fetch-profile-photo.php') . '?email=' . urlencode($memberEmail)
+                : asset(getProfileImageUrl($member['avatar_path'] ?? null));
+            $avatarColor    = getAvatarColor($member['first_name'] . ' ' . $member['last_name']);
+
+            // Info snippet: Show position, or study_program + degree
+            $infoSnippet = '';
+            if (!empty($member['position'])) {
+                $infoSnippet = $member['position'];
+            } else {
+                $studyParts  = [];
+                $studyProgram = !empty($member['study_program']) ? $member['study_program'] :
+                                (!empty($member['studiengang']) ? $member['studiengang'] : '');
+                $degree       = !empty($member['degree']) ? $member['degree'] :
+                                (!empty($member['angestrebter_abschluss']) ? $member['angestrebter_abschluss'] : '');
+                if (!empty($studyProgram)) { $studyParts[] = $studyProgram; }
+                if (!empty($degree))       { $studyParts[] = $degree; }
+                if (!empty($studyParts))   { $infoSnippet = implode(' - ', $studyParts); }
+            }
+
+            // Validate social URLs to prevent XSS attacks
+            $linkedinUrl     = $member['linkedin_url'] ?? '';
+            $isValidLinkedIn = !empty($linkedinUrl) && (
+                strpos($linkedinUrl, 'https://linkedin.com') === 0 ||
+                strpos($linkedinUrl, 'https://www.linkedin.com') === 0 ||
+                strpos($linkedinUrl, 'http://linkedin.com') === 0 ||
+                strpos($linkedinUrl, 'http://www.linkedin.com') === 0
+            );
+            $xingUrl     = $member['xing_url'] ?? '';
+            $isValidXing = !empty($xingUrl) && (
+                strpos($xingUrl, 'https://xing.com') === 0 ||
+                strpos($xingUrl, 'https://www.xing.com') === 0 ||
+                strpos($xingUrl, 'http://xing.com') === 0 ||
+                strpos($xingUrl, 'http://www.xing.com') === 0
+            );
+
+            $memberDisplayData[$idx] = compact(
+                'displayRoleKey', 'badgeClass', 'displayRole', 'initials',
+                'imageSrc', 'avatarColor', 'infoSnippet',
+                'linkedinUrl', 'isValidLinkedIn', 'xingUrl', 'isValidXing'
+            );
+        }
+        ?>
+
+        <!-- Mobile Card View (visible on small screens only) -->
+        <div class="md:hidden directory-grid-responsive grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <?php foreach ($members as $idx => $member):
+                extract($memberDisplayData[$idx]);
+            ?>
                 <div class="card directory-card directory-card--members d-flex flex-column h-100">
                     <!-- Card Header: gradient band with avatar -->
                     <div class="directory-card-header">
@@ -201,9 +211,6 @@ ob_start();
                                 <?php echo $displayRole; ?>
                             </span>
                         </div>
-                        <?php
-                        $avatarColor = getAvatarColor($member['first_name'] . ' ' . $member['last_name']);
-                        ?>
                         <div class="directory-card-avatar-wrap">
                             <div class="directory-avatar directory-avatar--sm rounded-circle overflow-hidden border border-3 border-white shadow"
                                  style="background-color:<?php echo htmlspecialchars($avatarColor); ?>;position:relative;color:#fff;font-weight:700;">
@@ -254,18 +261,7 @@ ob_start();
                             <?php endif; ?>
                             
                             <!-- LinkedIn Icon (if set) -->
-                            <?php if (!empty($member['linkedin_url'])): ?>
-                                <?php
-                                // Validate LinkedIn URL to prevent XSS attacks
-                                $linkedinUrl = $member['linkedin_url'];
-                                $isValidLinkedIn = (
-                                    strpos($linkedinUrl, 'https://linkedin.com') === 0 ||
-                                    strpos($linkedinUrl, 'https://www.linkedin.com') === 0 ||
-                                    strpos($linkedinUrl, 'http://linkedin.com') === 0 ||
-                                    strpos($linkedinUrl, 'http://www.linkedin.com') === 0
-                                );
-                                ?>
-                                <?php if ($isValidLinkedIn): ?>
+                            <?php if ($isValidLinkedIn): ?>
                                 <a 
                                     href="<?php echo htmlspecialchars($linkedinUrl); ?>" 
                                     target="_blank"
@@ -275,22 +271,10 @@ ob_start();
                                 >
                                     <i class="fab fa-linkedin-in"></i>
                                 </a>
-                                <?php endif; ?>
                             <?php endif; ?>
                             
                             <!-- Xing Icon (if set) -->
-                            <?php if (!empty($member['xing_url'])): ?>
-                                <?php
-                                // Validate Xing URL to prevent XSS attacks
-                                $xingUrl = $member['xing_url'];
-                                $isValidXing = (
-                                    strpos($xingUrl, 'https://xing.com') === 0 ||
-                                    strpos($xingUrl, 'https://www.xing.com') === 0 ||
-                                    strpos($xingUrl, 'http://xing.com') === 0 ||
-                                    strpos($xingUrl, 'http://www.xing.com') === 0
-                                );
-                                ?>
-                                <?php if ($isValidXing): ?>
+                            <?php if ($isValidXing): ?>
                                 <a 
                                     href="<?php echo htmlspecialchars($xingUrl); ?>" 
                                     target="_blank"
@@ -300,7 +284,6 @@ ob_start();
                                 >
                                     <i class="fab fa-xing"></i>
                                 </a>
-                                <?php endif; ?>
                             <?php endif; ?>
                         </div>
                         
@@ -316,6 +299,97 @@ ob_start();
                     </div>
                 </div>
             <?php endforeach; ?>
+        </div>
+
+        <!-- Desktop Table View (hidden on mobile, visible on md+ screens) -->
+        <div class="overflow-x-auto w-full hidden md:block">
+            <table class="w-full card-table">
+                <thead class="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Mitglied</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Rolle</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Info</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Kontakt</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Aktion</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-100 dark:divide-gray-800">
+                    <?php foreach ($members as $idx => $member):
+                        extract($memberDisplayData[$idx]);
+                    ?>
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/60 transition-colors duration-150">
+                            <td class="px-4 py-3 whitespace-nowrap" data-label="Mitglied">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0"
+                                         style="background-color:<?php echo htmlspecialchars($avatarColor); ?>;position:relative;color:#fff;font-weight:700;">
+                                        <div style="position:absolute;inset:0;" class="d-flex align-items-center justify-content-center text-xs">
+                                            <?php echo htmlspecialchars($initials); ?>
+                                        </div>
+                                        <img
+                                            src="<?php echo htmlspecialchars($imageSrc); ?>"
+                                            alt="<?php echo htmlspecialchars($member['first_name'] . ' ' . $member['last_name']); ?>"
+                                            loading="lazy"
+                                            style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"
+                                            onerror="this.onerror=null; this.style.display='none';"
+                                        >
+                                    </div>
+                                    <span class="font-semibold text-sm text-gray-800 dark:text-gray-100">
+                                        <?php echo htmlspecialchars($member['first_name'] . ' ' . $member['last_name']); ?>
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap" data-label="Rolle">
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold directory-role-badge border <?php echo $badgeClass; ?>">
+                                    <i class="fas <?php echo getRoleIcon($displayRoleKey); ?>" aria-hidden="true"></i>
+                                    <?php echo $displayRole; ?>
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 max-w-xs" data-label="Info">
+                                <?php if (!empty($infoSnippet)): ?>
+                                    <span class="truncate block"><?php echo htmlspecialchars($infoSnippet); ?></span>
+                                <?php else: ?>
+                                    <span class="text-gray-400 dark:text-gray-500">—</span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap" data-label="Kontakt">
+                                <div class="flex items-center gap-2">
+                                    <?php if (!empty($member['email']) && ($canViewPrivate || empty($member['privacy_hide_email']))): ?>
+                                        <a href="mailto:<?php echo htmlspecialchars($member['email']); ?>"
+                                           class="directory-contact-icon"
+                                           title="E-Mail senden">
+                                            <i class="fas fa-envelope"></i>
+                                        </a>
+                                    <?php endif; ?>
+                                    <?php if ($isValidLinkedIn): ?>
+                                        <a href="<?php echo htmlspecialchars($linkedinUrl); ?>"
+                                           target="_blank" rel="noopener noreferrer"
+                                           class="directory-contact-icon"
+                                           title="LinkedIn Profil">
+                                            <i class="fab fa-linkedin-in"></i>
+                                        </a>
+                                    <?php endif; ?>
+                                    <?php if ($isValidXing): ?>
+                                        <a href="<?php echo htmlspecialchars($xingUrl); ?>"
+                                           target="_blank" rel="noopener noreferrer"
+                                           class="directory-contact-icon"
+                                           title="Xing Profil">
+                                            <i class="fab fa-xing"></i>
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap" data-label="Aktion">
+                                <a href="view.php?id=<?php echo $member['profile_id']; ?>"
+                                   class="btn btn-sm fw-semibold shadow-sm text-white"
+                                   style="background:linear-gradient(135deg,var(--ibc-green-dark),var(--ibc-green));">
+                                    <i class="fas fa-user me-1"></i>
+                                    Profil ansehen
+                                </a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
         </div>
     <?php endif; ?>
 </div>
