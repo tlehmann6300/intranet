@@ -12242,3 +12242,24 @@ body.dark-mode .sidebar .sidebar-nav-item--active {
         padding-right: max(0.875rem, env(safe-area-inset-right, 0px)) !important;
     }
 }
+
+/* ── Mobile-Fixes ────────────────────────────────────────────────────────────
+   General mobile fixes for screens under 768px:
+   1. Reduce .container padding to 12px to maximize usable viewport width.
+   2. Add margin-bottom: 1.5rem to .card so dashboard cards are evenly spaced.
+   3. Reduce .card-body padding to 1rem to give content more breathing room.
+   ─────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+    .container {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .card {
+        margin-bottom: 1.5rem;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+}
