@@ -115,7 +115,7 @@ if ($showQRCode) {
         }
 
         .card {
-            max-width: 520px;
+            max-width: 28rem;
             width: 100%;
             background: #fff;
             border-radius: 20px;
