@@ -3430,7 +3430,7 @@ body.dark-mode .sidebar {
     th, td {
         padding: 0.75rem 0.875rem !important;
         font-size: 0.875rem;
-        white-space: nowrap; /* Prevent cell content from wrapping in scrollable tables */
+        white-space: normal; /* Allow text to wrap on mobile instead of forcing horizontal scroll */
     }
     
     /* Flex containers - Only stack action/button groups vertically on mobile */
@@ -4716,10 +4716,9 @@ body:not(.dark-mode) .hero-gradient .hero-date {
         max-width: 100%;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
-        /* No white-space: nowrap here - cells get it individually so rows still wrap */
     }
     th, td {
-        white-space: nowrap;
+        white-space: normal; /* Allow text wrapping instead of forcing horizontal scroll */
     }
 }
 
@@ -4756,8 +4755,6 @@ body:not(.dark-mode) .hero-gradient .hero-date {
         padding: 0.5rem 1rem;
         border-bottom: 1px solid var(--ibc-gray-100);
         text-align: right;
-        /* .card-table td / .table-responsive td (specificity 0,1,1) beats the global
-           th, td { white-space: nowrap } rule (specificity 0,0,1) without needing !important */
         white-space: normal;
     }
     .card-table td:last-child,
@@ -4807,7 +4804,6 @@ body:not(.dark-mode) .hero-gradient .hero-date {
         padding: 0.5rem 1rem;
         border-bottom: 1px solid var(--ibc-gray-100);
         text-align: right;
-        /* Override the global th,td { white-space: nowrap } rule */
         white-space: normal;
     }
     .table-stack-mobile td:last-child {
@@ -6965,7 +6961,7 @@ main {
     overflow: hidden;
 }
 
-/* ── Link button improvements in tables ────────────────── */
+/* ── Action buttons in tables: smaller on desktop, touch-friendly on mobile ── */
 .btn.btn-sm {
     padding: 0.35rem 0.75rem !important;
     font-size: 0.875rem !important;
@@ -6986,6 +6982,16 @@ main {
     .card-table input[type="button"] {
         min-height: 44px !important;
         min-width: 44px !important;
+        /* Remove the small-button padding override so the 44 px min can breathe */
+        padding: 0.5rem 0.75rem !important;
+    }
+
+    /* Increase spacing between adjacent action buttons/icons in table cells */
+    td .btn + .btn,
+    td .btn + a.btn,
+    td a.btn + .btn,
+    td a.btn + a.btn {
+        margin-left: 0.5rem !important;
     }
 }
 
