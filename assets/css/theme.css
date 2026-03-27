@@ -2969,6 +2969,20 @@ textarea:focus {
     outline: none;
 }
 
+/* Mobile: prevent iOS auto-zoom (font-size >= 16px) and improve tap target size */
+@media (max-width: 767px) {
+    input:not([type="checkbox"]):not([type="radio"]),
+    textarea {
+        font-size: 16px;
+        padding: 12px;
+    }
+
+    select {
+        font-size: 16px;
+        padding: 12px 2.75rem 12px 12px;
+    }
+}
+
 /* Section Headers – fluid type using clamp() for smooth scaling */
 h1 {
     font-size: clamp(1.5rem, 5vw, 2.5rem);
