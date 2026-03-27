@@ -416,7 +416,7 @@ if (!isset($currentUser)) {
 
     <!-- Mobile Header Bar (visible on small screens only) -->
     <header id="mobile-header" class="mobile-topbar md:hidden flex items-center px-3" aria-label="Mobile-Navigation">
-        <button id="mobile-menu-btn" class="mobile-topbar-btn block md:hidden shrink-0" aria-label="Menü öffnen" aria-expanded="false" aria-controls="mobile-nav-menu">
+        <button id="mobile-menu-btn" class="mobile-topbar-btn block md:hidden shrink-0" aria-label="Menü öffnen" aria-expanded="false" aria-controls="mobile-menu">
             <svg class="w-5 h-5 text-white" id="menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path id="menu-icon-top" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16" class="transition-all duration-300"></path>
                 <path id="menu-icon-middle" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 12h16" class="transition-all duration-300"></path>
@@ -435,13 +435,13 @@ if (!isset($currentUser)) {
     </header>
 
     <!-- Mobile Slide-Down Nav Menu (block md:hidden, toggled by #mobile-menu-btn) -->
-    <div id="mobile-nav-menu"
+    <div id="mobile-menu"
          class="hidden md:hidden fixed left-0 right-0 overflow-y-auto"
          style="top: calc(var(--topbar-height) + env(safe-area-inset-top, 0px)); max-height: calc(100dvh - var(--topbar-height) - env(safe-area-inset-top, 0px) - 4rem); z-index: 1049; background-color: var(--bg-card); border-bottom: 1px solid var(--border-color); box-shadow: 0 8px 32px rgba(0,0,0,0.18);"
          role="navigation"
          aria-label="Mobile Navigation"
          aria-hidden="true">
-        <nav class="flex flex-col" aria-label="Hauptnavigation">
+        <nav class="flex flex-col space-y-4" aria-label="Hauptnavigation">
             <!-- Dashboard -->
             <a href="<?php echo asset('pages/dashboard/index.php'); ?>"
                class="mobile-menu-link <?php echo is_nav_active('/dashboard/') ? 'mobile-menu-link--active' : ''; ?>"
@@ -1130,7 +1130,7 @@ if (!isset($currentUser)) {
             const menuIconTop = document.getElementById('menu-icon-top');
             const menuIconMiddle = document.getElementById('menu-icon-middle');
             const menuIconBottom = document.getElementById('menu-icon-bottom');
-            const mobileNavMenu = document.getElementById('mobile-nav-menu');
+            const mobileMenu = document.getElementById('mobile-menu');
 
             // Tailwind md breakpoint (must match tailwind.config.js screens.md = 768px)
             var MD_BREAKPOINT = 768;
@@ -1156,7 +1156,8 @@ if (!isset($currentUser)) {
             // Reusable open/close helpers
             function openSidebar() {
                 if (!sidebar) return;
-                closeMobileMenu(); // close slide-down menu before opening sidebar
+                // Close slide-down menu before opening sidebar (via navbar-scroll.js utility)
+                window.navbarScrollUtils?.closeMobileMenu?.();
                 // Toggle Tailwind translate classes for the slide-over effect
                 sidebar.classList.remove('-translate-x-full');
                 sidebar.classList.add('translate-x-0', 'open');
@@ -1194,54 +1195,7 @@ if (!isset($currentUser)) {
                 }
             }
 
-            // ── Mobile slide-down nav menu helpers ────────────────────
-            function openMobileMenu() {
-                if (!mobileNavMenu) return;
-                mobileNavMenu.classList.remove('hidden');
-                mobileNavMenu.removeAttribute('aria-hidden');
-                btn?.setAttribute('aria-expanded', 'true');
-                btn?.setAttribute('aria-label', 'Menü schließen');
-                menuIconTop?.setAttribute('d', 'M6 18L18 6');
-                menuIconMiddle?.setAttribute('opacity', '0');
-                menuIconBottom?.setAttribute('d', 'M6 6L18 18');
-            }
-            function closeMobileMenu() {
-                if (!mobileNavMenu) return;
-                mobileNavMenu.classList.add('hidden');
-                mobileNavMenu.setAttribute('aria-hidden', 'true');
-                btn?.setAttribute('aria-expanded', 'false');
-                btn?.setAttribute('aria-label', 'Menü öffnen');
-                menuIconTop?.setAttribute('d', 'M4 6h16');
-                menuIconMiddle?.setAttribute('d', 'M4 12h16');
-                menuIconMiddle?.setAttribute('opacity', '1');
-                menuIconBottom?.setAttribute('d', 'M4 18h16');
-            }
-
-            // Hamburger button toggles the slide-down mobile nav menu
-            if (btn && mobileNavMenu) {
-                btn.addEventListener('click', function() {
-                    if (mobileNavMenu.classList.contains('hidden')) {
-                        openMobileMenu();
-                    } else {
-                        closeMobileMenu();
-                    }
-                });
-            }
-
-            // Close mobile menu when a nav link is clicked (navigation)
-            if (mobileNavMenu) {
-                mobileNavMenu.querySelectorAll('a').forEach(function(link) {
-                    link.addEventListener('click', closeMobileMenu);
-                });
-            }
-
-            // Close mobile menu when clicking outside of it
-            document.addEventListener('click', function(e) {
-                if (mobileNavMenu && !mobileNavMenu.classList.contains('hidden') &&
-                    !mobileNavMenu.contains(e.target) && btn && !btn.contains(e.target)) {
-                    closeMobileMenu();
-                }
-            }, { passive: true });
+            // Note: hamburger button toggle for #mobile-menu is handled by navbar-scroll.js
 
             // Bottom nav "More" button toggles sidebar
             const bottomNavMoreBtn = document.getElementById('bottom-nav-more-btn');
@@ -1291,8 +1245,8 @@ if (!isset($currentUser)) {
                     if (sidebar?.classList.contains('open')) {
                         closeSidebar();
                         syncBottomNavMoreBtn();
-                    } else if (mobileNavMenu && !mobileNavMenu.classList.contains('hidden')) {
-                        closeMobileMenu();
+                    } else if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                        window.navbarScrollUtils?.closeMobileMenu?.();
                     }
                     btn?.focus();
                 }
