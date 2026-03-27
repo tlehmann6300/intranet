@@ -1201,6 +1201,16 @@ if (!isset($currentUser)) {
             window.addEventListener('resize', checkOverflow, { passive: true });
         });
 
+        // Stacked layout: add .table-stack-mobile to .table/.card-table tables with more than 3 columns.
+        // The CSS for .table-stack-mobile converts these tables into a stacked-card layout on screens < 768 px
+        // (Apple/Google UX standard) instead of horizontal scrolling.
+        document.querySelectorAll('table.table, table.card-table').forEach(function(table) {
+            var headerRow = table.querySelector('thead tr');
+            if (headerRow && headerRow.querySelectorAll('th').length > 3) {
+                table.classList.add('table-stack-mobile');
+            }
+        });
+
         // iOS viewport height fix
         function setAppHeight() {
             document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);

@@ -4763,6 +4763,54 @@ body:not(.dark-mode) .hero-gradient .hero-date {
     }
 }
 
+/* Stacked card layout for tables with more than 3 columns on mobile (class .table-stack-mobile
+   is added dynamically by JS in main_layout.php when a .table or .card-table has > 3 columns).
+   Breakpoint is 767px (same as the global mobile touch-target rules). */
+@media (max-width: 767px) {
+    .table-stack-mobile {
+        overflow-x: visible;
+    }
+    .table-stack-mobile thead {
+        display: none;
+    }
+    /* tbody must be in block flow so card rows stack correctly */
+    .table-stack-mobile tbody {
+        display: block;
+    }
+    .table-stack-mobile tr {
+        display: block;
+        margin-bottom: 0.75rem;
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        overflow: hidden;
+        background: var(--bg-card);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+    .table-stack-mobile td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        border-bottom: 1px solid var(--ibc-gray-100);
+        text-align: right;
+        /* Override the global th,td { white-space: nowrap } rule */
+        white-space: normal;
+    }
+    .table-stack-mobile td:last-child {
+        border-bottom: none;
+    }
+    .table-stack-mobile td[data-label]::before {
+        content: attr(data-label);
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-right: 1rem;
+        flex-shrink: 0;
+        text-align: left;
+    }
+}
+
 /* Responsive iframe container (for embedded content like Microsoft Forms) */
 .iframe-container {
     position: relative;
@@ -6908,6 +6956,23 @@ main {
     padding: 0.35rem 0.75rem !important;
     font-size: 0.875rem !important;
     border-radius: 8px !important;
+}
+
+/* ── Minimum 44×44 px touch target for buttons inside .table / .card-table (Apple/Google UX) ── */
+@media (max-width: 767px) {
+    .table button,
+    .table .btn,
+    .table a.btn,
+    .table input[type="submit"],
+    .table input[type="button"],
+    .card-table button,
+    .card-table .btn,
+    .card-table a.btn,
+    .card-table input[type="submit"],
+    .card-table input[type="button"] {
+        min-height: 44px !important;
+        min-width: 44px !important;
+    }
 }
 
 /* ── Focus-visible for accessibility ────────────────────── */
