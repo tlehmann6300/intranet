@@ -249,11 +249,15 @@ if (!isset($currentUser)) {
 
         /* ── IMPROVE MAIN CONTENT AREA PADDING ──────────────────── */
         /* On mobile, padding-top accounts for the fixed topbar height.
+           Uses env(safe-area-inset-top) so content is never hidden behind the
+           Dynamic Island / notch. The JS in navbar-scroll.js updates
+           --mobile-menu-height from the actual measured height of #mobile-header;
+           the calc() below is the pure-CSS fallback.
            The transition uses the same duration/easing as the sidebar so the
            push-down animation of #main-content stays perfectly in sync. */
         @media (max-width: 767px) {
             #main-content {
-                padding-top: calc(var(--mobile-menu-height, var(--topbar-safe-height)) + 0.5rem) !important;
+                padding-top: var(--mobile-menu-height, calc(var(--topbar-height) + env(safe-area-inset-top, 0px))) !important;
                 transition: padding-top 0.3s cubic-bezier(0.32, 0.72, 0, 1);
             }
         }
