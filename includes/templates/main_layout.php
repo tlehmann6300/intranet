@@ -986,14 +986,16 @@ if (!isset($currentUser)) {
                 menuIconBottom?.setAttribute('d', 'M4 18h16');
             }
 
+            function toggleSidebar() {
+                if (sidebar && sidebar.classList.contains('open')) {
+                    closeSidebar();
+                } else {
+                    openSidebar();
+                }
+            }
+
             if (btn && sidebar) {
-                btn.addEventListener('click', function() {
-                    if (sidebar.classList.contains('open')) {
-                        closeSidebar();
-                    } else {
-                        openSidebar();
-                    }
-                });
+                btn.addEventListener('click', toggleSidebar);
             }
 
             // Bottom nav "More" button toggles sidebar
