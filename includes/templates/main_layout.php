@@ -1079,6 +1079,14 @@ if (!isset($currentUser)) {
         <div class="max-w-7xl mx-auto">
             <?php echo $content ?? ''; ?>
         </div>
+        <footer class="max-w-7xl mx-auto mt-8 py-4 border-t border-gray-200 dark:border-slate-700">
+            <div class="flex flex-col items-center md:flex-row md:justify-between gap-2 text-sm text-gray-500 dark:text-gray-400">
+                <p>&copy; <?php echo date('Y'); ?> IBC Business Consulting. Alle Rechte vorbehalten.</p>
+                <div class="flex gap-4">
+                    <a href="<?php echo asset('pages/impressum.php'); ?>" class="hover:text-ibc-green transition-colors" aria-label="Impressum – Rechtliche Hinweise">Impressum</a>
+                </div>
+            </div>
+        </footer>
     </main>
 
     <!-- Mobile Bottom Navigation Bar (visible on small screens only) -->
