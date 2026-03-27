@@ -387,8 +387,6 @@ try {
                 0 30px 90px rgba(0, 0, 0, 0.5),
                 0 0 0 1px rgba(108, 183, 62, 0.1),
                 inset 0 1px 0 rgba(255, 255, 255, 0.05);
-            width: calc(100% - 2rem);
-            max-width: 28rem;
             margin: 0 auto;
             position: relative;
             z-index: 10;
@@ -1207,7 +1205,6 @@ try {
         @media (min-width: 1600px) {
             .login-container {
                 padding: 70px;
-                max-width: 550px;
             }
 
             .ibc-logo {
@@ -1233,7 +1230,6 @@ try {
         @media (max-width: 1024px) {
             .login-container {
                 padding: 50px 40px;
-                max-width: 480px;
             }
 
             .ibc-logo {
@@ -1593,7 +1589,7 @@ try {
     </div>
 
     <!-- LOGIN CONTAINER -->
-    <div class="login-container">
+    <div class="login-container max-w-md w-full">
         <!-- MEGA COOL LOGO ANIMATION -->
         <div class="logo-container">
             <div class="logo-glow"></div>
@@ -1637,7 +1633,7 @@ try {
         <?php endif; ?>
 
         <!-- Microsoft Login Button -->
-        <a href="<?php echo BASE_URL; ?>/auth/login_start.php" class="microsoft-button" id="loginButton" onclick="return handleLogin(event)">
+        <a href="<?php echo BASE_URL; ?>/auth/login_start.php" class="microsoft-button w-full py-3" id="loginButton" onclick="return handleLogin(event)">
             <div class="microsoft-logo">
                 <div></div>
                 <div></div>
