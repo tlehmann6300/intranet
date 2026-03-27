@@ -12160,10 +12160,13 @@ body.dark-mode .sidebar .sidebar-nav-item--active {
 
 /* ── END DIRECTORY DESIGN ENHANCEMENTS v2 ───────────────────────── */
 
-/* ── Stacked table design overrides: disable horizontal scroll below 640 px ──
-   Earlier @media (max-width: 767px) blocks set overflow-x: auto on
-   .table-responsive; this block restores the correct stacked-design values
-   for viewports below 640 px so the card layout is not broken by those rules.
+/* ── Mobile layout overrides below 640 px ────────────────────────────────────
+   1. Disable horizontal scroll on stacked tables (earlier @media (max-width: 767px)
+      blocks set overflow-x: auto; restore the stacked-design values here).
+   2. Reduce container side padding to 0.75rem so content uses maximum viewport
+      width on phones.
+   3. Cards are forced to full width with a uniform 1rem bottom margin to
+      de-clutter the dashboard on narrow screens.
    ──────────────────────────────────────────────────────────────────────────── */
 @media (max-width: 639px) {
     .table-responsive {
@@ -12175,6 +12178,24 @@ body.dark-mode .sidebar .sidebar-nav-item--active {
     .table-responsive::after,
     .table-responsive::before {
         display: none; /* hide scroll-hint gradients in stacked view */
+    }
+
+    /* Reduce container side padding on mobile to save horizontal space */
+    .container,
+    .container-fluid,
+    .container-sm,
+    .container-md,
+    .container-lg,
+    .container-xl,
+    .container-xxl {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+    }
+
+    /* Cards fill full width and have a consistent spacing on small screens */
+    .card {
+        width: 100%;
+        margin-bottom: 1rem;
     }
 }
 
