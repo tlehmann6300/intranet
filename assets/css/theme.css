@@ -2973,13 +2973,13 @@ textarea:focus {
 @media (max-width: 767px) {
     input:not([type="checkbox"]):not([type="radio"]),
     textarea {
-        font-size: 16px;
-        padding: 12px;
+        font-size: 16px !important;
+        padding: 0.75rem !important;
     }
 
     select {
-        font-size: 16px;
-        padding: 12px 2.75rem 12px 12px;
+        font-size: 16px !important;
+        padding: 0.75rem 2.75rem 0.75rem 0.75rem !important;
     }
 }
 
