@@ -436,8 +436,8 @@ if (!isset($currentUser)) {
 
     <!-- Mobile Slide-Down Nav Menu (block md:hidden, toggled by #mobile-menu-btn) -->
     <div id="mobile-menu"
-         class="hidden md:hidden fixed left-0 right-0 overflow-y-auto"
-         style="top: calc(var(--topbar-height) + env(safe-area-inset-top, 0px)); max-height: calc(100dvh - var(--topbar-height) - env(safe-area-inset-top, 0px) - 4rem); z-index: 1049; background-color: var(--bg-card); border-bottom: 1px solid var(--border-color); box-shadow: 0 8px 32px rgba(0,0,0,0.18);"
+         class="hidden md:hidden fixed left-0 right-0 overflow-y-auto z-50"
+         style="top: calc(var(--topbar-height) + env(safe-area-inset-top, 0px)); max-height: calc(100dvh - var(--topbar-height) - env(safe-area-inset-top, 0px) - 4rem); background-color: var(--bg-card); border-bottom: 1px solid var(--border-color); box-shadow: 0 8px 32px rgba(0,0,0,0.18);"
          role="navigation"
          aria-label="Mobile Navigation"
          aria-hidden="true">
