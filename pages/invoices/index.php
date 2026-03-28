@@ -376,8 +376,8 @@ ob_start();
                 </div>
 
                 <!-- Desktop Table View (hidden on small screens) -->
-                <div class="overflow-x-auto w-full has-action-dropdown">
-                <table class="hidden md:table min-w-full">
+                <div class="hidden md:block overflow-x-auto w-full has-action-dropdown">
+                    <table class="min-w-full">
                     <thead class="bg-gray-50 dark:bg-gray-800/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700">
                         <tr>
                             <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Datum</th>
@@ -499,7 +499,7 @@ ob_start();
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
-                </table>
+                    </table>
                 </div>
             </div>
         <?php endif; ?>
