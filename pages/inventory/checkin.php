@@ -101,7 +101,7 @@ ob_start();
             <input type="hidden" name="checkin" value="1">
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Rückgabemenge <span class="text-red-500">*</span>
                 </label>
                 <input 
@@ -120,7 +120,7 @@ ob_start();
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-3">
+                <label class="block w-full text-sm font-medium text-gray-700 mb-3">
                     Ist alles in Ordnung? <span class="text-red-500">*</span>
                 </label>
                 <div class="space-y-3">
@@ -163,7 +163,7 @@ ob_start();
                 </h3>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Anzahl beschädigt/verloren <span class="text-red-500">*</span>
                     </label>
                     <input 
@@ -177,7 +177,7 @@ ob_start();
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Grund / Beschreibung <span class="text-red-500">*</span>
                     </label>
                     <textarea 
@@ -204,7 +204,7 @@ ob_start();
                 </p>
             </div>
 
-            <div class="flex flex-col sm:flex-row gap-4">
+            <div class="flex flex-col md:flex-row gap-4">
                 <a href="my_checkouts.php" class="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-center">
                     Abbrechen
                 </a>

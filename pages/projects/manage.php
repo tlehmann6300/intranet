@@ -364,7 +364,7 @@ ob_start();
             <input type="hidden" name="csrf_token" value="<?php echo CSRFHandler::getToken(); ?>">
             <input type="hidden" name="project_id" id="deleteProjectId" value="">
             <input type="hidden" name="delete_project" value="1">
-            <div class="flex space-x-4">
+            <div class="flex flex-col md:flex-row gap-4">
                 <button type="button" id="closeDeleteModalBtn" class="flex-1 px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
                     Abbrechen
                 </button>
@@ -450,7 +450,7 @@ document.getElementById('deleteModal')?.addEventListener('click', (e) => {
         
         <!-- Title -->
         <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Titel <span class="text-red-500">*</span>
             </label>
             <input 
@@ -465,7 +465,7 @@ document.getElementById('deleteModal')?.addEventListener('click', (e) => {
 
         <!-- Description -->
         <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Beschreibung
             </label>
             <textarea 
@@ -479,7 +479,7 @@ document.getElementById('deleteModal')?.addEventListener('click', (e) => {
         <!-- Client Information -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Kundenname
                 </label>
                 <input 
@@ -491,7 +491,7 @@ document.getElementById('deleteModal')?.addEventListener('click', (e) => {
                 >
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Kontaktdaten
                 </label>
                 <input 
@@ -507,7 +507,7 @@ document.getElementById('deleteModal')?.addEventListener('click', (e) => {
         <!-- Priority and Type -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Priorität
                 </label>
                 <select 
@@ -547,7 +547,7 @@ document.getElementById('deleteModal')?.addEventListener('click', (e) => {
         <!-- Status -->
         <?php if ($project): ?>
         <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Status
             </label>
             <select 
@@ -568,7 +568,7 @@ document.getElementById('deleteModal')?.addEventListener('click', (e) => {
         <!-- Date Range -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Startdatum
                 </label>
                 <input 
@@ -579,7 +579,7 @@ document.getElementById('deleteModal')?.addEventListener('click', (e) => {
                 >
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Enddatum
                 </label>
                 <input 
@@ -593,7 +593,7 @@ document.getElementById('deleteModal')?.addEventListener('click', (e) => {
 
         <!-- Required Consultants -->
         <div id="max_consultants_row">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Anzahl Berater <span class="text-red-500" id="max_consultants_required_star">*</span>
             </label>
             <input 
@@ -634,7 +634,7 @@ document.getElementById('deleteModal')?.addEventListener('click', (e) => {
 
         <!-- Image Upload -->
         <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Projekt-Bild
             </label>
             <?php if ($project && !empty($project['image_path'])): ?>
@@ -659,7 +659,7 @@ document.getElementById('deleteModal')?.addEventListener('click', (e) => {
 
         <!-- Documentation Upload -->
         <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Projekt-Dokumentation (PDF)
             </label>
             <?php if ($project && !empty($project['documentation'])): ?>
@@ -687,7 +687,7 @@ document.getElementById('deleteModal')?.addEventListener('click', (e) => {
         </div>
 
         <!-- Form Actions -->
-        <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+        <div class="flex flex-col md:flex-row gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
             <a href="manage.php" class="btn-cancel sm:w-auto">
                 <i class="fas fa-times mr-2"></i>
                 Abbrechen

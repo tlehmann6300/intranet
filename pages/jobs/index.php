@@ -277,7 +277,7 @@ ob_start();
             ?>">
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Deine Kontakt-E-Mail <span class="text-red-500">*</span>
                 </label>
                 <input type="email" id="contactEmail" name="contact_email" required
@@ -288,7 +288,7 @@ ob_start();
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Nachricht <span class="text-red-500">*</span>
                 </label>
                 <textarea id="contactMessage" name="message" required rows="5"
@@ -297,13 +297,13 @@ ob_start();
                           style="resize: vertical; min-height: 100px;"></textarea>
             </div>
 
-            <div class="flex flex-col sm:flex-row justify-end gap-2 pt-2">
+            <div class="flex flex-col md:flex-row justify-end gap-2 pt-2">
                 <button type="button" onclick="closeContactModal()"
-                        class="w-full sm:w-auto text-center px-5 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                        class="w-full sm:w-auto text-center px-5 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
                     Abbrechen
                 </button>
                 <button type="submit" id="contactSubmitBtn"
-                        class="w-full sm:w-auto px-5 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg">
+                        class="w-full sm:w-auto px-5 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg">
                     <i class="fas fa-paper-plane mr-2"></i>Nachricht senden
                 </button>
             </div>

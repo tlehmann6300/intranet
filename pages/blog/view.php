@@ -428,7 +428,7 @@ ob_start();
                 <input type="hidden" name="action" value="add_comment">
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Ihr Kommentar</label>
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Ihr Kommentar</label>
                     <textarea 
                         name="comment_content" 
                         required 

@@ -132,7 +132,7 @@ ob_start();
         <input type="hidden" name="action" value="upload">
 
         <div>
-            <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+            <label for="title" class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                 Titel <span class="text-red-500">*</span>
             </label>
             <input type="text" id="title" name="title" required
@@ -142,7 +142,7 @@ ob_start();
         </div>
 
         <div>
-            <label for="month_year" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+            <label for="month_year" class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                 Monat / Jahr <span class="text-gray-400 font-normal">(optional)</span>
             </label>
             <input type="text" id="month_year" name="month_year"
@@ -152,7 +152,7 @@ ob_start();
         </div>
 
         <div class="sm:col-span-2">
-            <label for="newsletter_file" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+            <label for="newsletter_file" class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                 Datei <span class="text-red-500">*</span>
             </label>
             <input type="file" id="newsletter_file" name="newsletter_file" required accept=".eml,.msg"

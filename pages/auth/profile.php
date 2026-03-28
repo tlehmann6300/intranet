@@ -756,7 +756,7 @@ ob_start();
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <!-- Common Fields -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Vorname *</label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Vorname *</label>
                         <input 
                             type="text" 
                             name="first_name" 
@@ -767,7 +767,7 @@ ob_start();
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nachname *</label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nachname *</label>
                         <input 
                             type="text" 
                             name="last_name" 
@@ -778,7 +778,7 @@ ob_start();
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">E-Mail (Profil) *</label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">E-Mail (Profil) *</label>
                         <input 
                             type="email" 
                             name="profile_email" 
@@ -790,7 +790,7 @@ ob_start();
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Zweite E-Mail (optional)</label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Zweite E-Mail (optional)</label>
                         <input 
                             type="email" 
                             name="secondary_email" 
@@ -801,7 +801,7 @@ ob_start();
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Telefon <span class="text-red-500">*</span></label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Telefon <span class="text-red-500">*</span></label>
                         <input 
                             type="tel" 
                             name="mobile_phone" 
@@ -813,7 +813,7 @@ ob_start();
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">LinkedIn URL <span class="text-gray-400 font-normal">(optional)</span></label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">LinkedIn URL <span class="text-gray-400 font-normal">(optional)</span></label>
                         <input 
                             type="url" 
                             name="linkedin_url" 
@@ -824,7 +824,7 @@ ob_start();
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Xing URL <span class="text-gray-400 font-normal">(optional)</span></label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Xing URL <span class="text-gray-400 font-normal">(optional)</span></label>
                         <input 
                             type="url" 
                             name="xing_url" 
@@ -835,7 +835,7 @@ ob_start();
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Position im Verein</label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Position im Verein</label>
                         <input 
                             type="text" 
                             value="<?php echo htmlspecialchars(getFormattedRoleName($userRole), ENT_QUOTES, 'UTF-8'); ?>"
@@ -845,7 +845,7 @@ ob_start();
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Position im Unternehmen <span class="text-gray-400 font-normal">(optional)</span></label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Position im Unternehmen <span class="text-gray-400 font-normal">(optional)</span></label>
                         <input 
                             type="text" 
                             name="job_title"
@@ -856,7 +856,7 @@ ob_start();
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Unternehmen (optional)</label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Unternehmen (optional)</label>
                         <input 
                             type="text" 
                             name="company" 
@@ -867,7 +867,7 @@ ob_start();
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Geschlecht</label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Geschlecht</label>
                         <select 
                             name="gender"
                             class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 rounded-lg"
@@ -880,7 +880,7 @@ ob_start();
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Geburtstag <span class="text-red-500">*</span></label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Geburtstag <span class="text-red-500">*</span></label>
                         <input 
                             type="date" 
                             name="birthday" 
@@ -904,7 +904,7 @@ ob_start();
                     </div>
                     
                     <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Profilbild</label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Profilbild</label>
                         <div class="flex flex-col items-center gap-2">
                             <label for="avatarInput" class="relative block w-32 h-32 mx-auto cursor-pointer group rounded-full">
                                 <img src="<?= htmlspecialchars($profile_image) ?>" id="currentAvatar" class="w-full h-full object-cover rounded-full shadow-md group-hover:opacity-75 transition-opacity">
@@ -951,7 +951,7 @@ ob_start();
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Bachelor-Studiengang</label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Bachelor-Studiengang</label>
                         <input 
                             type="text" 
                             name="bachelor_studiengang" 
@@ -962,7 +962,7 @@ ob_start();
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Bachelor-Semester</label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Bachelor-Semester</label>
                         <input 
                             type="text" 
                             name="bachelor_semester" 
@@ -973,7 +973,7 @@ ob_start();
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Master-Studiengang (optional)</label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Master-Studiengang (optional)</label>
                         <input 
                             type="text" 
                             name="master_studiengang" 
@@ -984,7 +984,7 @@ ob_start();
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Master-Semester (optional)</label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Master-Semester (optional)</label>
                         <input 
                             type="text" 
                             name="master_semester" 
@@ -1003,7 +1003,7 @@ ob_start();
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Bachelor-Studiengang</label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Bachelor-Studiengang</label>
                         <input 
                             type="text" 
                             name="bachelor_studiengang" 
@@ -1014,7 +1014,7 @@ ob_start();
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Bachelor-Abschlussjahr</label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Bachelor-Abschlussjahr</label>
                         <input 
                             type="text" 
                             name="bachelor_year" 
@@ -1025,7 +1025,7 @@ ob_start();
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Master-Studiengang (optional)</label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Master-Studiengang (optional)</label>
                         <input 
                             type="text" 
                             name="master_studiengang" 
@@ -1036,7 +1036,7 @@ ob_start();
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Master-Abschlussjahr (optional)</label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Master-Abschlussjahr (optional)</label>
                         <input 
                             type="text" 
                             name="master_year" 
@@ -1053,7 +1053,7 @@ ob_start();
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Aktueller Arbeitgeber (optional)</label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Aktueller Arbeitgeber (optional)</label>
                         <input 
                             type="text" 
                             name="company" 
@@ -1064,7 +1064,7 @@ ob_start();
                     </div>
                     
                     <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Branche</label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Branche</label>
                         <input 
                             type="text" 
                             name="industry" 
@@ -1078,7 +1078,7 @@ ob_start();
                 
                 <!-- About Me - Full Width -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Über mich
                         <span class="text-xs text-gray-500 dark:text-gray-400 ml-2">
                             (<span id="char-count">0</span>/400 Zeichen)
@@ -1096,7 +1096,7 @@ ob_start();
                 
                 <!-- Skills - Full Width -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         <i class="fas fa-tags text-teal-600 mr-1"></i>
                         Fähigkeiten / Skills
                     </label>
@@ -1128,7 +1128,7 @@ ob_start();
                 
                 <!-- CV Upload - Full Width -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         <i class="fas fa-file-pdf text-red-500 mr-1"></i>
                         Lebenslauf (CV)
                         <span class="text-xs text-gray-500 dark:text-gray-400 ml-1">(PDF, max. 10MB)</span>
@@ -1233,7 +1233,7 @@ ob_start();
                 <div>
                     <?php if ($user['tfa_enabled']): ?>
                     <form method="POST" onsubmit="return confirm('Möchtest du 2FA wirklich deaktivieren?');">
-                        <button type="submit" name="disable_2fa" class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+                        <button type="submit" name="disable_2fa" class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
                             <i class="fas fa-times mr-2"></i>2FA deaktivieren
                         </button>
                     </form>
@@ -1270,7 +1270,7 @@ ob_start();
                 <form method="POST" class="space-y-4">
                     <input type="hidden" name="secret" value="<?php echo htmlspecialchars($secret); ?>">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">6-stelliger Code</label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">6-stelliger Code</label>
                         <input 
                             type="text" 
                             name="code" 
@@ -1282,8 +1282,8 @@ ob_start();
                             autofocus
                         >
                     </div>
-                    <div class="flex space-x-4">
-                        <a href="profile.php" class="flex-1 text-center px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                    <div class="flex flex-col md:flex-row gap-3">
+                        <a href="profile.php" class="flex-1 text-center px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
                             Abbrechen
                         </a>
                         <button type="submit" name="confirm_2fa" class="flex-1 btn-primary">
@@ -1310,7 +1310,7 @@ ob_start();
     
     <form method="POST" class="space-y-4">
         <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Art der Änderung *</label>
+            <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Art der Änderung *</label>
             <select 
                 name="request_type" 
                 required 
@@ -1323,7 +1323,7 @@ ob_start();
         </div>
         
         <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Begründung / Neuer Wert *</label>
+            <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Begründung / Neuer Wert *</label>
             <textarea 
                 name="request_reason" 
                 required 
@@ -1391,7 +1391,7 @@ ob_start();
             <form id="support-modal-form" method="POST" action="<?php echo asset('api/submit_support.php'); ?>" class="space-y-4">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(CSRFHandler::getToken(), ENT_QUOTES, 'UTF-8'); ?>">
                 <div>
-                    <label for="support-modal-type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Art der Anfrage</label>
+                    <label for="support-modal-type" class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Art der Anfrage</label>
                     <select id="support-modal-type" name="request_type" required
                             class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Bitte auswählen...</option>
@@ -1401,7 +1401,7 @@ ob_start();
                     </select>
                 </div>
                 <div>
-                    <label for="support-modal-description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Beschreibung</label>
+                    <label for="support-modal-description" class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Beschreibung</label>
                     <textarea id="support-modal-description" name="description" rows="4" required
                               placeholder="Beschreibe dein Anliegen..."
                               class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500"></textarea>

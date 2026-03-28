@@ -224,7 +224,7 @@ ob_start();
                 <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-4">Persönliche Informationen</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Vorname *</label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Vorname *</label>
                         <input 
                             type="text" 
                             name="first_name" 
@@ -235,7 +235,7 @@ ob_start();
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nachname *</label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nachname *</label>
                         <input 
                             type="text" 
                             name="last_name" 
@@ -246,7 +246,7 @@ ob_start();
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">E-Mail *</label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">E-Mail *</label>
                         <input 
                             type="email" 
                             name="email" 
@@ -257,7 +257,7 @@ ob_start();
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mobiltelefon</label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mobiltelefon</label>
                         <input 
                             type="text" 
                             name="mobile_phone" 
@@ -274,7 +274,7 @@ ob_start();
                 <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-4">Berufliche Informationen</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Firma *</label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Firma *</label>
                         <input 
                             type="text" 
                             name="company" 
@@ -286,7 +286,7 @@ ob_start();
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Position *</label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Position *</label>
                         <input 
                             type="text" 
                             name="position" 
@@ -298,7 +298,7 @@ ob_start();
                     </div>
 
                     <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Branche</label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Branche</label>
                         <input 
                             type="text" 
                             name="industry" 
@@ -315,7 +315,7 @@ ob_start();
                 <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-4">Social Media</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             <i class="fab fa-linkedin text-blue-600 mr-1"></i>
                             LinkedIn URL
                         </label>
@@ -329,7 +329,7 @@ ob_start();
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             <i class="fab fa-xing text-green-700 mr-1"></i>
                             Xing URL
                         </label>
@@ -354,7 +354,7 @@ ob_start();
                 </div>
                 <?php endif; ?>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         <?php echo $imagePath ? 'Neues Bild hochladen (optional)' : 'Bild hochladen (optional)'; ?>
                     </label>
                     <input 
@@ -370,13 +370,13 @@ ob_start();
             </div>
 
             <!-- Submit Buttons -->
-            <div class="flex justify-end space-x-4 pt-6 border-t">
+            <div class="flex flex-col md:flex-row justify-end gap-4 pt-6 border-t">
                 <?php if (!$isFirstTimeSetup): ?>
-                <a href="index.php" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                <a href="index.php" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-center">
                     Abbrechen
                 </a>
                 <?php endif; ?>
-                <button type="submit" class="px-6 py-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-purple-800 transition-all shadow-lg hover:shadow-xl">
+                <button type="submit" class="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-purple-800 transition-all shadow-lg hover:shadow-xl">
                     <i class="fas fa-save mr-2"></i>Profil speichern
                 </button>
             </div>

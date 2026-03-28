@@ -500,7 +500,7 @@ ob_start();
                     Bewerbung von "<span id="acceptUserEmail" class="font-semibold"></span>" akzeptieren.
                 </p>
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Rolle auswählen <span class="text-red-500">*</span>
                     </label>
                     <select name="role" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
@@ -509,7 +509,7 @@ ob_start();
                     </select>
                 </div>
             </div>
-            <div class="px-6 pb-6 flex space-x-4">
+            <div class="px-6 pb-6 flex flex-col md:flex-row gap-4">
                 <button type="button" id="closeAcceptModalBtn" class="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
                     Abbrechen
                 </button>
@@ -537,7 +537,7 @@ ob_start();
             <input type="hidden" name="csrf_token" value="<?php echo CSRFHandler::getToken(); ?>">
             <input type="hidden" name="application_id" id="rejectApplicationId" value="">
             <input type="hidden" name="reject_application" value="1">
-            <div class="flex space-x-4">
+            <div class="flex flex-col md:flex-row gap-4">
                 <button type="button" id="closeRejectModalBtn" class="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
                     Abbrechen
                 </button>

@@ -134,7 +134,7 @@ ob_start();
 
             <!-- Title -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Titel *</label>
+                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Titel *</label>
                 <input
                     type="text"
                     name="title"
@@ -147,7 +147,7 @@ ob_start();
 
             <!-- URL -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">URL *</label>
+                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">URL *</label>
                 <input
                     type="url"
                     name="url"
@@ -160,7 +160,7 @@ ob_start();
 
             <!-- Description -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Beschreibung <span class="text-gray-400 font-normal">(optional)</span></label>
+                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Beschreibung <span class="text-gray-400 font-normal">(optional)</span></label>
                 <input
                     type="text"
                     name="description"
@@ -173,7 +173,7 @@ ob_start();
 
             <!-- Icon -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Icon</label>
+                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Icon</label>
                 <input
                     type="hidden"
                     name="icon"
@@ -211,8 +211,8 @@ ob_start();
             </div>
 
             <!-- Submit Buttons -->
-            <div class="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
-                <a href="index.php" class="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-200 dark:hover:bg-gray-700 transition text-sm w-full sm:w-auto no-underline">
+            <div class="flex flex-col md:flex-row justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
+                <a href="index.php" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-200 dark:hover:bg-gray-700 transition text-sm w-full sm:w-auto no-underline">
                     Abbrechen
                 </a>
                 <button type="submit" class="btn-primary w-full sm:w-auto justify-center">

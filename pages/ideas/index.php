@@ -267,11 +267,11 @@ ob_start();
         </div>
 
         <!-- Modal Footer -->
-        <div class="px-6 pb-6 flex gap-3">
+        <div class="px-6 pb-6 flex flex-col md:flex-row gap-3">
             <button
                 id="submitIdeaBtn"
                 type="button"
-                class="flex-1 flex items-center justify-center gap-2 px-5 py-2.5 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold rounded-xl shadow-sm hover:shadow-md transition-all text-sm"
+                class="flex-1 flex items-center justify-center gap-2 px-5 py-3 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold rounded-xl shadow-sm hover:shadow-md transition-all text-sm"
             >
                 <i class="fas fa-paper-plane"></i>
                 Einreichen
@@ -279,7 +279,7 @@ ob_start();
             <button
                 id="cancelIdeaBtn"
                 type="button"
-                class="px-5 py-2.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 font-semibold rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-all text-sm"
+                class="px-5 py-3 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 font-semibold rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-all text-sm"
             >
                 Abbrechen
             </button>

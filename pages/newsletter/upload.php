@@ -87,7 +87,7 @@ ob_start();
 
         <!-- Title -->
         <div>
-            <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+            <label for="title" class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                 Titel <span class="text-red-500">*</span>
             </label>
             <input type="text" id="title" name="title" required
@@ -98,7 +98,7 @@ ob_start();
 
         <!-- Month / Year -->
         <div>
-            <label for="month_year" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+            <label for="month_year" class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                 Monat / Jahr <span class="text-gray-400 font-normal">(optional)</span>
             </label>
             <input type="text" id="month_year" name="month_year"
@@ -109,7 +109,7 @@ ob_start();
 
         <!-- File Upload -->
         <div>
-            <label for="newsletter_file" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+            <label for="newsletter_file" class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                 Newsletter-Datei <span class="text-red-500">*</span>
             </label>
             <div class="relative">
@@ -124,14 +124,14 @@ ob_start();
         </div>
 
         <!-- Actions -->
-        <div class="flex flex-col sm:flex-row gap-3 pt-2">
+        <div class="flex flex-col md:flex-row gap-3 pt-2">
             <button type="submit"
                     class="btn-primary w-full sm:w-auto justify-center">
                 <i class="fas fa-upload"></i>
                 Hochladen
             </button>
             <a href="index.php"
-               class="inline-flex items-center justify-center gap-2 px-5 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-sm shadow-sm w-full sm:w-auto">
+               class="inline-flex items-center justify-center gap-2 px-5 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-sm shadow-sm w-full sm:w-auto">
                 <i class="fas fa-arrow-left"></i>
                 Zurück
             </a>

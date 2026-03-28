@@ -228,7 +228,7 @@ ob_start();
             
             <!-- Title -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Titel *</label>
+                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Titel *</label>
                 <input 
                     type="text" 
                     name="title" 
@@ -241,7 +241,7 @@ ob_start();
 
             <!-- Category -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Kategorie *</label>
+                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Kategorie *</label>
                 <select 
                     name="category" 
                     required 
@@ -262,7 +262,7 @@ ob_start();
 
             <!-- Content -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Inhalt *</label>
+                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Inhalt *</label>
                 <textarea 
                     name="content" 
                     required 
@@ -278,7 +278,7 @@ ob_start();
 
             <!-- External Link -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Externer Link (optional)</label>
+                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Externer Link (optional)</label>
                 <input 
                     type="url" 
                     name="external_link" 
@@ -293,7 +293,7 @@ ob_start();
 
             <!-- Image Upload -->
             <div class="pb-6 border-b border-gray-200 dark:border-gray-700">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Bild (optional)</label>
+                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Bild (optional)</label>
                 <?php if ($imagePath): ?>
                 <div class="mb-4">
                     <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">Aktuelles Bild:</p>
@@ -312,11 +312,11 @@ ob_start();
             </div>
 
             <!-- Submit Buttons -->
-            <div class="flex justify-end space-x-4 pt-6">
-                <a href="index.php" class="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+            <div class="flex flex-col md:flex-row justify-end gap-4 pt-6">
+                <a href="index.php" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition text-center">
                     Abbrechen
                 </a>
-                <button type="submit" class="px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-xl">
+                <button type="submit" class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-xl">
                     <i class="fas fa-save mr-2"></i><?php echo $isEdit ? 'Änderungen speichern' : 'Beitrag erstellen'; ?>
                 </button>
             </div>
