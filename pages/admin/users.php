@@ -317,7 +317,7 @@ ob_start();
                     <tr>
                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider whitespace-nowrap">Profil</th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider whitespace-nowrap">Benutzer</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider whitespace-nowrap">Entra-Status</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider whitespace-nowrap hidden lg:table-cell">Entra-Status</th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider whitespace-nowrap">Intranet-Rolle</th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider whitespace-nowrap">Status</th>
                         <th class="px-6 py-4 text-center text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider whitespace-nowrap">Aktionen</th>
@@ -371,7 +371,7 @@ ob_start();
                             </div>
                         </div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap" data-label="Entra-Status">
+                    <td class="px-6 py-4 whitespace-nowrap hidden lg:table-cell" data-label="Entra-Status">
                         <?php $userType = strtolower($user['user_type'] ?? 'member'); ?>
                         <?php if ($userType === 'guest'): ?>
                         <span class="inline-flex items-center px-2.5 py-1 text-xs bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/50 dark:to-amber-900/50 text-orange-700 dark:text-orange-300 rounded-lg font-semibold shadow-sm">
