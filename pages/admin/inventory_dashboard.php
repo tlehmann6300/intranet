@@ -204,7 +204,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Artikel</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Menge</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Zeitraum</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Zweck</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Zweck</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aktionen</th>
                 </tr>
@@ -230,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         &ndash;
                         <?php echo htmlspecialchars(date('d.m.Y', strtotime($req['end_date']))); ?>
                     </td>
-                    <td class="px-4 py-3 text-sm text-gray-600 max-w-xs truncate" data-label="Zweck" title="<?php echo htmlspecialchars($req['purpose'] ?? ''); ?>">
+                    <td class="px-4 py-3 text-sm text-gray-600 max-w-xs truncate hidden lg:table-cell" data-label="Zweck" title="<?php echo htmlspecialchars($req['purpose'] ?? ''); ?>">
                         <?php echo htmlspecialchars($req['purpose'] ?? '-'); ?>
                     </td>
                     <td class="px-4 py-3 text-sm" data-label="Status">
@@ -282,7 +282,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Benutzer</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Artikel</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Menge</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ausgeliehen am</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Ausgeliehen am</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rückgabe bis</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                 </tr>
@@ -308,7 +308,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <td class="px-4 py-3 text-sm text-gray-600" data-label="Menge">
                         <span class="font-semibold"><?php echo $rental['amount']; ?></span> <?php echo htmlspecialchars($rental['unit']); ?>
                     </td>
-                    <td class="px-4 py-3 text-sm text-gray-600" data-label="Ausgeliehen am">
+                    <td class="px-4 py-3 text-sm text-gray-600 hidden lg:table-cell" data-label="Ausgeliehen am">
                         <?php echo date('d.m.Y H:i', strtotime($rental['rented_at'])); ?>
                     </td>
                     <td class="px-4 py-3 text-sm" data-label="Rückgabe bis">

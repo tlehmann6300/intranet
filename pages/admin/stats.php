@@ -379,9 +379,9 @@ ob_start();
                     <thead class="bg-gray-50 dark:bg-gray-700">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Benutzer</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">E-Mail</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Letzter Login</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Mitglied seit</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hidden lg:table-cell">E-Mail</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hidden lg:table-cell">Letzter Login</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hidden lg:table-cell">Mitglied seit</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -408,10 +408,10 @@ ob_start();
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300" data-label="E-Mail">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300 hidden lg:table-cell" data-label="E-Mail">
                                 <?php echo htmlspecialchars($activity['email']); ?>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap" data-label="Letzter Login">
+                            <td class="px-6 py-4 whitespace-nowrap hidden lg:table-cell" data-label="Letzter Login">
                                 <?php 
                                 $loginTime = strtotime($activity['last_login']);
                                 $now = time();
@@ -435,7 +435,7 @@ ob_start();
                                     <?php echo date('d.m.Y H:i', $loginTime); ?>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300" data-label="Mitglied seit">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300 hidden lg:table-cell" data-label="Mitglied seit">
                                 <?php echo date('d.m.Y', strtotime($activity['created_at'])); ?>
                             </td>
                         </tr>
@@ -595,7 +595,7 @@ ob_start();
                         <tr>
                             <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Artikel</th>
                             <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Menge</th>
-                            <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Entleiher</th>
+                            <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase hidden lg:table-cell">Entleiher</th>
                             <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Rückgabe</th>
                         </tr>
                     </thead>
@@ -610,7 +610,7 @@ ob_start();
                             <td class="px-2 py-2 whitespace-nowrap text-xs text-gray-700 dark:text-gray-300" data-label="Menge">
                                 <?php echo $checkout['amount']; ?> <?php echo htmlspecialchars($checkout['unit']); ?>
                             </td>
-                            <td class="px-2 py-2 text-xs text-gray-700 dark:text-gray-300" data-label="Entleiher">
+                            <td class="px-2 py-2 text-xs text-gray-700 dark:text-gray-300 hidden lg:table-cell" data-label="Entleiher">
                                 <?php echo htmlspecialchars($checkout['borrower_email']); ?>
                             </td>
                             <td class="px-2 py-2 text-xs text-gray-700 dark:text-gray-300" data-label="Rückgabe">
@@ -658,7 +658,7 @@ ob_start();
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                     Benutzer
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden lg:table-cell">
                                     Ausgeliehen am
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -683,7 +683,7 @@ ob_start();
                                         <?php echo htmlspecialchars($checkout['user_email']); ?>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300" data-label="Ausgeliehen am">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300 hidden lg:table-cell" data-label="Ausgeliehen am">
                                     <?php echo date('d.m.Y H:i', strtotime($checkout['checked_out_at'])); ?>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300" data-label="Fällig am">

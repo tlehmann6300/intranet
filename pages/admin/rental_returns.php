@@ -267,7 +267,7 @@ ob_start();
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Menge</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mitglied</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Zeitraum</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Eingereicht</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Eingereicht</th>
                             <?php if (!$readOnly): ?><th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aktionen</th><?php endif; ?>
                         </tr>
                     </thead>
@@ -295,7 +295,7 @@ ob_start();
                                 &ndash;
                                 <?php echo htmlspecialchars(date('d.m.Y', strtotime($req['end_date']))); ?>
                             </td>
-                            <td class="px-4 py-3 text-sm text-gray-600" data-label="Eingereicht">
+                            <td class="px-4 py-3 text-sm text-gray-600 hidden lg:table-cell" data-label="Eingereicht">
                                 <?php echo htmlspecialchars(date('d.m.Y H:i', strtotime($req['created_at']))); ?>
                             </td>
                             <?php if (!$readOnly): ?>
