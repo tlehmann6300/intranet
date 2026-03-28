@@ -533,7 +533,7 @@ ob_start();
                 </ul>
             </div>
             <form method="POST" onsubmit="return confirm('Möchtest Du wirklich den Cache leeren?');">
-                <button type="submit" name="clear_cache" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition flex items-center justify-center">
+                <button type="submit" name="clear_cache" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition flex items-center justify-center">
                     <i class="fas fa-eraser mr-2"></i>
                     Cache leeren
                 </button>
