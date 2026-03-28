@@ -94,6 +94,9 @@
         // Remove the class-based lock (CSS: body.sidebar-open { overflow: hidden; position: fixed; })
         body.classList.remove('sidebar-open');
 
+        // Remove scroll lock applied when the mobile slide-down menu is open
+        body.classList.remove('overflow-hidden');
+
         // Clear any inline styles that may have been applied directly
         body.style.overflow = '';
         body.style.position = '';
@@ -126,6 +129,7 @@
         if (!mobileMenuEl) return;
         mobileMenuEl.classList.remove('hidden');
         mobileMenuEl.removeAttribute('aria-hidden');
+        document.body.classList.add('overflow-hidden');
         if (navbarBtn) {
             navbarBtn.setAttribute('aria-expanded', 'true');
             navbarBtn.setAttribute('aria-label', 'Menü schließen');
@@ -146,6 +150,7 @@
         if (!mobileMenuEl) return;
         mobileMenuEl.classList.add('hidden');
         mobileMenuEl.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('overflow-hidden');
         if (navbarBtn) {
             navbarBtn.setAttribute('aria-expanded', 'false');
             navbarBtn.setAttribute('aria-label', 'Menü öffnen');
