@@ -23,6 +23,7 @@
     var lastScrollY = 0;
     var navbarBtn = null;
     var sidebarEl = null;
+    var mobileMenuEl = null;
 
     /* ------------------------------------------------------------------ */
     /* Dynamic topbar height: measure the real rendered height and update  */
@@ -112,6 +113,52 @@
         });
     }
 
+
+    /* ------------------------------------------------------------------ */
+    /* Mobile menu toggle                                                   */
+    /* ------------------------------------------------------------------ */
+
+    /**
+     * Open the slide-down mobile navigation menu (#mobile-menu).
+     * Updates ARIA attributes and animates the hamburger icon into an X.
+     */
+    function openMobileMenu() {
+        if (!mobileMenuEl) return;
+        mobileMenuEl.classList.remove('hidden');
+        mobileMenuEl.removeAttribute('aria-hidden');
+        if (navbarBtn) {
+            navbarBtn.setAttribute('aria-expanded', 'true');
+            navbarBtn.setAttribute('aria-label', 'Menü schließen');
+        }
+        var top = document.getElementById('menu-icon-top');
+        var mid = document.getElementById('menu-icon-middle');
+        var bot = document.getElementById('menu-icon-bottom');
+        if (top) { top.setAttribute('d', 'M6 18L18 6'); }
+        if (mid) { mid.setAttribute('opacity', '0'); }
+        if (bot) { bot.setAttribute('d', 'M6 6L18 18'); }
+    }
+
+    /**
+     * Close the slide-down mobile navigation menu (#mobile-menu).
+     * Updates ARIA attributes and restores the hamburger icon.
+     */
+    function closeMobileMenu() {
+        if (!mobileMenuEl) return;
+        mobileMenuEl.classList.add('hidden');
+        mobileMenuEl.setAttribute('aria-hidden', 'true');
+        if (navbarBtn) {
+            navbarBtn.setAttribute('aria-expanded', 'false');
+            navbarBtn.setAttribute('aria-label', 'Menü öffnen');
+        }
+        var top = document.getElementById('menu-icon-top');
+        var mid = document.getElementById('menu-icon-middle');
+        var bot = document.getElementById('menu-icon-bottom');
+        if (top) { top.setAttribute('d', 'M4 6h16'); }
+        if (mid) { mid.setAttribute('d', 'M4 12h16'); }
+        if (mid) { mid.setAttribute('opacity', '1'); }
+        if (bot) { bot.setAttribute('d', 'M4 18h16'); }
+    }
+
     /* ------------------------------------------------------------------ */
     /* Initialisation                                                       */
     /* ------------------------------------------------------------------ */
@@ -120,6 +167,7 @@
         navbarBtn     = document.getElementById('mobile-menu-btn');
         sidebarEl     = document.getElementById('sidebar');
         mobileHeaderEl = document.getElementById('mobile-header');
+        mobileMenuEl   = document.getElementById('mobile-menu');
 
         // Measure real topbar height immediately and on resize/orientation change
         updateTopbarHeight();
@@ -161,6 +209,32 @@
                 updateTopbarHeight();
             }
         });
+
+        // Hamburger button toggles the slide-down mobile nav menu (#mobile-menu)
+        if (navbarBtn && mobileMenuEl) {
+            navbarBtn.addEventListener('click', function () {
+                if (mobileMenuEl.classList.contains('hidden')) {
+                    openMobileMenu();
+                } else {
+                    closeMobileMenu();
+                }
+            });
+        }
+
+        // Close mobile menu when a nav link inside it is clicked
+        if (mobileMenuEl) {
+            mobileMenuEl.querySelectorAll('a').forEach(function (link) {
+                link.addEventListener('click', closeMobileMenu);
+            });
+        }
+
+        // Close mobile menu when clicking outside of it
+        document.addEventListener('click', function (e) {
+            if (mobileMenuEl && !mobileMenuEl.classList.contains('hidden') &&
+                    !mobileMenuEl.contains(e.target) && navbarBtn && !navbarBtn.contains(e.target)) {
+                closeMobileMenu();
+            }
+        }, { passive: true });
     }
 
     if (document.readyState === 'loading') {
@@ -169,10 +243,12 @@
         init();
     }
 
-    // Expose utility for inline scripts or other modules that need to unlock scroll
+    // Expose utilities for inline scripts or other modules that need to unlock scroll
+    // or close the mobile menu programmatically.
     window.navbarScrollUtils = {
         ensureScrollUnlocked: ensureScrollUnlocked,
-        updateTopbarHeight: updateTopbarHeight
+        updateTopbarHeight: updateTopbarHeight,
+        closeMobileMenu: closeMobileMenu
     };
 
 }());
