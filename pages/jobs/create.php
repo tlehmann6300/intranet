@@ -330,11 +330,11 @@ ob_start();
             <!-- Submit -->
             <div class="flex flex-col md:flex-row justify-end gap-2 pt-4">
                 <a href="index.php"
-                   class="w-full sm:w-auto text-center px-6 p-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                   class="w-full sm:w-auto text-center px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
                     Abbrechen
                 </a>
                 <button type="submit"
-                        class="w-full sm:w-auto px-6 p-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-xl">
+                        class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-xl">
                     <i class="fas fa-paper-plane mr-2"></i>Anzeige erstellen
                 </button>
             </div>
