@@ -66,7 +66,7 @@ ob_start();
 </div>
 <?php endif; ?>
 
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
     <!-- Create Category Form -->
     <div class="lg:col-span-1">
         <div class="card p-6">
@@ -139,7 +139,7 @@ ob_start();
                 <p class="text-gray-500">Keine Kategorien vorhanden</p>
             </div>
             <?php else: ?>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                 <?php foreach ($categories as $category): ?>
                 <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
                     <div class="flex items-start justify-between mb-2">

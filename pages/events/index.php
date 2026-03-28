@@ -115,7 +115,7 @@ ob_start();
             <?php endif; ?>
         </div>
     <?php else: ?>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
             <?php foreach ($events as $event): ?>
                 <?php
                     // Calculate countdown for upcoming events
@@ -148,7 +148,7 @@ ob_start();
                     }
                 ?>
                 
-                <a href="view.php?id=<?php echo $event['id']; ?>" class="event-card card flex flex-col overflow-hidden group no-underline event-card--<?php echo htmlspecialchars($event['status']); ?>" style="text-decoration:none;">
+                <a href="view.php?id=<?php echo $event['id']; ?>" class="event-card card w-full flex flex-col overflow-hidden group no-underline event-card--<?php echo htmlspecialchars($event['status']); ?>" style="text-decoration:none;">
                     <!-- Status accent strip -->
                     <div class="event-card-accent"></div>
                     <!-- Event Image -->

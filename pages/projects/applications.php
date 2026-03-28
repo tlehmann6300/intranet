@@ -299,7 +299,7 @@ ob_start();
         Projekt-Details
     </h2>
     
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
         <?php if (!empty($project['image_path'])): ?>
         <div class="md:col-span-2">
             <img src="/<?php echo htmlspecialchars($project['image_path']); ?>" 

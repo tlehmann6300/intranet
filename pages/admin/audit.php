@@ -95,7 +95,7 @@ ob_start();
 
 <!-- Filters -->
 <div class="card p-5 mb-6 rounded-xl shadow-sm">
-    <form method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <form method="GET" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
         <div>
             <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Aktion</label>
             <input

@@ -259,7 +259,7 @@ $statusInfo = $statusLabels[$currentStatus] ?? ['label' => $currentStatus, 'icon
     <!-- ═══════════════════════════════════════════════
          MAIN CONTENT  (two-column on md+)
     ════════════════════════════════════════════════ -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 mb-6">
 
         <!-- LEFT: Description + Participants -->
         <div class="lg:col-span-2 space-y-6">
@@ -651,7 +651,7 @@ $statusInfo = $statusLabels[$currentStatus] ?? ['label' => $currentStatus, 'icon
                                class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 rounded-lg focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                                placeholder="z.B. Bratwurst">
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                         <div>
                             <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Menge</label>
                             <input type="number" id="statsQuantity" min="0" step="1" value="0"

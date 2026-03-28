@@ -224,7 +224,7 @@ ob_start();
     </div>
 
     <!-- Settings Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">
 
         <!-- 2FA Settings -->
         <div class="lg:col-span-2">
@@ -396,7 +396,7 @@ ob_start();
                 <div class="p-6">
                 <form method="POST" class="space-y-4">
                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(CSRFHandler::getToken(), ENT_QUOTES, 'UTF-8'); ?>">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
                         <!-- Light Theme -->
                         <label class="flex flex-col items-center p-4 border-2 rounded-xl cursor-pointer transition-all hover:border-purple-500 <?php echo ($user['theme_preference'] ?? 'auto') === 'light' ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20' : 'border-gray-200 dark:border-gray-700'; ?>">
                             <input type="radio" name="theme" value="light" <?php echo ($user['theme_preference'] ?? 'auto') === 'light' ? 'checked' : ''; ?> class="sr-only">

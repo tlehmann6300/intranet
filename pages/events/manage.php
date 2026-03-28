@@ -86,7 +86,7 @@ ob_start();
     <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">
         <i class="fas fa-filter text-purple-600 mr-2"></i>Filter
     </h2>
-    <form method="GET" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <form method="GET" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         <div>
             <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
             <select name="status" class="w-full px-4 py-2 bg-white border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
@@ -136,7 +136,7 @@ ob_start();
     </a>
 </div>
 <?php else: ?>
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
     <?php foreach ($events as $event): ?>
     <div class="card dark:bg-gray-800 p-6 hover:shadow-lg transition">
         <!-- Status Badge -->
@@ -304,7 +304,7 @@ ob_start();
                                class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 rounded-lg focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                                placeholder="z.B. Bratwurst">
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                         <div>
                             <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Menge</label>
                             <input type="number" id="statsQuantity" min="0" step="1" value="0"

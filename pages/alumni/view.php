@@ -227,7 +227,7 @@ ob_start();
     </div>
     <?php endif; ?>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6 mb-6">
         <!-- Kontaktinformationen -->
         <div class="card directory-detail-card">
             <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">

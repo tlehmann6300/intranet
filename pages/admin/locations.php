@@ -66,7 +66,7 @@ ob_start();
 </div>
 <?php endif; ?>
 
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
     <!-- Create Location Form -->
     <div class="lg:col-span-1">
         <div class="card p-6">

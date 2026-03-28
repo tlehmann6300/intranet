@@ -152,7 +152,7 @@ ob_start();
                 <i class="fas fa-info-circle text-blue-600 mr-2"></i>
                 Basisdaten
             </h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                 <div class="md:col-span-2">
                     <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Name <span class="text-red-500">*</span>

@@ -96,7 +96,7 @@ ob_start();
 </div>
 
 <!-- Key Metrics Cards -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-8">
     <!-- Total Users -->
     <div class="card p-6 hover:shadow-xl transition-shadow duration-200 border-l-4 border-blue-500">
         <div class="flex items-center justify-between">
@@ -179,7 +179,7 @@ ob_start();
 </div>
 
 <!-- Quick Actions and Recent Activity -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6 mb-8">
     <!-- Quick Actions -->
     <div class="card p-6">
         <h2 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">
@@ -328,7 +328,7 @@ ob_start();
 <?php endif; ?>
 
 <!-- Additional Info Cards -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">
     
     <div class="card p-6">
         <div class="flex items-center justify-between mb-3">

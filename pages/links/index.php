@@ -124,7 +124,7 @@ ob_start();
     <?php endif; ?>
 </div>
 <?php else: ?>
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
     <?php foreach ($links as $link):
         $rawUrl  = $link['url'] ?? '';
         $parsed  = parse_url($rawUrl);
@@ -133,7 +133,7 @@ ob_start();
         $icon = htmlspecialchars($link['icon'] ?? 'fas fa-external-link-alt', ENT_QUOTES, 'UTF-8');
         $linkDbId = $link['id'] ?? null;
     ?>
-    <div class="group bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md hover:border-ibc-green/30 dark:hover:border-ibc-green/30 transition-all duration-200 flex flex-col overflow-hidden">
+    <div class="w-full group bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md hover:border-ibc-green/30 dark:hover:border-ibc-green/30 transition-all duration-200 flex flex-col overflow-hidden">
         <a href="<?php echo htmlspecialchars($url, ENT_QUOTES, 'UTF-8'); ?>"
            target="_blank"
            rel="noopener noreferrer"

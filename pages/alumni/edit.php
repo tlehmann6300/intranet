@@ -222,7 +222,7 @@ ob_start();
             <!-- Personal Information -->
             <div class="border-b pb-6">
                 <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-4">Persönliche Informationen</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">
                     <div>
                         <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Vorname *</label>
                         <input 
@@ -272,7 +272,7 @@ ob_start();
             <!-- Professional Information -->
             <div class="border-b pb-6">
                 <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-4">Berufliche Informationen</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">
                     <div>
                         <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Firma *</label>
                         <input 
@@ -313,7 +313,7 @@ ob_start();
             <!-- Social Media Links -->
             <div class="border-b pb-6">
                 <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-4">Social Media</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">
                     <div>
                         <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             <i class="fab fa-linkedin text-blue-600 mr-1"></i>
