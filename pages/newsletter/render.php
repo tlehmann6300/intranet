@@ -69,7 +69,12 @@ if ($fullPath === false || !str_starts_with($fullPath, $newslettersDir . DIRECTO
 }
 
 // ── 5. Parse the email ───────────────────────────────────────────────────────
-$message = Message::fromFile($fullPath);
+$handle = fopen($fullPath, 'r');
+if ($handle === false) {
+    http_response_code(500);
+    exit('Datei konnte nicht geöffnet werden.');
+}
+$message = Message::from($handle, true);
 
 $htmlContent = $message->getHtmlContent();
 
