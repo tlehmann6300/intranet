@@ -126,7 +126,7 @@ ob_start();
         <form method="POST" class="space-y-6">
             <!-- Thema -->
             <div>
-                <label for="thema" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="thema" class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Thema <span class="text-red-500 dark:text-red-400">*</span>
                 </label>
                 <input 
@@ -143,7 +143,7 @@ ob_start();
 
             <!-- Ort -->
             <div>
-                <label for="ort" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="ort" class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Gewünschter Ort <span class="text-red-500 dark:text-red-400">*</span>
                 </label>
                 <input 
@@ -160,7 +160,7 @@ ob_start();
 
             <!-- Beschreibung -->
             <div>
-                <label for="beschreibung" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="beschreibung" class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Beschreibung <span class="text-red-500 dark:text-red-400">*</span>
                 </label>
                 <textarea 
@@ -175,7 +175,7 @@ ob_start();
 
             <!-- Zeiträume -->
             <div>
-                <label for="zeitraeume" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="zeitraeume" class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Mögliche Termine/Zeiträume <span class="text-red-500 dark:text-red-400">*</span>
                 </label>
                 <textarea 
@@ -204,7 +204,7 @@ ob_start();
             </div>
 
             <!-- Submit Button -->
-            <div class="flex flex-col sm:flex-row gap-2 sm:gap-4">
+            <div class="flex flex-col md:flex-row gap-2 md:gap-4">
                 <button 
                     type="submit"
                     name="submit_request"

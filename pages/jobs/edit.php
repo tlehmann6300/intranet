@@ -243,7 +243,7 @@ ob_start();
 
             <!-- Title -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Titel <span class="text-red-500">*</span>
                 </label>
                 <input
@@ -259,7 +259,7 @@ ob_start();
 
             <!-- Search Type -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Gesuchter Typ <span class="text-red-500">*</span>
                 </label>
                 <select
@@ -279,7 +279,7 @@ ob_start();
 
             <!-- Description -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Beschreibung <span class="text-red-500">*</span>
                 </label>
                 <textarea
@@ -294,7 +294,7 @@ ob_start();
 
             <!-- PDF Upload -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Lebenslauf (optional)
                 </label>
                 <?php if (!empty($listing['pdf_path'])): ?>
@@ -368,7 +368,7 @@ ob_start();
             </div>
 
             <!-- Submit -->
-            <div class="flex flex-col sm:flex-row justify-end gap-2 pt-4">
+            <div class="flex flex-col md:flex-row justify-end gap-2 pt-4">
                 <a href="index.php"
                    class="w-full sm:w-auto text-center px-6 p-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
                     Abbrechen

@@ -570,7 +570,7 @@ ob_start();
                         </select>
                     </div>
                 </div>
-                <div class="flex flex-col sm:flex-row gap-3">
+                <div class="flex flex-col md:flex-row gap-3">
                     <button type="submit" name="import_entra_user" class="w-full sm:w-auto min-h-[44px] px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 font-semibold shadow-md transition-all duration-200">
                         <i class="fas fa-user-plus mr-2"></i>Hinzufügen
                     </button>

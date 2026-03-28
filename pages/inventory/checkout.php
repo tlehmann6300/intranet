@@ -320,7 +320,7 @@ if ($cartMode):
             </div>
 
             <!-- Actions -->
-            <div class="flex flex-col sm:flex-row gap-3 pt-2">
+            <div class="flex flex-col md:flex-row gap-3 pt-2">
                 <a href="index.php"
                    class="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-600 rounded-xl font-semibold transition-all">
                     <i class="fas fa-arrow-left"></i>Zurück zum Inventar
@@ -639,7 +639,7 @@ if ($cartMode):
             </div>
 
             <!-- Actions -->
-            <div class="flex flex-col sm:flex-row gap-3 pt-2">
+            <div class="flex flex-col md:flex-row gap-3 pt-2">
                 <a href="view.php?id=<?php echo $item['id']; ?>"
                    class="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-600 rounded-xl font-semibold transition-all">
                     <i class="fas fa-times"></i>Abbrechen

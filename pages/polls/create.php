@@ -114,7 +114,7 @@ ob_start();
         <form method="POST" class="space-y-6" id="pollForm">
             <!-- Title -->
             <div>
-                <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="title" class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Titel <span class="text-red-500 dark:text-red-400">*</span>
                 </label>
                 <input 
@@ -131,7 +131,7 @@ ob_start();
 
             <!-- Description -->
             <div>
-                <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="description" class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Beschreibung (optional)
                 </label>
                 <textarea 
@@ -145,7 +145,7 @@ ob_start();
 
             <!-- Microsoft Forms URL -->
             <div>
-                <label for="microsoft_forms_url" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="microsoft_forms_url" class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Microsoft Forms URL <span class="text-red-500 dark:text-red-400">*</span>
                 </label>
                 <input 
@@ -253,7 +253,7 @@ ob_start();
             </div>
 
             <!-- Submit Buttons -->
-            <div class="flex gap-4">
+            <div class="flex flex-col md:flex-row justify-end gap-4">
                 <button 
                     type="submit"
                     name="create_poll"

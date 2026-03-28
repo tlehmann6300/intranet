@@ -149,7 +149,7 @@ ob_start();
             Artikel bearbeiten
         </h1>
         <?php if (Auth::hasPermission('board')): ?>
-        <button onclick="confirmDelete()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+        <button onclick="confirmDelete()" class="px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
             <i class="fas fa-trash mr-2"></i>Löschen
         </button>
         <?php endif; ?>
@@ -160,7 +160,7 @@ ob_start();
         <!-- Basic Info -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="md:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Name *</label>
+                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Name *</label>
                 <input 
                     type="text" 
                     name="name" 
@@ -172,7 +172,7 @@ ob_start();
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Kategorie</label>
+                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Kategorie</label>
                 <select 
                     name="category_id" 
                     <?php if ($isSyncedItem): ?>disabled<?php endif; ?>
@@ -188,7 +188,7 @@ ob_start();
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Standort</label>
+                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Standort</label>
                 <select 
                     name="location_id" 
                     class="w-full px-4 py-2 bg-white border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
@@ -203,7 +203,7 @@ ob_start();
             </div>
 
             <div class="md:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Beschreibung</label>
+                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Beschreibung</label>
                 <textarea 
                     name="description" 
                     rows="4"
@@ -218,7 +218,7 @@ ob_start();
             <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-4">Bestandsinformationen</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Aktueller Bestand</label>
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Aktueller Bestand</label>
                     <input 
                         type="number" 
                         value="<?php echo $item['quantity']; ?>"
@@ -229,7 +229,7 @@ ob_start();
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mindestbestand</label>
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mindestbestand</label>
                     <input 
                         type="number" 
                         name="min_stock" 
@@ -240,7 +240,7 @@ ob_start();
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Einheit</label>
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Einheit</label>
                     <input 
                         type="text" 
                         name="unit" 
@@ -250,7 +250,7 @@ ob_start();
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Stückpreis (€)</label>
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Stückpreis (€)</label>
                     <input 
                         type="number" 
                         name="unit_price" 
@@ -284,7 +284,7 @@ ob_start();
             </div>
             <?php endif; ?>
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Neues Bild hochladen (optional)</label>
+                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Neues Bild hochladen (optional)</label>
                 <input 
                     type="file" 
                     name="image" 
@@ -297,7 +297,7 @@ ob_start();
 
         <!-- Notes -->
         <div class="border-t pt-6">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Notizen</label>
+            <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Notizen</label>
             <textarea 
                 name="notes" 
                 rows="3"
@@ -306,8 +306,8 @@ ob_start();
         </div>
 
         <!-- Actions -->
-        <div class="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t">
-            <a href="view.php?id=<?php echo $item['id']; ?>" class="w-full sm:w-auto px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-center">
+        <div class="flex flex-col md:flex-row justify-end gap-4 pt-6 border-t">
+            <a href="view.php?id=<?php echo $item['id']; ?>" class="w-full sm:w-auto px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-center">
                 Abbrechen
             </a>
             <button type="submit" class="btn-primary w-full sm:w-auto">

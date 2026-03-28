@@ -88,7 +88,7 @@ ob_start();
     </h2>
     <form method="GET" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
+            <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
             <select name="status" class="w-full px-4 py-2 bg-white border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                 <option value="">Alle</option>
                 <option value="planned" <?php echo (isset($_GET['status']) && $_GET['status'] === 'planned') ? 'selected' : ''; ?>>Geplant</option>
@@ -99,7 +99,7 @@ ob_start();
             </select>
         </div>
         <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Helfer benötigt</label>
+            <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Helfer benötigt</label>
             <select name="needs_helpers" class="w-full px-4 py-2 bg-white border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                 <option value="">Alle</option>
                 <option value="1" <?php echo (isset($_GET['needs_helpers']) && $_GET['needs_helpers'] === '1') ? 'selected' : ''; ?>>Ja</option>
@@ -107,15 +107,15 @@ ob_start();
             </select>
         </div>
         <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Von Datum</label>
+            <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Von Datum</label>
             <input type="date" name="start_date" value="<?php echo htmlspecialchars($_GET['start_date'] ?? ''); ?>" class="w-full px-4 py-2 bg-white border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
         </div>
         <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Bis Datum</label>
+            <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Bis Datum</label>
             <input type="date" name="end_date" value="<?php echo htmlspecialchars($_GET['end_date'] ?? ''); ?>" class="w-full px-4 py-2 bg-white border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
         </div>
-        <div class="md:col-span-2 lg:col-span-4 flex flex-col sm:flex-row justify-end gap-2">
-            <a href="manage.php" class="w-full sm:w-auto px-6 py-2 bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition text-center">
+        <div class="md:col-span-2 lg:col-span-4 flex flex-col md:flex-row justify-end gap-2">
+            <a href="manage.php" class="w-full sm:w-auto px-6 py-3 bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition text-center">
                 <i class="fas fa-times mr-2"></i>Zurücksetzen
             </a>
             <button type="submit" class="btn-primary w-full sm:w-auto">
@@ -262,7 +262,7 @@ ob_start();
             <input type="hidden" name="csrf_token" value="<?php echo CSRFHandler::getToken(); ?>">
             <input type="hidden" name="event_id" id="deleteEventId" value="">
             <input type="hidden" name="delete_event" value="1">
-            <div class="flex space-x-4">
+            <div class="flex flex-col md:flex-row gap-4">
                 <button type="button" id="closeDeleteModalBtn" class="flex-1 px-6 py-3 bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
                     Abbrechen
                 </button>
@@ -287,7 +287,7 @@ ob_start();
             <div class="space-y-4">
                 <!-- Category -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kategorie</label>
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kategorie</label>
                     <select id="statsCategory" onchange="onStatsCategoryChange()"
                             class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 rounded-lg focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                         <option value="Verkauf">Verkauf</option>
@@ -299,26 +299,26 @@ ob_start();
                 <!-- Item-based fields (Verkauf / Kalkulation) -->
                 <div id="statsItemFields" class="space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Artikelname</label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Artikelname</label>
                         <input type="text" id="statsItemName" maxlength="255"
                                class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 rounded-lg focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                                placeholder="z.B. Bratwurst">
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Menge</label>
+                            <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Menge</label>
                             <input type="number" id="statsQuantity" min="0" step="1" value="0"
                                    class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 rounded-lg focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Umsatz (€)</label>
+                            <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Umsatz (€)</label>
                             <input type="number" id="statsRevenue" min="0" step="0.01"
                                    class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 rounded-lg focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                                    placeholder="Optional">
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Jahr</label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Jahr</label>
                         <input type="number" id="statsYear" min="2000" max="<?php echo date('Y') + 10; ?>"
                                class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 rounded-lg focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                     </div>
@@ -326,7 +326,7 @@ ob_start();
 
                 <!-- Donations field (Spenden) -->
                 <div id="statsDonationsField" class="hidden">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Spendenbetrag (€)</label>
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Spendenbetrag (€)</label>
                     <input type="number" id="statsDonationsTotal" min="0" step="0.01" value="0"
                            class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 rounded-lg focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                 </div>
@@ -336,7 +336,7 @@ ob_start();
             </div>
         </div>
 
-        <div class="px-6 pb-6 flex space-x-4">
+        <div class="px-6 pb-6 flex flex-col md:flex-row gap-4">
             <button type="button" id="closeAddStatsModalBtn"
                     class="flex-1 px-6 py-3 bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
                 Abbrechen

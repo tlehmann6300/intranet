@@ -634,7 +634,7 @@ $statusInfo = $statusLabels[$currentStatus] ?? ['label' => $currentStatus, 'icon
             <div class="space-y-4">
                 <!-- Category -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kategorie</label>
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kategorie</label>
                     <select id="statsCategory" onchange="onStatsCategoryChange()"
                             class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 rounded-lg focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                         <option value="Verkauf">Verkauf</option>
@@ -646,26 +646,26 @@ $statusInfo = $statusLabels[$currentStatus] ?? ['label' => $currentStatus, 'icon
                 <!-- Item-based fields (Verkauf / Kalkulation) -->
                 <div id="statsItemFields" class="space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Artikelname</label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Artikelname</label>
                         <input type="text" id="statsItemName" maxlength="255"
                                class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 rounded-lg focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                                placeholder="z.B. Bratwurst">
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Menge</label>
+                            <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Menge</label>
                             <input type="number" id="statsQuantity" min="0" step="1" value="0"
                                    class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 rounded-lg focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Umsatz (€)</label>
+                            <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Umsatz (€)</label>
                             <input type="number" id="statsRevenue" min="0" step="0.01"
                                    class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 rounded-lg focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                                    placeholder="Optional">
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Jahr</label>
+                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Jahr</label>
                         <input type="number" id="statsYear" min="2000" max="<?php echo date('Y') + 10; ?>" value="<?php echo date('Y', strtotime($event['start_time'])); ?>"
                                class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 rounded-lg focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                     </div>
@@ -673,7 +673,7 @@ $statusInfo = $statusLabels[$currentStatus] ?? ['label' => $currentStatus, 'icon
 
                 <!-- Donations field (Spenden) -->
                 <div id="statsDonationsField" class="hidden">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Spendenbetrag (€)</label>
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Spendenbetrag (€)</label>
                     <input type="number" id="statsDonationsTotal" min="0" step="0.01" value="0"
                            class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 rounded-lg focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                 </div>
@@ -682,7 +682,7 @@ $statusInfo = $statusLabels[$currentStatus] ?? ['label' => $currentStatus, 'icon
             </div>
         </div>
 
-        <div class="px-6 pb-6 flex space-x-4">
+        <div class="px-6 pb-6 flex flex-col md:flex-row gap-4">
             <button type="button" id="closeAddStatsModalBtn"
                     class="flex-1 px-6 py-3 bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
                 Abbrechen

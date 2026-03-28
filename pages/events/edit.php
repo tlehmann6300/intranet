@@ -306,7 +306,7 @@ ob_start();
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Title -->
                 <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Titel <span class="text-red-500">*</span>
                     </label>
                     <input 
@@ -322,7 +322,7 @@ ob_start();
 
                 <!-- Description -->
                 <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Beschreibung</label>
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Beschreibung</label>
                     <textarea 
                         name="description" 
                         rows="4"
@@ -334,7 +334,7 @@ ob_start();
 
                 <!-- Location / Room -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Veranstaltungsort / Raum</label>
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Veranstaltungsort / Raum</label>
                     <input 
                         type="text" 
                         name="location"
@@ -347,7 +347,7 @@ ob_start();
 
                 <!-- Google Maps Link -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Google Maps Link
                         <span class="text-xs text-gray-500 ml-2">(Optional)</span>
                     </label>
@@ -368,7 +368,7 @@ ob_start();
 
                 <!-- Event Image Upload -->
                 <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Event-Bild
                         <span class="text-xs text-gray-500 ml-2">(Optional)</span>
                     </label>
@@ -417,7 +417,7 @@ ob_start();
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Start Time with Flatpickr -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Startzeit <span class="text-red-500">*</span>
                     </label>
                     <input 
@@ -440,7 +440,7 @@ ob_start();
 
                 <!-- End Time with Flatpickr -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Endzeit <span class="text-red-500">*</span>
                     </label>
                     <input 
@@ -463,7 +463,7 @@ ob_start();
 
                 <!-- Registration Start Time -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Anmeldung Start
                         <span class="text-xs text-gray-500 ml-2">(Optional)</span>
                     </label>
@@ -486,7 +486,7 @@ ob_start();
 
                 <!-- Registration End Time -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Anmeldung Ende
                         <span class="text-xs text-gray-500 ml-2">(Optional)</span>
                     </label>
@@ -526,7 +526,7 @@ ob_start();
 
                 <!-- External Link -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Externer Link</label>
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Externer Link</label>
                     <input 
                         type="url" 
                         name="external_link"
@@ -539,7 +539,7 @@ ob_start();
 
                 <!-- Registration Link (External Forms) -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Externe Anmeldung (Microsoft Forms Link)
                     </label>
                     <input 
@@ -638,7 +638,7 @@ ob_start();
 
                 <!-- Visibility: Role Checkboxes -->
                 <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-3">
+                    <label class="block w-full text-sm font-medium text-gray-700 mb-3">
                         Sichtbarkeit (Rollen)
                         <span class="text-xs text-gray-500 ml-2">Wenn keine Rolle ausgewählt ist, ist das Event für alle sichtbar</span>
                     </label>
@@ -743,7 +743,7 @@ ob_start();
 
         <!-- Form Actions -->
         <?php if (!$readOnly): ?>
-        <div class="flex flex-col sm:flex-row gap-3 pt-6 border-t">
+        <div class="flex flex-col md:flex-row gap-3 pt-6 border-t">
             <a href="manage.php" class="w-full sm:flex-1 px-6 py-3 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 text-center no-underline font-medium inline-flex items-center justify-center">
                 <i class="fas fa-times mr-2"></i>Abbrechen
             </a>
@@ -934,7 +934,7 @@ function addHelperType() {
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Titel der Rolle <span class="text-red-500">*</span>
                     </label>
                     <input 
@@ -945,7 +945,7 @@ function addHelperType() {
                     >
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Beschreibung (optional)</label>
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Beschreibung (optional)</label>
                     <input 
                         type="text" 
                         class="helper-type-description w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ibc-blue"

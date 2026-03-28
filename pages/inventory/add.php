@@ -154,7 +154,7 @@ ob_start();
             </h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Name <span class="text-red-500">*</span>
                     </label>
                     <input 
@@ -169,7 +169,7 @@ ob_start();
                 </div>
 
                 <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Beschreibung</label>
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Beschreibung</label>
                     <textarea 
                         name="description" 
                         rows="3"
@@ -180,7 +180,7 @@ ob_start();
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Kategorie</label>
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Kategorie</label>
                     <select 
                         name="category_id" 
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 <?php echo $readonlyClass; ?>"
@@ -196,7 +196,7 @@ ob_start();
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Einheit</label>
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Einheit</label>
                     <input 
                         type="text" 
                         name="unit" 
@@ -217,7 +217,7 @@ ob_start();
             </h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Aktueller Bestand</label>
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Aktueller Bestand</label>
                     <input 
                         type="number" 
                         name="current_stock" 
@@ -229,7 +229,7 @@ ob_start();
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mindestbestand</label>
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mindestbestand</label>
                     <input 
                         type="number" 
                         name="min_stock" 
@@ -241,7 +241,7 @@ ob_start();
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Stückpreis (€)</label>
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Stückpreis (€)</label>
                     <input 
                         type="number" 
                         name="unit_price" 
@@ -263,7 +263,7 @@ ob_start();
             </h2>
             <div class="grid grid-cols-1 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Standort</label>
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Standort</label>
                     <select 
                         name="location_id" 
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 <?php echo $readonlyClass; ?>"
@@ -279,7 +279,7 @@ ob_start();
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Notizen zum Lagerort</label>
+                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Notizen zum Lagerort</label>
                     <textarea 
                         name="notes" 
                         rows="2"
@@ -298,7 +298,7 @@ ob_start();
                 Bild
             </h2>
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Artikelbild hochladen</label>
+                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Artikelbild hochladen</label>
                 <input 
                     type="file" 
                     name="image" 
@@ -314,7 +314,7 @@ ob_start();
         </div>
 
         <!-- Actions -->
-        <div class="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t">
+        <div class="flex flex-col md:flex-row justify-end gap-3 pt-4 border-t">
             <a href="index.php" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-center">
                 <i class="fas fa-times mr-2"></i>Abbrechen
             </a>

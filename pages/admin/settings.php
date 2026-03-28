@@ -125,7 +125,7 @@ ob_start();
     <form method="POST" class="space-y-4">
         <input type="hidden" name="csrf_token" value="<?php echo CSRFHandler::getToken(); ?>">
         <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Website-Name
             </label>
             <input 
@@ -138,7 +138,7 @@ ob_start();
         </div>
         
         <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Website-Beschreibung
             </label>
             <textarea 

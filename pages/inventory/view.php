@@ -218,7 +218,7 @@ ob_start();
                     </div>
                 </div>
                 <?php if (Auth::hasPermission('manager')): ?>
-                <div class="flex flex-col sm:flex-row gap-2">
+                <div class="flex flex-col md:flex-row gap-2">
                     <a href="edit.php?id=<?php echo $item['id']; ?>" class="btn-primary w-full sm:w-auto shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
                         <i class="fas fa-edit mr-2"></i>Bearbeiten
                     </a>
@@ -593,7 +593,7 @@ if (!empty($logbookNote)):
 
                 <div class="space-y-4">
                     <div>
-                        <label for="checkout-start-date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <label for="checkout-start-date" class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Startdatum der Ausleihe <span class="text-red-500" aria-hidden="true">*</span>
                         </label>
                         <input
@@ -608,7 +608,7 @@ if (!empty($logbookNote)):
                     </div>
 
                     <div>
-                        <label for="checkoutQuantity" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <label for="checkoutQuantity" class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Menge <span class="text-red-500" aria-hidden="true">*</span>
                         </label>
                         <input
@@ -626,7 +626,7 @@ if (!empty($logbookNote)):
                     </div>
 
                     <div>
-                        <label for="checkout-purpose" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <label for="checkout-purpose" class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Zweck / Notiz
                         </label>
                         <textarea
@@ -639,7 +639,7 @@ if (!empty($logbookNote)):
                     </div>
 
                     <div>
-                        <label for="checkoutReturnDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <label for="checkoutReturnDate" class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Voraussichtliches Rückgabedatum
                         </label>
                         <input

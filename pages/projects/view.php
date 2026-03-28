@@ -413,7 +413,7 @@ ob_start();
                             ></textarea>
                         </div>
                         
-                        <div class="flex flex-col sm:flex-row gap-4">
+                        <div class="flex flex-col md:flex-row gap-4">
                             <button type="submit" 
                                     class="flex-1 bg-gradient-to-r from-green-600 to-teal-600 text-white font-bold py-4 rounded-lg shadow-md hover:shadow-xl transform hover:-translate-y-1 transition duration-200">
                                 <i class="fas fa-check-circle mr-2"></i>
