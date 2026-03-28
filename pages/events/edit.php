@@ -303,7 +303,7 @@ ob_start();
                 Basisdaten
             </h2>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">
                 <!-- Title -->
                 <div class="md:col-span-2">
                     <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -414,7 +414,7 @@ ob_start();
                 Zeit & Einstellungen
             </h2>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">
                 <!-- Start Time with Flatpickr -->
                 <div>
                     <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -642,7 +642,7 @@ ob_start();
                         Sichtbarkeit (Rollen)
                         <span class="text-xs text-gray-500 ml-2">Wenn keine Rolle ausgewählt ist, ist das Event für alle sichtbar</span>
                     </label>
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                         <?php 
                         // Use Microsoft Entra groups if available, otherwise fall back to hardcoded roles
                         if (!empty($entraGroups)) {
@@ -932,7 +932,7 @@ function addHelperType() {
                 </button>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 mb-6">
                 <div>
                     <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Titel der Rolle <span class="text-red-500">*</span>

@@ -187,7 +187,7 @@ ob_start();
     <?php endif; ?>
 </div>
 <?php else: ?>
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
     <?php foreach ($inventoryObjects as $item):
         $itemId        = $item['id'] ?? '';
         $itemName      = $item['name'] ?? '';
@@ -342,7 +342,7 @@ ob_start();
                     </div>
 
                     <!-- Date Range -->
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label for="lendStartDate" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                                 <i class="fas fa-calendar-alt text-purple-500 mr-1.5"></i>Von <span class="text-red-500">*</span>

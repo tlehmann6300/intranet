@@ -190,7 +190,7 @@ ob_start();
     <h2 class="text-base font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center">
         <i class="fas fa-filter text-purple-600 mr-2"></i>Filter &amp; Suche
     </h2>
-    <form method="GET" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <form method="GET" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         <div>
             <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-1.5">
                 <i class="fas fa-search mr-1 text-purple-500"></i>Suche
@@ -254,7 +254,7 @@ ob_start();
     </a>
 </div>
 <?php else: ?>
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
     <?php foreach ($items as $item):
         $loanedQty     = (int)$item['quantity'] - (int)$item['available_quantity'];
         $hasStock      = (int)$item['available_quantity'] > 0;

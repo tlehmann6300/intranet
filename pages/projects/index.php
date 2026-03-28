@@ -163,7 +163,7 @@ ob_start();
             <?php endif; ?>
         </div>
     <?php else: ?>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
             <?php foreach ($filteredProjects as $project): ?>
                 <?php
                     $isArchived = $project['status'] === 'archived';
@@ -180,7 +180,7 @@ ob_start();
                     }
                 ?>
                 
-                <a href="view.php?id=<?php echo $project['id']; ?>" class="project-card card flex flex-col overflow-hidden group no-underline project-card--<?php echo htmlspecialchars($project['status']); ?> <?php echo $isArchived ? 'project-card--archived' : ''; ?>" style="text-decoration:none;">
+                <a href="view.php?id=<?php echo $project['id']; ?>" class="project-card card w-full flex flex-col overflow-hidden group no-underline project-card--<?php echo htmlspecialchars($project['status']); ?> <?php echo $isArchived ? 'project-card--archived' : ''; ?>" style="text-decoration:none;">
                     <!-- Status accent strip -->
                     <div class="project-card-accent"></div>
 

@@ -197,7 +197,7 @@ ob_start();
 </div>
 <?php endif; ?>
 
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
     <!-- Item Details -->
     <div class="lg:col-span-2">
         <div class="card p-8 shadow-xl border border-gray-200 dark:border-slate-700">

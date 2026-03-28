@@ -162,10 +162,10 @@ ob_start();
             <?php endif; ?>
         </div>
     <?php else: ?>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
             <?php foreach ($posts as $post): ?>
                 <a href="view.php?id=<?php echo (int)$post['id']; ?>" 
-                   class="card dark:bg-gray-800 overflow-hidden flex flex-col hover:shadow-xl transition-shadow cursor-pointer group"
+                   class="card w-full dark:bg-gray-800 overflow-hidden flex flex-col hover:shadow-xl transition-shadow cursor-pointer group"
                    aria-label="Beitrag lesen: <?php echo htmlspecialchars($post['title']); ?>">
                     <!-- Image -->
                     <div class="w-full h-48 bg-gray-200 dark:bg-gray-700 rounded-t-2xl overflow-hidden">

@@ -52,7 +52,7 @@ ob_start();
         </div>
     <?php else: ?>
         <!-- Statistics Summary -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-6 mb-6">
             <?php
             $totalEvents = count($allDocs);
             $totalSellers = 0;
@@ -170,7 +170,7 @@ ob_start();
                                 <i class="fas fa-chart-line mr-2 text-purple-600"></i>
                                 Verkaufsdaten
                             </h3>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
                                 <?php foreach ($doc['sales_data'] as $sale): ?>
                                     <div class="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-700">
                                         <p class="font-semibold text-gray-800 dark:text-gray-200"><?php echo htmlspecialchars($sale['label'] ?? 'Unbenannt'); ?></p>

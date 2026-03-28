@@ -246,7 +246,7 @@ ob_start();
     </div>
 
     <!-- Metrics Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-6 mb-8">
         <!-- Active Users (7 Days) -->
         <div class="card p-6 rounded-xl shadow-lg bg-gradient-to-br from-white to-blue-50 dark:from-gray-800 dark:to-blue-900/20 border-l-4 border-blue-500 dark:border-blue-600 hover:shadow-xl transition-shadow duration-300">
             <div class="flex items-center justify-between mb-3">
@@ -302,7 +302,7 @@ ob_start();
     </div>
 
     <!-- Quick Actions and Status Overview Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6 mb-8">
         <!-- Quick Actions Card -->
         <div class="card p-6 rounded-xl shadow-lg dark:bg-gray-800">
             <h3 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">
@@ -454,7 +454,7 @@ ob_start();
             <i class="fas fa-database mr-2 text-indigo-600 dark:text-indigo-400"></i>
             Datenbank Speicherverbrauch
         </h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
             <?php foreach ($databaseStats as $db): ?>
                 <?php 
                 $colorClasses = [
@@ -532,7 +532,7 @@ ob_start();
     <?php endif; ?>
 
     <!-- In Stock and In Transit Section -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6 mb-8">
         <!-- Im Lager (In Stock) -->
         <div class="card p-6 rounded-xl shadow-lg dark:bg-gray-800">
             <h2 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">

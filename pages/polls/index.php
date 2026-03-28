@@ -132,14 +132,14 @@ ob_start();
     <?php else: ?>
 
     <!-- Polls Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
         <?php foreach ($filteredPolls as $poll): ?>
         <?php
             $hasVoted   = (int)$poll['user_has_voted'] > 0;
             $isMSForms  = !empty($poll['microsoft_forms_url']);
             $statusClass = $hasVoted ? 'poll-card--voted' : 'poll-card--open';
         ?>
-        <div class="poll-card card flex flex-col overflow-hidden <?php echo $statusClass; ?>">
+        <div class="poll-card card w-full flex flex-col overflow-hidden <?php echo $statusClass; ?>">
             <!-- Status accent strip -->
             <div class="poll-card-accent"></div>
 

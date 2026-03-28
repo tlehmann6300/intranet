@@ -45,7 +45,7 @@ ob_start();
     </div>
 
     <!-- Summary cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 mt-4">
         <div class="card p-5 border-l-4 border-yellow-400">
             <p class="text-sm text-gray-500 dark:text-gray-400">Ausstehend</p>
             <p class="text-2xl sm:text-3xl font-bold text-yellow-600 dark:text-yellow-400"><?php echo $counts['pending']; ?></p>

@@ -158,7 +158,7 @@ ob_start();
     <form method="POST" enctype="multipart/form-data" class="space-y-6">
         <input type="hidden" name="csrf_token" value="<?php echo CSRFHandler::getToken(); ?>">
         <!-- Basic Info -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">
             <div class="md:col-span-2">
                 <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Name *</label>
                 <input 
@@ -216,7 +216,7 @@ ob_start();
         <!-- Stock Info -->
         <div class="border-t pt-6">
             <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-4">Bestandsinformationen</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
                 <div>
                     <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Aktueller Bestand</label>
                     <input 

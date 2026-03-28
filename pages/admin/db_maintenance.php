@@ -323,7 +323,7 @@ ob_start();
         </div>
     </div>
     
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         <!-- Database Status -->
         <div class="bg-<?php echo $systemHealth['database_status'] === 'healthy' ? 'green' : 'red'; ?>-50 dark:bg-<?php echo $systemHealth['database_status'] === 'healthy' ? 'green' : 'red'; ?>-900/20 p-4 rounded-lg border border-<?php echo $systemHealth['database_status'] === 'healthy' ? 'green' : 'red'; ?>-200 dark:border-<?php echo $systemHealth['database_status'] === 'healthy' ? 'green' : 'red'; ?>-800">
             <div class="flex items-center justify-between mb-2">
@@ -386,7 +386,7 @@ ob_start();
     </div>
     
     <!-- Additional Metrics -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mt-4">
         <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
             <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Aktive Sessions (24h)</p>
             <p class="text-base sm:text-xl font-semibold text-gray-700 dark:text-gray-200">
@@ -415,7 +415,7 @@ ob_start();
         Datenbank-Übersicht
     </h2>
     
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mb-6">
         <div class="bg-blue-50 p-4 rounded-lg">
             <p class="text-blue-800 font-semibold text-sm">User Database</p>
             <p class="text-2xl font-bold text-blue-600"><?php echo number_format($userDbTotal, 2); ?> MB</p>
@@ -430,7 +430,7 @@ ob_start();
         </div>
     </div>
     
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">
         <!-- User Database Tables -->
         <div>
             <h3 class="text-lg font-semibold text-gray-700 mb-3">User Database Tabellen</h3>
@@ -490,7 +490,7 @@ ob_start();
         Wartungsaktionen
     </h2>
     
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">
         <!-- Clean Logs -->
         <div class="border border-gray-200 rounded-lg p-4">
             <div class="mb-4">

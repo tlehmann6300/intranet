@@ -179,13 +179,13 @@ ob_start();
     <p class="text-gray-600 dark:text-gray-400 font-medium">Noch keine Newsletter vorhanden.</p>
 </div>
 <?php else: ?>
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
     <?php foreach ($newsletters as $nl):
         $nlId      = (int) ($nl['id'] ?? 0);
         $monthYear = $nl['month_year'] ?? null;
         $createdAt = isset($nl['created_at']) ? date('d.m.Y', strtotime($nl['created_at'])) : '';
     ?>
-    <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md hover:border-ibc-blue/30 dark:hover:border-ibc-blue/30 transition-all duration-200 flex flex-col">
+    <div class="w-full bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md hover:border-ibc-blue/30 dark:hover:border-ibc-blue/30 transition-all duration-200 flex flex-col">
         <div class="p-5 flex-1 flex flex-col gap-3">
             <div class="flex items-start gap-3">
                 <div class="w-10 h-10 bg-blue-50 dark:bg-blue-900/30 rounded-xl flex items-center justify-center flex-shrink-0">

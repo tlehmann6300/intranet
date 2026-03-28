@@ -214,7 +214,7 @@ ob_start();
     </a>
 </div>
 <?php else: ?>
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
     <?php foreach ($projects as $project): ?>
     <div class="card p-6 hover:shadow-lg transition dark:hover:shadow-purple-900/20">
         <!-- Image -->
@@ -477,7 +477,7 @@ document.getElementById('deleteModal')?.addEventListener('click', (e) => {
         </div>
 
         <!-- Client Information -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">
             <div>
                 <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Kundenname
@@ -505,7 +505,7 @@ document.getElementById('deleteModal')?.addEventListener('click', (e) => {
         </div>
 
         <!-- Priority and Type -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">
             <div>
                 <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Priorität
@@ -566,7 +566,7 @@ document.getElementById('deleteModal')?.addEventListener('click', (e) => {
         <?php endif; ?>
 
         <!-- Date Range -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">
             <div>
                 <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Startdatum
