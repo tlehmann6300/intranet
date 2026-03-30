@@ -12,6 +12,7 @@ class Database {
     private static $rechConnection = null;
     private static $inventoryConnection = null;
     private static $newsConnection = null;
+    private static $vcardConnection = null;
     /** @var bool Tracks whether content-DB schema migration has run this request */
     private static $contentMigrated = false;
     /** @var bool Tracks whether user-DB schema migration has run this request */
@@ -304,7 +305,7 @@ class Database {
     /**
      * Get database connection by name
      * 
-     * @param string $name Connection name ('user', 'content', 'rech', 'invoice', 'newsletter', 'inventory', or 'news')
+     * @param string $name Connection name ('user', 'content', 'rech', 'invoice', 'newsletter', 'inventory', 'news', or 'vcard')
      * @return PDO Database connection
      * @throws Exception If connection name is invalid
      */
@@ -323,9 +324,38 @@ class Database {
                 return self::getInventoryDB();
             case 'news':
                 return self::getNewsDB();
+            case 'vcard':
+                return self::getVCardDB();
             default:
                 throw new Exception("Invalid connection name: $name");
         }
+    }
+
+    /**
+     * Get vCard Database Connection (external)
+     *
+     * @return PDO Database connection instance
+     * @throws Exception If database connection fails
+     */
+    public static function getVCardDB() {
+        if (self::$vcardConnection === null) {
+            try {
+                self::$vcardConnection = new PDO(
+                    "mysql:host=" . DB_VCARD_HOST . ";dbname=" . DB_VCARD_NAME . ";charset=utf8mb4",
+                    DB_VCARD_USER,
+                    DB_VCARD_PASS,
+                    [
+                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                        PDO::ATTR_EMULATE_PREPARES => false
+                    ]
+                );
+            } catch (PDOException $e) {
+                error_log("Verbindung fehlgeschlagen: " . $e->getCode());
+                throw new Exception("Database connection failed");
+            }
+        }
+        return self::$vcardConnection;
     }
 
     /**
@@ -337,6 +367,7 @@ class Database {
         self::$rechConnection = null;
         self::$inventoryConnection = null;
         self::$newsConnection = null;
+        self::$vcardConnection = null;
         self::$userMigrated = false;
         self::$contentMigrated = false;
         self::$newsMigrated = false;
