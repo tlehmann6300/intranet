@@ -92,6 +92,15 @@ define('DB_NEWS_NAME', _env('DB_NEWS_NAME', ''));
 define('DB_NEWS_USER', _env('DB_NEWS_USER', ''));
 define('DB_NEWS_PASS', _env('DB_NEWS_PASS', ''));
 
+// Database Settings (vCard DB – external)
+// Host and credentials are read from .env; the values below serve as fallbacks
+// for the non-sensitive connection coordinates only.  The password MUST be set
+// via DB_VCARD_PASS in .env and has no default.
+define('DB_VCARD_HOST', _env('DB_VCARD_HOST', 'db5016986508.hosting-data.io'));
+define('DB_VCARD_NAME', _env('DB_VCARD_NAME', 'dbs13688083'));
+define('DB_VCARD_USER', _env('DB_VCARD_USER', 'dbu5428642'));
+define('DB_VCARD_PASS', _env('DB_VCARD_PASS', ''));
+
 // SMTP Settings
 define('SMTP_HOST',       _env('SMTP_HOST', ''));
 define('SMTP_PORT',       (int) _env('SMTP_PORT', '587'));
