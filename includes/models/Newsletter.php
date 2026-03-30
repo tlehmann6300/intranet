@@ -1,13 +1,13 @@
 <?php
 /**
  * Newsletter Model
- * Manages the internal newsletter archive (.eml / .msg files)
+ * Manages the internal newsletter archive (.eml files)
  */
 
 class Newsletter {
 
     /** Allowed file extensions for newsletter uploads */
-    const ALLOWED_EXTENSIONS = ['eml', 'msg'];
+    const ALLOWED_EXTENSIONS = ['eml'];
 
     /** Maximum upload size in bytes (20 MB) */
     const MAX_FILE_SIZE = 20971520;
@@ -185,7 +185,7 @@ class Newsletter {
         $originalName = $file['name'];
         $ext          = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
         if (!in_array($ext, self::ALLOWED_EXTENSIONS, true)) {
-            return ['success' => false, 'error' => 'Nur .eml- und .msg-Dateien sind erlaubt.'];
+            return ['success' => false, 'error' => 'Nur .eml-Dateien sind erlaubt.'];
         }
 
         // Generate a secure, unique filename

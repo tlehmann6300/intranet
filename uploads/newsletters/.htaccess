@@ -1,5 +1,5 @@
 # Direkten Zugriff von außen auf dieses Verzeichnis sperren.
-# Newsletter-Dateien (.eml, .msg) werden ausschließlich über
+# Newsletter-Dateien (.eml) werden ausschließlich über
 # den gesicherten PHP-Download-Endpunkt (api/download_newsletter.php) ausgeliefert.
 Order deny,allow
 Deny from all

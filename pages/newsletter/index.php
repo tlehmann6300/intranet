@@ -33,8 +33,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $error = 'Die Datei überschreitet die maximale Größe von 20 MB.';
         } else {
             $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-            if (!in_array($ext, ['eml', 'msg'], true)) {
-                $error = 'Nur .eml- und .msg-Dateien sind erlaubt.';
+            if (!in_array($ext, ['eml'], true)) {
+                $error = 'Nur .eml-Dateien sind erlaubt.';
             } else {
                 $uploadDir   = __DIR__ . '/../../uploads/newsletters/';
                 $filename    = time() . '_' . bin2hex(random_bytes(8)) . '.' . $ext;
@@ -155,10 +155,10 @@ ob_start();
             <label for="newsletter_file" class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                 Datei <span class="text-red-500">*</span>
             </label>
-            <input type="file" id="newsletter_file" name="newsletter_file" required accept=".eml,.msg"
+            <input type="file" id="newsletter_file" name="newsletter_file" required accept=".eml"
                    class="w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm py-2.5 px-4 text-sm text-gray-700 dark:text-gray-300
                           file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-ibc-blue file:text-white hover:file:bg-ibc-blue-dark file:cursor-pointer file:transition-colors">
-            <p class="mt-1.5 text-xs text-gray-400 dark:text-gray-500">Erlaubte Formate: <strong>.eml</strong>, <strong>.msg</strong> &ndash; Max. 20 MB</p>
+            <p class="mt-1.5 text-xs text-gray-400 dark:text-gray-500">Erlaubtes Format: <strong>.eml</strong> &ndash; Max. 20 MB</p>
         </div>
 
         <div class="sm:col-span-2">
