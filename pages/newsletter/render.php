@@ -2,7 +2,7 @@
 /**
  * Newsletter Render Endpoint
  *
- * Parses and renders the content of a stored .eml / .msg newsletter file
+ * Parses and renders the content of a stored .eml newsletter file
  * directly in the browser. Inline (CID-referenced) images are converted to
  * base64 data-URIs so the preview is self-contained and no external requests
  * are needed.
@@ -68,41 +68,7 @@ if ($fullPath === false || !str_starts_with($fullPath, $newslettersDir . DIRECTO
     exit('Datei nicht gefunden.');
 }
 
-// ── 5. Detect file type – MSG files cannot be rendered as MIME ───────────────
-$fileExt = strtolower(pathinfo($safeBasename, PATHINFO_EXTENSION));
-
-if ($fileExt === 'msg') {
-    // MSG (Outlook MAPI binary) files are not MIME-parseable; show a fallback.
-    header('Content-Type: text/html; charset=utf-8');
-    header('X-Content-Type-Options: nosniff');
-    header('X-Frame-Options: SAMEORIGIN');
-    header('Content-Security-Policy: default-src \'none\'; img-src data: blob:; style-src \'unsafe-inline\'; frame-ancestors \'self\'');
-    ?>
-    <!DOCTYPE html>
-    <html lang="de">
-    <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-      body { margin: 0; padding: 24px; font-family: sans-serif; display: flex; align-items: center; justify-content: center; min-height: 120px; }
-      .msg-notice { text-align: center; color: #6b7280; }
-      .msg-notice svg { display: block; margin: 0 auto 12px; opacity: .5; }
-      .msg-notice p { margin: 0; font-size: 14px; }
-    </style>
-    </head>
-    <body>
-    <div class="msg-notice">
-        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-        <p>Vorschau für MSG-Dateien nicht verfügbar.</p>
-        <p style="margin-top:6px;font-size:12px;color:#9ca3af;">Bitte laden Sie die Datei herunter, um sie in Outlook zu öffnen.</p>
-    </div>
-    </body>
-    </html>
-    <?php
-    exit;
-}
-
-// ── 6. Parse the EML file ─────────────────────────────────────────────────────
+// ── 5. Parse the EML file ─────────────────────────────────────────────────────
 $handle = fopen($fullPath, 'r');
 if ($handle === false) {
     http_response_code(500);
@@ -112,7 +78,7 @@ $message = Message::from($handle, true);
 
 $htmlContent = $message->getHtmlContent();
 
-// ── 7. Replace CID image references with inline base64 data-URIs ─────────────
+// ── 6. Replace CID image references with inline base64 data-URIs ─────────────
 if ($htmlContent !== null) {
     $attachmentCount = $message->getAttachmentCount();
     for ($i = 0; $i < $attachmentCount; $i++) {
@@ -143,7 +109,7 @@ if ($htmlContent !== null) {
     }
 }
 
-// ── 8. Send response ──────────────────────────────────────────────────────────
+// ── 7. Send response ──────────────────────────────────────────────────────────
 header('Content-Type: text/html; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
 // Allow this document to be embedded as an iframe on the same origin only.

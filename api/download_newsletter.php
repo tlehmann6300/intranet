@@ -2,7 +2,7 @@
 /**
  * API: Download Newsletter File
  *
- * Serves the uploaded newsletter (.eml / .msg) for a given newsletter ID.
+ * Serves the uploaded newsletter (.eml) for a given newsletter ID.
  * All authenticated users may download newsletters.
  *
  * Access rules
@@ -91,7 +91,6 @@ if (!in_array($ext, Newsletter::ALLOWED_EXTENSIONS, true)) {
 
 $mimeMap = [
     'eml' => 'message/rfc822',
-    'msg' => 'application/vnd.ms-outlook',
 ];
 $mimeType = $mimeMap[$ext] ?? 'application/octet-stream';
 

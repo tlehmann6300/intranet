@@ -161,7 +161,7 @@ class Database {
                         KEY `idx_month_year`  (`month_year`),
                         KEY `idx_uploaded_by` (`uploaded_by`)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-                    COMMENT='Internes Newsletter-Archiv (.eml / .msg Dateien)'"
+                    COMMENT='Internes Newsletter-Archiv (.eml Dateien)'"
                 );
                 error_log("Content schema migration applied: created table 'newsletters'");
             }
@@ -196,7 +196,7 @@ class Database {
                         KEY `idx_month_year`  (`month_year`),
                         KEY `idx_uploaded_by` (`uploaded_by`)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-                    COMMENT='Internes Newsletter-Archiv (.eml / .msg Dateien)'"
+                    COMMENT='Internes Newsletter-Archiv (.eml Dateien)'"
                 );
                 error_log("News schema migration applied: created table 'newsletters'");
             }

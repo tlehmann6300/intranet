@@ -70,7 +70,7 @@ ob_start();
         <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-50 tracking-tight">Newsletter hochladen</h1>
     </div>
     <p class="text-gray-500 dark:text-gray-400 text-sm">
-        Laden Sie eine Newsletter-Datei (.eml oder .msg) in das interne Archiv hoch.
+        Laden Sie eine Newsletter-Datei (.eml) in das interne Archiv hoch.
     </p>
 </div>
 
@@ -114,12 +114,12 @@ ob_start();
             </label>
             <div class="relative">
                 <input type="file" id="newsletter_file" name="newsletter_file" required
-                       accept=".eml,.msg"
+                       accept=".eml"
                        class="w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm focus:ring-ibc-green focus:border-ibc-green py-2.5 px-4 text-sm text-gray-700 dark:text-gray-300
                               file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-ibc-blue file:text-white hover:file:bg-ibc-blue-dark file:cursor-pointer file:transition-colors">
             </div>
             <p class="mt-1.5 text-xs text-gray-400 dark:text-gray-500">
-                Erlaubte Formate: <strong>.eml</strong>, <strong>.msg</strong> &ndash; Maximale Dateigröße: 20 MB
+                Erlaubtes Format: <strong>.eml</strong> &ndash; Maximale Dateigröße: 20 MB
             </p>
         </div>
 
