@@ -654,11 +654,11 @@ if (!empty($logbookNote)):
                 </div>
             </div>
 
-            <div class="flex gap-3 px-6 pb-6 pt-2">
-                <button type="button" onclick="closeCheckoutModal()" class="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+            <div class="flex flex-col md:flex-row gap-3 px-6 pb-6 pt-2">
+                <button type="button" onclick="closeCheckoutModal()" class="flex-1 px-4 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
                     Abbrechen
                 </button>
-                <button type="submit" class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                <button type="submit" class="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
                     <i class="fas fa-check mr-2" aria-hidden="true"></i>Bestätigen
                 </button>
             </div>

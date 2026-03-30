@@ -1339,7 +1339,7 @@ ob_start();
         <button 
             type="submit" 
             name="submit_change_request"
-            class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
+            class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-200"
         >
             <i class="fas fa-paper-plane mr-2"></i>
             Beantragen
