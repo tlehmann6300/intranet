@@ -101,4 +101,66 @@ class VCard {
         $stmt = $db->prepare($sql);
         return $stmt->execute($values);
     }
+
+    /**
+     * Create a new vCard record.
+     *
+     * Only fields listed in ALLOWED_FIELDS are accepted; any other keys in
+     * $data are silently ignored to prevent mass-assignment vulnerabilities.
+     *
+     * @param array $data Associative array of field => value pairs
+     * @return int The ID of the newly created record
+     * @throws Exception If no valid fields are provided or a database error occurs
+     */
+    public static function create(array $data): int {
+        $db = Database::getVCardDB();
+
+        $columns = [];
+        $placeholders = [];
+        $values = [];
+
+        foreach (self::ALLOWED_FIELDS as $field) {
+            if (array_key_exists($field, $data)) {
+                $columns[] = $field;
+                $placeholders[] = '?';
+                $values[] = $data[$field];
+            }
+        }
+
+        if (empty($columns)) {
+            throw new Exception("Keine gültigen Felder für die Erstellung angegeben");
+        }
+
+        $sql = "INSERT INTO " . self::TABLE . " (" . implode(', ', $columns) . ") VALUES (" . implode(', ', $placeholders) . ")";
+        $stmt = $db->prepare($sql);
+        if (!$stmt->execute($values)) {
+            throw new Exception("Datenbankfehler beim Erstellen des VCard-Eintrags");
+        }
+
+        return (int) $db->lastInsertId();
+    }
+
+    /**
+     * Delete a vCard record by its primary key.
+     *
+     * @param int $id Record ID
+     * @return bool True on success
+     * @throws Exception If the record does not exist or a database error occurs
+     */
+    public static function delete(int $id): bool {
+        $db = Database::getVCardDB();
+
+        // Verify the record exists
+        $checkStmt = $db->prepare("SELECT id FROM " . self::TABLE . " WHERE id = ?");
+        $checkStmt->execute([$id]);
+        if (!$checkStmt->fetch()) {
+            throw new Exception("VCard-Eintrag nicht gefunden", 404);
+        }
+
+        $stmt = $db->prepare("DELETE FROM " . self::TABLE . " WHERE id = ?");
+        if (!$stmt->execute([$id])) {
+            throw new Exception("Datenbankfehler beim Löschen des VCard-Eintrags");
+        }
+        return true;
+    }
 }
