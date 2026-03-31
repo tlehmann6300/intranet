@@ -5,8 +5,8 @@ declare(strict_types=1);
  * VCard Model
  * Manages contact card data stored in the external vCard database.
  *
- * Typical vCard fields: Vorname (first_name), Nachname (last_name),
- * Telefon (phone), Email (email), LinkedIn (linkedin_url), Bild (image_path).
+ * Remote table: vcards_table
+ * Columns: id, vorname, nachname, funktion, telefon, email, linkedin, profilbild
  */
 
 require_once __DIR__ . '/../database.php';
@@ -14,19 +14,20 @@ require_once __DIR__ . '/../database.php';
 class VCard {
 
     /** Table name in the external vCard database */
-    private const TABLE = 'vcards';
+    private const TABLE = 'vcards_table';
 
     /**
      * Columns that callers are permitted to read/write.
      * Add or remove columns here as the remote schema evolves.
      */
     private const ALLOWED_FIELDS = [
-        'first_name',
-        'last_name',
-        'phone',
+        'vorname',
+        'nachname',
+        'funktion',
+        'telefon',
         'email',
-        'linkedin_url',
-        'image_path',
+        'linkedin',
+        'profilbild',
     ];
 
     /**
@@ -38,7 +39,7 @@ class VCard {
     public static function getAll(): array {
         $db = Database::getVCardDB();
         $fields = implode(', ', array_merge(['id'], self::ALLOWED_FIELDS));
-        $sql = "SELECT {$fields} FROM " . self::TABLE . " ORDER BY last_name ASC, first_name ASC";
+        $sql = "SELECT {$fields} FROM " . self::TABLE . " ORDER BY nachname ASC, vorname ASC";
         $stmt = $db->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll();
