@@ -3,7 +3,7 @@
  * API: Update VCard (Admin)
  *
  * Updates an existing vCard record in the external vCard database.
- * Accepted fields: vorname, nachname, telefon, email, linkedin.
+ * Accepted fields: vorname, nachname, rolle, telefon, email, linkedin.
  *
  * Required permissions: Vorstand (vorstand_finanzen, vorstand_extern, vorstand_intern)
  *                       or Resortleiter (ressortleiter)
@@ -63,6 +63,10 @@ if (isset($_POST['vorname'])) {
 
 if (isset($_POST['nachname'])) {
     $data['nachname'] = trim(strip_tags($_POST['nachname']));
+}
+
+if (isset($_POST['rolle'])) {
+    $data['rolle'] = trim(strip_tags($_POST['rolle']));
 }
 
 if (isset($_POST['telefon'])) {

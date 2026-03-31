@@ -6,7 +6,7 @@ declare(strict_types=1);
  * Manages contact card data stored in the external vCard database.
  *
  * Remote table: vcards_table
- * Columns: id, vorname, nachname, funktion, telefon, email, linkedin, profilbild
+ * Columns: id, vorname, nachname, rolle, funktion, telefon, email, linkedin, profilbild
  */
 
 require_once __DIR__ . '/../database.php';
@@ -23,6 +23,7 @@ class VCard {
     private const ALLOWED_FIELDS = [
         'vorname',
         'nachname',
+        'rolle',
         'funktion',
         'telefon',
         'email',
