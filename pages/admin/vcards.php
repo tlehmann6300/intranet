@@ -90,6 +90,7 @@ ob_start();
                             onclick="openEditModal(<?php echo (int)$card['id']; ?>,
                                 <?php echo json_encode($card['vorname'] ?? ''); ?>,
                                 <?php echo json_encode($card['nachname'] ?? ''); ?>,
+                                <?php echo json_encode($card['rolle'] ?? ''); ?>,
                                 <?php echo json_encode($card['funktion'] ?? ''); ?>,
                                 <?php echo json_encode($card['email'] ?? ''); ?>,
                                 <?php echo json_encode($card['telefon'] ?? ''); ?>,
@@ -162,6 +163,22 @@ ob_start();
                             class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         >
                     </div>
+                </div>
+
+                <!-- Rolle -->
+                <div>
+                    <label for="editRolle" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Rolle
+                    </label>
+                    <select
+                        id="editRolle"
+                        name="rolle"
+                        class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                        <option value="">— Keine Rolle —</option>
+                        <option value="Vorstand">Vorstand</option>
+                        <option value="Ressortleitung">Ressortleitung</option>
+                    </select>
                 </div>
 
                 <!-- Funktion (read-only – not editable via API) -->
@@ -303,6 +320,22 @@ ob_start();
                     </div>
                 </div>
 
+                <!-- Rolle -->
+                <div>
+                    <label for="createRolle" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Rolle
+                    </label>
+                    <select
+                        id="createRolle"
+                        name="rolle"
+                        class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    >
+                        <option value="">— Keine Rolle —</option>
+                        <option value="Vorstand">Vorstand</option>
+                        <option value="Ressortleitung">Ressortleitung</option>
+                    </select>
+                </div>
+
                 <!-- Funktion -->
                 <div>
                     <label for="createFunktion" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -400,10 +433,11 @@ const VCARD_CREATE_API_URL = <?php echo json_encode(asset('api/admin/create_vcar
 const VCARD_DELETE_API_URL = <?php echo json_encode(asset('api/admin/delete_vcard.php')); ?>;
 const ROW_FADE_MS          = 500; // must match the CSS transition duration in deleteVCard
 
-function openEditModal(id, vorname, nachname, funktion, email, telefon, linkedin, profilbild) {
+function openEditModal(id, vorname, nachname, rolle, funktion, email, telefon, linkedin, profilbild) {
     document.getElementById('editId').value       = id;
     document.getElementById('editVorname').value  = vorname;
     document.getElementById('editNachname').value = nachname;
+    document.getElementById('editRolle').value    = rolle;
     document.getElementById('editFunktion').value = funktion;
     document.getElementById('editEmail').value    = email;
     document.getElementById('editTelefon').value  = telefon;
