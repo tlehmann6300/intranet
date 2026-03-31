@@ -548,6 +548,19 @@ if (!isset($currentUser)) {
             </a>
             <?php endif; ?>
 
+            <!-- Administration -->
+            <?php if (Auth::canCreateBasicContent()): ?>
+            <div class="mobile-menu-section-label">Administration</div>
+            <a href="<?php echo asset('pages/admin/vcards.php'); ?>"
+               class="mobile-menu-link <?php echo is_nav_active('/admin/vcards.php') ? 'mobile-menu-link--active' : ''; ?>"
+               <?php echo is_nav_active('/admin/vcards.php') ? 'aria-current="page"' : ''; ?>>
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--ibc-blue);" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                </svg>
+                <span>Digitale Visitenkarten</span>
+            </a>
+            <?php endif; ?>
+
             <!-- Konto -->
             <div class="mobile-menu-section-label">Konto</div>
             <a href="<?php echo asset('pages/auth/profile.php'); ?>"
@@ -811,13 +824,15 @@ if (!isset($currentUser)) {
                 <?php endif; ?>
 
 
-                <!-- vCards verwalten (Vorstand + Ressortleiter) -->
+                <!-- Digitale Visitenkarten (Vorstand + Ressortleiter) -->
                 <?php if (Auth::canCreateBasicContent()): ?>
                 <a href="<?php echo asset('pages/admin/vcards.php'); ?>"
                    class="sidebar-nav-item <?php echo is_nav_active('/admin/vcards.php') ? 'sidebar-nav-item--active' : ''; ?>"
                    <?php echo is_nav_active('/admin/vcards.php') ? 'aria-current="page"' : ''; ?>>
-                    <i class="fas fa-address-card sidebar-nav-icon" aria-hidden="true"></i>
-                    <span>vCards verwalten</span>
+                    <svg class="sidebar-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                    </svg>
+                    <span>Digitale Visitenkarten</span>
                 </a>
                 <?php endif; ?>
 
