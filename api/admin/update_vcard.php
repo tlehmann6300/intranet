@@ -3,7 +3,7 @@
  * API: Update VCard (Admin)
  *
  * Updates an existing vCard record in the external vCard database.
- * Accepted fields: first_name, last_name, phone, email, linkedin_url, image_path.
+ * Accepted fields: vorname, nachname, telefon, email, linkedin.
  *
  * Required permissions: Vorstand (vorstand_finanzen, vorstand_extern, vorstand_intern)
  *                       or Resortleiter (ressortleiter)
@@ -56,16 +56,16 @@ if ($id <= 0) {
 
 $data = [];
 
-if (isset($_POST['first_name'])) {
-    $data['first_name'] = trim(strip_tags($_POST['first_name']));
+if (isset($_POST['vorname'])) {
+    $data['vorname'] = trim(strip_tags($_POST['vorname']));
 }
 
-if (isset($_POST['last_name'])) {
-    $data['last_name'] = trim(strip_tags($_POST['last_name']));
+if (isset($_POST['nachname'])) {
+    $data['nachname'] = trim(strip_tags($_POST['nachname']));
 }
 
-if (isset($_POST['phone'])) {
-    $data['phone'] = trim(strip_tags($_POST['phone']));
+if (isset($_POST['telefon'])) {
+    $data['telefon'] = trim(strip_tags($_POST['telefon']));
 }
 
 if (isset($_POST['email'])) {
@@ -78,8 +78,8 @@ if (isset($_POST['email'])) {
     $data['email'] = $email;
 }
 
-if (isset($_POST['linkedin_url'])) {
-    $linkedin = trim($_POST['linkedin_url']);
+if (isset($_POST['linkedin'])) {
+    $linkedin = trim($_POST['linkedin']);
     if ($linkedin !== '') {
         $filtered = filter_var($linkedin, FILTER_VALIDATE_URL);
         if ($filtered === false) {
@@ -93,14 +93,10 @@ if (isset($_POST['linkedin_url'])) {
             echo json_encode(['success' => false, 'message' => 'Ungültige LinkedIn-URL']);
             exit;
         }
-        $data['linkedin_url'] = $linkedin;
+        $data['linkedin'] = $linkedin;
     } else {
-        $data['linkedin_url'] = '';
+        $data['linkedin'] = '';
     }
-}
-
-if (isset($_POST['image_path'])) {
-    $data['image_path'] = trim(strip_tags($_POST['image_path']));
 }
 
 if (empty($data)) {
