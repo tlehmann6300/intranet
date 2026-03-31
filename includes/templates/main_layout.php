@@ -811,6 +811,16 @@ if (!isset($currentUser)) {
                 <?php endif; ?>
 
 
+                <!-- vCards verwalten (Vorstand + Ressortleiter) -->
+                <?php if (Auth::canCreateBasicContent()): ?>
+                <a href="<?php echo asset('pages/admin/vcards.php'); ?>"
+                   class="sidebar-nav-item <?php echo is_nav_active('/admin/vcards.php') ? 'sidebar-nav-item--active' : ''; ?>"
+                   <?php echo is_nav_active('/admin/vcards.php') ? 'aria-current="page"' : ''; ?>>
+                    <i class="fas fa-address-card sidebar-nav-icon" aria-hidden="true"></i>
+                    <span>vCards verwalten</span>
+                </a>
+                <?php endif; ?>
+
                 <!-- Systemeinstellungen (Board roles + alumni_vorstand + alumni_finanz) -->
                 <?php if (Auth::canAccessSystemSettings()): ?>
                 <a href="<?php echo asset('pages/admin/settings.php'); ?>" 
