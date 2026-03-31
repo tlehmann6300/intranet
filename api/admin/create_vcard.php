@@ -13,6 +13,7 @@
 require_once __DIR__ . '/../../src/Auth.php';
 require_once __DIR__ . '/../../includes/handlers/CSRFHandler.php';
 require_once __DIR__ . '/../../includes/models/VCard.php';
+require_once __DIR__ . '/../../includes/utils/SecureImageUpload.php';
 require_once __DIR__ . '/../../config/config.php';
 
 header('Content-Type: application/json');
@@ -107,8 +108,15 @@ if (isset($_POST['linkedin'])) {
     }
 }
 
-if (isset($_POST['profilbild'])) {
-    $data['profilbild'] = trim(strip_tags($_POST['profilbild']));
+if (isset($_FILES['profilbild']) && $_FILES['profilbild']['error'] !== UPLOAD_ERR_NO_FILE) {
+    $uploadDir = __DIR__ . '/../../uploads/vcards/';
+    $result    = SecureImageUpload::uploadImage($_FILES['profilbild'], $uploadDir);
+    if (!$result['success']) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => $result['error']]);
+        exit;
+    }
+    $data['profilbild'] = $result['path']; // relative path, e.g. "uploads/vcards/item_abc123.jpg"
 }
 
 // ── Create vCard ───────────────────────────────────────────────────────────────
