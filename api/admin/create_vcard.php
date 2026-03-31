@@ -4,7 +4,7 @@
  *
  * Creates a new vCard record in the external vCard database.
  * Required fields: vorname, nachname
- * Optional fields: funktion, telefon, email, linkedin, profilbild
+ * Optional fields: rolle, funktion, telefon, email, linkedin, profilbild
  *
  * Required permissions: Vorstand (vorstand_finanzen, vorstand_extern, vorstand_intern)
  *                       or Resortleiter (ressortleiter)
@@ -68,6 +68,10 @@ $data = [
     'vorname'  => $vorname,
     'nachname' => $nachname,
 ];
+
+if (isset($_POST['rolle'])) {
+    $data['rolle'] = trim(strip_tags($_POST['rolle']));
+}
 
 if (isset($_POST['funktion'])) {
     $data['funktion'] = trim(strip_tags($_POST['funktion']));
