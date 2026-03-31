@@ -26,6 +26,15 @@ ob_start();
             </h1>
             <p class="text-gray-600 dark:text-gray-400"><?php echo count($vcards); ?> Kontakte</p>
         </div>
+        <div class="mt-4 md:mt-0">
+            <button
+                type="button"
+                onclick="openCreateModal()"
+                class="inline-flex items-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl shadow-md transition-colors text-sm">
+                <i class="fas fa-plus-circle text-base"></i>
+                Neue vCard anlegen
+            </button>
+        </div>
     </div>
 </div>
 
@@ -89,6 +98,13 @@ ob_start();
                             <i class="fas fa-pen"></i>
                             <span>Bearbeiten</span>
                         </button>
+                        <button
+                            type="button"
+                            onclick="deleteVCard(<?php echo (int)$card['id']; ?>, this.closest('tr'))"
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors ml-2">
+                            <i class="fas fa-trash"></i>
+                            <span>Löschen</span>
+                        </button>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -97,6 +113,9 @@ ob_start();
         </table>
     </div>
 </div>
+
+<!-- Shared hidden CSRF token for inline JS operations (e.g. delete) -->
+<input type="hidden" id="sharedCsrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
 
 <!-- Edit Modal -->
 <div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 items-center justify-center p-4">
@@ -219,8 +238,132 @@ ob_start();
     </div>
 </div>
 
+<!-- Create Modal -->
+<div id="createModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-lg shadow-2xl flex flex-col overflow-hidden">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100">
+                <i class="fas fa-plus-circle text-green-600 mr-2"></i>
+                Neue vCard anlegen
+            </h2>
+            <button type="button" onclick="closeCreateModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <form id="createForm" class="flex flex-col flex-1 min-h-0" novalidate>
+            <input type="hidden" id="createCsrf" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken); ?>">
+
+            <div class="p-6 overflow-y-auto flex-1 space-y-4">
+                <!-- Name row -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="createVorname" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Vorname <span class="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            id="createVorname"
+                            name="vorname"
+                            required
+                            class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        >
+                    </div>
+                    <div>
+                        <label for="createNachname" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Nachname <span class="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            id="createNachname"
+                            name="nachname"
+                            required
+                            class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        >
+                    </div>
+                </div>
+
+                <!-- Funktion -->
+                <div>
+                    <label for="createFunktion" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Funktion
+                    </label>
+                    <input
+                        type="text"
+                        id="createFunktion"
+                        name="funktion"
+                        class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        placeholder="z. B. Vorstand"
+                    >
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <label for="createEmail" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        E-Mail
+                    </label>
+                    <input
+                        type="email"
+                        id="createEmail"
+                        name="email"
+                        class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        placeholder="name@example.com"
+                    >
+                </div>
+
+                <!-- Telefon -->
+                <div>
+                    <label for="createTelefon" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Telefon
+                    </label>
+                    <input
+                        type="tel"
+                        id="createTelefon"
+                        name="telefon"
+                        class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        placeholder="+49 123 456789"
+                    >
+                </div>
+
+                <!-- LinkedIn -->
+                <div>
+                    <label for="createLinkedin" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        LinkedIn-URL
+                    </label>
+                    <input
+                        type="url"
+                        id="createLinkedin"
+                        name="linkedin"
+                        class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        placeholder="https://linkedin.com/in/..."
+                    >
+                </div>
+            </div>
+
+            <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex gap-3">
+                <button
+                    type="button"
+                    onclick="closeCreateModal()"
+                    class="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors font-medium">
+                    Abbrechen
+                </button>
+                <button
+                    type="submit"
+                    id="createSubmitBtn"
+                    class="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2">
+                    <i class="fas fa-plus"></i>
+                    Anlegen
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
-const VCARD_API_URL = <?php echo json_encode(asset('api/admin/update_vcard.php')); ?>;
+const VCARD_API_URL        = <?php echo json_encode(asset('api/admin/update_vcard.php')); ?>;
+const VCARD_CREATE_API_URL = <?php echo json_encode(asset('api/admin/create_vcard.php')); ?>;
+const VCARD_DELETE_API_URL = <?php echo json_encode(asset('api/admin/delete_vcard.php')); ?>;
+const ROW_FADE_MS          = 500; // must match the CSS transition duration in deleteVCard
 
 function openEditModal(id, vorname, nachname, funktion, email, telefon, linkedin) {
     document.getElementById('editId').value       = id;
@@ -248,6 +391,86 @@ document.getElementById('editModal').addEventListener('click', function (e) {
         closeEditModal();
     }
 });
+
+// ── Create Modal ────────────────────────────────────────────────────────────────
+
+function openCreateModal() {
+    document.getElementById('createForm').reset();
+    const modal = document.getElementById('createModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+function closeCreateModal() {
+    const modal = document.getElementById('createModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
+document.getElementById('createModal').addEventListener('click', function (e) {
+    if (e.target === this) {
+        closeCreateModal();
+    }
+});
+
+document.getElementById('createForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const submitBtn = document.getElementById('createSubmitBtn');
+    submitBtn.disabled = true;
+    submitBtn.classList.add('opacity-60', 'cursor-not-allowed');
+
+    const formData = new FormData(this);
+
+    try {
+        const resp = await fetch(VCARD_CREATE_API_URL, { method: 'POST', body: formData });
+        const data = await resp.json();
+
+        if (data.success) {
+            closeCreateModal();
+            showToast(data.message || 'vCard erfolgreich angelegt', 'success');
+            // Reload the page to show the new entry in the table
+            setTimeout(function () { location.reload(); }, 1000);
+        } else {
+            showToast(data.message || 'Fehler beim Anlegen', 'error');
+        }
+    } catch (err) {
+        showToast('Netzwerkfehler. Bitte erneut versuchen.', 'error');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+    }
+});
+
+// ── Delete vCard ─────────────────────────────────────────────────────────────────
+
+async function deleteVCard(id, row) {
+    if (!confirm('Wirklich löschen?')) {
+        return;
+    }
+
+    const csrfToken = document.getElementById('sharedCsrf').value;
+    const formData  = new FormData();
+    formData.append('id', id);
+    formData.append('csrf_token', csrfToken);
+
+    try {
+        const resp = await fetch(VCARD_DELETE_API_URL, { method: 'POST', body: formData });
+        const data = await resp.json();
+
+        if (data.success) {
+            showToast(data.message || 'vCard erfolgreich gelöscht', 'success');
+            // Fade out the table row
+            row.style.transition = 'opacity ' + ROW_FADE_MS + 'ms ease';
+            row.style.opacity    = '0';
+            setTimeout(function () { row.remove(); }, ROW_FADE_MS);
+        } else {
+            showToast(data.message || 'Fehler beim Löschen', 'error');
+        }
+    } catch (err) {
+        showToast('Netzwerkfehler. Bitte erneut versuchen.', 'error');
+    }
+}
 
 // Form submit via Fetch API
 document.getElementById('editForm').addEventListener('submit', async function (e) {
