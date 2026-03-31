@@ -93,7 +93,8 @@ ob_start();
                                 <?php echo json_encode($card['funktion'] ?? ''); ?>,
                                 <?php echo json_encode($card['email'] ?? ''); ?>,
                                 <?php echo json_encode($card['telefon'] ?? ''); ?>,
-                                <?php echo json_encode($card['linkedin'] ?? ''); ?>)"
+                                <?php echo json_encode($card['linkedin'] ?? ''); ?>,
+                                <?php echo json_encode($card['profilbild'] ?? ''); ?>)"
                             class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
                             <i class="fas fa-pen"></i>
                             <span>Bearbeiten</span>
@@ -217,6 +218,25 @@ ob_start();
                         placeholder="https://linkedin.com/in/..."
                     >
                 </div>
+
+                <!-- Profilbild -->
+                <div>
+                    <label for="editProfilbild" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Profilbild
+                    </label>
+                    <div id="editProfilbildPreviewWrap" class="hidden mb-2">
+                        <img id="editProfilbildPreview" src="" alt="Aktuelles Profilbild"
+                            class="h-20 w-20 rounded-full object-cover border border-gray-300 dark:border-gray-600">
+                    </div>
+                    <input
+                        type="file"
+                        id="editProfilbild"
+                        name="profilbild"
+                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        class="w-full text-sm text-gray-700 dark:text-gray-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 dark:file:bg-blue-900/30 file:text-blue-700 dark:file:text-blue-300 hover:file:bg-blue-100 dark:hover:file:bg-blue-900/50 cursor-pointer"
+                    >
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">JPG, PNG, WebP oder GIF – max. 5 MB. Leer lassen, um das Bild beizubehalten.</p>
+                </div>
             </div>
 
             <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex gap-3">
@@ -338,6 +358,21 @@ ob_start();
                         placeholder="https://linkedin.com/in/..."
                     >
                 </div>
+
+                <!-- Profilbild -->
+                <div>
+                    <label for="createProfilbild" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Profilbild
+                    </label>
+                    <input
+                        type="file"
+                        id="createProfilbild"
+                        name="profilbild"
+                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        class="w-full text-sm text-gray-700 dark:text-gray-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-green-50 dark:file:bg-green-900/30 file:text-green-700 dark:file:text-green-300 hover:file:bg-green-100 dark:hover:file:bg-green-900/50 cursor-pointer"
+                    >
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">JPG, PNG, WebP oder GIF – max. 5 MB (optional)</p>
+                </div>
             </div>
 
             <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex gap-3">
@@ -365,7 +400,7 @@ const VCARD_CREATE_API_URL = <?php echo json_encode(asset('api/admin/create_vcar
 const VCARD_DELETE_API_URL = <?php echo json_encode(asset('api/admin/delete_vcard.php')); ?>;
 const ROW_FADE_MS          = 500; // must match the CSS transition duration in deleteVCard
 
-function openEditModal(id, vorname, nachname, funktion, email, telefon, linkedin) {
+function openEditModal(id, vorname, nachname, funktion, email, telefon, linkedin, profilbild) {
     document.getElementById('editId').value       = id;
     document.getElementById('editVorname').value  = vorname;
     document.getElementById('editNachname').value = nachname;
@@ -373,6 +408,18 @@ function openEditModal(id, vorname, nachname, funktion, email, telefon, linkedin
     document.getElementById('editEmail').value    = email;
     document.getElementById('editTelefon').value  = telefon;
     document.getElementById('editLinkedin').value = linkedin;
+
+    // Reset file input and show current profile image preview if available
+    document.getElementById('editProfilbild').value = '';
+    const previewWrap = document.getElementById('editProfilbildPreviewWrap');
+    const previewImg  = document.getElementById('editProfilbildPreview');
+    if (profilbild) {
+        previewImg.src = profilbild;
+        previewWrap.classList.remove('hidden');
+    } else {
+        previewImg.src = '';
+        previewWrap.classList.add('hidden');
+    }
 
     const modal = document.getElementById('editModal');
     modal.classList.remove('hidden');

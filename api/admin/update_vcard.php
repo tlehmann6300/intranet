@@ -12,6 +12,7 @@
 require_once __DIR__ . '/../../src/Auth.php';
 require_once __DIR__ . '/../../includes/handlers/CSRFHandler.php';
 require_once __DIR__ . '/../../includes/models/VCard.php';
+require_once __DIR__ . '/../../includes/utils/SecureImageUpload.php';
 require_once __DIR__ . '/../../config/config.php';
 
 header('Content-Type: application/json');
@@ -97,6 +98,23 @@ if (isset($_POST['linkedin'])) {
     } else {
         $data['linkedin'] = '';
     }
+}
+
+// ── Profile image upload ───────────────────────────────────────────────────────
+if (isset($_FILES['profilbild']) && $_FILES['profilbild']['error'] !== UPLOAD_ERR_NO_FILE) {
+    $uploadDir = __DIR__ . '/../../uploads/vcards/';
+    $result    = SecureImageUpload::uploadImage($_FILES['profilbild'], $uploadDir);
+    if (!$result['success']) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => $result['error']]);
+        exit;
+    }
+    // Delete the previous profile image to avoid accumulating orphaned files
+    $existing = VCard::getById($id);
+    if ($existing && !empty($existing['profilbild'])) {
+        SecureImageUpload::deleteImage($existing['profilbild']);
+    }
+    $data['profilbild'] = $result['path']; // relative path, e.g. "uploads/vcards/item_abc123.jpg"
 }
 
 if (empty($data)) {
