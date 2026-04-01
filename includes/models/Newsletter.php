@@ -4,7 +4,14 @@
  * Manages the internal newsletter archive (.eml files)
  */
 
-class Newsletter {
+use Illuminate\Database\Eloquent\Model;
+
+class Newsletter extends Model
+{
+    protected $connection = 'news';
+    protected $table = 'newsletters';
+    protected static $unguarded = true;
+    protected $timestamps = false;
 
     /** Allowed file extensions for newsletter uploads */
     const ALLOWED_EXTENSIONS = ['eml'];

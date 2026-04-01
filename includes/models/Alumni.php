@@ -8,7 +8,22 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../database.php';
 
-class Alumni extends Database {
+use Illuminate\Database\Eloquent\Model;
+
+class Alumni extends Model
+{
+    protected $connection = 'user';
+    protected $table = 'alumni_profiles';
+    protected static $unguarded = true;
+
+    // ---------------------------------------------------------------------------
+    // Relationships
+    // ---------------------------------------------------------------------------
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 
     /**
      * Alumni roles (excludes active member roles)

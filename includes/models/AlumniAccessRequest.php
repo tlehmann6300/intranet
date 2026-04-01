@@ -4,7 +4,14 @@
  * Manages alumni e-mail recovery requests
  */
 
-class AlumniAccessRequest {
+use Illuminate\Database\Eloquent\Model;
+
+class AlumniAccessRequest extends Model
+{
+    protected $connection = 'user';
+    protected $table = 'alumni_access_requests';
+    protected static $unguarded = true;
+    protected $timestamps = false;
 
     // ---------------------------------------------------------------------------
     // Table bootstrap

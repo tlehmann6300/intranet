@@ -7,7 +7,28 @@
 require_once __DIR__ . '/../utils/SecureImageUpload.php';
 require_once __DIR__ . '/../../src/MailService.php';
 
-class Event {
+use Illuminate\Database\Eloquent\Model;
+
+class Event extends Model
+{
+    protected $connection = 'content';
+    protected $table = 'events';
+    protected static $unguarded = true;
+    protected $timestamps = false;
+
+    // ---------------------------------------------------------------------------
+    // Relationships
+    // ---------------------------------------------------------------------------
+
+    public function documentation()
+    {
+        return $this->hasOne(EventDocumentation::class, 'event_id');
+    }
+
+    public function financialStats()
+    {
+        return $this->hasMany(EventFinancialStats::class, 'event_id');
+    }
     
     // Lock timeout in seconds (15 minutes)
     const LOCK_TIMEOUT = 900;

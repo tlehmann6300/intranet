@@ -4,7 +4,14 @@
  * Manages useful links stored in the database
  */
 
-class Link {
+use Illuminate\Database\Eloquent\Model;
+
+class Link extends Model
+{
+    protected $connection = 'content';
+    protected $table = 'links';
+    protected static $unguarded = true;
+    protected $timestamps = false;
 
     /**
      * Get all links ordered alphabetically by title, with optional search filter

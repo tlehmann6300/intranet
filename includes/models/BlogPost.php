@@ -4,7 +4,22 @@
  * Manages blog posts, comments, and likes with cross-database user integration
  */
 
-class BlogPost {
+use Illuminate\Database\Eloquent\Model;
+
+class BlogPost extends Model
+{
+    protected $connection = 'content';
+    protected $table = 'blog_posts';
+    protected static $unguarded = true;
+
+    // ---------------------------------------------------------------------------
+    // Relationships
+    // ---------------------------------------------------------------------------
+
+    public function author()
+    {
+        return $this->belongsTo(User::class, 'author_id');
+    }
     
     // Default image used when no blog post image has been uploaded
     const DEFAULT_IMAGE = 'assets/img/ibc_logo_original.webp';

@@ -11,7 +11,14 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../database.php';
 
-class VCard {
+use Illuminate\Database\Eloquent\Model;
+
+class VCard extends Model
+{
+    protected $connection = 'vcard';
+    protected $table = 'vcards_table';
+    protected static $unguarded = true;
+    protected $timestamps = false;
 
     /** Table name in the external vCard database */
     private const TABLE = 'vcards_table';

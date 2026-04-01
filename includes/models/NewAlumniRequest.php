@@ -4,7 +4,14 @@
  * Manages new alumni registration requests (Neue Alumni hinzufügen)
  */
 
-class NewAlumniRequest {
+use Illuminate\Database\Eloquent\Model;
+
+class NewAlumniRequest extends Model
+{
+    protected $connection = 'user';
+    protected $table = 'new_alumni_requests';
+    protected static $unguarded = true;
+    protected $timestamps = false;
 
     // ---------------------------------------------------------------------------
     // Table bootstrap

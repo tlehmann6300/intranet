@@ -17,24 +17,11 @@ declare(strict_types=1);
 ob_start();
 
 try {
-    // 2. Bootstrap: config, helpers, auth
-    $configFile = __DIR__ . '/config/config.php';
-    if (!file_exists($configFile)) {
-        throw new Exception("Kritisch: config.php nicht gefunden in $configFile");
-    }
-    require_once $configFile;
+    // 2. Bootstrap: loads config, helpers, auth, autoloader and returns DI container
+    $container = require __DIR__ . '/bootstrap/app.php';
 
-    $helperFile = __DIR__ . '/includes/helpers.php';
-    if (!file_exists($helperFile)) {
-        throw new Exception("Kritisch: helpers.php nicht gefunden in $helperFile");
-    }
-    require_once $helperFile;
-
-    $authFile = __DIR__ . '/src/Auth.php';
-    if (!file_exists($authFile)) {
-        throw new Exception("Kritisch: Auth.php nicht gefunden in $authFile");
-    }
-    require_once $authFile;
+    /** @var \Twig\Environment $twig */
+    $twig = $container->get(\Twig\Environment::class);
 
     // 3. BASE_URL fallback
     if (!defined('BASE_URL')) {
@@ -72,8 +59,22 @@ try {
 
     switch ($routeInfo[0]) {
         case FastRoute\Dispatcher::FOUND:
-            // Route matched – call the handler, passing URL variables as argument
-            ($routeInfo[1])($routeInfo[2]);
+            $handler  = $routeInfo[1];
+            $vars     = $routeInfo[2];
+
+            if (is_string($handler)) {
+                // 'ControllerClass@method' notation
+                [$class, $method_name] = explode('@', $handler, 2);
+                // Resolve fully-qualified or App\Controllers\ prefixed
+                if (!str_contains($class, '\\')) {
+                    $class = 'App\\Controllers\\' . $class;
+                }
+                $controller = $container->get($class);
+                $controller->$method_name($vars);
+            } else {
+                // Legacy closure handlers
+                $handler($vars);
+            }
             break;
 
         case FastRoute\Dispatcher::NOT_FOUND:

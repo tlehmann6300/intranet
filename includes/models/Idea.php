@@ -6,7 +6,14 @@
 
 require_once __DIR__ . '/../database.php';
 
-class Idea {
+use Illuminate\Database\Eloquent\Model;
+
+class Idea extends Model
+{
+    protected $connection = 'content';
+    protected $table = 'ideas';
+    protected static $unguarded = true;
+    protected $timestamps = false;
 
     /**
      * Create a new idea

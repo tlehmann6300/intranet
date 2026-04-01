@@ -4,7 +4,23 @@
  * Manages project data and operations with security controls
  */
 
-class Project {
+use Illuminate\Database\Eloquent\Model;
+
+class Project extends Model
+{
+    protected $connection = 'content';
+    protected $table = 'projects';
+    protected static $unguarded = true;
+    protected $timestamps = false;
+
+    // ---------------------------------------------------------------------------
+    // Relationships
+    // ---------------------------------------------------------------------------
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
     
     /**
      * Upload directory for project documentation

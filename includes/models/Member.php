@@ -11,7 +11,22 @@ require_once __DIR__ . '/Alumni.php';
 require_once __DIR__ . '/../../src/Auth.php';
 require_once __DIR__ . '/../helpers.php';
 
-class Member {
+use Illuminate\Database\Eloquent\Model;
+
+class Member extends Model
+{
+    protected $connection = 'user';
+    protected $table = 'alumni_profiles';
+    protected static $unguarded = true;
+
+    // ---------------------------------------------------------------------------
+    // Relationships
+    // ---------------------------------------------------------------------------
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
     
     /**
      * Active member roles (excludes 'alumni', 'alumni_vorstand', 'ehrenmitglied')
