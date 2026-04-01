@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: ["main", "master"]
 
+# Minimal required permissions for all jobs
+permissions:
+  contents: read
+
 jobs:
   # ---------------------------------------------------------------------------
   # PHP tests, static analysis, and code-style checks
