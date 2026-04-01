@@ -13,7 +13,7 @@ require_once __DIR__ . '/../../includes/helpers.php';
 try {
     // Redirect if already authenticated
     if (Auth::check()) {
-        header('Location: ../dashboard/index.php');
+        header('Location: ' . BASE_URL . '/dashboard');
         exit;
     }
 

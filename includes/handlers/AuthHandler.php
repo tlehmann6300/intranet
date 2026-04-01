@@ -60,7 +60,7 @@ class AuthHandler {
                 
                 // Redirect to login page with timeout parameter
                 // Use BASE_URL for portability across environments
-                $loginUrl = (defined('BASE_URL') && BASE_URL) ? BASE_URL . '/pages/auth/login.php?timeout=1' : '/pages/auth/login.php?timeout=1';
+                $loginUrl = (defined('BASE_URL') && BASE_URL) ? BASE_URL . '/login?timeout=1' : '/login?timeout=1';
                 header('Location: ' . $loginUrl);
                 exit;
             }
@@ -310,7 +310,7 @@ class AuthHandler {
      */
     public static function requireLogin() {
         if (!self::isAuthenticated()) {
-            $loginUrl = (defined('BASE_URL') && BASE_URL) ? BASE_URL . '/pages/auth/login.php' : '/pages/auth/login.php';
+            $loginUrl = (defined('BASE_URL') && BASE_URL) ? BASE_URL . '/login' : '/login';
             header('Location: ' . $loginUrl);
             exit;
         }
@@ -322,7 +322,7 @@ class AuthHandler {
      */
     public static function requireAdmin() {
         if (!self::isAdmin()) {
-            $loginUrl = (defined('BASE_URL') && BASE_URL) ? BASE_URL . '/pages/auth/login.php' : '/pages/auth/login.php';
+            $loginUrl = (defined('BASE_URL') && BASE_URL) ? BASE_URL . '/login' : '/login';
             header('Location: ' . $loginUrl);
             exit;
         }
@@ -809,7 +809,7 @@ class AuthHandler {
             self::logSystemAction($userId, 'login_2fa_required', 'user', $userId, 'Microsoft login successful, 2FA verification required');
             
             // Redirect to 2FA verification page
-            $verify2faUrl = (defined('BASE_URL') && BASE_URL) ? BASE_URL . '/pages/auth/verify_2fa.php' : '/pages/auth/verify_2fa.php';
+            $verify2faUrl = (defined('BASE_URL') && BASE_URL) ? BASE_URL . '/verify-2fa' : '/verify-2fa';
             header('Location: ' . $verify2faUrl);
             exit;
         }

@@ -1,97 +1,127 @@
 <?php
-// index.php - Haupt-Einstiegspunkt (Bulletproof Version)
+/**
+ * index.php – Front-Controller (Haupt-Einstiegspunkt)
+ *
+ * All HTTP requests that do not match a real file or directory are routed here
+ * by the `.htaccess` RewriteRule.  This controller loads the application
+ * bootstrap, resolves the requested URI via FastRoute and delegates to the
+ * matching handler defined in `routes/web.php`.
+ *
+ * Direct file access (e.g. /pages/…, /api/…, /assets/…) still works unchanged
+ * for backward compatibility – the `.htaccess` lets those requests pass through.
+ */
 
-// 1. Buffer starten (Verhindert "Headers already sent" Fehler)
+declare(strict_types=1);
+
+// 1. Output buffering – prevents "Headers already sent" errors
 ob_start();
 
 try {
-    // 3. Prüfen & Laden der Config (Mit absolutem Pfad!)
+    // 2. Bootstrap: config, helpers, auth
     $configFile = __DIR__ . '/config/config.php';
     if (!file_exists($configFile)) {
         throw new Exception("Kritisch: config.php nicht gefunden in $configFile");
     }
     require_once $configFile;
 
-    // 4. Prüfen & Laden der Helper
     $helperFile = __DIR__ . '/includes/helpers.php';
     if (!file_exists($helperFile)) {
         throw new Exception("Kritisch: helpers.php nicht gefunden in $helperFile");
     }
     require_once $helperFile;
 
-    // 5. Prüfen & Laden von Auth
     $authFile = __DIR__ . '/src/Auth.php';
     if (!file_exists($authFile)) {
         throw new Exception("Kritisch: Auth.php nicht gefunden in $authFile");
     }
     require_once $authFile;
 
-    // 6. BASE_URL Check
+    // 3. BASE_URL fallback
     if (!defined('BASE_URL')) {
-        // Fallback, falls Config versagt hat
-        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
-        $baseUrl = $protocol . "://" . $_SERVER['HTTP_HOST'];
-        // Optional: Unterordner erkennen
-        $path = dirname($_SERVER['PHP_SELF']);
+        $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+        $baseUrl  = $protocol . '://' . $_SERVER['HTTP_HOST'];
+        $path     = dirname($_SERVER['PHP_SELF']);
         if ($path !== '/' && $path !== '\\') {
             $baseUrl .= $path;
         }
         define('BASE_URL', rtrim($baseUrl, '/'));
     }
 
-    // 7. Routing-Logik
-    $target = '';
-    if (class_exists('Auth') && Auth::check()) {
-        // Check if profile is incomplete and redirect to profile page
-        if (isset($_SESSION['profile_incomplete']) && $_SESSION['profile_incomplete'] === true) {
-            $target = BASE_URL . '/pages/auth/profile.php';
-        } else {
-            $target = BASE_URL . '/pages/dashboard/index.php';
-        }
-    } else {
-        $target = BASE_URL . '/pages/auth/login.php';
+    // 4. FastRoute – dispatch the current request
+    $dispatcher = FastRoute\simpleDispatcher(static function (FastRoute\RouteCollector $r): void {
+        require __DIR__ . '/routes/web.php';
+    });
+
+    // Strip query string and decode URI for matching
+    $uri    = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+    $uri    = rawurldecode((string) $uri);
+    $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+
+    // Remove BASE_URL path prefix if the app is installed in a subdirectory
+    $basePath = rtrim(parse_url(BASE_URL, PHP_URL_PATH) ?? '', '/');
+    if ($basePath !== '' && strpos($uri, $basePath) === 0) {
+        $uri = substr($uri, strlen($basePath));
+    }
+    if ($uri === '' || $uri === false) {
+        $uri = '/';
     }
 
-    // Puffer leeren
+    $routeInfo = $dispatcher->dispatch($method, $uri);
+
     ob_end_clean();
 
-    // 8. Weiterleitung
-    if (!headers_sent()) {
-        header('Location: ' . $target);
-        exit;
-    } else {
-        throw new Exception("Header konnten nicht gesendet werden (Ausgabe vor header()).");
+    switch ($routeInfo[0]) {
+        case FastRoute\Dispatcher::FOUND:
+            // Route matched – call the handler, passing URL variables as argument
+            ($routeInfo[1])($routeInfo[2]);
+            break;
+
+        case FastRoute\Dispatcher::NOT_FOUND:
+            // No clean-URL route – serve the 404 error page
+            http_response_code(404);
+            if (file_exists(__DIR__ . '/pages/errors/404.php')) {
+                include __DIR__ . '/pages/errors/404.php';
+            } else {
+                echo '<h1>404 – Seite nicht gefunden</h1>';
+            }
+            break;
+
+        case FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
+            http_response_code(405);
+            header('Allow: ' . implode(', ', $routeInfo[1]));
+            echo '<h1>405 – Methode nicht erlaubt</h1>';
+            break;
     }
 
-} catch (Exception $e) {
-    ob_end_clean(); // Puffer verwerfen
+} catch (Throwable $e) {
+    // Discard any partial output
+    if (ob_get_level() > 0) {
+        ob_end_clean();
+    }
 
     $isProduction = !defined('ENVIRONMENT') || ENVIRONMENT === 'production';
 
     if ($isProduction) {
-        // Log silently to error log, show no details to the user
-        $logFile = __DIR__ . '/logs/error.log';
+        $logFile   = __DIR__ . '/logs/error.log';
         $timestamp = date('Y-m-d H:i:s');
         @file_put_contents(
             $logFile,
-            "[$timestamp] " . $e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine() . PHP_EOL,
+            "[$timestamp] " . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine() . PHP_EOL,
             FILE_APPEND | LOCK_EX
         );
         http_response_code(500);
-        echo "<p>Ein interner Fehler ist aufgetreten. Bitte versuche es später erneut.</p>";
+        echo '<p>Ein interner Fehler ist aufgetreten. Bitte versuche es später erneut.</p>';
     } else {
-        // Fehlerbehandlung: Zeige den Fehler an, statt einer weißen Seite
-        echo "<div style='font-family:sans-serif; padding:20px; background:#ffebee; border:1px solid #c62828; color:#b71c1c;'>";
-        echo "<h2>⚠️ System Fehler (500 Avoidance)</h2>";
-        echo "<p><strong>Fehler:</strong> " . htmlspecialchars($e->getMessage()) . "</p>";
-        echo "<p><strong>Datei:</strong> " . $e->getFile() . " (Zeile " . $e->getLine() . ")</p>";
-        echo "</div>";
+        echo "<div style='font-family:sans-serif;padding:20px;background:#ffebee;border:1px solid #c62828;color:#b71c1c;'>";
+        echo '<h2>⚠️ System Fehler</h2>';
+        echo '<p><strong>Fehler:</strong> ' . htmlspecialchars($e->getMessage()) . '</p>';
+        echo '<p><strong>Datei:</strong> ' . htmlspecialchars($e->getFile()) . ' (Zeile ' . $e->getLine() . ')</p>';
+        echo '<pre>' . htmlspecialchars($e->getTraceAsString()) . '</pre>';
+        echo '</div>';
 
-        // Fallback-Link anzeigen
         if (defined('BASE_URL')) {
-            echo "<p><a href='" . BASE_URL . "/pages/auth/login.php'>Versuche direkten Login-Link</a></p>";
+            echo "<p><a href='" . BASE_URL . "/login'>Zum Login</a></p>";
         }
     }
     exit;
 }
-?>

@@ -203,7 +203,7 @@ try {
     error_log("[OAuth Callback] Stack Trace: " . $e->getTraceAsString());
 
     // Redirect to login page with a generic user-facing message (details are in server logs)
-    $loginUrl = (defined('BASE_URL') && BASE_URL) ? BASE_URL . '/pages/auth/login.php' : '/pages/auth/login.php';
+    $loginUrl = (defined('BASE_URL') && BASE_URL) ? BASE_URL . '/login' : '/login';
     $errorMessage = urlencode('Authentifizierung fehlgeschlagen. Bitte versuchen Sie es erneut.');
     header('Location: ' . $loginUrl . '?error=' . $errorMessage);
     exit;
