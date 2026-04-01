@@ -31,6 +31,7 @@ return array(
     'GuzzleHttp\\' => array($vendorDir . '/guzzlehttp/guzzle/src'),
     'FontLib\\' => array($vendorDir . '/dompdf/php-font-lib/src/FontLib'),
     'Firebase\\JWT\\' => array($vendorDir . '/firebase/php-jwt/src'),
+    'FastRoute\\' => array($vendorDir . '/nikic/fast-route/src'),
     'Dompdf\\' => array($vendorDir . '/dompdf/dompdf/src'),
     'DI\\' => array($vendorDir . '/php-di/php-di/src'),
 );

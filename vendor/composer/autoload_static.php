@@ -95,6 +95,7 @@ class ComposerStaticInit767b59d6c51ddfb9d5ddf2cb1727bfa6
         '0174385c3be07e86008907d06ee66531' => __DIR__ . '/..' . '/sabberworm/php-css-parser/src/Rule/Rule.php',
         '98aea6e41b9cb79b379b10f37ba1f0b7' => __DIR__ . '/..' . '/sabberworm/php-css-parser/src/RuleSet/RuleContainer.php',
         'b33e3d135e5d9e47d845c576147bda89' => __DIR__ . '/..' . '/php-di/php-di/src/functions.php',
+        '253c157292f75eb38082b5acb06f3f01' => __DIR__ . '/..' . '/nikic/fast-route/src/functions.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -149,6 +150,7 @@ class ComposerStaticInit767b59d6c51ddfb9d5ddf2cb1727bfa6
         array (
             'FontLib\\' => 8,
             'Firebase\\JWT\\' => 13,
+            'FastRoute\\' => 10,
         ),
         'D' =>
         array (
@@ -258,6 +260,10 @@ class ComposerStaticInit767b59d6c51ddfb9d5ddf2cb1727bfa6
         'Firebase\\JWT\\' =>
         array (
             0 => __DIR__ . '/..' . '/firebase/php-jwt/src',
+        ),
+        'FastRoute\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/nikic/fast-route/src',
         ),
         'Dompdf\\' =>
         array (
