@@ -379,7 +379,7 @@ class Database {
         if (self::$vcardConnection === null) {
             try {
                 self::$vcardConnection = new PDO(
-                    "mysql:host=" . DB_VCARD_HOST . ";dbname=" . DB_VCARD_NAME . ";charset=utf8mb4",
+                    "mysql:host=" . DB_VCARD_HOST . ";port=" . DB_VCARD_PORT . ";dbname=" . DB_VCARD_NAME . ";charset=utf8mb4",
                     DB_VCARD_USER,
                     DB_VCARD_PASS,
                     [
