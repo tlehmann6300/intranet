@@ -142,8 +142,10 @@ function formatEntraName($name) {
 /**
  * Escape HTML
  */
-function e($text) {
-    return htmlspecialchars($text ?? '', ENT_QUOTES, 'UTF-8');
+if (!function_exists('e')) {
+    function e($text) {
+        return htmlspecialchars($text ?? '', ENT_QUOTES, 'UTF-8');
+    }
 }
 
 /**
@@ -174,6 +176,38 @@ function asset_url($path) {
  * This is an alias for asset_url() for convenience
  */
 function asset($path) {
+    return asset_url($path);
+}
+
+/**
+ * Resolve an asset path using the Vite manifest (for cache-busting).
+ *
+ * When a Vite production build is present (public/assets/.vite/manifest.json)
+ * this returns the hashed filename.  Falls back to the raw path so that the
+ * legacy Tailwind CSS build continues to work when Vite has not been run.
+ *
+ * @param  string $path  Entry point path relative to the project root,
+ *                       e.g. 'assets/css/tailwind.src.css' or 'assets/js/app.js'
+ * @return string        Full URL to the (optionally hashed) asset
+ */
+function vite_asset(string $path): string {
+    static $manifest = null;
+
+    if ($manifest === null) {
+        $manifestFile = __DIR__ . '/../public/assets/.vite/manifest.json';
+        if (file_exists($manifestFile)) {
+            $content  = file_get_contents($manifestFile);
+            $manifest = $content !== false ? json_decode($content, true) : [];
+        } else {
+            $manifest = [];
+        }
+    }
+
+    if (isset($manifest[$path]['file'])) {
+        return asset_url('public/assets/' . $manifest[$path]['file']);
+    }
+
+    // Fallback: serve asset directly (dev mode or no build yet)
     return asset_url($path);
 }
 

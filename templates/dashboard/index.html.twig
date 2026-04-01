@@ -1,0 +1,123 @@
+{#
+ * templates/dashboard/index.html.twig
+ *
+ * Dashboard landing page – powered by GET /dashboard (DashboardController::index).
+ *
+ * Variables injected by DashboardController:
+ *   user        array   Current user record
+ *   csrf_token  string  CSRF token
+ #}
+{% extends '_base.html.twig' %}
+
+{% block title %}Dashboard – IBC Intranet{% endblock %}
+
+{% block head_extra %}
+<style>
+    body { background: #0a0f1e; color: #f8fafc; font-family: 'Inter', sans-serif; }
+
+    .dashboard-header {
+        background: rgba(255,255,255,.05);
+        border-bottom: 1px solid rgba(255,255,255,.08);
+        padding: 16px 32px;
+        display: flex; align-items: center; justify-content: space-between;
+    }
+
+    .dashboard-header .logo {
+        font-size: 1.1rem; font-weight: 700; color: #6cb73e;
+        text-decoration: none;
+    }
+
+    .dashboard-content {
+        max-width: 1200px; margin: 0 auto; padding: 32px 24px;
+    }
+
+    .welcome-card {
+        background: rgba(255,255,255,.05);
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 16px; padding: 32px;
+        margin-bottom: 24px;
+    }
+
+    .welcome-card h1 {
+        font-size: 1.5rem; font-weight: 600; margin-bottom: 8px;
+    }
+
+    .welcome-card p { color: rgba(248,250,252,.6); }
+
+    .nav-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 16px;
+    }
+
+    .nav-card {
+        background: rgba(255,255,255,.05);
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 12px; padding: 20px;
+        text-decoration: none; color: #f8fafc;
+        transition: background .2s, border-color .2s;
+        display: flex; flex-direction: column; gap: 8px;
+    }
+
+    .nav-card:hover {
+        background: rgba(108,183,62,.08);
+        border-color: rgba(108,183,62,.3);
+        color: #f8fafc;
+    }
+
+    .nav-card .icon { font-size: 1.4rem; }
+    .nav-card .label { font-weight: 500; font-size: .95rem; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="dashboard-header">
+    <a href="{{ base_url }}/dashboard" class="logo">IBC Intranet</a>
+    <a href="{{ base_url }}/logout"
+       style="color:rgba(248,250,252,.6);font-size:.85rem;text-decoration:none;">
+        Abmelden
+    </a>
+</div>
+
+<div class="dashboard-content">
+    <div class="welcome-card">
+        <h1>Hallo{% if user.firstname %}, {{ user.firstname }}{% endif %}! 👋</h1>
+        <p>Willkommen im IBC Intranet. Was möchtest du heute tun?</p>
+    </div>
+
+    <div class="nav-grid">
+        <a href="{{ base_url }}/pages/events/index.php" class="nav-card">
+            <span class="icon">📅</span>
+            <span class="label">Veranstaltungen</span>
+        </a>
+        <a href="{{ base_url }}/pages/invoices/index.php" class="nav-card">
+            <span class="icon">🧾</span>
+            <span class="label">Rechnungen</span>
+        </a>
+        <a href="{{ base_url }}/pages/members/index.php" class="nav-card">
+            <span class="icon">👥</span>
+            <span class="label">Mitglieder</span>
+        </a>
+        <a href="{{ base_url }}/pages/projects/index.php" class="nav-card">
+            <span class="icon">📁</span>
+            <span class="label">Projekte</span>
+        </a>
+        <a href="{{ base_url }}/pages/blog/index.php" class="nav-card">
+            <span class="icon">📝</span>
+            <span class="label">Blog</span>
+        </a>
+        <a href="{{ base_url }}/pages/inventory/index.php" class="nav-card">
+            <span class="icon">📦</span>
+            <span class="label">Inventar</span>
+        </a>
+        <a href="{{ base_url }}/pages/links/index.php" class="nav-card">
+            <span class="icon">🔗</span>
+            <span class="label">Links</span>
+        </a>
+        <a href="{{ base_url }}/pages/auth/settings.php" class="nav-card">
+            <span class="icon">⚙️</span>
+            <span class="label">Einstellungen</span>
+        </a>
+    </div>
+</div>
+{% endblock %}

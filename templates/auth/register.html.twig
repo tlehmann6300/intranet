@@ -1,0 +1,24 @@
+{#
+ * templates/auth/register.html.twig
+ *
+ * Minimal placeholder for the registration page.
+ * Extend with actual form once registration flow is migrated.
+ #}
+{% extends '_base.html.twig' %}
+
+{% block title %}IBC Intranet – Registrierung{% endblock %}
+
+{% block body %}
+<div style="display:flex;justify-content:center;align-items:center;min-height:100vh;background:#0a0f1e;color:#f8fafc;font-family:Inter,sans-serif;">
+    <div style="text-align:center;padding:40px;">
+        <h1>Registrierung</h1>
+        <p style="margin-top:12px;opacity:.6;">
+            Bitte wende dich an einen Administrator, um einen Account zu erhalten.
+        </p>
+        <a href="{{ base_url }}/login"
+           style="display:inline-block;margin-top:24px;padding:10px 24px;background:#6cb73e;color:#fff;border-radius:10px;text-decoration:none;">
+            Zurück zum Login
+        </a>
+    </div>
+</div>
+{% endblock %}
