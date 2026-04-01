@@ -182,11 +182,18 @@ function asset($path) {
 /**
  * Resolve an asset path using the Vite manifest (for cache-busting).
  *
- * When a Vite production build is present (public/assets/.vite/manifest.json)
- * this returns the hashed filename.  Falls back to the raw path so that the
- * legacy Tailwind CSS build continues to work when Vite has not been run.
+ * Vite 5+ places the manifest at {outDir}/.vite/manifest.json.
+ * With outDir='public/assets' this means public/assets/.vite/manifest.json.
  *
- * @param  string $path  Entry point path relative to the project root,
+ * When a Vite production build is present this returns the hashed filename.
+ * Falls back to the raw path so that the legacy Tailwind CSS build continues
+ * to work when Vite has not been run.
+ *
+ * The returned URL uses the `public/assets/` prefix because the web-root maps
+ * to the project root (not to a `public/` sub-directory), so
+ * BASE_URL/public/assets/... is the correct public URL.
+ *
+ * @param  string $path  Entry point path as defined in vite.config.js inputs,
  *                       e.g. 'assets/css/tailwind.src.css' or 'assets/js/app.js'
  * @return string        Full URL to the (optionally hashed) asset
  */
@@ -194,6 +201,7 @@ function vite_asset(string $path): string {
     static $manifest = null;
 
     if ($manifest === null) {
+        // Vite 5+ writes manifest to {outDir}/.vite/manifest.json
         $manifestFile = __DIR__ . '/../public/assets/.vite/manifest.json';
         if (file_exists($manifestFile)) {
             $content  = file_get_contents($manifestFile);
@@ -204,10 +212,11 @@ function vite_asset(string $path): string {
     }
 
     if (isset($manifest[$path]['file'])) {
+        // The manifest file value is relative to outDir (public/assets/)
         return asset_url('public/assets/' . $manifest[$path]['file']);
     }
 
-    // Fallback: serve asset directly (dev mode or no build yet)
+    // Fallback: serve asset directly (dev mode or no Vite build yet)
     return asset_url($path);
 }
 

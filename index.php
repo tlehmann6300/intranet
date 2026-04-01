@@ -87,6 +87,9 @@ try {
 
     $routeInfo = $dispatcher->dispatch($httpMethod, $uri);
 
+    // Build DI container once, before the dispatch switch
+    $container = require __DIR__ . '/config/container.php';
+
     switch ($routeInfo[0]) {
 
         // ------------------------------------------------------------------
@@ -97,8 +100,6 @@ try {
 
             [$controllerClass, $method] = $handler;
 
-            // Build DI container and resolve the controller
-            $container  = require __DIR__ . '/config/container.php';
             $controller = $container->get($controllerClass);
 
             ob_end_clean();

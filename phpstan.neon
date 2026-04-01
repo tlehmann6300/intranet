@@ -13,7 +13,11 @@ parameters:
     # Ignore errors caused by legacy code that uses global functions/constants
     # defined in config.php – these are not available at static-analysis time.
     ignoreErrors:
-        # Undefined constants from config.php (loaded at runtime)
+        # Undefined constants from config.php (loaded at runtime).
+        # Broad patterns intentionally cover all dynamically-defined env-backed
+        # constants (DB_USER_HOST, DB_CONTENT_NAME, MAIL_FINANCE, etc.) so that
+        # new constants added to config.php are automatically excluded without
+        # needing individual entries here.
         - '#Constant (BASE_URL|ENVIRONMENT|HASH_ALGO|DB_[A-Z_]+|MAIL_[A-Z_]+|TRUSTED_PROXIES) not found#'
         # Global functions defined in helpers.php that PHPStan cannot see
         - '#Function (init_session|asset|checkFormRateLimit|recordFormSubmit) not found#'

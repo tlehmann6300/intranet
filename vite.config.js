@@ -4,11 +4,10 @@ import path from 'path';
 /**
  * Vite configuration for IBC Intranet
  *
- * Build outputs:
- *   public/assets/css/app.[hash].css   – Tailwind + theme CSS, purged & minified
+ * Build outputs (Vite 5+):
+ *   public/assets/.vite/manifest.json  – Asset manifest (when manifest:true; default sub-path in Vite 5+)
  *   public/assets/js/app.[hash].js     – Application JS, minified
- *   public/assets/manifest.json        – Asset manifest consumed by the PHP
- *                                         asset() helper for cache-busting
+ *   public/assets/css/styles.[hash].css – Tailwind CSS, purged & minified
  *
  * Development:
  *   npm run dev    – HMR dev server on http://localhost:5173
@@ -20,7 +19,8 @@ export default defineConfig({
   build: {
     outDir: 'public/assets',
     emptyOutDir: true,
-    manifest: true,          // Generates public/assets/.vite/manifest.json
+    // Vite 5+ places the manifest at outDir/.vite/manifest.json by default
+    manifest: true,
 
     rollupOptions: {
       input: {
