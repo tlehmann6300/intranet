@@ -194,16 +194,17 @@ class InvoiceController extends BaseController
     public function markPaid(array $vars = []): void
     {
         $this->requireAuth();
-        $this->json(['success' => false, 'error' => 'Use POST form']);
-
-        if (!\Auth::canManageInvoices()) {
-            http_response_code(403);
-            $this->json(['success' => false, 'error' => 'Keine Berechtigung - nur Vorstand Finanzen und Recht']);
-        }
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
             $this->json(['success' => false, 'error' => 'Methode nicht erlaubt']);
+            return;
+        }
+
+        if (!\Auth::canManageInvoices()) {
+            http_response_code(403);
+            $this->json(['success' => false, 'error' => 'Keine Berechtigung - nur Vorstand Finanzen und Recht']);
+            return;
         }
 
         \CSRFHandler::verifyToken($_POST['csrf_token'] ?? '');
