@@ -82,13 +82,13 @@ class Auth {
             // If a 2FA verification is still pending, redirect to the 2FA page instead
             // of the login page so the user cannot bypass 2FA by navigating away.
             if (isset($_SESSION['pending_2fa_user_id'])) {
-                $verify2faUrl = '/pages/auth/verify_2fa.php';
+                $verify2faUrl = '/verify-2fa';
                 if (defined('BASE_URL') && BASE_URL) {
                     $verify2faUrl = BASE_URL . $verify2faUrl;
                 }
                 // Avoid redirect loops when already on the verify_2fa page
-                $currentScript = $_SERVER['SCRIPT_NAME'] ?? '';
-                if (strpos($currentScript, 'verify_2fa.php') === false) {
+                $currentUri = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '';
+                if (strpos($currentUri, 'verify_2fa') === false && strpos($currentUri, 'verify-2fa') === false) {
                     header('Location: ' . $verify2faUrl);
                     exit;
                 }
@@ -107,7 +107,7 @@ class Auth {
                 session_destroy();
                 
                 // Redirect to login with timeout parameter
-                $loginUrl = '/pages/auth/login.php?timeout=1';
+                $loginUrl = '/login?timeout=1';
                 if (defined('BASE_URL') && BASE_URL) {
                     $loginUrl = BASE_URL . $loginUrl;
                 }
@@ -134,7 +134,7 @@ class Auth {
                         setcookie(session_name(), '', time() - 42000, '/');
                     }
                     
-                    $loginUrl = '/pages/auth/login.php?error=' . urlencode('Du wurdest abgemeldet, da eine neue Anmeldung an einem anderen Gerät erfolgt ist');
+                    $loginUrl = '/login?error=' . urlencode('Du wurdest abgemeldet, da eine neue Anmeldung an einem anderen Gerät erfolgt ist');
                     if (defined('BASE_URL') && BASE_URL) {
                         $loginUrl = BASE_URL . $loginUrl;
                     }
@@ -649,7 +649,7 @@ class Auth {
      */
     public static function requireRole($role) {
         if (!self::hasPermission($role)) {
-            $loginUrl = '/pages/auth/login.php';
+            $loginUrl = '/login';
             if (defined('BASE_URL') && BASE_URL) {
                 $loginUrl = BASE_URL . $loginUrl;
             }

@@ -1,0 +1,33 @@
+Options -Indexes
+
+# Security: Deny access to sensitive directories and files
+<FilesMatch "\.(env|log|sql|bak|sh|htpasswd)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Prevent direct access to configuration and backup directories
+<IfModule mod_authz_core.c>
+    <DirectoryMatch "^.*(logs|backups|private|config)$">
+        Require all denied
+    </DirectoryMatch>
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Preserve HTTPS (handled at web server level, but keep header hint)
+    RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    RewriteCond %{HTTPS} off
+    # Uncomment the next two lines in production to force HTTPS
+    # RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # Allow direct access to real files and directories
+    # (assets, vendor, uploads, api/, pages/ remain directly accessible)
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Route all other requests through the front-controller (index.php)
+    RewriteRule ^ index.php [L]
+</IfModule>

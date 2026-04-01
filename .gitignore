@@ -1,1 +1,17 @@
 node_modules/
+
+# Vite build output
+assets/dist/
+
+# PHP-CS-Fixer cache
+.php-cs-fixer.cache
+
+# PHPStan cache
+.phpstan/
+/tmp/phpstan*
+
+# PHPUnit coverage output
+tests/coverage/
+
+# Rate-limiter file cache (runtime data)
+logs/rate_limit/

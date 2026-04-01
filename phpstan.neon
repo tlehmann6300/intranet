@@ -1,0 +1,28 @@
+parameters:
+    # Analysis level: 0 (lenient) to 10 (strictest). Level 5 is a good
+    # starting point for an existing codebase – increase gradually.
+    level: 5
+
+    paths:
+        - src
+        - includes/handlers
+        - includes/models
+        - includes/services
+        - routes
+
+    excludePaths:
+        - vendor
+        - tests/coverage
+
+    # Suppress errors from third-party code that is not type-annotated
+    ignoreErrors:
+        # Legacy code may use mixed types – address these incrementally
+        - '#Parameter \#[0-9]+ \$[a-zA-Z]+ of function .+ expects .+, mixed given#'
+
+    # Treat missing return types as errors at higher levels
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
+
+    # Bootstrap file makes application constants available during analysis
+    bootstrapFiles:
+        - tests/bootstrap.php
