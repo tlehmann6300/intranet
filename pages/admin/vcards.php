@@ -10,7 +10,14 @@ if (!Auth::check() || !Auth::canCreateBasicContent()) {
     exit;
 }
 
-$vcards   = VCard::getAll();
+$vcardError = null;
+try {
+    $vcards = VCard::getAll();
+} catch (Exception $e) {
+    error_log("VCard page: failed to load vCards – " . $e->getMessage());
+    $vcards     = [];
+    $vcardError = 'Die Verbindung zur vCard-Datenbank ist fehlgeschlagen. Bitte später erneut versuchen.';
+}
 $csrfToken = CSRFHandler::getToken();
 
 $title = 'vCards verwalten - IBC Intranet';
@@ -43,6 +50,13 @@ ob_start();
     <i id="toast-icon" class="fas fa-check-circle text-lg"></i>
     <span id="toast-msg"></span>
 </div>
+
+<?php if ($vcardError): ?>
+<div class="mb-6 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-red-700 dark:border-red-700 dark:bg-red-900/20 dark:text-red-400">
+    <i class="fas fa-exclamation-circle mt-0.5 text-lg shrink-0"></i>
+    <span><?php echo htmlspecialchars($vcardError); ?></span>
+</div>
+<?php endif; ?>
 
 <!-- vCards table -->
 <div class="card overflow-hidden">

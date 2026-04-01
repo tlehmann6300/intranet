@@ -19,6 +19,8 @@ class Database {
     private static $userMigrated = false;
     /** @var bool Tracks whether news-DB schema migration has run this request */
     private static $newsMigrated = false;
+    /** @var bool Tracks whether vCard-DB schema migration has run this request */
+    private static $vcardMigrated = false;
 
     /**
      * Get User Database Connection
@@ -332,6 +334,42 @@ class Database {
     }
 
     /**
+     * Ensure the vcards_table exists in the vCard database.
+     * Runs at most once per request. Safe to call even when the table already exists.
+     */
+    private static function migrateVCardSchema(PDO $db): void {
+        try {
+            $stmt = $db->prepare(
+                "SELECT TABLE_NAME
+                 FROM INFORMATION_SCHEMA.TABLES
+                 WHERE TABLE_SCHEMA = DATABASE()
+                   AND TABLE_NAME   = 'vcards_table'"
+            );
+            $stmt->execute();
+            if (!$stmt->fetch()) {
+                $db->exec(
+                    "CREATE TABLE `vcards_table` (
+                        `id`         INT UNSIGNED   NOT NULL AUTO_INCREMENT,
+                        `vorname`    VARCHAR(100)   DEFAULT NULL,
+                        `nachname`   VARCHAR(100)   DEFAULT NULL,
+                        `rolle`      VARCHAR(50)    DEFAULT NULL COMMENT 'Hierarchische Rolle (z.B. Vorstand, Ressortleitung)',
+                        `funktion`   VARCHAR(255)   DEFAULT NULL,
+                        `telefon`    VARCHAR(50)    DEFAULT NULL,
+                        `email`      VARCHAR(255)   DEFAULT NULL,
+                        `linkedin`   VARCHAR(500)   DEFAULT NULL,
+                        `profilbild` VARCHAR(500)   DEFAULT NULL,
+                        PRIMARY KEY (`id`)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+                    COMMENT='Kontaktkarten (vCards)'"
+                );
+                error_log("VCard schema migration applied: created table 'vcards_table'");
+            }
+        } catch (PDOException $e) {
+            error_log("VCard schema migration skipped for table 'vcards_table': " . $e->getMessage());
+        }
+    }
+
+    /**
      * Get vCard Database Connection (external)
      *
      * @return PDO Database connection instance
@@ -355,6 +393,10 @@ class Database {
                 throw new Exception("Database connection failed");
             }
         }
+        if (!self::$vcardMigrated) {
+            self::migrateVCardSchema(self::$vcardConnection);
+            self::$vcardMigrated = true;
+        }
         return self::$vcardConnection;
     }
 
@@ -371,5 +413,6 @@ class Database {
         self::$userMigrated = false;
         self::$contentMigrated = false;
         self::$newsMigrated = false;
+        self::$vcardMigrated = false;
     }
 }
