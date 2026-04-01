@@ -1,1 +1,7 @@
 node_modules/
+vendor/
+.env
+var/
+public/assets/
+*.log
+.php-cs-fixer.cache
