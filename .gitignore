@@ -16,3 +16,13 @@ tests/coverage/
 # Rate-limiter file cache (runtime data)
 logs/rate_limit/
 vendor/composer/tmp-*.zip~
+
+# Environment config – never commit secrets
+.env
+
+# Twig compiled template cache (runtime artefacts)
+storage/twig_cache/*
+!storage/twig_cache/.gitkeep
+
+# Runtime log files
+logs/*.log

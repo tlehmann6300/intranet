@@ -1,9 +1,16 @@
 Options -Indexes
 
-# Security: Deny access to sensitive directories and files
-<FilesMatch "\.(env|log|sql|bak|sh|htpasswd)$">
+# Security: Deny access to sensitive files
+# Covers environment config, secrets, lock files, build/tool config and raw data files.
+<FilesMatch "\.(env|log|sql|bak|sh|htpasswd|json|lock|xml|neon|dist|txt)$">
     Order allow,deny
     Deny from all
+</FilesMatch>
+
+# Allow public-facing manifests and service worker that intentionally live in the root
+<FilesMatch "^(manifest\.json|sw\.js)$">
+    Order allow,deny
+    Allow from all
 </FilesMatch>
 
 # Prevent direct access to configuration, source code, and backup directories
@@ -26,11 +33,15 @@ Options -Indexes
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # Preserve HTTPS (handled at web server level, but keep header hint)
-    RewriteCond %{HTTP:X-Forwarded-Proto} !https
-    RewriteCond %{HTTPS} off
-    # Uncomment the next two lines in production to force HTTPS
+    # Enforce HTTPS – redirect all plain-HTTP requests to HTTPS.
+    # Uncomment the next two lines if HTTPS termination is done on this server
+    # (not already handled by a load balancer / reverse proxy sending X-Forwarded-Proto).
+    # RewriteCond %{HTTPS} off
     # RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # When behind a reverse proxy, redirect HTTP → HTTPS using the forwarded proto header.
+    RewriteCond %{HTTP:X-Forwarded-Proto} =http
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
     # Block direct access to PHP scripts in api/, auth/, pages/, includes/, bootstrap/, src/, cron/
     # All requests must go through the front-controller so that
