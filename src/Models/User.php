@@ -427,7 +427,7 @@ class User extends Model
      * @return string              URL-ready relative image path
      */
     public static function getProfilePictureUrl(int $userId, ?array $userData = null): string {
-        require_once dirname(__DIR__, 2) . '/includes/helpers.php';
+        require_once dirname(__DIR__) . '/helpers.php';
         $default = defined('DEFAULT_PROFILE_IMAGE') ? DEFAULT_PROFILE_IMAGE : 'assets/img/default_profil.png';
 
         // Use pre-fetched data if available, otherwise query users.avatar_path

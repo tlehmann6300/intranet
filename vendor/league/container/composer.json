@@ -1,0 +1,79 @@
+{
+    "name": "league/container",
+    "description": "A fast and intuitive dependency injection container.",
+    "keywords": [
+        "league",
+        "container",
+        "dependency",
+        "injection",
+        "di",
+        "service",
+        "provider"
+    ],
+    "homepage": "https://github.com/thephpleague/container",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Phil Bennett",
+            "email": "mail@philbennett.co.uk",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "psr/container": "^2.0.2",
+        "psr/event-dispatcher": "^1.0"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.0",
+        "mockery/mockery": "^1.6",
+        "pestphp/pest": "^4.0",
+        "phpstan/phpstan": "^2.1.11",
+        "roave/security-advisories": "dev-latest"
+    },
+    "provide": {
+        "psr/container-implementation": "^2.0"
+    },
+    "bin": [
+        "bin/container-compile"
+    ],
+    "autoload": {
+        "psr-4": {
+            "League\\Container\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "League\\Container\\Test\\": "tests"
+        },
+        "files": [
+            "tests/Asset/function.php"
+        ]
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-6.x": "6.x-dev",
+            "dev-5.x": "5.x-dev",
+            "dev-4.x": "4.x-dev",
+            "dev-3.x": "3.x-dev",
+            "dev-2.x": "2.x-dev",
+            "dev-1.x": "1.x-dev"
+        }
+    },
+    "scripts": {
+        "test": [
+            "@test:unit",
+            "@test:types",
+            "@test:style"
+        ],
+        "test:unit": "vendor/bin/pest",
+        "test:types": "vendor/bin/phpstan analyse --no-progress",
+        "test:style": "vendor/bin/php-cs-fixer fix --dry-run --diff"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        },
+        "sort-packages": true
+    }
+}

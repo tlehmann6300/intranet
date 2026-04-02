@@ -996,9 +996,7 @@ class Inventory extends Model
      * @return array Result with statistics (created, updated, archived, errors)
      */
     public static function syncFromEasyVerein($userId): array {
-        require_once dirname(__DIR__, 2) . '/includes/services/EasyVereinSync.php';
-
-        $sync = new EasyVereinSync();
+        $sync = new \App\Services\EasyVereinSync();
         return $sync->sync($userId);
     }
 }

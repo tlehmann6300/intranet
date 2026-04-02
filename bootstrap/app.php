@@ -21,13 +21,13 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/config.php';
 
 // Helpers (global utility functions)
-require_once __DIR__ . '/../includes/helpers.php';
+require_once __DIR__ . '/../src/helpers.php';
 
 // Auth class (not yet namespaced – referenced globally as \Auth throughout the app)
 require_once __DIR__ . '/../src/Auth.php';
 
 // Legacy Database class (still provides static PDO connections used by models)
-require_once __DIR__ . '/../includes/database.php';
+require_once __DIR__ . '/../src/Database.php';
 
 // Validator utility
 require_once __DIR__ . '/../src/Validator.php';

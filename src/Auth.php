@@ -5,7 +5,7 @@
  */
 
 require_once __DIR__ . '/Database.php';
-require_once __DIR__ . '/../includes/helpers.php';
+require_once __DIR__ . '/helpers.php';
 
 class Auth {
     
@@ -302,7 +302,6 @@ class Auth {
             }
             
             // Verify 2FA code
-            require_once __DIR__ . '/../includes/handlers/GoogleAuthenticator.php';
             $ga = new PHPGangsta_GoogleAuthenticator();
             
             if (!$ga->verifyCode($user['tfa_secret'], $tfaCode, 2)) {

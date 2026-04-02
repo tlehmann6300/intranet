@@ -571,7 +571,6 @@ class AuthHandler {
      * @param string|null $userAccessToken Optional user OAuth access token for Graph API photo retrieval
      */
     public static function completeMicrosoftLogin(array $claims, $existingUser = null, ?string $userAccessToken = null) {
-        require_once dirname(__DIR__, 2) . '/includes/models/Alumni.php';
 
         $azureOid = $claims['oid'] ?? $claims['sub'] ?? null;
 
@@ -757,7 +756,6 @@ class AuthHandler {
                 //   true, so syncEntraData already handled their photo sync – skip here.
                 if (!$wasExistingOnEntry) {
                     try {
-                        require_once dirname(__DIR__, 2) . '/includes/models/User.php';
                         $userDb      = Database::getUserDB();
                         $avatarStmt  = $userDb->prepare("SELECT use_custom_avatar FROM users WHERE id = ?");
                         $avatarStmt->execute([$userId]);
@@ -987,9 +985,6 @@ class AuthHandler {
 
         // --- Sync Entra profile photo (only when user has no manually uploaded photo) ---
         try {
-            require_once __DIR__ . '/../../includes/models/User.php';
-            require_once __DIR__ . '/../../includes/models/Alumni.php';
-
             // Re-load $mail from the database to ensure we use the stored email value,
             // not just what was present in the JWT claims.
             $mailStmt = $db->prepare("SELECT email FROM users WHERE id = ?");

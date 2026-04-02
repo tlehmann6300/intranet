@@ -111,11 +111,7 @@ try {
 
         case FastRoute\Dispatcher::NOT_FOUND:
             http_response_code(404);
-            if (file_exists(__DIR__ . '/pages/errors/404.php')) {
-                include __DIR__ . '/pages/errors/404.php';
-            } else {
-                echo '<h1>404 – Seite nicht gefunden</h1>';
-            }
+            echo '<h1>404 – Seite nicht gefunden</h1>';
             break;
 
         case FastRoute\Dispatcher::METHOD_NOT_ALLOWED:

@@ -1,6 +1,6 @@
 <?php
 // Security Headers – comprehensive set (HSTS, CSP, X-Frame-Options, …)
-require_once __DIR__ . '/../includes/security_headers.php';
+require_once __DIR__ . '/security_headers.php';
 
 // Load .env file
 $_envFile = __DIR__ . '/../.env';
