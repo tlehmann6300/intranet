@@ -804,4 +804,152 @@ class AdminController extends BaseController
             $this->json(['error' => 'Suche fehlgeschlagen. Bitte prüfe die Azure-Konfiguration.']);
         }
     }
+
+    /**
+     * Manage inventory locations.
+     */
+    public function locations(array $vars = []): void
+    {
+        $this->requireAuth();
+        if (!\Auth::hasPermission('manager')) {
+            $this->redirect(\BASE_URL . '/dashboard');
+        }
+
+        $message = '';
+        $error   = '';
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_location'])) {
+            \CSRFHandler::verifyToken($_POST['csrf_token'] ?? '');
+            $name        = trim($_POST['name'] ?? '');
+            $description = trim($_POST['description'] ?? '');
+            $address     = trim($_POST['address'] ?? '');
+
+            if (empty($name)) {
+                $error = 'Name ist erforderlich';
+            } else {
+                try {
+                    \Inventory::createLocation($name, $description, $address);
+                    $message = 'Standort erfolgreich erstellt';
+                } catch (\Exception $e) {
+                    $error = 'Fehler beim Erstellen des Standorts: ' . $e->getMessage();
+                }
+            }
+        } elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_location'])) {
+            \CSRFHandler::verifyToken($_POST['csrf_token'] ?? '');
+            $locationId = (int)($_POST['location_id'] ?? 0);
+            if ($locationId > 0) {
+                try {
+                    \Inventory::deleteLocation($locationId);
+                    $message = 'Standort erfolgreich gelöscht';
+                } catch (\Exception $e) {
+                    $error = 'Fehler beim Löschen des Standorts: ' . $e->getMessage();
+                }
+            }
+        }
+
+        $this->render('admin/locations.twig', [
+            'locations' => \Inventory::getLocations(),
+            'message'   => $message,
+            'error'     => $error,
+            'csrfToken' => \CSRFHandler::getToken(),
+        ]);
+    }
+
+    /**
+     * Manage inventory categories.
+     */
+    public function categories(array $vars = []): void
+    {
+        $this->requireAuth();
+        if (!\Auth::hasPermission('manager')) {
+            $this->redirect(\BASE_URL . '/dashboard');
+        }
+
+        $message = '';
+        $error   = '';
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_category'])) {
+            \CSRFHandler::verifyToken($_POST['csrf_token'] ?? '');
+            $name        = trim($_POST['name'] ?? '');
+            $description = trim($_POST['description'] ?? '');
+            $color       = trim($_POST['color'] ?? '#3B82F6');
+
+            if (empty($name)) {
+                $error = 'Name ist erforderlich';
+            } else {
+                try {
+                    \Inventory::createCategory($name, $description, $color);
+                    $message = 'Kategorie erfolgreich erstellt';
+                } catch (\Exception $e) {
+                    $error = 'Fehler beim Erstellen der Kategorie: ' . $e->getMessage();
+                }
+            }
+        } elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_category'])) {
+            \CSRFHandler::verifyToken($_POST['csrf_token'] ?? '');
+            $categoryId = (int)($_POST['category_id'] ?? 0);
+            if ($categoryId > 0) {
+                try {
+                    \Inventory::deleteCategory($categoryId);
+                    $message = 'Kategorie erfolgreich gelöscht';
+                } catch (\Exception $e) {
+                    $error = 'Fehler beim Löschen der Kategorie: ' . $e->getMessage();
+                }
+            }
+        }
+
+        $this->render('admin/categories.twig', [
+            'categories' => \Inventory::getCategories(),
+            'message'    => $message,
+            'error'      => $error,
+            'csrfToken'  => \CSRFHandler::getToken(),
+        ]);
+    }
+
+    /**
+     * View pending rental return requests.
+     */
+    public function rentalReturns(array $vars = []): void
+    {
+        $this->requireAuth();
+        if (!\Auth::isBoard() && !\Auth::hasRole(['alumni_finanz', 'alumni_vorstand'])) {
+            $this->redirect(\BASE_URL . '/login');
+        }
+
+        $inventoryDb = \Database::getInventoryDB();
+        $stmt = $inventoryDb->query('
+            SELECT ir.*, u.email AS user_email
+            FROM inventory_rentals ir
+            LEFT JOIN ' . \DB_USER_NAME . '.users u ON ir.user_id = u.id
+            WHERE ir.status = \'rented\'
+            ORDER BY ir.rental_date DESC
+        ');
+        $activeRentals = $stmt ? $stmt->fetchAll() : [];
+
+        $this->render('admin/rental_returns.twig', [
+            'activeRentals' => $activeRentals,
+            'csrfToken'     => \CSRFHandler::getToken(),
+            'readOnly'      => !\Auth::isBoard(),
+        ]);
+    }
+
+    /**
+     * View event documentation / financial-stats history.
+     */
+    public function eventStats(array $vars = []): void
+    {
+        $this->requireAuth();
+        $userRole        = $_SESSION['user_role'] ?? 'mitglied';
+        $allowedDocRoles = array_merge(\Auth::BOARD_ROLES, ['alumni_vorstand']);
+
+        if (! in_array($userRole, $allowedDocRoles, true)) {
+            $this->redirect(\BASE_URL . '/events');
+        }
+
+        $allDocs = \EventDocumentation::getAllWithEvents();
+
+        $this->render('admin/event_stats.twig', [
+            'allDocs'   => $allDocs,
+            'csrfToken' => \CSRFHandler::getToken(),
+        ]);
+    }
 }

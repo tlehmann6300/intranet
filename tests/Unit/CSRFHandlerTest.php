@@ -6,11 +6,8 @@ namespace Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 
-// Load the class under test
-require_once __DIR__ . '/../../includes/handlers/CSRFHandler.php';
-
 /**
- * @covers \CSRFHandler
+ * @covers \App\Handlers\CSRFHandler
  */
 final class CSRFHandlerTest extends TestCase
 {
@@ -21,51 +18,51 @@ final class CSRFHandlerTest extends TestCase
             session_start();
         }
         // Reset CSRF state between tests
-        unset($_SESSION['csrf_tokens']);
+        unset($_SESSION['csrf_tokens'], $_SESSION['csrf_token'], $_SESSION['csrf_token_time']);
     }
 
     protected function tearDown(): void
     {
-        unset($_SESSION['csrf_tokens']);
+        unset($_SESSION['csrf_tokens'], $_SESSION['csrf_token'], $_SESSION['csrf_token_time']);
     }
 
     // ------------------------------------------------------------------
 
     public function testGetTokenReturnsNonEmptyString(): void
     {
-        $token = CSRFHandler::getToken();
+        $token = \App\Handlers\CSRFHandler::getToken();
         $this->assertNotEmpty($token);
         $this->assertIsString($token);
     }
 
     public function testTokenIsConsistentWithinSameRequest(): void
     {
-        $token1 = CSRFHandler::getToken();
-        $token2 = CSRFHandler::getToken();
+        $token1 = \App\Handlers\CSRFHandler::getToken();
+        $token2 = \App\Handlers\CSRFHandler::getToken();
         $this->assertSame($token1, $token2);
     }
 
-    public function testValidTokenPasses(): void
+    public function testValidateReturnsTrueForValidToken(): void
     {
-        $token = CSRFHandler::getToken();
-        $this->assertTrue(CSRFHandler::verifyToken($token));
+        $token = \App\Handlers\CSRFHandler::getToken();
+        $this->assertTrue(\App\Handlers\CSRFHandler::validate($token));
     }
 
-    public function testInvalidTokenFails(): void
+    public function testValidateReturnsFalseForInvalidToken(): void
     {
-        CSRFHandler::getToken(); // generate a legitimate token first
-        $this->assertFalse(CSRFHandler::verifyToken('invalid-token'));
+        \App\Handlers\CSRFHandler::getToken(); // generate a legitimate token first
+        $this->assertFalse(\App\Handlers\CSRFHandler::validate('invalid-token'));
     }
 
-    public function testEmptyTokenFails(): void
+    public function testValidateReturnsFalseForEmptyToken(): void
     {
-        CSRFHandler::getToken();
-        $this->assertFalse(CSRFHandler::verifyToken(''));
+        \App\Handlers\CSRFHandler::getToken();
+        $this->assertFalse(\App\Handlers\CSRFHandler::validate(''));
     }
 
     public function testGetTokenFieldReturnsHiddenInput(): void
     {
-        $html = CSRFHandler::getTokenField();
+        $html = \App\Handlers\CSRFHandler::getTokenField();
         $this->assertStringContainsString('<input', $html);
         $this->assertStringContainsString('type="hidden"', $html);
         $this->assertStringContainsString('csrf_token', $html);
@@ -73,8 +70,16 @@ final class CSRFHandlerTest extends TestCase
 
     public function testGetTokenFieldContainsCurrentToken(): void
     {
-        $token = CSRFHandler::getToken();
-        $html  = CSRFHandler::getTokenField();
+        $token = \App\Handlers\CSRFHandler::getToken();
+        $html  = \App\Handlers\CSRFHandler::getTokenField();
         $this->assertStringContainsString(htmlspecialchars($token), $html);
+    }
+
+    public function testValidateReturnsTrueForHistoricToken(): void
+    {
+        // Store a token in the history manually
+        $token = bin2hex(random_bytes(32));
+        $_SESSION['csrf_tokens'][$token] = time();
+        $this->assertTrue(\App\Handlers\CSRFHandler::validate($token));
     }
 }

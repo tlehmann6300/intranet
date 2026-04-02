@@ -81,6 +81,40 @@ class CSRFHandler {
     }
     
     /**
+     * Validate a CSRF token without side-effects.
+     *
+     * Unlike verifyToken() this method does NOT call die() – it simply returns
+     * true when the token is valid and false otherwise.  Prefer this method in
+     * middleware and unit tests.
+     *
+     * @param string $token The token to validate
+     * @return bool
+     */
+    public static function validate(string $token): bool
+    {
+        init_session();
+        self::cleanExpiredTokens();
+
+        if ($token === '') {
+            return false;
+        }
+
+        if (isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token)) {
+            return true;
+        }
+
+        if (isset($_SESSION['csrf_tokens']) && is_array($_SESSION['csrf_tokens'])) {
+            foreach ($_SESSION['csrf_tokens'] as $validToken => $timestamp) {
+                if (hash_equals((string)$validToken, $token)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Verify CSRF token
      * Compares provided token with session token or recent valid tokens
      * Dies with error message if verification fails

@@ -133,11 +133,13 @@ $builder->addDefinitions([
     // Twig
     Environment::class => factory(function () use ($projectRoot, $isDev): Environment {
         $loader = new FilesystemLoader($projectRoot . '/templates');
-        return new Environment($loader, [
+        $twig   = new Environment($loader, [
             'autoescape' => 'html',
             'cache'      => $isDev ? false : $projectRoot . '/storage/twig_cache',
             'debug'      => $isDev,
         ]);
+        $twig->addExtension(new \App\Twig\ViteExtension($projectRoot, $isDev));
+        return $twig;
     }),
 
     // Legacy Database class
@@ -148,6 +150,7 @@ $builder->addDefinitions([
     // Middleware
     \App\Middleware\AuthMiddleware::class  => autowire(),
     \App\Middleware\AdminMiddleware::class => autowire(),
+    \App\Middleware\CsrfMiddleware::class  => autowire(),
 
     // Controllers (autowired)
     \App\Controllers\AuthController::class          => autowire(),
@@ -170,6 +173,23 @@ $builder->addDefinitions([
     \App\Controllers\EventApiController::class      => autowire(),
     \App\Controllers\InventoryApiController::class  => autowire(),
     \App\Controllers\ProjectApiController::class    => autowire(),
+
+    // CLI Commands
+    \App\Commands\BackupDatabaseCommand::class       => autowire(),
+    \App\Commands\SyncEasyVereinCommand::class       => autowire(),
+    \App\Commands\SendBirthdayWishesCommand::class   => autowire(),
+    \App\Commands\SendAlumniRemindersCommand::class  => autowire(),
+    \App\Commands\SendProfileRemindersCommand::class => autowire(),
+    \App\Commands\ProcessMailQueueCommand::class     => autowire(),
+    \App\Commands\ReconcileBankPaymentsCommand::class => autowire(),
+
+    // Repositories
+    \App\Repositories\UserRepository::class  => factory(function (): \App\Repositories\UserRepository {
+        return new \App\Repositories\UserRepository(\Database::getUserDB());
+    }),
+    \App\Repositories\EventRepository::class => factory(function (): \App\Repositories\EventRepository {
+        return new \App\Repositories\EventRepository(\Database::getContentDB());
+    }),
 ]);
 
 return $builder->build();
