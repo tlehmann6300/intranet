@@ -17,10 +17,14 @@ class AuthController extends BaseController
             $this->redirect(\BASE_URL . '/dashboard');
         }
 
-        $error = isset($_GET['error']) ? urldecode($_GET['error']) : '';
+        $error   = isset($_GET['error']) ? urldecode($_GET['error']) : '';
+        $timeout = isset($_GET['timeout']) ? (int) $_GET['timeout'] : 0;
+        $logout  = isset($_GET['logout']) ? (int) $_GET['logout'] : 0;
 
         $this->render('auth/login.twig', [
-            'error' => $error,
+            'error'   => $error,
+            'timeout' => $timeout,
+            'logout'  => $logout,
         ]);
     }
 
@@ -578,5 +582,201 @@ class AuthController extends BaseController
             'qrCodeUrl'  => $qrCodeUrl,
             'csrfToken'  => \CSRFHandler::getToken(),
         ]);
+    }
+
+    /**
+     * Initiates the Microsoft Entra ID OAuth login flow.
+     * Replaces auth/login_start.php.
+     */
+    public function loginStart(array $vars = []): void
+    {
+        // Rate-limit: max 20 OAuth initiations per IP per 10 minutes
+        $loginLimiter = new \RateLimiter('oauth_login', maxAttempts: 20, windowSeconds: 600);
+        if ($loginLimiter->tooManyAttempts()) {
+            $retryAfter = $loginLimiter->availableIn();
+            http_response_code(429);
+            header('Retry-After: ' . $retryAfter);
+            $error = urlencode('Zu viele Anmeldeversuche. Bitte warte ' . ceil($retryAfter / 60) . ' Minute(n) und versuche es erneut.');
+            $this->redirect(\BASE_URL . '/login?error=' . $error);
+        }
+        $loginLimiter->hit();
+
+        try {
+            \AuthHandler::initiateMicrosoftLogin();
+        } catch (\Exception $e) {
+            error_log('Microsoft login initiation error: ' . $e->getMessage());
+            error_log('Stack trace: ' . $e->getTraceAsString());
+            $error = urlencode('Microsoft Login konnte nicht gestartet werden. Bitte kontaktieren Sie den Administrator.');
+            $this->redirect(\BASE_URL . '/login?error=' . $error);
+        }
+    }
+
+    /**
+     * Handles the Microsoft Entra ID OAuth callback.
+     * Replaces auth/callback.php.
+     */
+    public function oauthCallback(array $vars = []): void
+    {
+        $stateGet     = $_GET['state'] ?? null;
+        $stateSession = $_SESSION['oauth2state'] ?? null;
+        $stateMatch   = ($stateGet !== null && $stateSession !== null && $stateGet === $stateSession);
+        $tokenError   = null;
+        $azureOid     = null;
+        $userEmail    = null;
+
+        try {
+            if (isset($_GET['error'])) {
+                throw new \Exception('OAuth-Fehler von Microsoft: ' . htmlspecialchars($_GET['error_description'] ?? $_GET['error']));
+            }
+
+            if (! $stateMatch) {
+                unset($_SESSION['oauth2state']);
+                throw new \Exception('State mismatch: Session-State ' . ($stateSession ?? 'not set') . ' vs GET-State ' . ($stateGet ?? 'not set'));
+            }
+            unset($_SESSION['oauth2state']);
+
+            if (! isset($_GET['code'])) {
+                throw new \Exception('No authorization code received');
+            }
+
+            $clientId     = defined('CLIENT_ID') ? \CLIENT_ID : '';
+            $clientSecret = defined('CLIENT_SECRET') ? \CLIENT_SECRET : '';
+            $redirectUri  = defined('REDIRECT_URI') ? \REDIRECT_URI : '';
+            $tenantId     = defined('TENANT_ID') ? \TENANT_ID : '';
+
+            if ($clientId === '' || $clientSecret === '' || $redirectUri === '' || $tenantId === '') {
+                throw new \Exception('Missing Azure OAuth configuration');
+            }
+
+            // Exchange authorization code for access token
+            $tokenUrl  = 'https://login.microsoftonline.com/' . rawurlencode($tenantId) . '/oauth2/v2.0/token';
+            $postFields = http_build_query([
+                'client_id'     => $clientId,
+                'client_secret' => $clientSecret,
+                'code'          => $_GET['code'],
+                'redirect_uri'  => $redirectUri,
+                'grant_type'    => 'authorization_code',
+            ]);
+
+            try {
+                $ch = curl_init($tokenUrl);
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+                $tokenResponse = curl_exec($ch);
+                $tokenHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                $curlError     = curl_error($ch);
+                curl_close($ch);
+
+                if ($curlError !== '') {
+                    throw new \Exception('Token exchange cURL error: ' . $curlError);
+                }
+
+                $tokenData = json_decode((string) $tokenResponse, true);
+                if ($tokenHttpCode !== 200 || empty($tokenData['access_token'])) {
+                    $errorMsg = $tokenData['error_description'] ?? $tokenData['error'] ?? 'Unknown token error (HTTP ' . $tokenHttpCode . ')';
+                    error_log('[OAuth] getAccessToken() failed: ' . $errorMsg);
+                    throw new \Exception('Token-Fehler: ' . htmlspecialchars($errorMsg));
+                }
+            } catch (\Exception $tokenEx) {
+                $tokenError = $tokenEx->getMessage();
+                error_log('[OAuth] getAccessToken() failed: ' . $tokenError);
+                throw $tokenEx;
+            }
+
+            $accessTokenValue = $tokenData['access_token'];
+            $idToken          = $tokenData['id_token'] ?? null;
+
+            // Fetch user profile from Microsoft Graph
+            try {
+                $ch = curl_init('https://graph.microsoft.com/v1.0/me');
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $accessTokenValue]);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+                $profileResponse = curl_exec($ch);
+                $profileHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                $profileCurlErr  = curl_error($ch);
+                curl_close($ch);
+
+                if ($profileCurlErr !== '') {
+                    throw new \Exception('Profile fetch cURL error: ' . $profileCurlErr);
+                }
+                if ($profileHttpCode !== 200) {
+                    throw new \Exception('Graph API returned HTTP ' . $profileHttpCode);
+                }
+
+                $claims = json_decode((string) $profileResponse, true) ?: [];
+            } catch (\Exception $roEx) {
+                error_log('[OAuth] getResourceOwner() failed: ' . $roEx->getMessage());
+                throw new \Exception('Benutzerdetails konnten nicht von Microsoft abgerufen werden: ' . $roEx->getMessage());
+            }
+
+            // Merge JWT id_token claims (roles, oid, preferred_username)
+            if ($idToken) {
+                $tokenParts = explode('.', (string) $idToken);
+                if (count($tokenParts) === 3) {
+                    $jwtPayload = base64_decode(str_replace(['-', '_'], ['+', '/'], $tokenParts[1]));
+                    if ($jwtPayload !== false && $jwtPayload !== '') {
+                        $jwtClaims = json_decode($jwtPayload, true);
+                        if (is_array($jwtClaims)) {
+                            $claims = array_merge($claims, $jwtClaims);
+                        }
+                    }
+                }
+            }
+
+            $azureOid  = $claims['oid'] ?? $claims['sub'] ?? null;
+            $userEmail = $claims['email'] ?? $claims['mail'] ?? $claims['userPrincipalName'] ?? null;
+            error_log(sprintf('[OAuth] Claims received. azure_oid: %s | email: %s', $azureOid ?? 'null', $userEmail ?? 'null'));
+
+            $db           = \Database::getUserDB();
+            $existingUser = null;
+
+            if ($azureOid) {
+                $stmt = $db->prepare('SELECT * FROM users WHERE azure_oid = ?');
+                $stmt->execute([$azureOid]);
+                $existingUser = $stmt->fetch() ?: null;
+            }
+
+            if (! $existingUser && ! empty($userEmail)) {
+                $stmt = $db->prepare('SELECT * FROM users WHERE email = ?');
+                $stmt->execute([$userEmail]);
+                $existingUser = $stmt->fetch() ?: null;
+
+                if ($existingUser && $azureOid) {
+                    $updateStmt = $db->prepare('UPDATE users SET azure_oid = ? WHERE id = ? AND (azure_oid IS NULL OR azure_oid != ?)');
+                    $updateStmt->execute([$azureOid, $existingUser['id'], $azureOid]);
+                    error_log(sprintf('[OAuth] Stored azure_oid %s for user id %d (matched via email)', $azureOid, $existingUser['id']));
+                }
+            }
+
+            if ($existingUser && $azureOid) {
+                \AuthHandler::syncEntraData($existingUser['id'], $claims, $azureOid, $accessTokenValue);
+            }
+
+            \AuthHandler::completeMicrosoftLogin($claims, $existingUser, $accessTokenValue);
+
+        } catch (\Exception $e) {
+            error_log(sprintf(
+                '[OAuth Callback] Authentifizierung fehlgeschlagen: %s | State-GET: %s | State-SESSION: %s | States match: %s | Token-Fehler: %s | azure_oid: %s | E-Mail: %s',
+                $e->getMessage(),
+                $stateGet     !== null ? 'ja' : 'nein',
+                $stateSession !== null ? 'ja' : 'nein',
+                $stateMatch ? 'ja' : 'nein',
+                $tokenError   ?? 'keiner',
+                $azureOid     ?? 'n/a',
+                $userEmail    ?? 'n/a'
+            ));
+            error_log('[OAuth Callback] Stack Trace: ' . $e->getTraceAsString());
+
+            $error = urlencode('Authentifizierung fehlgeschlagen. Bitte versuchen Sie es erneut.');
+            $this->redirect(\BASE_URL . '/login?error=' . $error);
+        }
     }
 }

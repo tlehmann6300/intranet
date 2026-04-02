@@ -8,7 +8,7 @@ Options -Indexes
 
 # Prevent direct access to configuration, source code, and backup directories
 <IfModule mod_authz_core.c>
-    <DirectoryMatch "^.*(logs|backups|private|config|bootstrap|src|cron|includes|vendor)$">
+    <DirectoryMatch "^.*(logs|backups|private|config|bootstrap|src|cron|auth|includes|vendor)$">
         Require all denied
     </DirectoryMatch>
 </IfModule>
@@ -17,7 +17,7 @@ Options -Indexes
 # All requests must go through the front-controller (index.php)
 <FilesMatch "\.php$">
     <IfModule mod_authz_core.c>
-        <If "%{REQUEST_URI} =~ m#^(/[^/]+)?/(api|pages|includes|bootstrap|src|cron)/#">
+        <If "%{REQUEST_URI} =~ m#^(/[^/]+)?/(api|auth|pages|includes|bootstrap|src|cron)/#">
             Require all denied
         </If>
     </IfModule>
@@ -32,10 +32,10 @@ Options -Indexes
     # Uncomment the next two lines in production to force HTTPS
     # RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-    # Block direct access to PHP scripts in api/, pages/, includes/, bootstrap/, src/, cron/
+    # Block direct access to PHP scripts in api/, auth/, pages/, includes/, bootstrap/, src/, cron/
     # All requests must go through the front-controller so that
     # authentication, CSRF protection and middleware are enforced uniformly.
-    RewriteCond %{REQUEST_URI} ^(/[^/]+)?/(api|pages|includes|bootstrap|src|cron)/.*\.php
+    RewriteCond %{REQUEST_URI} ^(/[^/]+)?/(api|auth|pages|includes|bootstrap|src|cron)/.*\.php
     RewriteRule ^ - [F,L]
 
     # Allow direct access to real files and directories

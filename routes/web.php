@@ -25,10 +25,14 @@ $r->addRoute('GET', '/', static function () use ($redirect): void {
     $redirect(\Auth::check() ? \BASE_URL . '/dashboard' : \BASE_URL . '/login');
 });
 
-$r->addRoute(['GET', 'POST'], '/login',      ['App\Controllers\AuthController@login',      [new RateLimitMiddleware('login', 10, 600)]]);
-$r->addRoute(['GET', 'POST'], '/logout',     'App\Controllers\AuthController@logout');
-$r->addRoute(['GET', 'POST'], '/verify-2fa', 'App\Controllers\AuthController@verify2fa');
-$r->addRoute(['GET', 'POST'], '/onboarding', 'App\Controllers\AuthController@onboarding');
+$r->addRoute(['GET', 'POST'], '/login',          ['App\Controllers\AuthController@login',        [new RateLimitMiddleware('login', 10, 600)]]);
+$r->addRoute(['GET', 'POST'], '/logout',         'App\Controllers\AuthController@logout');
+$r->addRoute(['GET', 'POST'], '/verify-2fa',     'App\Controllers\AuthController@verify2fa');
+$r->addRoute(['GET', 'POST'], '/onboarding',     'App\Controllers\AuthController@onboarding');
+
+// Microsoft OAuth flow (replaces auth/login_start.php and auth/callback.php)
+$r->addRoute('GET', '/auth/login-start', ['App\Controllers\AuthController@loginStart', [new RateLimitMiddleware('oauth_initiate', 20, 600)]]);
+$r->addRoute('GET', '/auth/callback',    'App\Controllers\AuthController@oauthCallback');
 
 $r->addRoute(['GET', 'POST'], '/alumni-recovery', 'App\Controllers\PublicController@alumniRecovery');
 $r->addRoute(['GET', 'POST'], '/neue-alumni',      'App\Controllers\PublicController@neueAlumni');
@@ -38,6 +42,9 @@ $r->addRoute('GET',           '/impressum',        'App\Controllers\PublicContro
 $r->addRoute('GET',  '/api/public/confirm-email',          'App\Controllers\PublicController@confirmEmail');
 $r->addRoute('POST', '/api/public/submit-alumni-recovery', 'App\Controllers\PublicController@submitAlumniRecovery');
 $r->addRoute('POST', '/api/public/submit-neue-alumni',     'App\Controllers\PublicController@submitNeueAlumni');
+
+// Profile photo proxy (caches Entra ID photos, replaces fetch-profile-photo.php)
+$r->addRoute('GET', '/profile-photo', 'App\Controllers\ProfileController@fetchProfilePhoto');
 
 // ===========================================================================
 // AUTHENTICATED ROUTES  (AuthMiddleware)
