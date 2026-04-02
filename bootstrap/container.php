@@ -4,13 +4,18 @@ declare(strict_types=1);
 
 use DI\ContainerBuilder;
 use Illuminate\Database\Capsule\Manager as Capsule;
+use Monolog\Handler\RotatingFileHandler;
+use Monolog\Handler\StreamHandler;
+use Monolog\Level;
+use Monolog\Logger;
+use Psr\Log\LoggerInterface;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use function DI\autowire;
 use function DI\factory;
 
 /**
- * Bootstrap the DI container, Twig, and Eloquent.
+ * Bootstrap the DI container, Twig, Eloquent, and Monolog.
  *
  * @return \DI\Container
  */
@@ -102,6 +107,29 @@ $capsule->bootEloquent();
 // ---------------------------------------------------------------------------
 $builder->addDefinitions([
 
+    // Monolog Logger (PSR-3 LoggerInterface)
+    LoggerInterface::class => factory(function () use ($projectRoot, $isDev): Logger {
+        $logger = new Logger('intranet');
+        $logDir = $projectRoot . '/logs';
+
+        if ($isDev) {
+            // In development: log everything to stderr for easy viewing
+            $logger->pushHandler(new StreamHandler('php://stderr', Level::Debug));
+        }
+
+        // Rotating daily log file – keeps 14 days of history
+        $logger->pushHandler(
+            new RotatingFileHandler($logDir . '/app.log', 14, Level::Warning)
+        );
+
+        return $logger;
+    }),
+
+    Logger::class => factory(function (LoggerInterface $logger): Logger {
+        /** @var Logger $logger */
+        return $logger;
+    }),
+
     // Twig
     Environment::class => factory(function () use ($projectRoot, $isDev): Environment {
         $loader = new FilesystemLoader($projectRoot . '/templates');
@@ -116,6 +144,10 @@ $builder->addDefinitions([
     Database::class => factory(function (): Database {
         return new Database();
     }),
+
+    // Middleware
+    \App\Middleware\AuthMiddleware::class  => autowire(),
+    \App\Middleware\AdminMiddleware::class => autowire(),
 
     // Controllers (autowired)
     \App\Controllers\AuthController::class          => autowire(),

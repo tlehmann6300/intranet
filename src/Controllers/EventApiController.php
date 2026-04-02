@@ -381,4 +381,70 @@ class EventApiController extends BaseController
 
         $this->json($decoded);
     }
+
+    /**
+     * Set or remove the feedback contact for an event.
+     *
+     * Only alumni roles may volunteer.  Auth is enforced by AuthMiddleware.
+     */
+    public function setFeedbackContact(array $vars = []): void
+    {
+        header('Content-Type: application/json');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            $this->json(['success' => false, 'message' => 'Nur POST-Anfragen erlaubt']);
+            return;
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            http_response_code(400);
+            $this->json(['success' => false, 'message' => 'Ungültiges JSON-Format']);
+            return;
+        }
+
+        \CSRFHandler::verifyToken($input['csrf_token'] ?? '');
+
+        $user     = \Auth::user();
+        $userRole = $_SESSION['user_role'] ?? '';
+
+        $allowedRoles = ['alumni', 'alumni_vorstand', 'alumni_finanz', 'ehrenmitglied'];
+        if (!in_array($userRole, $allowedRoles, true)) {
+            http_response_code(403);
+            $this->json(['success' => false, 'message' => 'Nur Alumni-Rollen können Feedback-Ansprechpartner werden']);
+            return;
+        }
+
+        $eventId = intval($input['id'] ?? 0);
+        $action  = $input['action'] ?? 'set';
+
+        if (!$eventId || !in_array($action, ['set', 'remove'], true)) {
+            http_response_code(400);
+            $this->json(['success' => false, 'message' => 'Ungültige Anfrage']);
+            return;
+        }
+
+        $event = \Event::getById($eventId, false);
+        if (!$event) {
+            http_response_code(404);
+            $this->json(['success' => false, 'message' => 'Event nicht gefunden']);
+            return;
+        }
+
+        if ($action === 'remove' && intval($event['feedback_contact_user_id'] ?? 0) !== $user['id']) {
+            http_response_code(403);
+            $this->json(['success' => false, 'message' => 'Du bist nicht der Ansprechpartner dieses Events']);
+            return;
+        }
+
+        $userId = $action === 'set' ? $user['id'] : null;
+        \Event::setFeedbackContact($eventId, $userId);
+
+        $message = $action === 'set'
+            ? 'Du bist jetzt Feedback-Ansprechpartner'
+            : 'Du bist nicht mehr Feedback-Ansprechpartner';
+
+        $this->json(['success' => true, 'message' => $message]);
+    }
 }

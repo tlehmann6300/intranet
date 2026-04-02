@@ -6,9 +6,6 @@
  * by the `.htaccess` RewriteRule.  This controller loads the application
  * bootstrap, resolves the requested URI via FastRoute and delegates to the
  * matching handler defined in `routes/web.php`.
- *
- * Direct file access (e.g. /pages/…, /api/…, /assets/…) still works unchanged
- * for backward compatibility – the `.htaccess` lets those requests pass through.
  */
 
 declare(strict_types=1);
@@ -23,7 +20,17 @@ try {
     /** @var \Twig\Environment $twig */
     $twig = $container->get(\Twig\Environment::class);
 
-    // 3. BASE_URL fallback
+    $isProduction = !defined('ENVIRONMENT') || ENVIRONMENT === 'production';
+
+    // 3. Error handling setup
+    if (!$isProduction) {
+        // Development: use Whoops for rich, interactive error pages
+        $whoops = new \Whoops\Run();
+        $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler());
+        $whoops->register();
+    }
+
+    // 4. BASE_URL fallback
     if (!defined('BASE_URL')) {
         $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
         $baseUrl  = $protocol . '://' . $_SERVER['HTTP_HOST'];
@@ -34,7 +41,7 @@ try {
         define('BASE_URL', rtrim($baseUrl, '/'));
     }
 
-    // 4. FastRoute – dispatch the current request
+    // 5. FastRoute – dispatch the current request
     $dispatcher = FastRoute\simpleDispatcher(static function (FastRoute\RouteCollector $r): void {
         require __DIR__ . '/routes/web.php';
     });
@@ -62,23 +69,43 @@ try {
             $handler  = $routeInfo[1];
             $vars     = $routeInfo[2];
 
-            if (is_string($handler)) {
-                // 'ControllerClass@method' notation
-                [$class, $method_name] = explode('@', $handler, 2);
-                // Resolve fully-qualified or App\Controllers\ prefixed
-                if (!str_contains($class, '\\')) {
-                    $class = 'App\\Controllers\\' . $class;
-                }
-                $controller = $container->get($class);
-                $controller->$method_name($vars);
-            } else {
-                // Legacy closure handlers
-                $handler($vars);
+            // Handlers may be:
+            //   (a) a plain string 'ControllerClass@method'
+            //   (b) an array  ['ControllerClass@method', [MiddlewareClass::class, ...]]
+            //   (c) a closure (legacy)
+            $middlewareClasses = [];
+            if (is_array($handler)) {
+                [$handler, $middlewareClasses] = $handler;
             }
+
+            // Build the terminal callable that invokes the actual controller/closure
+            $terminal = static function () use ($handler, $vars, $container): void {
+                if (is_string($handler)) {
+                    [$class, $method_name] = explode('@', $handler, 2);
+                    if (!str_contains($class, '\\')) {
+                        $class = 'App\\Controllers\\' . $class;
+                    }
+                    $controller = $container->get($class);
+                    $controller->$method_name($vars);
+                } else {
+                    $handler($vars);
+                }
+            };
+
+            // Resolve and instantiate middleware classes, then run the pipeline
+            $middlewareInstances = array_map(
+                static fn(string $cls): \App\Middleware\MiddlewareInterface => $container->get($cls),
+                $middlewareClasses
+            );
+
+            $pipeline = new \App\Middleware\MiddlewarePipeline(
+                $middlewareInstances,
+                static function () use ($terminal): void { $terminal(); }
+            );
+            $pipeline->run($method, $uri);
             break;
 
         case FastRoute\Dispatcher::NOT_FOUND:
-            // No clean-URL route – serve the 404 error page
             http_response_code(404);
             if (file_exists(__DIR__ . '/pages/errors/404.php')) {
                 include __DIR__ . '/pages/errors/404.php';
@@ -103,16 +130,35 @@ try {
     $isProduction = !defined('ENVIRONMENT') || ENVIRONMENT === 'production';
 
     if ($isProduction) {
-        $logFile   = __DIR__ . '/logs/error.log';
-        $timestamp = date('Y-m-d H:i:s');
-        @file_put_contents(
-            $logFile,
-            "[$timestamp] " . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine() . PHP_EOL,
-            FILE_APPEND | LOCK_EX
-        );
+        // Production: log structured error via Monolog
+        try {
+            if (isset($container)) {
+                /** @var \Psr\Log\LoggerInterface $logger */
+                $logger = $container->get(\Psr\Log\LoggerInterface::class);
+                $logger->error($e->getMessage(), [
+                    'exception' => get_class($e),
+                    'file'      => $e->getFile(),
+                    'line'      => $e->getLine(),
+                    'trace'     => $e->getTraceAsString(),
+                ]);
+            }
+        } catch (Throwable $logError) {
+            // Fallback: write to error.log if container is unavailable
+            $logFile   = __DIR__ . '/logs/error.log';
+            $timestamp = date('Y-m-d H:i:s');
+            @file_put_contents(
+                $logFile,
+                "[$timestamp] " . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine() . PHP_EOL,
+                FILE_APPEND | LOCK_EX
+            );
+        }
         http_response_code(500);
         echo '<p>Ein interner Fehler ist aufgetreten. Bitte versuche es später erneut.</p>';
     } else {
+        // Development: Whoops handles it if registered, otherwise fall back to plain output
+        if (class_exists(\Whoops\Run::class) && isset($whoops)) {
+            throw $e;
+        }
         echo "<div style='font-family:sans-serif;padding:20px;background:#ffebee;border:1px solid #c62828;color:#b71c1c;'>";
         echo '<h2>⚠️ System Fehler</h2>';
         echo '<p><strong>Fehler:</strong> ' . htmlspecialchars($e->getMessage()) . '</p>';

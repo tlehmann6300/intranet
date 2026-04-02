@@ -90,4 +90,70 @@ class ProjectApiController extends BaseController
             $this->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
+
+    /**
+     * Set or remove the feedback contact for a project.
+     *
+     * Only alumni roles may volunteer.  Auth is enforced by AuthMiddleware.
+     */
+    public function setFeedbackContact(array $vars = []): void
+    {
+        header('Content-Type: application/json');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            $this->json(['success' => false, 'message' => 'Nur POST-Anfragen erlaubt']);
+            return;
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            http_response_code(400);
+            $this->json(['success' => false, 'message' => 'Ungültiges JSON-Format']);
+            return;
+        }
+
+        \CSRFHandler::verifyToken($input['csrf_token'] ?? '');
+
+        $user     = \Auth::user();
+        $userRole = $_SESSION['user_role'] ?? '';
+
+        $allowedRoles = ['alumni', 'alumni_vorstand', 'alumni_finanz', 'ehrenmitglied'];
+        if (!in_array($userRole, $allowedRoles, true)) {
+            http_response_code(403);
+            $this->json(['success' => false, 'message' => 'Nur Alumni-Rollen können Feedback-Ansprechpartner werden']);
+            return;
+        }
+
+        $projectId = intval($input['id'] ?? 0);
+        $action    = $input['action'] ?? 'set';
+
+        if (!$projectId || !in_array($action, ['set', 'remove'], true)) {
+            http_response_code(400);
+            $this->json(['success' => false, 'message' => 'Ungültige Anfrage']);
+            return;
+        }
+
+        $project = \Project::getById($projectId);
+        if (!$project) {
+            http_response_code(404);
+            $this->json(['success' => false, 'message' => 'Projekt nicht gefunden']);
+            return;
+        }
+
+        if ($action === 'remove' && intval($project['feedback_contact_user_id'] ?? 0) !== $user['id']) {
+            http_response_code(403);
+            $this->json(['success' => false, 'message' => 'Du bist nicht der Ansprechpartner dieses Projekts']);
+            return;
+        }
+
+        $userId = $action === 'set' ? $user['id'] : null;
+        \Project::setFeedbackContact($projectId, $userId);
+
+        $message = $action === 'set'
+            ? 'Du bist jetzt Feedback-Ansprechpartner'
+            : 'Du bist nicht mehr Feedback-Ansprechpartner';
+
+        $this->json(['success' => true, 'message' => $message]);
+    }
 }
