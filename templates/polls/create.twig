@@ -1,0 +1,120 @@
+{% extends 'layouts/main.twig' %}
+{% block title %}Umfrage erstellen – IBC Intranet{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto py-4">
+    <div class="mb-4">
+        <a href="{{ base_url }}/polls" class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+            ← Zurück zu Umfragen
+        </a>
+    </div>
+
+    <div class="mb-8">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">
+            <i class="fas fa-poll mr-3 text-blue-500"></i>Umfrage erstellen
+        </h1>
+        <p class="text-gray-600 dark:text-gray-300">Erstellen Sie eine neue Umfrage für Ihre Mitglieder</p>
+    </div>
+
+    {% if errors is defined and errors %}
+    <div class="mb-6 p-4 bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg">
+        {% for error in errors %}
+        <div><i class="fas fa-exclamation-circle mr-2"></i>{{ error }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="card p-8">
+        <form method="POST" class="space-y-6" id="pollForm">
+            <input type="hidden" name="csrf_token" value="{{ csrfToken }}">
+            <input type="hidden" name="create_poll" value="1">
+
+            <div>
+                <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Titel <span class="text-red-500">*</span>
+                </label>
+                <input type="text" id="title" name="title" required maxlength="255"
+                    value="{{ post.title|default('')|e }}"
+                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white"
+                    placeholder="Z.B. Wahl des Veranstaltungsortes">
+            </div>
+
+            <div>
+                <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Beschreibung (optional)
+                </label>
+                <textarea id="description" name="description" rows="4"
+                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 dark:bg-gray-800 dark:text-white">{{ post.description|default('')|e }}</textarea>
+            </div>
+
+            <div>
+                <label for="microsoft_forms_url" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Microsoft Forms URL <span class="text-red-500">*</span>
+                </label>
+                <input type="url" id="microsoft_forms_url" name="microsoft_forms_url" required
+                    value="{{ post.microsoft_forms_url|default('')|e }}"
+                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
+                    placeholder="https://forms.office.com/Pages/ResponsePage.aspx?id=...">
+            </div>
+
+            <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">
+                    Zielgruppen / Sichtbarkeit <span class="text-red-500">*</span>
+                </label>
+                <label class="flex items-start cursor-pointer mb-5 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                    <input type="checkbox" name="visible_to_all" id="visible_to_all" value="1"
+                        {% if post.visible_to_all is defined %}checked{% endif %}
+                        class="w-5 h-5 text-blue-600 rounded mt-0.5 shrink-0">
+                    <div class="ml-3">
+                        <span class="font-medium text-gray-700 dark:text-gray-300">Für alle sichtbar</span>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Alle Benutzer können diese Umfrage sehen.</p>
+                    </div>
+                </label>
+                <div id="role_checkboxes" class="space-y-2">
+                    {% set roleOptions = [
+                        {label: 'Vorstand', value: 'board_roles'},
+                        {label: 'Alumni Finanzprüfer', value: 'alumni_finanz'},
+                        {label: 'Alumni Vorstand', value: 'alumni_vorstand'},
+                        {label: 'Alumni', value: 'alumni'},
+                        {label: 'Ehrenmitglied', value: 'ehrenmitglied'},
+                        {label: 'Mitglieder', value: 'mitglied'},
+                        {label: 'Anwärter', value: 'anwaerter'},
+                        {label: 'Resortleiter', value: 'ressortleiter'}
+                    ] %}
+                    {% for opt in roleOptions %}
+                    <label class="role-checkbox-label flex items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg cursor-pointer">
+                        <input type="checkbox" name="target_roles[]" value="{{ opt.value }}"
+                            {% if post.target_roles is defined and opt.value in post.target_roles %}checked{% endif %}
+                            class="role-checkbox w-4 h-4 text-blue-600 rounded">
+                        <span class="ml-3 text-gray-700 dark:text-gray-300">{{ opt.label }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-4">
+                <a href="{{ base_url }}/polls"
+                    class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-semibold hover:bg-gray-300 transition text-center">
+                    Abbrechen
+                </a>
+                <button type="submit"
+                    class="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">
+                    <i class="fas fa-check mr-2"></i>Umfrage erstellen
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const cb = document.getElementById('visible_to_all');
+    const labels = document.querySelectorAll('.role-checkbox-label');
+    const checks = document.querySelectorAll('.role-checkbox');
+    function toggle(disabled) {
+        checks.forEach(c => { c.disabled = disabled; if (disabled) c.checked = false; });
+        labels.forEach(l => l.classList.toggle('opacity-50', disabled));
+    }
+    if (cb) { toggle(cb.checked); cb.addEventListener('change', () => toggle(cb.checked)); }
+});
+</script>
+{% endblock %}

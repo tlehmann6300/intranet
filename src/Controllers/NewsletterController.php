@@ -189,4 +189,123 @@ class NewsletterController extends BaseController
         header('Cache-Control: no-cache, must-revalidate');
         echo $attachment->getContent();
     }
+
+    /**
+     * View a single newsletter (parsed .eml metadata + attachment list).
+     */
+    public function view(array $vars = []): void
+    {
+        $this->requireAuth();
+        $currentUser  = \Auth::user();
+        $newsletterId = isset($vars['id']) ? (int)$vars['id'] : 0;
+
+        if ($newsletterId <= 0) {
+            $this->redirect(\BASE_URL . '/newsletter');
+        }
+
+        $newsletter = \Newsletter::getById($newsletterId);
+        if (! $newsletter) {
+            $this->redirect(\BASE_URL . '/newsletter');
+        }
+
+        $emailAttachments = [];
+        $newsletterDir    = realpath(__DIR__ . '/../../uploads/newsletters');
+        if ($newsletterDir !== false) {
+            $safeBasename = basename($newsletter['file_path'] ?? '');
+            $filePath     = $newsletterDir . DIRECTORY_SEPARATOR . $safeBasename;
+            $realFilePath = realpath($filePath);
+            if ($realFilePath !== false && str_starts_with($realFilePath, $newsletterDir . DIRECTORY_SEPARATOR) && file_exists($realFilePath)) {
+                try {
+                    $message     = \ZBateson\MailMimeParser\Message::from(file_get_contents($realFilePath), false);
+                    $attachments = $message->getAllAttachmentParts();
+                    foreach ($attachments as $i => $att) {
+                        $emailAttachments[] = [
+                            'index'        => $i,
+                            'filename'     => $att->getFilename() ?? ('Anhang ' . ($i + 1)),
+                            'content_type' => $att->getContentType() ?? 'application/octet-stream',
+                        ];
+                    }
+                } catch (\Exception $e) {
+                    error_log('newsletter view parse error: ' . $e->getMessage());
+                }
+            }
+        }
+
+        $this->render('newsletter/view.twig', [
+            'currentUser'      => $currentUser,
+            'newsletter'       => $newsletter,
+            'emailAttachments' => $emailAttachments,
+        ]);
+    }
+
+    /**
+     * Render the HTML body of a newsletter in-browser (used in an iframe).
+     */
+    public function render(array $vars = []): void
+    {
+        $this->requireAuth();
+        $id = isset($vars['id']) ? (int)$vars['id'] : 0;
+
+        if ($id <= 0) {
+            http_response_code(400);
+            exit('Ungültige Newsletter-ID.');
+        }
+
+        $newsletter = \Newsletter::getById($id);
+        if (! $newsletter) {
+            http_response_code(404);
+            exit('Newsletter nicht gefunden.');
+        }
+
+        $newsletterDir = realpath(__DIR__ . '/../../uploads/newsletters');
+        if ($newsletterDir === false) {
+            http_response_code(500);
+            exit('Server-Konfigurationsfehler.');
+        }
+
+        $safeBasename = basename($newsletter['file_path'] ?? '');
+        $filePath     = $newsletterDir . DIRECTORY_SEPARATOR . $safeBasename;
+        $realFilePath = realpath($filePath);
+
+        if ($realFilePath === false || ! str_starts_with($realFilePath, $newsletterDir . DIRECTORY_SEPARATOR) || ! file_exists($realFilePath)) {
+            http_response_code(404);
+            exit('Datei nicht gefunden.');
+        }
+
+        try {
+            $raw      = file_get_contents($realFilePath);
+            $message  = \ZBateson\MailMimeParser\Message::from($raw, false);
+            $htmlPart = $message->getHtmlContent();
+
+            if ($htmlPart === null) {
+                $textPart = $message->getTextContent() ?? '';
+                $htmlPart = '<pre>' . htmlspecialchars($textPart, ENT_QUOTES, 'UTF-8') . '</pre>';
+            }
+
+            // Inline all CID images as base64 data URIs
+            $inlineParts = $message->getAllInlineParts();
+            foreach ($inlineParts as $part) {
+                $cid = $part->getContentId();
+                if ($cid === null) {
+                    continue;
+                }
+                $mime    = $part->getContentType() ?? 'image/png';
+                $content = $part->getBinaryContent() ?? '';
+                $b64     = base64_encode($content);
+                $dataUri = 'data:' . $mime . ';base64,' . $b64;
+                $htmlPart = str_replace('cid:' . $cid, $dataUri, $htmlPart);
+            }
+
+            header('X-Frame-Options: SAMEORIGIN');
+            header('Content-Type: text/html; charset=UTF-8');
+
+            echo '<!DOCTYPE html><html><head><meta charset="UTF-8">'
+                . '<meta name="viewport" content="width=device-width,initial-scale=1">'
+                . '</head><body>' . $htmlPart . '</body></html>';
+        } catch (\Exception $e) {
+            error_log('newsletter render error: ' . $e->getMessage());
+            http_response_code(500);
+            exit('Fehler beim Rendern des Newsletters.');
+        }
+    }
 }

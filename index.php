@@ -96,14 +96,30 @@ try {
                 }
             };
 
-            // Resolve and instantiate middleware classes, then run the pipeline
+            // Resolve and instantiate per-route middleware classes.
+            // Middleware entries may be class-name strings (resolved via DI container)
+            // or pre-configured MiddlewareInterface instances (e.g. RateLimitMiddleware with custom args).
             $middlewareInstances = array_map(
-                static fn(string $cls): \App\Middleware\MiddlewareInterface => $container->get($cls),
+                static function (string|\App\Middleware\MiddlewareInterface $entry) use ($container): \App\Middleware\MiddlewareInterface {
+                    if ($entry instanceof \App\Middleware\MiddlewareInterface) {
+                        return $entry;
+                    }
+                    return $container->get($entry);
+                },
                 $middlewareClasses
             );
 
+            // Global middleware: CSRF validation for every state-changing request.
+            // CsrfMiddleware checks the HTTP method internally (POST/PUT/PATCH/DELETE)
+            // and is a no-op for GET/HEAD/OPTIONS, so it is safe to prepend to all routes.
+            $globalMiddlewares = [
+                $container->get(\App\Middleware\CsrfMiddleware::class),
+            ];
+
+            $allMiddlewares = array_merge($globalMiddlewares, $middlewareInstances);
+
             $pipeline = new \App\Middleware\MiddlewarePipeline(
-                $middlewareInstances,
+                $allMiddlewares,
                 static function () use ($terminal): void { $terminal(); }
             );
             $pipeline->run($method, $uri);

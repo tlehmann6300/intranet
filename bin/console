@@ -1,0 +1,55 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+/**
+ * bin/console – Intranet CLI Application Entry Point
+ *
+ * Boots the DI container (same as index.php) and registers all application
+ * commands under the App\Commands namespace.
+ *
+ * Usage:
+ *   php bin/console list
+ *   php bin/console app:backup-database
+ *   php bin/console app:sync-easyverein
+ *   php bin/console app:send-birthday-wishes
+ *   php bin/console app:send-alumni-reminders
+ *   php bin/console app:send-profile-reminders
+ *   php bin/console app:process-mail-queue
+ *   php bin/console app:reconcile-bank-payments
+ */
+
+// Ensure we are running from CLI
+if (PHP_SAPI !== 'cli' && PHP_SAPI !== 'phpdbg') {
+    fwrite(STDERR, "This script must be run from the command line.\n");
+    exit(1);
+}
+
+// Resolve paths relative to the project root (this file is in bin/)
+$projectRoot = dirname(__DIR__);
+
+// Bootstrap the application (loads config, autoloader, DI container)
+$container = require $projectRoot . '/bootstrap/app.php';
+
+use App\Commands\BackupDatabaseCommand;
+use App\Commands\ProcessMailQueueCommand;
+use App\Commands\ReconcileBankPaymentsCommand;
+use App\Commands\SendAlumniRemindersCommand;
+use App\Commands\SendBirthdayWishesCommand;
+use App\Commands\SendProfileRemindersCommand;
+use App\Commands\SyncEasyVereinCommand;
+use Symfony\Component\Console\Application;
+
+$app = new Application('IBC Intranet CLI', '1.0.0');
+
+// Register all commands (dependencies injected via DI container)
+$app->add($container->get(BackupDatabaseCommand::class));
+$app->add($container->get(SyncEasyVereinCommand::class));
+$app->add($container->get(SendBirthdayWishesCommand::class));
+$app->add($container->get(SendAlumniRemindersCommand::class));
+$app->add($container->get(SendProfileRemindersCommand::class));
+$app->add($container->get(ProcessMailQueueCommand::class));
+$app->add($container->get(ReconcileBankPaymentsCommand::class));
+
+exit($app->run());

@@ -1,7 +1,8 @@
 parameters:
-    # Analysis level: 0 (lenient) to 10 (strictest). Level 5 is a good
-    # starting point for an existing codebase – increase gradually.
-    level: 5
+    # Analysis level: 0 (lenient) to 10 (strictest).
+    # Raised from 5 → 6 as part of the type-safety consolidation (Punkt 4).
+    # Next step: resolve remaining level-6 errors, then bump to 7.
+    level: 6
 
     paths:
         - src

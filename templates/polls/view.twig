@@ -1,0 +1,39 @@
+{% extends 'layouts/main.twig' %}
+{% block title %}Umfrage ansehen – IBC Intranet{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto py-4">
+    <div class="mb-4">
+        <a href="{{ base_url }}/polls" class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+            ← Zurück zu Umfragen
+        </a>
+    </div>
+
+    {% if poll %}
+    <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-6 sm:p-8">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-50 mb-4">{{ poll.title }}</h1>
+
+        {% if poll.description %}
+        <p class="text-gray-600 dark:text-gray-300 mb-6">{{ poll.description }}</p>
+        {% endif %}
+
+        {% if poll.microsoft_forms_url %}
+        <div class="mb-6">
+            <iframe
+                src="{{ poll.microsoft_forms_url }}"
+                width="100%"
+                height="600"
+                frameborder="0"
+                marginheight="0"
+                marginwidth="0"
+                class="rounded-lg border border-gray-200 dark:border-gray-700"
+            >Wird geladen …</iframe>
+        </div>
+        {% else %}
+        <p class="text-gray-500 dark:text-gray-400">Für diese Umfrage ist kein Formular konfiguriert.</p>
+        {% endif %}
+    </div>
+    {% else %}
+    <p class="text-red-500">Umfrage nicht gefunden.</p>
+    {% endif %}
+</div>
+{% endblock %}

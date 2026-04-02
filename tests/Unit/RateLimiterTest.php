@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
+use App\Handlers\RateLimiter;
 use PHPUnit\Framework\TestCase;
 
-// Load the class under test (no autoloader for legacy classes yet)
-require_once __DIR__ . '/../../includes/handlers/RateLimiter.php';
-
 /**
- * @covers \RateLimiter
+ * @covers \App\Handlers\RateLimiter
  */
 final class RateLimiterTest extends TestCase
 {
@@ -34,9 +32,9 @@ final class RateLimiterTest extends TestCase
         }
     }
 
-    private function limiter(int $max = 3, int $window = 60): \RateLimiter
+    private function limiter(int $max = 3, int $window = 60): RateLimiter
     {
-        return new \RateLimiter('test', $max, $window, $this->tmpDir);
+        return new RateLimiter('test', $max, $window, $this->tmpDir);
     }
 
     // ------------------------------------------------------------------
@@ -106,7 +104,7 @@ final class RateLimiterTest extends TestCase
     public function testExpiredAttemptsArePruned(): void
     {
         // Very short window so attempts expire quickly
-        $limiter = new \RateLimiter('test', 10, 1, $this->tmpDir);
+        $limiter = new RateLimiter('test', 10, 1, $this->tmpDir);
         $limiter->hit();
         $this->assertSame(1, $limiter->getAttempts());
 
@@ -120,8 +118,8 @@ final class RateLimiterTest extends TestCase
 
     public function testMultipleNamespacesAreIsolated(): void
     {
-        $limiterA = new \RateLimiter('action_a', 3, 60, $this->tmpDir);
-        $limiterB = new \RateLimiter('action_b', 3, 60, $this->tmpDir);
+        $limiterA = new RateLimiter('action_a', 3, 60, $this->tmpDir);
+        $limiterB = new RateLimiter('action_b', 3, 60, $this->tmpDir);
 
         $limiterA->hit();
         $limiterA->hit();

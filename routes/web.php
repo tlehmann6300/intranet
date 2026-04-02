@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 use App\Middleware\AdminMiddleware;
 use App\Middleware\AuthMiddleware;
+use App\Middleware\RateLimitMiddleware;
 
 // ===========================================================================
 // PUBLIC ROUTES  (no middleware)
@@ -24,7 +25,7 @@ $r->addRoute('GET', '/', static function () use ($redirect): void {
     $redirect(\Auth::check() ? \BASE_URL . '/dashboard' : \BASE_URL . '/login');
 });
 
-$r->addRoute(['GET', 'POST'], '/login',      'App\Controllers\AuthController@login');
+$r->addRoute(['GET', 'POST'], '/login',      ['App\Controllers\AuthController@login',      [new RateLimitMiddleware('login', 10, 600)]]);
 $r->addRoute(['GET', 'POST'], '/logout',     'App\Controllers\AuthController@logout');
 $r->addRoute(['GET', 'POST'], '/verify-2fa', 'App\Controllers\AuthController@verify2fa');
 $r->addRoute(['GET', 'POST'], '/onboarding', 'App\Controllers\AuthController@onboarding');
@@ -93,10 +94,16 @@ $r->addRoute(['GET', 'POST'], '/jobs/create',        ['App\Controllers\JobContro
 $r->addRoute(['GET', 'POST'], '/jobs/{id:\d+}/edit', ['App\Controllers\JobController@edit',   [AuthMiddleware::class]]);
 
 // Newsletter, Polls, Links, Ideas
-$r->addRoute('GET', '/newsletter', ['App\Controllers\NewsletterController@index', [AuthMiddleware::class]]);
-$r->addRoute('GET', '/polls',      ['App\Controllers\PollController@index',       [AuthMiddleware::class]]);
-$r->addRoute('GET', '/links',      ['App\Controllers\LinkController@index',        [AuthMiddleware::class]]);
-$r->addRoute('GET', '/ideas',      ['App\Controllers\IdeaController@index',        [AuthMiddleware::class]]);
+$r->addRoute('GET',           '/newsletter',                    ['App\Controllers\NewsletterController@index',  [AuthMiddleware::class]]);
+$r->addRoute('GET',           '/newsletter/{id:\d+}',          ['App\Controllers\NewsletterController@view',   [AuthMiddleware::class]]);
+$r->addRoute('GET',           '/newsletter/{id:\d+}/render',   ['App\Controllers\NewsletterController@render', [AuthMiddleware::class]]);
+$r->addRoute('GET',           '/polls',                        ['App\Controllers\PollController@index',        [AuthMiddleware::class]]);
+$r->addRoute('GET',           '/polls/{id:\d+}',               ['App\Controllers\PollController@view',        [AuthMiddleware::class]]);
+$r->addRoute(['GET', 'POST'], '/polls/create',                  ['App\Controllers\PollController@create',       [AuthMiddleware::class]]);
+$r->addRoute('GET',           '/links',                        ['App\Controllers\LinkController@index',        [AuthMiddleware::class]]);
+$r->addRoute(['GET', 'POST'], '/links/create',                  ['App\Controllers\LinkController@create',       [AuthMiddleware::class]]);
+$r->addRoute(['GET', 'POST'], '/links/{id:\d+}/edit',           ['App\Controllers\LinkController@edit',         [AuthMiddleware::class]]);
+$r->addRoute('GET',           '/ideas',                        ['App\Controllers\IdeaController@index',        [AuthMiddleware::class]]);
 
 // ===========================================================================
 // ADMIN ROUTES  (AdminMiddleware – implies board role + auth)
@@ -113,6 +120,10 @@ $r->addRoute(['GET', 'POST'], '/admin/neue-alumni-requests',  ['App\Controllers\
 $r->addRoute(['GET', 'POST'], '/admin/vcards',                ['App\Controllers\AdminController@vcards',             [AdminMiddleware::class]]);
 $r->addRoute('GET',           '/admin/project-applications',  ['App\Controllers\AdminController@projectApplications',[AdminMiddleware::class]]);
 $r->addRoute(['GET', 'POST'], '/admin/db-maintenance',        ['App\Controllers\AdminController@dbMaintenance',      [AdminMiddleware::class]]);
+$r->addRoute(['GET', 'POST'], '/admin/locations',             ['App\Controllers\AdminController@locations',          [AdminMiddleware::class]]);
+$r->addRoute(['GET', 'POST'], '/admin/categories',            ['App\Controllers\AdminController@categories',         [AdminMiddleware::class]]);
+$r->addRoute('GET',           '/admin/rental-returns',        ['App\Controllers\AdminController@rentalReturns',      [AdminMiddleware::class]]);
+$r->addRoute('GET',           '/admin/event-stats',           ['App\Controllers\AdminController@eventStats',         [AdminMiddleware::class]]);
 
 // ===========================================================================
 // API ROUTES – AUTHENTICATED
