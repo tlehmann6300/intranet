@@ -434,9 +434,7 @@ class MailService {
      */
     public static function getBirthdayEmailTemplate(string $firstName, string $gender = ''): string {
         // Load the new responsive email templates
-        require_once __DIR__ . '/../includes/templates/email_templates.php';
-        
-        // Use the new responsive birthday template
+        require_once __DIR__ . '/Templates/email_templates.php';
         return EmailTemplates::getBirthdayTemplate($firstName, $gender);
     }
     
@@ -450,9 +448,7 @@ class MailService {
      */
     public static function getProfileReminderEmailTemplate(string $firstName, string $profileLink): string {
         // Load the new responsive email templates
-        require_once __DIR__ . '/../includes/templates/email_templates.php';
-        
-        // Use the new responsive profile reminder template
+        require_once __DIR__ . '/Templates/email_templates.php';
         return EmailTemplates::getProfileReminderTemplate($firstName, $profileLink);
     }
     
