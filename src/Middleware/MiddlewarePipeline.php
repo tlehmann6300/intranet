@@ -25,7 +25,8 @@ class MiddlewarePipeline
     /** @param MiddlewareInterface[] $middlewares */
     public function __construct(
         private readonly array    $middlewares,
-        private readonly callable $handler
+        /** @var callable */
+        private readonly mixed    $handler
     ) {}
 
     public function run(string $method, string $uri): void
