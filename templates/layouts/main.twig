@@ -107,56 +107,80 @@
             const data = await res.json();
             if (!data.success) return;
 
-            const badge = document.getElementById('notif-badge');
-            const list  = document.getElementById('notif-list');
-
-            if (data.count > 0) {
-                badge.textContent = data.count > 9 ? '9+' : String(data.count);
-                badge.classList.remove('hidden');
-            } else {
-                badge.classList.add('hidden');
-            }
-
-            if (data.data.length === 0) {
-                list.innerHTML = '<div class="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">Keine neuen Benachrichtigungen</div>';
-                return;
-            }
-
-            list.innerHTML = data.data.map(n => {
-                const div    = document.createElement('div');
-                div.className = 'flex items-start gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer';
-
-                const dot   = document.createElement('div');
-                dot.className = 'w-2 h-2 rounded-full bg-blue-500 flex-shrink-0 mt-1.5';
-
-                const body  = document.createElement('div');
-                body.className = 'flex-1 min-w-0';
-
-                const title = document.createElement('p');
-                title.className = 'text-sm font-medium text-gray-900 dark:text-gray-100 truncate';
-                title.textContent = n.title;
-
-                body.appendChild(title);
-
-                if (n.message) {
-                    const msg = document.createElement('p');
-                    msg.className = 'text-xs text-gray-500 dark:text-gray-400 truncate';
-                    msg.textContent = n.message;
-                    body.appendChild(msg);
-                }
-
-                div.appendChild(dot);
-                div.appendChild(body);
-
-                const url = (n.url && n.url.startsWith('/')) ? n.url : '';
-                div.addEventListener('click', () => readNotification(n.id, url));
-
-                return div.outerHTML;
-            }).join('');
+            updateNotificationUI(data.data, data.count);
         } catch (e) {
             // Silently ignore network errors during polling
         }
     }
+
+    function updateNotificationUI(notifications, count) {
+        const badge = document.getElementById('notif-badge');
+        const list  = document.getElementById('notif-list');
+
+        if (count > 0) {
+            badge.textContent = count > 9 ? '9+' : String(count);
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
+        }
+
+        if (!notifications || notifications.length === 0) {
+            list.innerHTML = '<div class="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">Keine neuen Benachrichtigungen</div>';
+            return;
+        }
+
+        list.innerHTML = notifications.map(n => {
+            const div    = document.createElement('div');
+            div.className = 'flex items-start gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer';
+
+            const dot   = document.createElement('div');
+            dot.className = 'w-2 h-2 rounded-full bg-blue-500 flex-shrink-0 mt-1.5';
+
+            const body  = document.createElement('div');
+            body.className = 'flex-1 min-w-0';
+
+            const title = document.createElement('p');
+            title.className = 'text-sm font-medium text-gray-900 dark:text-gray-100 truncate';
+            title.textContent = n.title;
+
+            body.appendChild(title);
+
+            if (n.message) {
+                const msg = document.createElement('p');
+                msg.className = 'text-xs text-gray-500 dark:text-gray-400 truncate';
+                msg.textContent = n.message;
+                body.appendChild(msg);
+            }
+
+            div.appendChild(dot);
+            div.appendChild(body);
+
+            const url = (n.url && n.url.startsWith('/')) ? n.url : '';
+            div.addEventListener('click', () => readNotification(n.id, url));
+
+            return div.outerHTML;
+        }).join('');
+    }
+
+    // Toast notification popup
+    function showToast(title, message) {
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-4 right-4 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg p-4 flex items-start gap-3 max-w-sm animate-fade-in';
+        toast.innerHTML = `
+            <div class="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0 mt-1.5"></div>
+            <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-gray-900 dark:text-gray-100">${title.replace(/</g,'&lt;')}</p>
+                ${message ? `<p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">${message.replace(/</g,'&lt;')}</p>` : ''}
+            </div>
+            <button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 flex-shrink-0" onclick="this.closest('div').remove()">✕</button>`;
+        document.body.appendChild(toast);
+        setTimeout(() => { if (toast.parentNode) toast.remove(); }, 6000);
+    }
+
+    // Real-time notifications via Server-Sent Events
+    // Falls back to polling if SSE is not available or fails
+    let sseConnected = false;
+    let pollInterval = null;
 
     async function readNotification(id, url) {
         await fetch('/api/notifications/read', {
@@ -180,9 +204,48 @@
         fetchNotifications();
     }
 
-    // Initial fetch + poll every 60 seconds
+    function startSSE() {
+        if (!window.EventSource) {
+            startPolling();
+            return;
+        }
+
+        const source = new EventSource('/api/notifications/stream', { withCredentials: true });
+
+        source.addEventListener('notification', (event) => {
+            try {
+                const notif = JSON.parse(event.data);
+                showToast(notif.title, notif.message || '');
+                // Refresh the notification list
+                fetchNotifications();
+            } catch (e) { /* ignore parse errors */ }
+        });
+
+        source.onopen = () => {
+            sseConnected = true;
+            // Stop fallback polling when SSE is active
+            if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+        };
+
+        source.onerror = () => {
+            sseConnected = false;
+            source.close();
+            // Reconnect after 10 s; also start fallback polling in the meantime
+            if (!pollInterval) { startPolling(); }
+            setTimeout(startSSE, 10000);
+        };
+    }
+
+    function startPolling() {
+        if (!pollInterval) {
+            pollInterval = setInterval(fetchNotifications, 60000);
+        }
+    }
+
+    // Initial data load
     fetchNotifications();
-    setInterval(fetchNotifications, 60000);
+    // Start SSE (falls back to polling automatically on error)
+    startSSE();
     </script>
 
     {% block extra_scripts %}{% endblock %}
