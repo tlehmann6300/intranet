@@ -421,15 +421,7 @@ class ProfileController extends BaseController
         $defaultProfileImg = __DIR__ . '/../../assets/img/default_profil.png';
 
         $serveFallbackPixel = static function (): never {
-            $pixel = base64_decode(
-                'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQI12NgAAIA'
-                . 'BQABNjN9GQAAAAlwSFlzAAALEwAACxMBAJqcGAAAAA1JREFUCNdjYGBg+A8AAQ'
-                . 'QAAbWJngcAAAAASUVORK5CYII='
-            );
-            header('Content-Type: image/png');
-            header('Cache-Control: no-store');
-            echo $pixel;
-            exit;
+            self::serveTransparentPixel();
         };
 
         $serveDefaultAvatar = static function () use ($defaultProfileImg, $serveFallbackPixel): never {
@@ -568,5 +560,25 @@ class ProfileController extends BaseController
         header('Cache-Control: public, max-age=3600');
         header('X-Photo-Cache: MISS');
         echo $photoData;
+    }
+
+    /**
+     * Emit a transparent 1×1 PNG and terminate – used as an ultimate fallback
+     * when neither a cached photo nor the default avatar is available.
+     *
+     * Minimal valid transparent PNG (68 bytes, RFC-2083 compliant).
+     */
+    private static function serveTransparentPixel(): never
+    {
+        // phpcs:ignore Generic.Strings.UnnecessaryStringConcat.Found
+        $pixel = base64_decode(
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQI12NgAAIA'
+            . 'BQABNjN9GQAAAAlwSFlzAAALEwAACxMBAJqcGAAAAA1JREFUCNdjYGBg+A8AAQ'
+            . 'QAAbWJngcAAAAASUVORK5CYII='
+        );
+        header('Content-Type: image/png');
+        header('Cache-Control: no-store');
+        echo $pixel;
+        exit;
     }
 }

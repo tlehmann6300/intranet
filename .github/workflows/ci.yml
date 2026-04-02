@@ -13,6 +13,8 @@ jobs:
   code-style:
     name: Code Style (PHP-CS-Fixer)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout
@@ -44,6 +46,8 @@ jobs:
   static-analysis:
     name: Static Analysis (PHPStan)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout
@@ -75,6 +79,8 @@ jobs:
   tests:
     name: Tests (PHPUnit)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout

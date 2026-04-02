@@ -38,13 +38,13 @@ class AlumniRepository extends BaseRepository
     }
 
     /**
-     * Return all alumni profiles, optionally filtered by company or industry.
+     * Return all alumni profiles ordered by name.
      *
      * @return array<int, array<string, mixed>>
      */
     public function findAllPublished(): array
     {
-        return $this->findAll('1', [], 'last_name ASC, first_name ASC');
+        return $this->findAll('1=1', [], 'last_name ASC, first_name ASC');
     }
 
     /**
