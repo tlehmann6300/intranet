@@ -1319,7 +1319,7 @@ class MailService {
         $postLink = BASE_URL . '/pages/blog/view.php?id=' . $postId;
         $callToAction = '<a href="' . htmlspecialchars($postLink) . '" class="button">Artikel lesen</a>';
 
-        $settingsLink = BASE_URL . '/pages/auth/settings.php';
+        $settingsLink = BASE_URL . '/profile/settings';
         $bodyContent .= '<p class="email-text" style="margin-top:20px;font-size:13px;color:#6b7280;">
             Du erhältst diese E-Mail, weil du den Blog-Newsletter abonniert hast.
             Du kannst diese Benachrichtigung jederzeit in deinen
