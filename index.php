@@ -43,6 +43,10 @@ try {
 
     // 5. FastRoute – dispatch the current request
     $dispatcher = FastRoute\simpleDispatcher(static function (FastRoute\RouteCollector $r): void {
+        $redirect = static function (string $url): never {
+            header('Location: ' . $url, true, 302);
+            exit;
+        };
         require __DIR__ . '/routes/web.php';
     });
 
