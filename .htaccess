@@ -1,6 +1,6 @@
 Options -Indexes
 
-# Security: Deny access to sensitive files
+# Security: Deny direct HTTP access to sensitive files
 # Covers environment config, secrets, lock files, build/tool config and raw data files.
 <FilesMatch "\.(env|log|sql|bak|sh|htpasswd|json|lock|xml|neon|dist|txt)$">
     Require all denied
@@ -9,23 +9,6 @@ Options -Indexes
 # Allow public-facing manifests and service worker that intentionally live in the root
 <FilesMatch "^(manifest\.json|sw\.js)$">
     Require all granted
-</FilesMatch>
-
-# Prevent direct access to configuration, source code, and backup directories
-<IfModule mod_authz_core.c>
-    <DirectoryMatch "^.*(logs|backups|private|config|bootstrap|src|cron|auth|vendor)$">
-        Require all denied
-    </DirectoryMatch>
-</IfModule>
-
-# Block direct PHP execution in legacy and internal directories
-# All requests must go through the front-controller (index.php)
-<FilesMatch "\.php$">
-    <IfModule mod_authz_core.c>
-        <If "%{REQUEST_URI} =~ m#^(/[^/]+)?/(auth|pages|bootstrap|src|cron)/#">
-            Require all denied
-        </If>
-    </IfModule>
 </FilesMatch>
 
 <IfModule mod_rewrite.c>
@@ -44,14 +27,14 @@ Options -Indexes
     # Redirect legacy login URL (bookmarks, emails, session-timeout links)
     RewriteRule ^pages/auth/login\.php$ /login [QSA,R=301,L]
 
-    # Block direct access to PHP scripts in auth/, pages/, bootstrap/, src/, cron/
+    # Block direct access to PHP scripts in internal directories.
     # All requests must go through the front-controller so that
     # authentication, CSRF protection and middleware are enforced uniformly.
-    RewriteCond %{REQUEST_URI} ^(/[^/]+)?/(auth|pages|bootstrap|src|cron)/.*\.php
+    RewriteCond %{REQUEST_URI} ^(/[^/]+)?/(auth|pages|bootstrap|src|cron|config|vendor)/.*\.php
     RewriteRule ^ - [F,L]
 
     # Allow direct access to real files and directories
-    # (assets, vendor, uploads remain directly accessible)
+    # (assets, uploads remain directly accessible)
     RewriteCond %{REQUEST_FILENAME} -f [OR]
     RewriteCond %{REQUEST_FILENAME} -d
     RewriteRule ^ - [L]
