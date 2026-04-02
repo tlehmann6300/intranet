@@ -16,8 +16,6 @@ use PhpCsFixer\Finder;
 $finder = Finder::create()
     ->in([
         __DIR__ . '/src',
-        __DIR__ . '/includes/handlers',
-        __DIR__ . '/includes/services',
         __DIR__ . '/routes',
         __DIR__ . '/tests',
     ])
