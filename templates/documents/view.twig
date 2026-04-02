@@ -1,0 +1,84 @@
+{% extends 'layouts/main.twig' %}
+{% block title %}{{ document.title }} – Dokumente – IBC Intranet{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+
+<div class="mb-6">
+    <a href="/documents" class="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 mb-4">
+        <i class="fas fa-arrow-left text-xs"></i> Zurück zu Dokumenten
+    </a>
+
+    <div class="flex items-start justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-50">{{ document.title }}</h1>
+            <div class="flex flex-wrap gap-3 mt-2 text-sm text-gray-500 dark:text-gray-400">
+                <span class="inline-flex items-center gap-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 px-2.5 py-0.5 rounded-full text-xs font-medium">{{ document.category }}</span>
+                <span>Version {{ document.version }}</span>
+                <span>{{ document.uploaded_at|date('d.m.Y') }}</span>
+            </div>
+            {% if document.description %}
+            <p class="mt-3 text-gray-600 dark:text-gray-300">{{ document.description }}</p>
+            {% endif %}
+        </div>
+        <a href="/documents/{{ document.id }}/download"
+           class="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition">
+            <i class="fas fa-download"></i> Download
+        </a>
+    </div>
+</div>
+
+{# File info #}
+<div class="card rounded-xl p-5 mb-6">
+    <dl class="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
+        <div>
+            <dt class="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wide mb-0.5">Dateiname</dt>
+            <dd class="text-gray-800 dark:text-gray-200 truncate">{{ document.original_filename }}</dd>
+        </div>
+        {% if document.file_size %}
+        <div>
+            <dt class="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wide mb-0.5">Dateigröße</dt>
+            <dd class="text-gray-800 dark:text-gray-200">
+                {% if document.file_size > 1048576 %}{{ (document.file_size / 1048576)|round(1) }} MB
+                {% else %}{{ (document.file_size / 1024)|round(1) }} KB{% endif %}
+            </dd>
+        </div>
+        {% endif %}
+        <div>
+            <dt class="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wide mb-0.5">Hochgeladen</dt>
+            <dd class="text-gray-800 dark:text-gray-200">{{ document.uploaded_at|date('d.m.Y H:i') }}</dd>
+        </div>
+    </dl>
+</div>
+
+{# Version history #}
+{% if versions|length > 1 %}
+<div class="card rounded-xl shadow-sm overflow-hidden">
+    <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-700">
+        <h2 class="font-semibold text-gray-900 dark:text-gray-100">Versionsverlauf</h2>
+    </div>
+    <div class="divide-y divide-gray-50 dark:divide-gray-700/50">
+        {% for ver in versions %}
+        <div class="flex items-center gap-4 px-5 py-3 {{ ver.id == document.id ? 'bg-indigo-50 dark:bg-indigo-900/10' : '' }}">
+            <div class="w-8 h-8 rounded-full {{ ver.is_current ? 'bg-indigo-100 dark:bg-indigo-900/30' : 'bg-gray-100 dark:bg-gray-700' }} flex items-center justify-center flex-shrink-0">
+                <span class="text-xs font-bold {{ ver.is_current ? 'text-indigo-700 dark:text-indigo-300' : 'text-gray-500 dark:text-gray-400' }}">v{{ ver.version }}</span>
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="text-sm text-gray-700 dark:text-gray-300">{{ ver.uploaded_at|date('d.m.Y H:i') }}</p>
+                <p class="text-xs text-gray-400 dark:text-gray-500">{{ ver.original_filename }}</p>
+            </div>
+            {% if ver.is_current %}
+            <span class="text-xs bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 px-2 py-0.5 rounded-full">Aktuell</span>
+            {% else %}
+            <a href="/documents/{{ ver.id }}/download" class="text-xs text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400">
+                <i class="fas fa-download"></i>
+            </a>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+</div>
+{% endblock %}

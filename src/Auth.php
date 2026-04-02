@@ -762,25 +762,17 @@ class Auth {
      * @param string|null $userAgent User agent string
      */
     private static function logLoginAttempt($userId, $email, $status, $details, $ipAddress, $userAgent) {
-        try {
-            $dbContent = Database::getContentDB();
-            $stmt = $dbContent->prepare("INSERT INTO system_logs (user_id, action, entity_type, entity_id, details, ip_address, user_agent) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            
-            $action = 'login_' . $status;
-            $logDetails = "Email: {$email}, Status: {$status}, Details: {$details}";
-            
-            $stmt->execute([
-                $userId,
-                $action,
-                'login',
-                $userId,
-                $logDetails,
-                $ipAddress,
-                $userAgent
-            ]);
-        } catch (Exception $e) {
-            // Log to error log if database logging fails
-            error_log("Failed to log login attempt for {$email}: " . $e->getMessage());
-        }
+        $action     = 'login_' . $status;
+        $logDetails = "Email: {$email}, Status: {$status}, Details: {$details}";
+
+        \App\Services\AuditLogger::log(
+            $userId !== null ? (int) $userId : null,
+            $action,
+            'login',
+            $userId !== null ? (int) $userId : null,
+            $logDetails,
+            $ipAddress,
+            $userAgent
+        );
     }
 }

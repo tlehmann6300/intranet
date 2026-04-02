@@ -1,14 +1,251 @@
 {% extends 'layouts/main.twig' %}
-{% block title %}Index – IBC Intranet{% endblock %}
+{% block title %}Dashboard – IBC Intranet{% endblock %}
+
 {% block content %}
-<div class="container py-4">
-  <h1 class="text-2xl font-bold mb-4">{{ title|default('Index') }}</h1>
-  {% if error is defined and error %}
-    <div class="alert alert-danger">{{ error }}</div>
-  {% endif %}
-  {% if success is defined and success %}
-    <div class="alert alert-success">{{ success }}</div>
-  {% endif %}
-  {% block page_content %}{% endblock %}
+<div class="max-w-7xl mx-auto">
+
+{# ── Greeting header ──────────────────────────────────────────────────────── #}
+<div class="mb-8">
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-50 tracking-tight">
+        {{ greeting }}, {{ displayName }}! 👋
+    </h1>
+    <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Hier ist deine persönliche Übersicht für heute.</p>
+</div>
+
+{# ── Alert widgets row ────────────────────────────────────────────────────── #}
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+
+    {# Open tasks #}
+    <a href="/inventory/my-checkouts" class="card p-4 rounded-xl hover:shadow-md transition-shadow no-underline flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-tasks text-blue-600 dark:text-blue-400"></i>
+        </div>
+        <div>
+            <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ openTasksCount }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Offene Aufgaben</p>
+        </div>
+    </a>
+
+    {# Overdue inventory #}
+    <a href="/inventory/my-checkouts" class="card p-4 rounded-xl hover:shadow-md transition-shadow no-underline flex items-center gap-3 {{ overdueItems|length > 0 ? 'border-l-4 border-red-500' : '' }}">
+        <div class="w-10 h-10 rounded-xl {{ overdueItems|length > 0 ? 'bg-red-100 dark:bg-red-900/40' : 'bg-gray-100 dark:bg-gray-700' }} flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-exclamation-triangle {{ overdueItems|length > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-400' }}"></i>
+        </div>
+        <div>
+            <p class="text-2xl font-bold {{ overdueItems|length > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-gray-100' }}">{{ overdueItems|length }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Überfällige Rückgaben</p>
+        </div>
+    </a>
+
+    {# Pending polls #}
+    <a href="/polls" class="card p-4 rounded-xl hover:shadow-md transition-shadow no-underline flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-poll text-amber-600 dark:text-amber-400"></i>
+        </div>
+        <div>
+            <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ pendingPolls|length }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Offene Umfragen</p>
+        </div>
+    </a>
+
+    {# Next event countdown #}
+    {% if nextEventCountdown %}
+    <a href="/events/{{ nextEventCountdown.event.id }}" class="card p-4 rounded-xl hover:shadow-md transition-shadow no-underline flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-green-100 dark:bg-green-900/40 flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-calendar-day text-green-600 dark:text-green-400"></i>
+        </div>
+        <div>
+            <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {% if nextEventCountdown.days == 0 %}Heute!
+                {% elseif nextEventCountdown.days == 1 %}Morgen
+                {% else %}{{ nextEventCountdown.days }} Tage{% endif %}
+            </p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[120px]">{{ nextEventCountdown.event.title }}</p>
+        </div>
+    </a>
+    {% else %}
+    <div class="card p-4 rounded-xl flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-calendar text-gray-400"></i>
+        </div>
+        <div>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Keine angemeldeten Events</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{# ── Main content grid ────────────────────────────────────────────────────── #}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    {# ── Left column (2/3) ────────────────────────────────────────────────── #}
+    <div class="lg:col-span-2 space-y-6">
+
+        {# Upcoming events #}
+        <div class="card rounded-xl shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                <h2 class="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                    <i class="fas fa-calendar-alt text-green-500"></i> Meine nächsten Events
+                </h2>
+                <a href="/events" class="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400">Alle Events</a>
+            </div>
+            {% if nextEvents is empty %}
+            <div class="px-6 py-8 text-center text-gray-500 dark:text-gray-400 text-sm">
+                Keine bevorstehenden Veranstaltungen. <a href="/events" class="text-blue-600 hover:underline dark:text-blue-400">Events entdecken →</a>
+            </div>
+            {% else %}
+            <div class="divide-y divide-gray-50 dark:divide-gray-700/50">
+                {% for event in nextEvents %}
+                <a href="/events/{{ event.id }}" class="flex items-center gap-4 px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors no-underline">
+                    <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex flex-col items-center justify-center">
+                        <span class="text-xs font-bold text-green-700 dark:text-green-300 uppercase">{{ event.start_time|date('M') }}</span>
+                        <span class="text-lg font-bold text-green-800 dark:text-green-200 leading-none">{{ event.start_time|date('d') }}</span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-medium text-gray-900 dark:text-gray-100 truncate">{{ event.title }}</p>
+                        <div class="flex gap-3 text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                            <span><i class="fas fa-clock mr-1"></i>{{ event.start_time|date('H:i') }} Uhr</span>
+                            {% if event.location %}<span><i class="fas fa-map-marker-alt mr-1"></i>{{ event.location }}</span>{% endif %}
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-xs text-gray-400"></i>
+                </a>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        {# Overdue items detail #}
+        {% if overdueItems is not empty %}
+        <div class="card rounded-xl shadow-sm overflow-hidden border-l-4 border-red-500">
+            <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                <h2 class="font-semibold text-red-700 dark:text-red-400 flex items-center gap-2">
+                    <i class="fas fa-exclamation-circle"></i> Überfällige Inventar-Rückgaben
+                </h2>
+                <a href="/inventory/my-checkouts" class="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400">Alle anzeigen</a>
+            </div>
+            <div class="divide-y divide-gray-50 dark:divide-gray-700/50">
+                {% for item in overdueItems %}
+                <div class="flex items-center gap-4 px-6 py-3">
+                    <div class="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-box text-red-500 text-xs"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{ item.name }}</p>
+                        <p class="text-xs text-red-600 dark:text-red-400">Fällig: {{ item.return_date|date('d.m.Y') }} • Menge: {{ item.quantity }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {# Pending polls #}
+        {% if pendingPolls is not empty %}
+        <div class="card rounded-xl shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                <h2 class="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                    <i class="fas fa-poll text-amber-500"></i> Offene Umfragen
+                </h2>
+                <a href="/polls" class="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400">Alle Umfragen</a>
+            </div>
+            <div class="divide-y divide-gray-50 dark:divide-gray-700/50">
+                {% for poll in pendingPolls %}
+                <a href="/polls/{{ poll.id }}" class="flex items-center gap-4 px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors no-underline">
+                    <div class="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-vote-yea text-amber-600 text-xs"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{ poll.question }}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Noch nicht abgestimmt</p>
+                    </div>
+                    <span class="text-xs bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 px-2 py-0.5 rounded-full">Offen</span>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+
+    {# ── Right column (1/3) ───────────────────────────────────────────────── #}
+    <div class="space-y-6">
+
+        {# Quick links #}
+        <div class="card rounded-xl shadow-sm p-5">
+            <h2 class="font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
+                <i class="fas fa-bolt text-yellow-500"></i> Schnellzugriff
+            </h2>
+            <div class="grid grid-cols-2 gap-2">
+                <a href="/events" class="flex flex-col items-center gap-1 p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors no-underline text-center">
+                    <i class="fas fa-calendar text-green-500 text-xl"></i>
+                    <span class="text-xs text-gray-700 dark:text-gray-300">Events</span>
+                </a>
+                <a href="/inventory" class="flex flex-col items-center gap-1 p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors no-underline text-center">
+                    <i class="fas fa-box text-amber-500 text-xl"></i>
+                    <span class="text-xs text-gray-700 dark:text-gray-300">Inventar</span>
+                </a>
+                <a href="/blog" class="flex flex-col items-center gap-1 p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors no-underline text-center">
+                    <i class="fas fa-newspaper text-blue-500 text-xl"></i>
+                    <span class="text-xs text-gray-700 dark:text-gray-300">Blog</span>
+                </a>
+                <a href="/invoices" class="flex flex-col items-center gap-1 p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors no-underline text-center">
+                    <i class="fas fa-receipt text-purple-500 text-xl"></i>
+                    <span class="text-xs text-gray-700 dark:text-gray-300">Rechnungen</span>
+                </a>
+                <a href="/documents" class="flex flex-col items-center gap-1 p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors no-underline text-center">
+                    <i class="fas fa-folder-open text-indigo-500 text-xl"></i>
+                    <span class="text-xs text-gray-700 dark:text-gray-300">Dokumente</span>
+                </a>
+                <a href="/search" class="flex flex-col items-center gap-1 p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors no-underline text-center">
+                    <i class="fas fa-search text-gray-500 text-xl"></i>
+                    <span class="text-xs text-gray-700 dark:text-gray-300">Suche</span>
+                </a>
+            </div>
+        </div>
+
+        {# Upcoming birthdays (board only) #}
+        {% if isBoard and upcomingBirthdays is not empty %}
+        <div class="card rounded-xl shadow-sm overflow-hidden">
+            <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-700">
+                <h2 class="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                    <i class="fas fa-birthday-cake text-pink-500"></i> Geburtstage (7 Tage)
+                </h2>
+            </div>
+            <div class="divide-y divide-gray-50 dark:divide-gray-700/50">
+                {% for person in upcomingBirthdays %}
+                <div class="flex items-center gap-3 px-5 py-3">
+                    <div class="w-8 h-8 rounded-full bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-birthday-cake text-pink-500 text-xs"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ person.firstname }} {{ person.lastname }}</p>
+                        {% if person.birthday %}
+                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ person.birthday|date('d. F') }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {# Admin: pending rental returns #}
+        {% if isBoard and pendingRentalReturns > 0 %}
+        <a href="/admin/rental-returns" class="card rounded-xl shadow-sm p-5 flex items-center gap-3 no-underline border-l-4 border-orange-500 hover:shadow-md transition-shadow">
+            <div class="w-10 h-10 rounded-xl bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-undo text-orange-600 dark:text-orange-400"></i>
+            </div>
+            <div>
+                <p class="text-xl font-bold text-orange-700 dark:text-orange-400">{{ pendingRentalReturns }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Ausstehende Rückgaben (Admin)</p>
+            </div>
+        </a>
+        {% endif %}
+
+    </div>
+</div>
+
 </div>
 {% endblock %}
+

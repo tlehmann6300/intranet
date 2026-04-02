@@ -220,51 +220,118 @@ class AdminController extends BaseController
 
         $db     = \Database::getContentDB();
         $limit  = 100;
-        $page   = intval($_GET['page'] ?? 1);
+        $page   = max(1, intval($_GET['page'] ?? 1));
         $offset = ($page - 1) * $limit;
 
-        $params = [];
-        $sql    = "SELECT * FROM system_logs WHERE 1=1";
+        $filterAction = trim($_GET['action'] ?? '');
+        $filterUserId = trim($_GET['user_id'] ?? '');
+        $filterDate   = trim($_GET['date'] ?? '');
 
-        if (!empty($_GET['action'])) {
-            $sql      .= " AND action LIKE ?";
-            $params[]  = '%' . $_GET['action'] . '%';
-        }
-        if (!empty($_GET['user_id'])) {
-            $sql      .= " AND user_id = ?";
-            $params[]  = $_GET['user_id'];
+        // CSV export – stream directly without pagination
+        if (isset($_GET['export']) && $_GET['export'] === 'csv') {
+            $this->exportAuditCsv($db, $filterAction, $filterUserId, $filterDate);
+            return;
         }
 
-        $sql      .= " ORDER BY timestamp DESC LIMIT ? OFFSET ?";
-        $params[]  = $limit;
-        $params[]  = $offset;
+        // Hash-chain integrity check (triggered manually by admins)
+        $chainStatus = null;
+        if (isset($_GET['verify_chain'])) {
+            $chainStatus = \App\Services\AuditLogger::verifyChain();
+        }
 
-        $stmt = $db->prepare($sql);
+        [$params, $where] = $this->buildAuditWhere($filterAction, $filterUserId, $filterDate);
+
+        $sql      = "SELECT * FROM system_logs WHERE {$where} ORDER BY timestamp DESC LIMIT ? OFFSET ?";
+        $params[] = $limit;
+        $params[] = $offset;
+        $stmt     = $db->prepare($sql);
         $stmt->execute($params);
         $logs = $stmt->fetchAll();
 
-        $countSql    = "SELECT COUNT(*) as total FROM system_logs WHERE 1=1";
-        $countParams = [];
-        if (!empty($_GET['action'])) {
-            $countSql    .= " AND action LIKE ?";
-            $countParams[] = '%' . $_GET['action'] . '%';
-        }
-        if (!empty($_GET['user_id'])) {
-            $countSql    .= " AND user_id = ?";
-            $countParams[] = $_GET['user_id'];
-        }
-
-        $stmt       = $db->prepare($countSql);
-        $stmt->execute($countParams);
-        $totalLogs  = $stmt->fetch()['total'];
-        $totalPages = ceil($totalLogs / $limit);
+        [$countParams, $countWhere] = $this->buildAuditWhere($filterAction, $filterUserId, $filterDate);
+        $countStmt = $db->prepare("SELECT COUNT(*) as total FROM system_logs WHERE {$countWhere}");
+        $countStmt->execute($countParams);
+        $totalLogs  = (int)$countStmt->fetch()['total'];
+        $totalPages = (int)ceil($totalLogs / $limit);
 
         $this->render('admin/audit.twig', [
-            'logs'       => $logs,
-            'page'       => $page,
-            'totalPages' => $totalPages,
-            'totalLogs'  => $totalLogs,
+            'logs'         => $logs,
+            'page'         => $page,
+            'totalPages'   => $totalPages,
+            'totalLogs'    => $totalLogs,
+            'filterAction' => $filterAction,
+            'filterUserId' => $filterUserId,
+            'filterDate'   => $filterDate,
+            'chainStatus'  => $chainStatus,
         ]);
+    }
+
+    /**
+     * Build WHERE clause and params array for audit log queries.
+     *
+     * @return array{0: list<mixed>, 1: string}
+     */
+    private function buildAuditWhere(string $action, string $userId, string $date): array
+    {
+        $params = [];
+        $where  = '1=1';
+
+        if ($action !== '') {
+            $where   .= ' AND action LIKE ?';
+            $params[] = '%' . $action . '%';
+        }
+        if ($userId !== '') {
+            $where   .= ' AND user_id = ?';
+            $params[] = $userId;
+        }
+        if ($date !== '') {
+            $where   .= ' AND DATE(timestamp) = ?';
+            $params[] = $date;
+        }
+
+        return [$params, $where];
+    }
+
+    /**
+     * Stream audit logs as a UTF-8 CSV file.
+     */
+    private function exportAuditCsv(\PDO $db, string $action, string $userId, string $date): void
+    {
+        [$params, $where] = $this->buildAuditWhere($action, $userId, $date);
+
+        $stmt = $db->prepare(
+            "SELECT id, timestamp, user_id, action, entity_type, entity_id, details, ip_address, user_agent
+             FROM system_logs WHERE {$where} ORDER BY timestamp DESC"
+        );
+        $stmt->execute($params);
+
+        header('Content-Type: text/csv; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="audit_log_' . date('Y-m-d_His') . '.csv"');
+        header('Cache-Control: no-cache, no-store, must-revalidate');
+
+        $out = fopen('php://output', 'w');
+        if ($out === false) {
+            return;
+        }
+        // UTF-8 BOM for Excel compatibility
+        fwrite($out, "\xEF\xBB\xBF");
+        fputcsv($out, ['ID', 'Zeitstempel', 'Benutzer-ID', 'Aktion', 'Entity-Typ', 'Entity-ID', 'Details', 'IP-Adresse', 'User-Agent'], ';');
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            fputcsv($out, [
+                $row['id'],
+                $row['timestamp'],
+                $row['user_id'] ?? '',
+                $row['action'],
+                $row['entity_type'] ?? '',
+                $row['entity_id'] ?? '',
+                $row['details'] ?? '',
+                $row['ip_address'] ?? '',
+                $row['user_agent'] ?? '',
+            ], ';');
+        }
+        fclose($out);
+        exit;
     }
 
     public function inventory(array $vars = []): void
@@ -769,6 +836,15 @@ class AdminController extends BaseController
         }
 
         if (\User::update($userId, ['role' => $newRole])) {
+            // Audit: log the role change for accountability
+            \App\Services\AuditLogger::log(
+                (int)($_SESSION['user_id'] ?? 0),
+                'role_change',
+                'user',
+                $userId,
+                "Rolle geändert zu: {$newRole} (durch Admin-ID " . ($_SESSION['user_id'] ?? '?') . ')'
+            );
+
             $response = ['success' => true];
             if ($entraWarning) {
                 $response['warning'] = $entraWarning;

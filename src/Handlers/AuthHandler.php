@@ -405,22 +405,15 @@ class AuthHandler {
     /**
      * Log system action
      */
-    public static function logSystemAction($userId, $action, $entityType = null, $entityId = null, $details = null) {
-        try {
-            $db = Database::getContentDB();
-            $stmt = $db->prepare("INSERT INTO system_logs (user_id, action, entity_type, entity_id, details, ip_address, user_agent) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([
-                $userId,
-                $action,
-                $entityType,
-                $entityId,
-                $details,
-                $_SERVER['REMOTE_ADDR'] ?? null,
-                $_SERVER['HTTP_USER_AGENT'] ?? null
-            ]);
-        } catch (Exception $e) {
-            error_log("Failed to log system action: " . $e->getMessage());
-        }
+    public static function logSystemAction($userId, $action, $entityType = null, $entityId = null, $details = null): void
+    {
+        \App\Services\AuditLogger::log(
+            $userId !== null ? (int) $userId : null,
+            $action,
+            $entityType,
+            $entityId !== null ? (int) $entityId : null,
+            $details
+        );
     }
 
     /**

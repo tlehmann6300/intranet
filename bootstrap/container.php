@@ -173,15 +173,19 @@ $builder->addDefinitions([
     \App\Controllers\EventApiController::class      => autowire(),
     \App\Controllers\InventoryApiController::class  => autowire(),
     \App\Controllers\ProjectApiController::class    => autowire(),
+    \App\Controllers\SearchController::class        => autowire(),
+    \App\Controllers\DocumentController::class      => autowire(),
+    \App\Controllers\NotificationController::class  => autowire(),
 
     // CLI Commands
-    \App\Commands\BackupDatabaseCommand::class       => autowire(),
-    \App\Commands\SyncEasyVereinCommand::class       => autowire(),
-    \App\Commands\SendBirthdayWishesCommand::class   => autowire(),
-    \App\Commands\SendAlumniRemindersCommand::class  => autowire(),
-    \App\Commands\SendProfileRemindersCommand::class => autowire(),
-    \App\Commands\ProcessMailQueueCommand::class     => autowire(),
-    \App\Commands\ReconcileBankPaymentsCommand::class => autowire(),
+    \App\Commands\BackupDatabaseCommand::class            => autowire(),
+    \App\Commands\SyncEasyVereinCommand::class            => autowire(),
+    \App\Commands\SendBirthdayWishesCommand::class        => autowire(),
+    \App\Commands\SendAlumniRemindersCommand::class       => autowire(),
+    \App\Commands\SendProfileRemindersCommand::class      => autowire(),
+    \App\Commands\ProcessMailQueueCommand::class          => autowire(),
+    \App\Commands\ReconcileBankPaymentsCommand::class     => autowire(),
+    \App\Commands\UpdateEventStatusesCommand::class       => autowire(),
 
     // Repositories
     \App\Repositories\UserRepository::class  => factory(function (): \App\Repositories\UserRepository {

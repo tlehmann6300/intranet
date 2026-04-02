@@ -1,0 +1,148 @@
+{% extends 'layouts/main.twig' %}
+{% block title %}Suche{% if query %}: {{ query }}{% endif %} – IBC Intranet{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+
+<div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-50 mb-4">Globale Suche</h1>
+
+    <form method="GET" action="/search" class="flex gap-2">
+        <input type="text" name="q" value="{{ query }}" placeholder="Blog, Veranstaltungen, Projekte, Inventar…"
+               autofocus
+               class="flex-1 px-4 py-2.5 bg-white border border-gray-300 text-gray-900 rounded-lg focus:ring-2 focus:ring-blue-400/50 focus:border-blue-400 dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-colors">
+        <button type="submit" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition">
+            <i class="fas fa-search mr-1"></i> Suchen
+        </button>
+    </form>
+</div>
+
+{% if query %}
+<p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+    {% if totalCount > 0 %}
+    <strong class="text-gray-800 dark:text-gray-200">{{ totalCount }}</strong> Ergebnis{{ totalCount != 1 ? 'se' : '' }} für „<strong class="text-gray-800 dark:text-gray-200">{{ query }}</strong>"
+    {% else %}
+    Keine Ergebnisse für „<strong>{{ query }}</strong>" — versuche einen anderen Begriff.
+    {% endif %}
+</p>
+{% endif %}
+
+{% if query and totalCount > 0 %}
+
+{# ── Blog ──────────────────────────────────────────────────────────────── #}
+{% if results.blog is not empty %}
+<section class="mb-8">
+    <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-3 flex items-center gap-2">
+        <i class="fas fa-newspaper text-blue-500"></i> Blog
+        <span class="text-xs bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 px-2 py-0.5 rounded-full">{{ results.blog|length }}</span>
+    </h2>
+    <div class="space-y-3">
+        {% for item in results.blog %}
+        <a href="/blog/{{ item.id }}" class="block card p-4 rounded-xl hover:shadow-md transition-shadow no-underline">
+            <p class="font-medium text-gray-900 dark:text-gray-100">{{ item.title }}</p>
+            {% if item.content %}
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{{ item.content|striptags|slice(0, 150) }}…</p>
+            {% endif %}
+            {% if item.created_at %}
+            <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">{{ item.created_at|date('d.m.Y') }}</p>
+            {% endif %}
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{# ── Events ────────────────────────────────────────────────────────────── #}
+{% if results.events is not empty %}
+<section class="mb-8">
+    <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-3 flex items-center gap-2">
+        <i class="fas fa-calendar text-green-500"></i> Veranstaltungen
+        <span class="text-xs bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 px-2 py-0.5 rounded-full">{{ results.events|length }}</span>
+    </h2>
+    <div class="space-y-3">
+        {% for item in results.events %}
+        <a href="/events/{{ item.id }}" class="block card p-4 rounded-xl hover:shadow-md transition-shadow no-underline">
+            <div class="flex items-center justify-between gap-2">
+                <p class="font-medium text-gray-900 dark:text-gray-100">{{ item.title }}</p>
+                {% if item.status %}
+                <span class="text-xs px-2 py-0.5 rounded-full
+                    {% if item.status == 'open' %}bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300
+                    {% elseif item.status == 'planned' %}bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300
+                    {% elseif item.status == 'cancelled' %}bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300
+                    {% else %}bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300{% endif %}">
+                    {{ item.status }}
+                </span>
+                {% endif %}
+            </div>
+            {% if item.description %}
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{{ item.description|striptags|slice(0, 150) }}…</p>
+            {% endif %}
+            <div class="flex gap-3 mt-1 text-xs text-gray-400 dark:text-gray-500">
+                {% if item.start_time %}<span><i class="fas fa-clock mr-1"></i>{{ item.start_time|date('d.m.Y H:i') }}</span>{% endif %}
+                {% if item.location %}<span><i class="fas fa-map-marker-alt mr-1"></i>{{ item.location }}</span>{% endif %}
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{# ── Projects ──────────────────────────────────────────────────────────── #}
+{% if results.projects is not empty %}
+<section class="mb-8">
+    <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-3 flex items-center gap-2">
+        <i class="fas fa-briefcase text-purple-500"></i> Projekte
+        <span class="text-xs bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 px-2 py-0.5 rounded-full">{{ results.projects|length }}</span>
+    </h2>
+    <div class="space-y-3">
+        {% for item in results.projects %}
+        <a href="/projects/{{ item.id }}" class="block card p-4 rounded-xl hover:shadow-md transition-shadow no-underline">
+            <p class="font-medium text-gray-900 dark:text-gray-100">{{ item.name }}</p>
+            {% if item.description %}
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{{ item.description|striptags|slice(0, 150) }}…</p>
+            {% endif %}
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{# ── Inventory ─────────────────────────────────────────────────────────── #}
+{% if results.inventory is not empty %}
+<section class="mb-8">
+    <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-3 flex items-center gap-2">
+        <i class="fas fa-box text-amber-500"></i> Inventar
+        <span class="text-xs bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 px-2 py-0.5 rounded-full">{{ results.inventory|length }}</span>
+    </h2>
+    <div class="space-y-3">
+        {% for item in results.inventory %}
+        <a href="/inventory/{{ item.id }}" class="block card p-4 rounded-xl hover:shadow-md transition-shadow no-underline">
+            <div class="flex items-center justify-between gap-2">
+                <p class="font-medium text-gray-900 dark:text-gray-100">{{ item.name }}</p>
+                {% if item.total_quantity is defined %}
+                <span class="text-xs text-gray-500 dark:text-gray-400">Bestand: {{ item.total_quantity }}</span>
+                {% endif %}
+            </div>
+            {% if item.description %}
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{{ item.description|striptags|slice(0, 150) }}</p>
+            {% endif %}
+            {% if item.category %}
+            <span class="inline-block mt-1 text-xs bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">{{ item.category }}</span>
+            {% endif %}
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% elseif query %}
+<div class="text-center py-16">
+    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+        <i class="fas fa-search text-3xl text-gray-300 dark:text-gray-500"></i>
+    </div>
+    <p class="text-gray-500 dark:text-gray-400">Keine Ergebnisse gefunden</p>
+</div>
+{% endif %}
+
+</div>
+{% endblock %}
