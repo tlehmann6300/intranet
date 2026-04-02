@@ -308,7 +308,7 @@ class InventoryController extends BaseController
                 if ($fullItem) {
                     $rawImg = $fullItem['image_path'] ?? null;
                     if ($rawImg && strpos($rawImg, 'easyverein.com') !== false) {
-                        $imgSrc = '/api/easyverein_image.php?url=' . urlencode($rawImg);
+                        $imgSrc = \BASE_URL . '/api/inventory/easyverein-image?url=' . urlencode($rawImg);
                     } elseif ($rawImg) {
                         $imgSrc = '/' . ltrim($rawImg, '/');
                     } else {

@@ -22,8 +22,14 @@ Options -Indexes
     # Uncomment the next two lines in production to force HTTPS
     # RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
+    # Block direct access to legacy api/ PHP scripts (except api/public/).
+    # All API requests must go through the front-controller so that
+    # authentication, CSRF protection and middleware are enforced uniformly.
+    RewriteCond %{REQUEST_URI} ^(/[^/]+)?/api/(?!public/)[^\?]*\.php
+    RewriteRule ^ index.php [L]
+
     # Allow direct access to real files and directories
-    # (assets, vendor, uploads, api/, pages/ remain directly accessible)
+    # (assets, vendor, uploads, pages/ remain directly accessible)
     RewriteCond %{REQUEST_FILENAME} -f [OR]
     RewriteCond %{REQUEST_FILENAME} -d
     RewriteRule ^ - [L]

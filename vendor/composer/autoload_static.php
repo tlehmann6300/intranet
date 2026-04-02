@@ -206,7 +206,15 @@ class ComposerStaticInit767b59d6c51ddfb9d5ddf2cb1727bfa6
         ),
         'A' =>
         array (
-            'App\\\\' => 5,
+            'App\\' => 3,
+        ),
+        'M' =>
+        array (
+            'Monolog\\' => 8,
+        ),
+        'W' =>
+        array (
+            'Whoops\\' => 7,
         ),
     );
 
@@ -408,9 +416,17 @@ class ComposerStaticInit767b59d6c51ddfb9d5ddf2cb1727bfa6
         array (
             0 => __DIR__ . '/..' . '/brick/math/src',
         ),
-        'App\\\\' =>
+        'App\\' =>
         array (
             0 => __DIR__ . '/../..' . '/src',
+        ),
+        'Monolog\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/monolog/monolog/src/Monolog',
+        ),
+        'Whoops\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/filp/whoops/src/Whoops',
         ),
     );
 

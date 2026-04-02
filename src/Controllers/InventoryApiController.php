@@ -228,4 +228,55 @@ class InventoryApiController extends BaseController
             $this->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
+
+    /**
+     * Proxy for EasyVerein-hosted item images.
+     *
+     * Validates the requested URL against the easyverein.com domain, fetches
+     * the image using the API token, and streams it to the client.  Auth is
+     * enforced by the AuthMiddleware in the route definition.
+     */
+    public function easyvereinImage(array $vars = []): void
+    {
+        $url = $_GET['url'] ?? '';
+        if (empty($url)) {
+            http_response_code(403);
+            exit;
+        }
+
+        $parsed = parse_url($url);
+        $scheme = strtolower($parsed['scheme'] ?? '');
+        $host   = strtolower($parsed['host']   ?? '');
+
+        if (
+            $scheme !== 'https' ||
+            ($host !== 'easyverein.com' && !str_ends_with($host, '.easyverein.com'))
+        ) {
+            http_response_code(403);
+            exit;
+        }
+
+        $token = defined('EASYVEREIN_API_TOKEN') ? \EASYVEREIN_API_TOKEN : ($_ENV['EASYVEREIN_API_TOKEN'] ?? '');
+        if (empty($token)) {
+            http_response_code(500);
+            exit;
+        }
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ["Authorization: Bearer $token"]);
+        $data        = curl_exec($ch);
+        $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+        $httpCode    = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode === 200 && $data !== false && str_starts_with((string) $contentType, 'image/')) {
+            header('Content-Type: ' . $contentType);
+            echo $data;
+        } else {
+            header('Location: ' . \BASE_URL . '/assets/img/ibc_logo_original.webp', true, 302);
+        }
+    }
 }
