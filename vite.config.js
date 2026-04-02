@@ -35,6 +35,12 @@ export default defineConfig(({ command }) => ({
         // Main application bundle
         app: resolve(__dirname, 'assets/js/app.js'),
       },
+      output: {
+        // Content-hash fingerprinting ensures stale JS/CSS is never served after a deploy
+        entryFileNames: '[name].[hash].js',
+        chunkFileNames: '[name].[hash].js',
+        assetFileNames: '[name].[hash][extname]',
+      },
     },
 
     // Minify in production; readable output during development builds

@@ -22,6 +22,12 @@
 # Process the outgoing mail queue stored in the database.
 */5 * * * * php /var/www/intranet/bin/console app:process-mail-queue >> /var/www/intranet/logs/cron.log 2>&1
 
+# ── Every 1 minute ──────────────────────────────────────────────────────────
+# Process pending background jobs from the database job queue.
+# Long-running tasks (PDF generation, newsletter dispatch) are offloaded here
+# so HTTP requests return immediately.
+* * * * * php /var/www/intranet/bin/console app:process-job-queue >> /var/www/intranet/logs/cron.log 2>&1
+
 # ── Every 30 minutes ────────────────────────────────────────────────────────
 # Sync inventory objects from EasyVerein API.
 */30 * * * * php /var/www/intranet/bin/console app:sync-easyverein >> /var/www/intranet/logs/cron.log 2>&1

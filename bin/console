@@ -19,6 +19,9 @@ declare(strict_types=1);
  *   php bin/console app:process-mail-queue
  *   php bin/console app:reconcile-bank-payments
  *   php bin/console app:update-event-statuses
+ *   php bin/console app:process-job-queue
+ *   php bin/console app:process-job-queue --daemon
+ *   php bin/console app:process-job-queue --retry-failed
  */
 
 // Ensure we are running from CLI
@@ -34,6 +37,7 @@ $projectRoot = dirname(__DIR__);
 $container = require $projectRoot . '/bootstrap/app.php';
 
 use App\Commands\BackupDatabaseCommand;
+use App\Commands\ProcessJobQueueCommand;
 use App\Commands\ProcessMailQueueCommand;
 use App\Commands\ReconcileBankPaymentsCommand;
 use App\Commands\SendAlumniRemindersCommand;
@@ -54,5 +58,6 @@ $app->add($container->get(SendProfileRemindersCommand::class));
 $app->add($container->get(ProcessMailQueueCommand::class));
 $app->add($container->get(ReconcileBankPaymentsCommand::class));
 $app->add($container->get(UpdateEventStatusesCommand::class));
+$app->add($container->get(ProcessJobQueueCommand::class));
 
 exit($app->run());

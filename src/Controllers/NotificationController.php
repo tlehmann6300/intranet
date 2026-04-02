@@ -9,11 +9,12 @@ use Twig\Environment;
 /**
  * NotificationController
  *
- * Manages in-app notifications via a polling mechanism.
+ * Manages in-app notifications.
  *
  * Endpoints:
- *   GET  /api/notifications        → JSON list of unread notifications
- *   POST /api/notifications/read   → Mark notification(s) as read
+ *   GET  /api/notifications          → JSON list of unread notifications (polling)
+ *   GET  /api/notifications/stream   → Server-Sent Events stream (real-time)
+ *   POST /api/notifications/read     → Mark notification(s) as read
  *   POST /api/notifications/read-all → Mark all as read
  */
 class NotificationController extends BaseController
@@ -24,9 +25,77 @@ class NotificationController extends BaseController
     }
 
     /**
-     * Return unread notifications for the current user as JSON.
-     * Called by the frontend every 60 seconds.
+     * Server-Sent Events (SSE) stream for real-time notifications.
+     *
+     * Opens a persistent HTTP connection and pushes new notifications to
+     * the client as `text/event-stream` events.  The connection is kept
+     * alive for up to 60 seconds; the browser automatically reconnects.
+     *
+     * GET /api/notifications/stream
      */
+    public function stream(array $vars = []): void
+    {
+        $this->requireAuth();
+        $userId = (int)\Auth::getUserId();
+
+        // Disable output buffering and time limits for a long-lived connection
+        @set_time_limit(0);
+        @ini_set('max_execution_time', '0');
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+
+        header('Content-Type: text/event-stream');
+        header('Cache-Control: no-cache');
+        header('X-Accel-Buffering: no'); // Disable nginx proxy buffering
+        header('Connection: keep-alive');
+
+        // Send the last notification ID seen by the client as the retry hint
+        $lastEventId = (int)($_SERVER['HTTP_LAST_EVENT_ID'] ?? 0);
+
+        $maxLoops  = 20;  // 20 × 3 s = 60 s per connection (browser will reconnect)
+        $sleepSecs = 3;
+
+        for ($i = 0; $i < $maxLoops; $i++) {
+            // Abort if the client disconnected
+            if (connection_aborted()) {
+                break;
+            }
+
+            try {
+                $db   = \Database::getContentDB();
+                $stmt = $db->prepare(
+                    'SELECT id, type, title, message, url, created_at
+                     FROM notifications
+                     WHERE user_id = ? AND read_at IS NULL AND id > ?
+                     ORDER BY created_at ASC LIMIT 20'
+                );
+                $stmt->execute([$userId, $lastEventId]);
+                $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+                foreach ($rows as $row) {
+                    $id          = (int)$row['id'];
+                    $lastEventId = max($lastEventId, $id);
+                    $data        = json_encode($row, JSON_UNESCAPED_UNICODE);
+                    echo "id: {$id}\n";
+                    echo "event: notification\n";
+                    echo "data: {$data}\n\n";
+                }
+
+                // Also send a heartbeat every cycle to keep the connection alive
+                echo ": heartbeat\n\n";
+            } catch (\Exception $e) {
+                error_log('NotificationController::stream failed: ' . $e->getMessage());
+                echo "event: error\ndata: {\"message\":\"stream error\"}\n\n";
+                break;
+            }
+
+            flush();
+            sleep($sleepSecs);
+        }
+    }
+
+
     public function list(array $vars = []): void
     {
         $this->requireAuth();

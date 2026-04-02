@@ -186,6 +186,12 @@ $builder->addDefinitions([
     \App\Commands\ProcessMailQueueCommand::class          => autowire(),
     \App\Commands\ReconcileBankPaymentsCommand::class     => autowire(),
     \App\Commands\UpdateEventStatusesCommand::class       => autowire(),
+    \App\Commands\ProcessJobQueueCommand::class           => autowire(),
+
+    // Services
+    \App\Services\JobQueue::class => factory(function (Psr\Log\LoggerInterface $logger): \App\Services\JobQueue {
+        return new \App\Services\JobQueue(\Database::getContentDB(), $logger);
+    }),
 
     // Repositories
     \App\Repositories\UserRepository::class  => factory(function (): \App\Repositories\UserRepository {

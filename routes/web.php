@@ -121,9 +121,9 @@ $r->addRoute('GET',           '/admin/users',                 ['App\Controllers\
 $r->addRoute(['GET', 'POST'], '/admin/settings',              ['App\Controllers\AdminController@settings',           [AdminMiddleware::class]]);
 $r->addRoute('GET',           '/admin/stats',                 ['App\Controllers\AdminController@stats',              [AdminMiddleware::class]]);
 $r->addRoute('GET',           '/admin/audit',                 ['App\Controllers\AdminController@audit',              [AdminMiddleware::class]]);
-$r->addRoute(['GET', 'POST'], '/admin/inventory',             ['App\Controllers\AdminController@inventory',          [AdminMiddleware::class]]);
-$r->addRoute(['GET', 'POST'], '/admin/alumni-requests',       ['App\Controllers\AdminController@alumniRequests',     [AdminMiddleware::class]]);
-$r->addRoute(['GET', 'POST'], '/admin/neue-alumni-requests',  ['App\Controllers\AdminController@neueAlumniRequests', [AdminMiddleware::class]]);
+$r->addRoute(['GET', 'POST'], '/admin/inventory',             ['App\Controllers\AdminController@inventory',          [AuthMiddleware::class]]);
+$r->addRoute(['GET', 'POST'], '/admin/alumni-requests',       ['App\Controllers\AdminController@alumniRequests',     [AuthMiddleware::class]]);
+$r->addRoute(['GET', 'POST'], '/admin/neue-alumni-requests',  ['App\Controllers\AdminController@neueAlumniRequests', [AuthMiddleware::class]]);
 $r->addRoute(['GET', 'POST'], '/admin/vcards',                ['App\Controllers\AdminController@vcards',             [AdminMiddleware::class]]);
 $r->addRoute('GET',           '/admin/project-applications',  ['App\Controllers\AdminController@projectApplications',[AdminMiddleware::class]]);
 $r->addRoute(['GET', 'POST'], '/admin/db-maintenance',        ['App\Controllers\AdminController@dbMaintenance',      [AdminMiddleware::class]]);
@@ -195,8 +195,8 @@ $r->addRoute('POST', '/api/ideas/update-status', ['App\Controllers\IdeaControlle
 $r->addRoute('POST', '/api/admin/create-vcard',                ['App\Controllers\AdminController@createVcard',             [AdminMiddleware::class]]);
 $r->addRoute('POST', '/api/admin/delete-vcard',                ['App\Controllers\AdminController@deleteVcard',             [AdminMiddleware::class]]);
 $r->addRoute('POST', '/api/admin/update-vcard',                ['App\Controllers\AdminController@updateVcard',             [AdminMiddleware::class]]);
-$r->addRoute('POST', '/api/admin/process-alumni-request',      ['App\Controllers\AdminController@processAlumniRequest',    [AdminMiddleware::class]]);
-$r->addRoute('POST', '/api/admin/process-neue-alumni-request', ['App\Controllers\AdminController@processNeueAlumniRequest',[AdminMiddleware::class]]);
+$r->addRoute('POST', '/api/admin/process-alumni-request',      ['App\Controllers\AdminController@processAlumniRequest',    [AuthMiddleware::class]]);
+$r->addRoute('POST', '/api/admin/process-neue-alumni-request', ['App\Controllers\AdminController@processNeueAlumniRequest',[AuthMiddleware::class]]);
 $r->addRoute('POST', '/api/admin/update-user-role',            ['App\Controllers\AdminController@updateUserRole',          [AdminMiddleware::class]]);
 $r->addRoute('GET',  '/api/admin/search-entra-users',          ['App\Controllers\AdminController@searchEntraUsers',        [AdminMiddleware::class]]);
 
@@ -215,8 +215,9 @@ $r->addRoute('GET',           '/documents/{id:\d+}/download',      ['App\Control
 $r->addRoute('POST',          '/documents/{id:\d+}/delete',        ['App\Controllers\DocumentController@delete',   [AuthMiddleware::class]]);
 
 // ===========================================================================
-// NOTIFICATIONS (polling API)
+// NOTIFICATIONS (polling API + SSE stream)
 // ===========================================================================
 $r->addRoute('GET',  '/api/notifications',          ['App\Controllers\NotificationController@list',       [AuthMiddleware::class]]);
 $r->addRoute('POST', '/api/notifications/read',     ['App\Controllers\NotificationController@markRead',   [AuthMiddleware::class]]);
 $r->addRoute('POST', '/api/notifications/read-all', ['App\Controllers\NotificationController@markAllRead',[AuthMiddleware::class]]);
+$r->addRoute('GET',  '/api/notifications/stream',   ['App\Controllers\NotificationController@stream',     [AuthMiddleware::class]]);
