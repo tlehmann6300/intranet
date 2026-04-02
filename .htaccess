@@ -3,14 +3,12 @@ Options -Indexes
 # Security: Deny access to sensitive files
 # Covers environment config, secrets, lock files, build/tool config and raw data files.
 <FilesMatch "\.(env|log|sql|bak|sh|htpasswd|json|lock|xml|neon|dist|txt)$">
-    Order allow,deny
-    Deny from all
+    Require all denied
 </FilesMatch>
 
 # Allow public-facing manifests and service worker that intentionally live in the root
 <FilesMatch "^(manifest\.json|sw\.js)$">
-    Order allow,deny
-    Allow from all
+    Require all granted
 </FilesMatch>
 
 # Prevent direct access to configuration, source code, and backup directories
