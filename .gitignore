@@ -21,9 +21,8 @@ vendor/composer/tmp-*.zip~
 .env
 
 # Twig compiled template cache (runtime artefacts)
-storage/twig_cache/
+storage/twig_cache/*
 !storage/twig_cache/.gitkeep
-!storage/.gitkeep
 
 # Runtime log files
 logs/*.log
