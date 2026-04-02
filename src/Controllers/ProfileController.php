@@ -406,4 +406,179 @@ class ProfileController extends BaseController
             $this->json(['success' => false, 'message' => 'Fehler beim Senden der Anfrage.']);
         }
     }
+
+    /**
+     * Serves a Microsoft Entra profile photo for a given e-mail address.
+     * Photos are cached locally for 24 hours to reduce API round-trips.
+     * Replaces fetch-profile-photo.php in the project root.
+     *
+     * Usage: GET /profile-photo?email=user@example.com
+     */
+    public function fetchProfilePhoto(array $vars = []): void
+    {
+        $cacheDir         = __DIR__ . '/../../assets/img/cache/profile_photos/';
+        $cacheTtl         = 86400; // 24 hours
+        $defaultProfileImg = __DIR__ . '/../../assets/img/default_profil.png';
+
+        $serveFallbackPixel = static function (): never {
+            self::serveTransparentPixel();
+        };
+
+        $serveDefaultAvatar = static function () use ($defaultProfileImg, $serveFallbackPixel): never {
+            if (file_exists($defaultProfileImg)) {
+                header('Content-Type: image/png');
+                header('Cache-Control: public, max-age=3600');
+                readfile($defaultProfileImg);
+                exit;
+            }
+            $serveFallbackPixel();
+        };
+
+        $detectImageType = static function (string $data): array {
+            if (function_exists('finfo_open')) {
+                $fi   = finfo_open(FILEINFO_MIME_TYPE);
+                $mime = finfo_buffer($fi, $data);
+                finfo_close($fi);
+                $extMap = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif'];
+                if (isset($extMap[$mime])) {
+                    return ['mime' => $mime, 'ext' => $extMap[$mime]];
+                }
+            }
+            if (substr($data, 0, 2) === "\xFF\xD8") {
+                return ['mime' => 'image/jpeg', 'ext' => 'jpg'];
+            }
+            if (substr($data, 0, 8) === "\x89PNG\r\n\x1A\n") {
+                return ['mime' => 'image/png', 'ext' => 'png'];
+            }
+            if (substr($data, 0, 4) === 'RIFF' && substr($data, 8, 4) === 'WEBP') {
+                return ['mime' => 'image/webp', 'ext' => 'webp'];
+            }
+            if (substr($data, 0, 6) === 'GIF87a' || substr($data, 0, 6) === 'GIF89a') {
+                return ['mime' => 'image/gif', 'ext' => 'gif'];
+            }
+            return ['mime' => 'image/jpeg', 'ext' => 'jpg'];
+        };
+
+        $emailToCacheBase = static function (string $email): string {
+            return (string) preg_replace('/[^a-zA-Z0-9._\-]/', '_', strtolower($email));
+        };
+
+        // 1. Resolve user e-mail
+        $rawEmail  = isset($_GET['email']) ? trim((string) $_GET['email']) : '';
+        $userEmail = ($rawEmail !== '' && filter_var($rawEmail, FILTER_VALIDATE_EMAIL)) ? $rawEmail : 'it@business-consulting.de';
+        $cacheBase = $emailToCacheBase($userEmail);
+
+        // 2. Serve from cache if fresh
+        foreach (['jpg', 'png', 'webp', 'gif'] as $ext) {
+            $path = $cacheDir . $cacheBase . '.' . $ext;
+            if (file_exists($path) && (time() - (int) filemtime($path)) < $cacheTtl) {
+                $data = file_get_contents($path);
+                if ($data !== false && strlen($data) > 0) {
+                    $type = $detectImageType($data);
+                    header('Content-Type: ' . $type['mime']);
+                    header('Cache-Control: public, max-age=3600');
+                    header('X-Photo-Cache: HIT');
+                    echo $data;
+                    return;
+                }
+            }
+        }
+
+        // 3. Obtain Azure credentials
+        $tenantId     = defined('AZURE_TENANT_ID')     ? \AZURE_TENANT_ID     : '';
+        $clientId     = defined('AZURE_CLIENT_ID')     ? \AZURE_CLIENT_ID     : '';
+        $clientSecret = defined('AZURE_CLIENT_SECRET') ? \AZURE_CLIENT_SECRET : '';
+
+        if ($tenantId === '' || $clientId === '' || $clientSecret === '') {
+            error_log('ProfileController::fetchProfilePhoto: Azure credentials missing in .env');
+            $serveDefaultAvatar();
+        }
+
+        // 4. Request access token via Client Credentials Flow
+        $tokenUrl = "https://login.microsoftonline.com/{$tenantId}/oauth2/v2.0/token";
+        $ch       = curl_init($tokenUrl);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
+            'client_id'     => $clientId,
+            'client_secret' => $clientSecret,
+            'scope'         => 'https://graph.microsoft.com/.default',
+            'grant_type'    => 'client_credentials',
+        ]));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+        $tokenBody = curl_exec($ch);
+        $tokenCode = $tokenBody !== false ? (int) curl_getinfo($ch, CURLINFO_HTTP_CODE) : 0;
+        curl_close($ch);
+
+        if ($tokenCode !== 200 || $tokenBody === false) {
+            error_log("ProfileController::fetchProfilePhoto: Token request failed (HTTP {$tokenCode})");
+            $serveDefaultAvatar();
+        }
+
+        $tokenData   = json_decode((string) $tokenBody, true);
+        $accessToken = $tokenData['access_token'] ?? '';
+
+        if ($accessToken === '') {
+            error_log('ProfileController::fetchProfilePhoto: No access_token in response');
+            $serveDefaultAvatar();
+        }
+
+        // 5. Fetch profile photo from Microsoft Graph
+        $photoUrl = 'https://graph.microsoft.com/v1.0/users/' . rawurlencode($userEmail) . '/photo/$value';
+        $ch       = curl_init($photoUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $accessToken]);
+        $photoData = curl_exec($ch);
+        $photoCode = $photoData !== false ? (int) curl_getinfo($ch, CURLINFO_HTTP_CODE) : 0;
+        curl_close($ch);
+
+        if ($photoCode !== 200 || $photoData === false || strlen((string) $photoData) === 0) {
+            if ($photoCode !== 404) {
+                error_log("ProfileController::fetchProfilePhoto: Photo fetch failed (HTTP {$photoCode}) for {$userEmail}");
+            }
+            $serveDefaultAvatar();
+        }
+
+        // 6. Cache and serve
+        $type = $detectImageType((string) $photoData);
+
+        if (! is_dir($cacheDir)) {
+            mkdir($cacheDir, 0750, true);
+        }
+        foreach (['jpg', 'png', 'webp', 'gif'] as $oldExt) {
+            $old = $cacheDir . $cacheBase . '.' . $oldExt;
+            if (file_exists($old)) {
+                @unlink($old);
+            }
+        }
+        file_put_contents($cacheDir . $cacheBase . '.' . $type['ext'], $photoData);
+
+        header('Content-Type: ' . $type['mime']);
+        header('Cache-Control: public, max-age=3600');
+        header('X-Photo-Cache: MISS');
+        echo $photoData;
+    }
+
+    /**
+     * Emit a transparent 1×1 PNG and terminate – used as an ultimate fallback
+     * when neither a cached photo nor the default avatar is available.
+     *
+     * Minimal valid transparent PNG (68 bytes, RFC-2083 compliant).
+     */
+    private static function serveTransparentPixel(): never
+    {
+        // phpcs:ignore Generic.Strings.UnnecessaryStringConcat.Found
+        $pixel = base64_decode(
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQI12NgAAIA'
+            . 'BQABNjN9GQAAAAlwSFlzAAALEwAACxMBAJqcGAAAAA1JREFUCNdjYGBg+A8AAQ'
+            . 'QAAbWJngcAAAAASUVORK5CYII='
+        );
+        header('Content-Type: image/png');
+        header('Cache-Control: no-store');
+        echo $pixel;
+        exit;
+    }
 }

@@ -7,7 +7,6 @@ parameters:
     paths:
         - src
         - includes/handlers
-        - includes/models
         - includes/services
         - routes
 

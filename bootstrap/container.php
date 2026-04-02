@@ -190,6 +190,18 @@ $builder->addDefinitions([
     \App\Repositories\EventRepository::class => factory(function (): \App\Repositories\EventRepository {
         return new \App\Repositories\EventRepository(\Database::getContentDB());
     }),
+    \App\Repositories\AlumniRepository::class => factory(function (): \App\Repositories\AlumniRepository {
+        return new \App\Repositories\AlumniRepository(\Database::getUserDB());
+    }),
+    \App\Repositories\InvoiceRepository::class => factory(function (): \App\Repositories\InvoiceRepository {
+        return new \App\Repositories\InvoiceRepository(\Database::getRechDB());
+    }),
+    \App\Repositories\ProjectRepository::class => factory(function (): \App\Repositories\ProjectRepository {
+        return new \App\Repositories\ProjectRepository(\Database::getContentDB());
+    }),
+    \App\Repositories\InventoryRepository::class => factory(function (): \App\Repositories\InventoryRepository {
+        return new \App\Repositories\InventoryRepository(\Database::getContentDB());
+    }),
 ]);
 
 return $builder->build();

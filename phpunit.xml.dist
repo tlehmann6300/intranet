@@ -20,7 +20,6 @@
         <include>
             <directory>src</directory>
             <directory>includes/handlers</directory>
-            <directory>includes/models</directory>
         </include>
         <exclude>
             <directory>vendor</directory>
