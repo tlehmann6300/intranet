@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Auth Class
  * Complete authentication handler with session management and auto-logout

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Database Connection Handler
  * Manages connections to both User and Content databases

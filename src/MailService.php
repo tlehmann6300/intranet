@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Mail Service
  * Handles email sending using SMTP configuration with IBC Corporate Design

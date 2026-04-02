@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Calendar Service
  * Generates iCal (.ics) files for events and slots
