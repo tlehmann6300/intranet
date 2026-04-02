@@ -139,6 +139,7 @@ $builder->addDefinitions([
             'debug'      => $isDev,
         ]);
         $twig->addExtension(new \App\Twig\ViteExtension($projectRoot, $isDev));
+        $twig->addGlobal('base_url', defined('BASE_URL') ? \BASE_URL : '');
         return $twig;
     }),
 
