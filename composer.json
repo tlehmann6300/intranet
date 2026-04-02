@@ -11,7 +11,9 @@
         "php-di/php-di": "*",
         "twig/twig": "*",
         "illuminate/database": "*",
-        "rakit/validation": "*"
+        "rakit/validation": "*",
+        "monolog/monolog": "*",
+        "filp/whoops": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "^11.0",
