@@ -18,6 +18,7 @@ declare(strict_types=1);
  *   php bin/console app:send-profile-reminders
  *   php bin/console app:process-mail-queue
  *   php bin/console app:reconcile-bank-payments
+ *   php bin/console app:update-event-statuses
  */
 
 // Ensure we are running from CLI
@@ -39,6 +40,7 @@ use App\Commands\SendAlumniRemindersCommand;
 use App\Commands\SendBirthdayWishesCommand;
 use App\Commands\SendProfileRemindersCommand;
 use App\Commands\SyncEasyVereinCommand;
+use App\Commands\UpdateEventStatusesCommand;
 use Symfony\Component\Console\Application;
 
 $app = new Application('IBC Intranet CLI', '1.0.0');
@@ -51,5 +53,6 @@ $app->add($container->get(SendAlumniRemindersCommand::class));
 $app->add($container->get(SendProfileRemindersCommand::class));
 $app->add($container->get(ProcessMailQueueCommand::class));
 $app->add($container->get(ReconcileBankPaymentsCommand::class));
+$app->add($container->get(UpdateEventStatusesCommand::class));
 
 exit($app->run());

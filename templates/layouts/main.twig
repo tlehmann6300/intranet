@@ -6,38 +6,68 @@
     <meta name="color-scheme" content="light dark">
     <meta name="theme-color" content="#0066b3">
     <title>{% block title %}{{ title|default('IBC Intranet') }}{% endblock %}</title>
-    <link rel="icon" type="image/webp" href="{{ base_url }}/assets/img/cropped_maskottchen_32x32.webp">
-    <link rel="manifest" href="{{ base_url }}/manifest.json">
+    <link rel="icon" type="image/webp" href="/assets/img/cropped_maskottchen_32x32.webp">
+    <link rel="manifest" href="/manifest.json">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{{ base_url }}/assets/css/theme.css">
-    <link rel="stylesheet" href="{{ base_url }}/assets/css/tailwind.css">
+    <link rel="stylesheet" href="/assets/css/theme.css">
+    <link rel="stylesheet" href="/assets/css/tailwind.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     {% block extra_head %}{% endblock %}
 </head>
 <body data-user-theme="{{ current_user.theme|default('auto') }}">
     <nav class="sidebar">
-        <a href="{{ base_url }}/dashboard" class="sidebar-brand">
-            <img src="{{ base_url }}/assets/img/ibc_logo.webp" alt="IBC Logo" style="max-height:40px;">
+        <a href="/dashboard" class="sidebar-brand">
+            <img src="/assets/img/ibc_logo.webp" alt="IBC Logo" style="max-height:40px;">
         </a>
+
+        {# Search bar in sidebar #}
+        <form action="/search" method="GET" class="px-3 pb-2">
+            <div class="relative">
+                <input type="text" name="q" placeholder="Suchen…"
+                       class="w-full pl-8 pr-3 py-1.5 text-sm bg-white/10 text-white placeholder-white/50 border border-white/20 rounded-lg focus:outline-none focus:bg-white/20 transition">
+                <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-white/50 text-xs"></i>
+            </div>
+        </form>
+
         <ul class="sidebar-nav">
-            <li><a href="{{ base_url }}/dashboard" class="{{ base_url ~ '/dashboard' in app.request.pathinfo ? 'active' : '' }}"><i class="fi fi-rr-home"></i> Dashboard</a></li>
-            <li><a href="{{ base_url }}/members"><i class="fi fi-rr-users"></i> Mitglieder</a></li>
-            <li><a href="{{ base_url }}/events"><i class="fi fi-rr-calendar"></i> Veranstaltungen</a></li>
-            <li><a href="{{ base_url }}/blog"><i class="fi fi-rr-document"></i> Blog</a></li>
-            <li><a href="{{ base_url }}/projects"><i class="fi fi-rr-briefcase"></i> Projekte</a></li>
-            <li><a href="{{ base_url }}/inventory"><i class="fi fi-rr-box"></i> Inventar</a></li>
-            <li><a href="{{ base_url }}/invoices"><i class="fi fi-rr-receipt"></i> Rechnungen</a></li>
-            <li><a href="{{ base_url }}/alumni"><i class="fi fi-rr-graduation-cap"></i> Alumni</a></li>
-            <li><a href="{{ base_url }}/jobs"><i class="fi fi-rr-work-alt"></i> Jobs</a></li>
-            <li><a href="{{ base_url }}/newsletter"><i class="fi fi-rr-envelope"></i> Newsletter</a></li>
-            <li><a href="{{ base_url }}/polls"><i class="fi fi-rr-vote-yea"></i> Umfragen</a></li>
-            <li><a href="{{ base_url }}/links"><i class="fi fi-rr-link"></i> Links</a></li>
-            <li><a href="{{ base_url }}/ideas"><i class="fi fi-rr-bulb"></i> Ideen</a></li>
+            <li><a href="/dashboard"><i class="fi fi-rr-home"></i> Dashboard</a></li>
+            <li><a href="/members"><i class="fi fi-rr-users"></i> Mitglieder</a></li>
+            <li><a href="/events"><i class="fi fi-rr-calendar"></i> Veranstaltungen</a></li>
+            <li><a href="/blog"><i class="fi fi-rr-document"></i> Blog</a></li>
+            <li><a href="/projects"><i class="fi fi-rr-briefcase"></i> Projekte</a></li>
+            <li><a href="/inventory"><i class="fi fi-rr-box"></i> Inventar</a></li>
+            <li><a href="/invoices"><i class="fi fi-rr-receipt"></i> Rechnungen</a></li>
+            <li><a href="/alumni"><i class="fi fi-rr-graduation-cap"></i> Alumni</a></li>
+            <li><a href="/documents"><i class="fi fi-rr-folder"></i> Dokumente</a></li>
+            <li><a href="/jobs"><i class="fi fi-rr-work-alt"></i> Jobs</a></li>
+            <li><a href="/newsletter"><i class="fi fi-rr-envelope"></i> Newsletter</a></li>
+            <li><a href="/polls"><i class="fi fi-rr-vote-yea"></i> Umfragen</a></li>
+            <li><a href="/links"><i class="fi fi-rr-link"></i> Links</a></li>
+            <li><a href="/ideas"><i class="fi fi-rr-bulb"></i> Ideen</a></li>
         </ul>
     </nav>
+
+    {# Notification bell (fixed top-right on mobile, top of content on desktop) #}
+    <div id="notification-bell" class="fixed top-3 right-4 z-50 md:absolute md:top-4 md:right-6">
+        <button type="button" onclick="toggleNotifications()" class="relative w-9 h-9 rounded-full bg-white dark:bg-gray-800 shadow border border-gray-200 dark:border-gray-700 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+            <i class="fas fa-bell text-gray-600 dark:text-gray-300 text-sm"></i>
+            <span id="notif-badge" class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-white text-xs font-bold flex items-center justify-center hidden"></span>
+        </button>
+
+        {# Dropdown panel #}
+        <div id="notif-panel" class="hidden absolute right-0 top-11 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                <span class="font-semibold text-sm text-gray-900 dark:text-gray-100">Benachrichtigungen</span>
+                <button type="button" onclick="markAllRead()" class="text-xs text-blue-600 hover:underline dark:text-blue-400">Alle gelesen</button>
+            </div>
+            <div id="notif-list" class="max-h-80 overflow-y-auto divide-y divide-gray-50 dark:divide-gray-700/50">
+                <div class="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">Keine neuen Benachrichtigungen</div>
+            </div>
+        </div>
+    </div>
 
     <main id="main-content" role="main" class="md:ml-64 lg:ml-72 min-h-screen px-4 sm:px-6 lg:px-8 pb-4 pt-16 md:pt-6 lg:pt-8">
         <div class="max-w-7xl mx-auto">
@@ -46,12 +76,115 @@
         <footer class="max-w-7xl mx-auto mt-8 py-4 border-t border-gray-200 dark:border-slate-700">
             <div class="flex flex-col items-center md:flex-row md:justify-between gap-2 text-sm text-gray-500 dark:text-gray-400">
                 <p>&copy; {{ "now"|date("Y") }} IBC Business Consulting. Alle Rechte vorbehalten.</p>
-                <a href="{{ base_url }}/impressum">Impressum</a>
+                <a href="/impressum">Impressum</a>
             </div>
         </footer>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+    // ── Notification polling ──────────────────────────────────────────────
+    let notifOpen = false;
+
+    function toggleNotifications() {
+        notifOpen = !notifOpen;
+        document.getElementById('notif-panel').classList.toggle('hidden', !notifOpen);
+    }
+
+    // Close when clicking outside
+    document.addEventListener('click', (e) => {
+        const bell = document.getElementById('notification-bell');
+        if (notifOpen && !bell.contains(e.target)) {
+            notifOpen = false;
+            document.getElementById('notif-panel').classList.add('hidden');
+        }
+    });
+
+    async function fetchNotifications() {
+        try {
+            const res  = await fetch('/api/notifications', { credentials: 'same-origin' });
+            const data = await res.json();
+            if (!data.success) return;
+
+            const badge = document.getElementById('notif-badge');
+            const list  = document.getElementById('notif-list');
+
+            if (data.count > 0) {
+                badge.textContent = data.count > 9 ? '9+' : String(data.count);
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+
+            if (data.data.length === 0) {
+                list.innerHTML = '<div class="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">Keine neuen Benachrichtigungen</div>';
+                return;
+            }
+
+            list.innerHTML = data.data.map(n => {
+                const div    = document.createElement('div');
+                div.className = 'flex items-start gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer';
+
+                const dot   = document.createElement('div');
+                dot.className = 'w-2 h-2 rounded-full bg-blue-500 flex-shrink-0 mt-1.5';
+
+                const body  = document.createElement('div');
+                body.className = 'flex-1 min-w-0';
+
+                const title = document.createElement('p');
+                title.className = 'text-sm font-medium text-gray-900 dark:text-gray-100 truncate';
+                title.textContent = n.title;
+
+                body.appendChild(title);
+
+                if (n.message) {
+                    const msg = document.createElement('p');
+                    msg.className = 'text-xs text-gray-500 dark:text-gray-400 truncate';
+                    msg.textContent = n.message;
+                    body.appendChild(msg);
+                }
+
+                div.appendChild(dot);
+                div.appendChild(body);
+
+                const url = (n.url && n.url.startsWith('/')) ? n.url : '';
+                div.addEventListener('click', () => readNotification(n.id, url));
+
+                return div.outerHTML;
+            }).join('');
+        } catch (e) {
+            // Silently ignore network errors during polling
+        }
+    }
+
+    async function readNotification(id, url) {
+        await fetch('/api/notifications/read', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'id=' + encodeURIComponent(id),
+        });
+        fetchNotifications();
+        // Only navigate to same-origin relative paths to prevent open redirect
+        if (url && url.startsWith('/') && !url.startsWith('//')) {
+            window.location.href = url;
+        }
+    }
+
+    async function markAllRead() {
+        await fetch('/api/notifications/read-all', {
+            method: 'POST',
+            credentials: 'same-origin',
+        });
+        fetchNotifications();
+    }
+
+    // Initial fetch + poll every 60 seconds
+    fetchNotifications();
+    setInterval(fetchNotifications, 60000);
+    </script>
+
     {% block extra_scripts %}{% endblock %}
 </body>
 </html>

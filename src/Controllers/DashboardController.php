@@ -54,9 +54,10 @@ class DashboardController extends BaseController
             $greeting = 'Guten Abend';
         }
 
-        $nextEvents    = [];
-        $events        = [];
         $currentUserId = (int)\Auth::getUserId();
+
+        // ── Upcoming events (registered + confirmed) ──────────────────────
+        $nextEvents = [];
         try {
             $contentDb = \Database::getContentDB();
             $stmt      = $contentDb->prepare(
@@ -65,36 +66,127 @@ class DashboardController extends BaseController
                  INNER JOIN event_signups es ON es.event_id = e.id
                  WHERE e.status IN ('planned', 'open', 'closed') AND DATE(e.start_time) >= CURDATE()
                    AND es.user_id = ? AND es.status = 'confirmed'
-                 ORDER BY e.start_time ASC LIMIT 5"
+                 ORDER BY e.start_time ASC LIMIT 3"
             );
             $stmt->execute([$currentUserId]);
-            $events     = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-            $nextEvents = array_slice($events, 0, 3);
+            $nextEvents = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         } catch (\Exception $e) {
             error_log('dashboard: upcoming events query failed: ' . $e->getMessage());
         }
 
+        // ── Next event (with days-until countdown) ────────────────────────
+        $nextEventCountdown = null;
+        if (!empty($nextEvents)) {
+            try {
+                $eventDate          = new \DateTime($nextEvents[0]['start_time'], $timezone);
+                $diff               = $now->diff($eventDate);
+                $nextEventCountdown = [
+                    'event'   => $nextEvents[0],
+                    'days'    => $diff->days,
+                    'past'    => $diff->invert === 1,
+                ];
+            } catch (\Exception $e) {
+                error_log('dashboard: countdown calc failed: ' . $e->getMessage());
+            }
+        }
+
+        // ── Open inventory tasks ───────────────────────────────────────────
         $openTasksCount = 0;
-        $userId         = (int)\Auth::getUserId();
         try {
             $contentDb = \Database::getContentDB();
             $stmt      = $contentDb->prepare(
                 "SELECT COUNT(*) FROM inventory_requests WHERE user_id = ? AND status IN ('pending', 'approved', 'pending_return')"
             );
-            $stmt->execute([$userId]);
-            $openTasksCount += (int)$stmt->fetchColumn();
+            $stmt->execute([$currentUserId]);
+            $openTasksCount = (int)$stmt->fetchColumn();
         } catch (\Exception $e) {
-            error_log('dashboard: open tasks count (requests) failed: ' . $e->getMessage());
+            error_log('dashboard: open tasks count failed: ' . $e->getMessage());
+        }
+
+        // ── Overdue inventory items ────────────────────────────────────────
+        $overdueItems = [];
+        try {
+            $contentDb = \Database::getContentDB();
+            $stmt      = $contentDb->prepare(
+                "SELECT ir.id, io.name, ir.return_date, ir.quantity
+                 FROM inventory_requests ir
+                 JOIN inventory_objects io ON io.id = ir.inventory_id
+                 WHERE ir.user_id = ? AND ir.status = 'approved' AND ir.return_date < CURDATE()
+                 ORDER BY ir.return_date ASC LIMIT 5"
+            );
+            $stmt->execute([$currentUserId]);
+            $overdueItems = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        } catch (\Exception $e) {
+            error_log('dashboard: overdue items query failed: ' . $e->getMessage());
+        }
+
+        // ── Pending polls (not yet voted by current user) ─────────────────
+        $pendingPolls = [];
+        try {
+            $contentDb = \Database::getContentDB();
+            $stmt      = $contentDb->prepare(
+                "SELECT p.id, p.question, p.created_at
+                 FROM polls p
+                 WHERE p.is_hidden = 0
+                   AND p.id NOT IN (
+                       SELECT pv.poll_id FROM poll_votes pv WHERE pv.user_id = ?
+                   )
+                 ORDER BY p.created_at DESC LIMIT 3"
+            );
+            $stmt->execute([$currentUserId]);
+            $pendingPolls = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        } catch (\Exception $e) {
+            error_log('dashboard: pending polls query failed: ' . $e->getMessage());
+        }
+
+        // ── Upcoming birthdays (next 7 days, board role only) ─────────────
+        $upcomingBirthdays = [];
+        if (\Auth::isBoard()) {
+            try {
+                $userDb = \Database::getUserDB();
+                $stmt   = $userDb->prepare(
+                    "SELECT id, firstname, lastname, birthday
+                     FROM users
+                     WHERE deleted_at IS NULL AND is_active = 1
+                       AND birthday IS NOT NULL
+                       AND DATE_FORMAT(birthday, '%m-%d') BETWEEN DATE_FORMAT(CURDATE(), '%m-%d')
+                                                               AND DATE_FORMAT(DATE_ADD(CURDATE(), INTERVAL 7 DAY), '%m-%d')
+                     ORDER BY DATE_FORMAT(birthday, '%m-%d') ASC LIMIT 5"
+                );
+                $stmt->execute();
+                $upcomingBirthdays = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            } catch (\Exception $e) {
+                error_log('dashboard: birthday query failed: ' . $e->getMessage());
+            }
+        }
+
+        // ── Admin: pending rental returns ──────────────────────────────────
+        $pendingRentalReturns = 0;
+        if (\Auth::isBoard() || \Auth::hasRole(['alumni_vorstand', 'alumni_finanz', 'manager'])) {
+            try {
+                $contentDb = \Database::getContentDB();
+                $stmt      = $contentDb->query(
+                    "SELECT COUNT(*) FROM inventory_requests WHERE status = 'pending_return'"
+                );
+                $pendingRentalReturns = (int)$stmt->fetchColumn();
+            } catch (\Exception $e) {
+                error_log('dashboard: pending rental returns query failed: ' . $e->getMessage());
+            }
         }
 
         $this->render('dashboard/index.twig', [
-            'user'           => $user,
-            'userRole'       => $userRole,
-            'displayName'    => $displayName,
-            'greeting'       => $greeting,
-            'nextEvents'     => $nextEvents,
-            'events'         => $events,
-            'openTasksCount' => $openTasksCount,
+            'user'                 => $user,
+            'userRole'             => $userRole,
+            'displayName'          => $displayName,
+            'greeting'             => $greeting,
+            'nextEvents'           => $nextEvents,
+            'nextEventCountdown'   => $nextEventCountdown,
+            'openTasksCount'       => $openTasksCount,
+            'overdueItems'         => $overdueItems,
+            'pendingPolls'         => $pendingPolls,
+            'upcomingBirthdays'    => $upcomingBirthdays,
+            'pendingRentalReturns' => $pendingRentalReturns,
+            'isBoard'              => \Auth::isBoard(),
         ]);
     }
 }
