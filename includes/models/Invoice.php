@@ -7,7 +7,22 @@
 require_once __DIR__ . '/../database.php';
 require_once __DIR__ . '/../../config/config.php';
 
-class Invoice {
+use Illuminate\Database\Eloquent\Model;
+
+class Invoice extends Model
+{
+    protected $connection = 'rech';
+    protected $table = 'invoices';
+    protected static $unguarded = true;
+
+    // ---------------------------------------------------------------------------
+    // Relationships
+    // ---------------------------------------------------------------------------
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
     
     /**
      * Upload directory for invoices

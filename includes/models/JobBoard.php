@@ -4,7 +4,23 @@
  * Manages job and internship listings with cross-database user integration
  */
 
-class JobBoard {
+use Illuminate\Database\Eloquent\Model;
+
+class JobBoard extends Model
+{
+    protected $connection = 'content';
+    protected $table = 'job_board';
+    protected static $unguarded = true;
+    protected $timestamps = false;
+
+    // ---------------------------------------------------------------------------
+    // Relationships
+    // ---------------------------------------------------------------------------
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 
     /**
      * Allowed search types for listings

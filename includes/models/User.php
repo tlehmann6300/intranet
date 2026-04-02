@@ -4,7 +4,33 @@
  * Manages user data and operations
  */
 
-class User {
+use Illuminate\Database\Eloquent\Model;
+
+class User extends Model
+{
+    protected $connection = 'user';
+    protected $table = 'users';
+    protected static $unguarded = true;
+    protected $timestamps = false;
+
+    // ---------------------------------------------------------------------------
+    // Relationships
+    // ---------------------------------------------------------------------------
+
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class, 'user_id');
+    }
+
+    public function jobBoardListings()
+    {
+        return $this->hasMany(JobBoard::class, 'user_id');
+    }
+
+    public function blogPosts()
+    {
+        return $this->hasMany(BlogPost::class, 'author_id');
+    }
     
     /**
      * Email change token expiration time in hours

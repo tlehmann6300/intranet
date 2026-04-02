@@ -10,7 +10,14 @@ require_once __DIR__ . '/../services/EasyVereinInventory.php';
 require_once __DIR__ . '/../services/MicrosoftGraphService.php';
 require_once __DIR__ . '/../database.php';
 
-class Inventory {
+use Illuminate\Database\Eloquent\Model;
+
+class Inventory extends Model
+{
+    protected $connection = 'inventory';
+    protected $table = 'inventory_items';
+    protected static $unguarded = true;
+    protected $timestamps = false;
 
     /**
      * Master Data fields that are synced with EasyVerein.

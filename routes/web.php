@@ -2,384 +2,169 @@
 /**
  * Web Routes
  *
- * All clean-URL routes are registered here via the FastRoute RouteCollector ($r).
- * Each handler is a callable that includes the appropriate page file.
- *
- * Auth-protected routes call Auth::check() before including the page so that the
- * central front-controller is the authoritative gatekeeper.  Individual pages still
- * contain their own auth guards for backward-compatibility when accessed directly.
- *
- * Migration note: Pages that redirect internally (e.g. header('Location: ../auth/…'))
- * should be updated to use BASE_URL-based absolute URLs as they are migrated.
+ * Routes use 'ControllerClass@method' string notation.
+ * Legacy closures remain for backward compatibility during migration.
  */
 
 declare(strict_types=1);
 
-use function FastRoute\simpleDispatcher;
-
-$pages = __DIR__ . '/../pages';
-
-// ---------------------------------------------------------------------------
-// Helper: redirect to a clean URL, absorbing any output buffer
-// ---------------------------------------------------------------------------
-$redirect = static function (string $url): void {
-    if (!headers_sent()) {
-        header('Location: ' . $url, true, 302);
-    }
-    exit;
-};
-
-// ---------------------------------------------------------------------------
-// Helper: require authentication, redirect to /login otherwise
-// ---------------------------------------------------------------------------
-$requireAuth = static function () use ($redirect): void {
-    if (!Auth::check()) {
-        $redirect(BASE_URL . '/login');
-    }
-};
-
 // ===========================================================================
-// PUBLIC ROUTES  (no authentication required)
+// PUBLIC ROUTES
 // ===========================================================================
 
-// Root – redirect to dashboard when authenticated, login otherwise
 $r->addRoute('GET', '/', static function () use ($redirect): void {
-    $redirect(Auth::check() ? BASE_URL . '/dashboard' : BASE_URL . '/login');
+    $redirect(\Auth::check() ? \BASE_URL . '/dashboard' : \BASE_URL . '/login');
 });
 
-// Login
-$r->addRoute(['GET', 'POST'], '/login', static function () use ($pages): void {
-    include $pages . '/auth/login.php';
-});
+$r->addRoute(['GET', 'POST'], '/login',      'App\Controllers\AuthController@login');
+$r->addRoute(['GET', 'POST'], '/logout',     'App\Controllers\AuthController@logout');
+$r->addRoute(['GET', 'POST'], '/verify-2fa', 'App\Controllers\AuthController@verify2fa');
+$r->addRoute(['GET', 'POST'], '/onboarding', 'App\Controllers\AuthController@onboarding');
 
-// Logout
-$r->addRoute(['GET', 'POST'], '/logout', static function () use ($pages): void {
-    include $pages . '/auth/logout.php';
-});
+$r->addRoute(['GET', 'POST'], '/alumni-recovery', 'App\Controllers\PublicController@alumniRecovery');
+$r->addRoute(['GET', 'POST'], '/neue-alumni',      'App\Controllers\PublicController@neueAlumni');
+$r->addRoute('GET',           '/impressum',        'App\Controllers\PublicController@impressum');
 
-// 2FA verification
-$r->addRoute(['GET', 'POST'], '/verify-2fa', static function () use ($pages): void {
-    include $pages . '/auth/verify_2fa.php';
-});
-
-// Onboarding (public, completes first-time profile setup)
-$r->addRoute(['GET', 'POST'], '/onboarding', static function () use ($pages): void {
-    include $pages . '/auth/onboarding.php';
-});
-
-// Public alumni pages (no login required)
-$r->addRoute(['GET', 'POST'], '/alumni-recovery', static function () use ($pages): void {
-    include $pages . '/public/alumni_recovery.php';
-});
-
-$r->addRoute(['GET', 'POST'], '/neue-alumni', static function () use ($pages): void {
-    include $pages . '/public/neue_alumni.php';
-});
-
-// Impressum / legal notice
-$r->addRoute('GET', '/impressum', static function () use ($pages): void {
-    include $pages . '/impressum.php';
-});
+// Public API
+$r->addRoute('GET',  '/api/public/confirm-email',          'App\Controllers\PublicController@confirmEmail');
+$r->addRoute('POST', '/api/public/submit-alumni-recovery', 'App\Controllers\PublicController@submitAlumniRecovery');
+$r->addRoute('POST', '/api/public/submit-neue-alumni',     'App\Controllers\PublicController@submitNeueAlumni');
 
 // ===========================================================================
 // AUTHENTICATED ROUTES
 // ===========================================================================
 
-// Dashboard
-$r->addRoute('GET', '/dashboard', static function () use ($pages, $requireAuth): void {
-    $requireAuth();
-    include $pages . '/dashboard/index.php';
-});
+$r->addRoute('GET',           '/dashboard',        'App\Controllers\DashboardController@index');
+$r->addRoute(['GET', 'POST'], '/profile',           'App\Controllers\AuthController@profile');
+$r->addRoute(['GET', 'POST'], '/profile/settings',  'App\Controllers\AuthController@settings');
 
-// Profile
-$r->addRoute(['GET', 'POST'], '/profile', static function () use ($pages, $requireAuth): void {
-    $requireAuth();
-    include $pages . '/auth/profile.php';
-});
-
-// Profile settings
-$r->addRoute(['GET', 'POST'], '/profile/settings', static function () use ($pages, $requireAuth): void {
-    $requireAuth();
-    include $pages . '/auth/settings.php';
-});
-
-// ---------------------------------------------------------------------------
 // Members
-// ---------------------------------------------------------------------------
-$r->addRoute('GET', '/members', static function () use ($pages, $requireAuth): void {
-    $requireAuth();
-    include $pages . '/members/index.php';
-});
+$r->addRoute('GET', '/members',        'App\Controllers\MemberController@index');
+$r->addRoute('GET', '/members/{id:\d+}', 'App\Controllers\MemberController@view');
 
-$r->addRoute('GET', '/members/{id:\d+}', static function (array $vars) use ($pages, $requireAuth): void {
-    $requireAuth();
-    $_GET['id'] = $vars['id'];
-    include $pages . '/members/view.php';
-});
-
-// ---------------------------------------------------------------------------
 // Events
-// ---------------------------------------------------------------------------
-$r->addRoute('GET', '/events', static function () use ($pages, $requireAuth): void {
-    $requireAuth();
-    include $pages . '/events/index.php';
-});
+$r->addRoute('GET',           '/events',                    'App\Controllers\EventController@index');
+$r->addRoute('GET',           '/events/{id:\d+}',           'App\Controllers\EventController@view');
+$r->addRoute(['GET', 'POST'], '/events/{id:\d+}/edit',       'App\Controllers\EventController@edit');
+$r->addRoute(['GET', 'POST'], '/events/{id:\d+}/manage',     'App\Controllers\EventController@manage');
+$r->addRoute('GET',           '/events/{id:\d+}/statistics', 'App\Controllers\EventController@statistics');
 
-$r->addRoute('GET', '/events/{id:\d+}', static function (array $vars) use ($pages, $requireAuth): void {
-    $requireAuth();
-    $_GET['id'] = $vars['id'];
-    include $pages . '/events/view.php';
-});
-
-$r->addRoute(['GET', 'POST'], '/events/{id:\d+}/edit', static function (array $vars) use ($pages, $requireAuth): void {
-    $requireAuth();
-    $_GET['id'] = $vars['id'];
-    include $pages . '/events/edit.php';
-});
-
-$r->addRoute(['GET', 'POST'], '/events/{id:\d+}/manage', static function (array $vars) use ($pages, $requireAuth): void {
-    $requireAuth();
-    $_GET['id'] = $vars['id'];
-    include $pages . '/events/manage.php';
-});
-
-$r->addRoute('GET', '/events/{id:\d+}/statistics', static function (array $vars) use ($pages, $requireAuth): void {
-    $requireAuth();
-    $_GET['id'] = $vars['id'];
-    include $pages . '/events/statistics.php';
-});
-
-// ---------------------------------------------------------------------------
 // Blog
-// ---------------------------------------------------------------------------
-$r->addRoute('GET', '/blog', static function () use ($pages, $requireAuth): void {
-    $requireAuth();
-    include $pages . '/blog/index.php';
-});
+$r->addRoute('GET',           '/blog',            'App\Controllers\BlogController@index');
+$r->addRoute('GET',           '/blog/{id:\d+}',   'App\Controllers\BlogController@view');
+$r->addRoute(['GET', 'POST'], '/blog/{id:\d+}/edit', 'App\Controllers\BlogController@edit');
 
-$r->addRoute('GET', '/blog/{id:\d+}', static function (array $vars) use ($pages, $requireAuth): void {
-    $requireAuth();
-    $_GET['id'] = $vars['id'];
-    include $pages . '/blog/view.php';
-});
-
-$r->addRoute(['GET', 'POST'], '/blog/{id:\d+}/edit', static function (array $vars) use ($pages, $requireAuth): void {
-    $requireAuth();
-    $_GET['id'] = $vars['id'];
-    include $pages . '/blog/edit.php';
-});
-
-// ---------------------------------------------------------------------------
 // Projects
-// ---------------------------------------------------------------------------
-$r->addRoute('GET', '/projects', static function () use ($pages, $requireAuth): void {
-    $requireAuth();
-    include $pages . '/projects/index.php';
-});
+$r->addRoute('GET',           '/projects',                      'App\Controllers\ProjectController@index');
+$r->addRoute('GET',           '/projects/{id:\d+}',             'App\Controllers\ProjectController@view');
+$r->addRoute(['GET', 'POST'], '/projects/{id:\d+}/manage',       'App\Controllers\ProjectController@manage');
+$r->addRoute('GET',           '/projects/{id:\d+}/applications', 'App\Controllers\ProjectController@applications');
 
-$r->addRoute('GET', '/projects/{id:\d+}', static function (array $vars) use ($pages, $requireAuth): void {
-    $requireAuth();
-    $_GET['id'] = $vars['id'];
-    include $pages . '/projects/view.php';
-});
-
-$r->addRoute(['GET', 'POST'], '/projects/{id:\d+}/manage', static function (array $vars) use ($pages, $requireAuth): void {
-    $requireAuth();
-    $_GET['id'] = $vars['id'];
-    include $pages . '/projects/manage.php';
-});
-
-$r->addRoute('GET', '/projects/{id:\d+}/applications', static function (array $vars) use ($pages, $requireAuth): void {
-    $requireAuth();
-    $_GET['id'] = $vars['id'];
-    include $pages . '/projects/applications.php';
-});
-
-// ---------------------------------------------------------------------------
 // Inventory
-// ---------------------------------------------------------------------------
-$r->addRoute('GET', '/inventory', static function () use ($pages, $requireAuth): void {
-    $requireAuth();
-    include $pages . '/inventory/index.php';
-});
+$r->addRoute('GET',           '/inventory',                    'App\Controllers\InventoryController@index');
+$r->addRoute('GET',           '/inventory/{id:\d+}',           'App\Controllers\InventoryController@view');
+$r->addRoute(['GET', 'POST'], '/inventory/add',                 'App\Controllers\InventoryController@add');
+$r->addRoute(['GET', 'POST'], '/inventory/{id:\d+}/edit',       'App\Controllers\InventoryController@edit');
+$r->addRoute(['GET', 'POST'], '/inventory/{id:\d+}/checkout',   'App\Controllers\InventoryController@checkout');
+$r->addRoute(['GET', 'POST'], '/inventory/{id:\d+}/checkin',    'App\Controllers\InventoryController@checkin');
+$r->addRoute('GET',           '/inventory/my-checkouts',        'App\Controllers\InventoryController@myCheckouts');
+$r->addRoute('GET',           '/inventory/my-rentals',          'App\Controllers\InventoryController@myRentals');
 
-$r->addRoute('GET', '/inventory/{id:\d+}', static function (array $vars) use ($pages, $requireAuth): void {
-    $requireAuth();
-    $_GET['id'] = $vars['id'];
-    include $pages . '/inventory/view.php';
-});
-
-$r->addRoute(['GET', 'POST'], '/inventory/add', static function () use ($pages, $requireAuth): void {
-    $requireAuth();
-    include $pages . '/inventory/add.php';
-});
-
-$r->addRoute(['GET', 'POST'], '/inventory/{id:\d+}/edit', static function (array $vars) use ($pages, $requireAuth): void {
-    $requireAuth();
-    $_GET['id'] = $vars['id'];
-    include $pages . '/inventory/edit.php';
-});
-
-$r->addRoute(['GET', 'POST'], '/inventory/{id:\d+}/checkout', static function (array $vars) use ($pages, $requireAuth): void {
-    $requireAuth();
-    $_GET['id'] = $vars['id'];
-    include $pages . '/inventory/checkout.php';
-});
-
-$r->addRoute(['GET', 'POST'], '/inventory/{id:\d+}/checkin', static function (array $vars) use ($pages, $requireAuth): void {
-    $requireAuth();
-    $_GET['id'] = $vars['id'];
-    include $pages . '/inventory/checkin.php';
-});
-
-$r->addRoute('GET', '/inventory/my-checkouts', static function () use ($pages, $requireAuth): void {
-    $requireAuth();
-    include $pages . '/inventory/my_checkouts.php';
-});
-
-$r->addRoute('GET', '/inventory/my-rentals', static function () use ($pages, $requireAuth): void {
-    $requireAuth();
-    include $pages . '/inventory/my_rentals.php';
-});
-
-// ---------------------------------------------------------------------------
 // Invoices
-// ---------------------------------------------------------------------------
-$r->addRoute('GET', '/invoices', static function () use ($pages, $requireAuth): void {
-    $requireAuth();
-    include $pages . '/invoices/index.php';
-});
+$r->addRoute('GET', '/invoices', 'App\Controllers\InvoiceController@index');
 
-// ---------------------------------------------------------------------------
 // Alumni
-// ---------------------------------------------------------------------------
-$r->addRoute('GET', '/alumni', static function () use ($pages, $requireAuth): void {
-    $requireAuth();
-    include $pages . '/alumni/index.php';
-});
+$r->addRoute('GET',           '/alumni',                'App\Controllers\AlumniController@index');
+$r->addRoute('GET',           '/alumni/{id:\d+}',       'App\Controllers\AlumniController@view');
+$r->addRoute(['GET', 'POST'], '/alumni/{id:\d+}/edit',  'App\Controllers\AlumniController@edit');
+$r->addRoute('GET',           '/alumni/requests',       'App\Controllers\AlumniController@requests');
 
-$r->addRoute('GET', '/alumni/{id:\d+}', static function (array $vars) use ($pages, $requireAuth): void {
-    $requireAuth();
-    $_GET['id'] = $vars['id'];
-    include $pages . '/alumni/view.php';
-});
-
-$r->addRoute(['GET', 'POST'], '/alumni/{id:\d+}/edit', static function (array $vars) use ($pages, $requireAuth): void {
-    $requireAuth();
-    $_GET['id'] = $vars['id'];
-    include $pages . '/alumni/edit.php';
-});
-
-$r->addRoute('GET', '/alumni/requests', static function () use ($pages, $requireAuth): void {
-    $requireAuth();
-    include $pages . '/alumni/requests.php';
-});
-
-// ---------------------------------------------------------------------------
 // Jobs
-// ---------------------------------------------------------------------------
-$r->addRoute('GET', '/jobs', static function () use ($pages, $requireAuth): void {
-    $requireAuth();
-    include $pages . '/jobs/index.php';
-});
+$r->addRoute('GET',           '/jobs',              'App\Controllers\JobController@index');
+$r->addRoute(['GET', 'POST'], '/jobs/create',        'App\Controllers\JobController@create');
+$r->addRoute(['GET', 'POST'], '/jobs/{id:\d+}/edit', 'App\Controllers\JobController@edit');
 
-$r->addRoute(['GET', 'POST'], '/jobs/create', static function () use ($pages, $requireAuth): void {
-    $requireAuth();
-    include $pages . '/jobs/create.php';
-});
-
-$r->addRoute(['GET', 'POST'], '/jobs/{id:\d+}/edit', static function (array $vars) use ($pages, $requireAuth): void {
-    $requireAuth();
-    $_GET['id'] = $vars['id'];
-    include $pages . '/jobs/edit.php';
-});
-
-// ---------------------------------------------------------------------------
 // Newsletter
-// ---------------------------------------------------------------------------
-$r->addRoute('GET', '/newsletter', static function () use ($pages, $requireAuth): void {
-    $requireAuth();
-    include $pages . '/newsletter/index.php';
-});
+$r->addRoute('GET', '/newsletter', 'App\Controllers\NewsletterController@index');
 
-// ---------------------------------------------------------------------------
 // Polls
-// ---------------------------------------------------------------------------
-$r->addRoute('GET', '/polls', static function () use ($pages, $requireAuth): void {
-    $requireAuth();
-    include $pages . '/polls/index.php';
-});
+$r->addRoute('GET', '/polls', 'App\Controllers\PollController@index');
 
-// ---------------------------------------------------------------------------
 // Links
-// ---------------------------------------------------------------------------
-$r->addRoute('GET', '/links', static function () use ($pages, $requireAuth): void {
-    $requireAuth();
-    include $pages . '/links/index.php';
-});
+$r->addRoute('GET', '/links', 'App\Controllers\LinkController@index');
 
-// ---------------------------------------------------------------------------
 // Ideas
-// ---------------------------------------------------------------------------
-$r->addRoute('GET', '/ideas', static function () use ($pages, $requireAuth): void {
-    $requireAuth();
-    include $pages . '/ideas/index.php';
-});
+$r->addRoute('GET', '/ideas', 'App\Controllers\IdeaController@index');
 
-// ---------------------------------------------------------------------------
 // Admin
-// ---------------------------------------------------------------------------
-$r->addRoute('GET', '/admin', static function () use ($pages, $requireAuth): void {
-    $requireAuth();
-    include $pages . '/admin/index.php';
-});
+$r->addRoute('GET',           '/admin',                      'App\Controllers\AdminController@index');
+$r->addRoute('GET',           '/admin/users',                'App\Controllers\AdminController@users');
+$r->addRoute(['GET', 'POST'], '/admin/settings',             'App\Controllers\AdminController@settings');
+$r->addRoute('GET',           '/admin/stats',                'App\Controllers\AdminController@stats');
+$r->addRoute('GET',           '/admin/audit',                'App\Controllers\AdminController@audit');
+$r->addRoute(['GET', 'POST'], '/admin/inventory',            'App\Controllers\AdminController@inventory');
+$r->addRoute(['GET', 'POST'], '/admin/alumni-requests',      'App\Controllers\AdminController@alumniRequests');
+$r->addRoute(['GET', 'POST'], '/admin/neue-alumni-requests', 'App\Controllers\AdminController@neueAlumniRequests');
+$r->addRoute(['GET', 'POST'], '/admin/vcards',               'App\Controllers\AdminController@vcards');
+$r->addRoute('GET',           '/admin/project-applications', 'App\Controllers\AdminController@projectApplications');
+$r->addRoute(['GET', 'POST'], '/admin/db-maintenance',       'App\Controllers\AdminController@dbMaintenance');
 
-$r->addRoute('GET', '/admin/users', static function () use ($pages, $requireAuth): void {
-    $requireAuth();
-    include $pages . '/admin/users.php';
-});
+// ===========================================================================
+// API ROUTES
+// ===========================================================================
 
-$r->addRoute(['GET', 'POST'], '/admin/settings', static function () use ($pages, $requireAuth): void {
-    $requireAuth();
-    include $pages . '/admin/settings.php';
-});
+// Invoice API
+$r->addRoute('POST', '/api/invoices/submit',               'App\Controllers\InvoiceController@submit');
+$r->addRoute('POST', '/api/invoices/{id:\d+}/mark-paid',   'App\Controllers\InvoiceController@markPaid');
+$r->addRoute('POST', '/api/invoices/{id:\d+}/status',      'App\Controllers\InvoiceController@updateStatus');
+$r->addRoute('GET',  '/api/invoices/export',               'App\Controllers\InvoiceController@exportInvoices');
+$r->addRoute('GET',  '/api/invoices/{id:\d+}/download',    'App\Controllers\InvoiceController@downloadFile');
 
-$r->addRoute('GET', '/admin/stats', static function () use ($pages, $requireAuth): void {
-    $requireAuth();
-    include $pages . '/admin/stats.php';
-});
+// Profile API
+$r->addRoute('POST', '/api/profile/upload-avatar',        'App\Controllers\ProfileController@uploadAvatar');
+$r->addRoute('POST', '/api/profile/delete-avatar',        'App\Controllers\ProfileController@deleteAvatar');
+$r->addRoute('GET',  '/api/profile/export-data',          'App\Controllers\ProfileController@exportUserData');
+$r->addRoute('POST', '/api/profile/dismiss-review',       'App\Controllers\ProfileController@dismissProfileReview');
+$r->addRoute('POST', '/api/profile/complete-onboarding',  'App\Controllers\ProfileController@completeOnboarding');
+$r->addRoute('POST', '/api/profile/submit-support',       'App\Controllers\ProfileController@submitSupport');
+$r->addRoute('POST', '/api/profile/submit-2fa-support',   'App\Controllers\ProfileController@submit2faSupport');
 
-$r->addRoute('GET', '/admin/audit', static function () use ($pages, $requireAuth): void {
-    $requireAuth();
-    include $pages . '/admin/audit.php';
-});
+// Event API
+$r->addRoute('POST', '/api/events/signup',               'App\Controllers\EventApiController@eventSignup');
+$r->addRoute('POST', '/api/events/signup-simple',        'App\Controllers\EventApiController@eventSignupSimple');
+$r->addRoute('GET',  '/api/events/{id:\d+}/download-ics','App\Controllers\EventApiController@downloadIcs');
+$r->addRoute('POST', '/api/events/{id:\d+}/documentation','App\Controllers\EventApiController@saveEventDocumentation');
+$r->addRoute('POST', '/api/events/{id:\d+}/financial-stats','App\Controllers\EventApiController@saveFinancialStats');
+$r->addRoute('GET',  '/api/events/mail-template',        'App\Controllers\EventApiController@getMailTemplate');
 
-$r->addRoute(['GET', 'POST'], '/admin/inventory', static function () use ($pages, $requireAuth): void {
-    $requireAuth();
-    include $pages . '/admin/inventory_dashboard.php';
-});
+// Inventory API
+$r->addRoute('POST', '/api/inventory/cart-toggle',         'App\Controllers\InventoryApiController@cartToggle');
+$r->addRoute('POST', '/api/inventory/request',             'App\Controllers\InventoryApiController@inventoryRequest');
+$r->addRoute('POST', '/api/inventory/rental-request-action','App\Controllers\InventoryApiController@rentalRequestAction');
 
-$r->addRoute(['GET', 'POST'], '/admin/alumni-requests', static function () use ($pages, $requireAuth): void {
-    $requireAuth();
-    include $pages . '/admin/alumni_requests.php';
-});
+// Project API
+$r->addRoute('POST', '/api/projects/join', 'App\Controllers\ProjectApiController@projectJoin');
 
-$r->addRoute(['GET', 'POST'], '/admin/neue-alumni-requests', static function () use ($pages, $requireAuth): void {
-    $requireAuth();
-    include $pages . '/admin/neue_alumni_requests.php';
-});
+// Job API
+$r->addRoute('POST', '/api/jobs/contact-listing', 'App\Controllers\JobController@contactListing');
 
-$r->addRoute(['GET', 'POST'], '/admin/vcards', static function () use ($pages, $requireAuth): void {
-    $requireAuth();
-    include $pages . '/admin/vcards.php';
-});
+// Newsletter API
+$r->addRoute('GET',  '/api/newsletter/{id:\d+}/download',           'App\Controllers\NewsletterController@download');
+$r->addRoute('GET',  '/api/newsletter/{id:\d+}/download-attachment', 'App\Controllers\NewsletterController@downloadAttachment');
 
-$r->addRoute('GET', '/admin/project-applications', static function () use ($pages, $requireAuth): void {
-    $requireAuth();
-    include $pages . '/admin/project_applications.php';
-});
+// Poll API
+$r->addRoute('POST', '/api/polls/hide', 'App\Controllers\PollController@hide');
 
-$r->addRoute(['GET', 'POST'], '/admin/db-maintenance', static function () use ($pages, $requireAuth): void {
-    $requireAuth();
-    include $pages . '/admin/db_maintenance.php';
-});
+// Idea API
+$r->addRoute('POST', '/api/ideas/create',        'App\Controllers\IdeaController@create');
+$r->addRoute('POST', '/api/ideas/vote',          'App\Controllers\IdeaController@vote');
+$r->addRoute('POST', '/api/ideas/update-status', 'App\Controllers\IdeaController@updateStatus');
+
+// Admin API
+$r->addRoute('POST', '/api/admin/create-vcard',               'App\Controllers\AdminController@createVcard');
+$r->addRoute('POST', '/api/admin/delete-vcard',               'App\Controllers\AdminController@deleteVcard');
+$r->addRoute('POST', '/api/admin/update-vcard',               'App\Controllers\AdminController@updateVcard');
+$r->addRoute('POST', '/api/admin/process-alumni-request',     'App\Controllers\AdminController@processAlumniRequest');
+$r->addRoute('POST', '/api/admin/process-neue-alumni-request','App\Controllers\AdminController@processNeueAlumniRequest');
+$r->addRoute('POST', '/api/admin/update-user-role',           'App\Controllers\AdminController@updateUserRole');
+$r->addRoute('GET',  '/api/admin/search-entra-users',         'App\Controllers\AdminController@searchEntraUsers');

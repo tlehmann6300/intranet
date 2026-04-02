@@ -6,7 +6,23 @@
 
 require_once __DIR__ . '/../../src/Database.php';
 
-class EventDocumentation {
+use Illuminate\Database\Eloquent\Model;
+
+class EventDocumentation extends Model
+{
+    protected $connection = 'content';
+    protected $table = 'event_documentation';
+    protected static $unguarded = true;
+    protected $timestamps = false;
+
+    // ---------------------------------------------------------------------------
+    // Relationships
+    // ---------------------------------------------------------------------------
+
+    public function event()
+    {
+        return $this->belongsTo(Event::class, 'event_id');
+    }
     
     /**
      * Get documentation for an event
