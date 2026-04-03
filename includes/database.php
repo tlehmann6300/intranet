@@ -21,7 +21,7 @@ require_once __DIR__ . '/../config/config.php';
 
 // Lade Composer-Autoloader, falls noch nicht geschehen (für PSR-Log-Klassen)
 $_dbAutoload = __DIR__ . '/../vendor/autoload.php';
-if (file_exists($_dbAutoload) && !class_exists('Psr\\Log\\NullLogger', false)) {
+if (file_exists($_dbAutoload) && !class_exists('Psr\\Log\\NullLogger')) {
     require_once $_dbAutoload;
 }
 unset($_dbAutoload);

@@ -40,8 +40,11 @@ class FileLogger extends AbstractLogger
             $interpolated
         );
 
-        // error_log() mit Typ 3 schreibt in eine Datei, ohne HTML-Encoding
-        error_log($line, 3, $this->logFile);
+        $result = file_put_contents($this->logFile, $line, FILE_APPEND | LOCK_EX);
+        if ($result === false) {
+            // Fallback: PHP's system error log wenn die Datei nicht schreibbar ist
+            error_log(rtrim($line));
+        }
     }
 
     /**
