@@ -1802,74 +1802,79 @@ if (!isset($currentUser)) {
     }());
     </script>
 
-    <!-- Install-App Modal (A2HS, hidden until beforeinstallprompt fires) -->
-    <div id="pwa-install-modal" hidden role="dialog" aria-modal="true" aria-labelledby="pwa-modal-title"
-         style="position:fixed;inset:0;z-index:1075;display:flex;align-items:center;justify-content:center;
-                padding:1rem;background:rgba(0,0,0,0);transition:background 0.3s;">
-        <div style="background:#fff;border-radius:1rem;box-shadow:0 20px 60px rgba(0,0,0,0.3);
-                    width:100%;max-width:28rem;overflow:hidden;
-                    transform:scale(0.92) translateY(12px);transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1),opacity 0.3s;
-                    opacity:0;" class="pwa-modal-inner dark:bg-slate-800">
-            <!-- Header -->
-            <div style="background:linear-gradient(135deg,#0066b3,#0099e6);padding:1.5rem;">
-                <div style="display:flex;align-items:center;gap:1rem;">
-                    <div style="width:3rem;height:3rem;background:rgba(255,255,255,0.2);border-radius:0.75rem;
-                                display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                        <i class="fas fa-mobile-alt" style="color:#fff;font-size:1.375rem;" aria-hidden="true"></i>
-                    </div>
-                    <h3 id="pwa-modal-title" style="color:#fff;font-size:1.125rem;font-weight:700;margin:0;">
+    <!-- Install-App Toast (A2HS, hidden until beforeinstallprompt fires) -->
+    <div id="pwa-install-modal" hidden role="dialog" aria-modal="false"
+         aria-labelledby="pwa-toast-title" aria-describedby="pwa-toast-desc">
+        <div class="pwa-toast-inner dark:bg-slate-800">
+            <!-- Icon + text -->
+            <div style="display:flex;align-items:center;gap:0.875rem;flex:1;min-width:0;">
+                <div style="width:2.5rem;height:2.5rem;background:linear-gradient(135deg,#0066b3,#0099e6);
+                            border-radius:0.625rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="fas fa-mobile-alt" style="color:#fff;font-size:1.125rem;" aria-hidden="true"></i>
+                </div>
+                <div style="min-width:0;">
+                    <p id="pwa-toast-title" style="font-weight:700;font-size:0.9375rem;margin:0 0 0.125rem;
+                                                   color:#1e293b;" class="dark:text-slate-100">
                         App installieren
-                    </h3>
+                    </p>
+                    <p id="pwa-toast-desc" style="font-size:0.8125rem;margin:0;color:#64748b;" class="dark:text-slate-400">
+                        Schneller Zugriff &middot; Offline-Nutzung
+                    </p>
                 </div>
             </div>
-            <!-- Body -->
-            <div style="padding:1.5rem;">
-                <p style="font-weight:600;font-size:1rem;margin:0 0 0.5rem;" class="text-slate-800 dark:text-slate-100">
-                    IBC Intranet als App nutzen
-                </p>
-                <p style="font-size:0.9375rem;margin:0 0 1.25rem;" class="text-slate-600 dark:text-slate-300">
-                    Installiere das Intranet auf deinem Gerät für schnelleren Zugriff, Offline-Unterstützung und ein natives App-Erlebnis.
-                </p>
-                <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:0.625rem;padding:0.875rem;"
-                     class="dark:bg-blue-900/30 dark:border-blue-700">
-                    <div style="display:flex;gap:0.625rem;align-items:flex-start;">
-                        <i class="fas fa-check-circle" style="color:#2563eb;margin-top:2px;flex-shrink:0;" aria-hidden="true"></i>
-                        <p style="font-size:0.875rem;margin:0;" class="text-slate-700 dark:text-slate-200">
-                            Kein App-Store nötig &nbsp;·&nbsp; Immer aktuell &nbsp;·&nbsp; Offline verfügbar
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <!-- Footer -->
-            <div style="display:flex;gap:0.75rem;padding:1rem 1.5rem 1.5rem;flex-wrap:wrap;"
-                 class="bg-gray-50 dark:bg-slate-700">
+            <!-- Action buttons -->
+            <div style="display:flex;align-items:center;gap:0.5rem;flex-shrink:0;">
                 <button onclick="__pwaInstall()" type="button"
-                        style="flex:1;padding:0.75rem 1.25rem;background:linear-gradient(135deg,#0066b3,#0099e6);
-                               color:#fff;border:none;border-radius:0.5rem;font-weight:600;font-size:0.9375rem;
-                               cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;
-                               transition:opacity 0.15s;min-height:44px;"
-                        onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
-                    <i class="fas fa-download" aria-hidden="true"></i>
-                    Installieren
-                </button>
-                <button onclick="__pwaDismiss()" type="button"
-                        style="flex:1;padding:0.75rem 1.25rem;background:#e2e8f0;color:#475569;
-                               border:none;border-radius:0.5rem;font-weight:600;font-size:0.9375rem;
-                               cursor:pointer;transition:background 0.15s;min-height:44px;"
-                        class="dark:bg-slate-600 dark:text-slate-200"
+                        style="padding:0.5rem 1rem;background:linear-gradient(135deg,#0066b3,#0099e6);
+                               color:#fff;border:none;border-radius:0.5rem;font-weight:600;font-size:0.875rem;
+                               cursor:pointer;white-space:nowrap;transition:opacity 0.15s;min-height:40px;"
                         onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
-                    Später
+                    <i class="fas fa-download" style="margin-right:0.375rem;" aria-hidden="true"></i>Installieren
+                </button>
+                <button onclick="__pwaDismiss()" type="button" aria-label="Schließen"
+                        style="width:2rem;height:2rem;background:transparent;border:none;border-radius:0.375rem;
+                               cursor:pointer;display:flex;align-items:center;justify-content:center;
+                               color:#94a3b8;font-size:1rem;transition:color 0.15s;flex-shrink:0;"
+                        onmouseover="this.style.color='#475569'" onmouseout="this.style.color='#94a3b8'">
+                    <i class="fas fa-times" aria-hidden="true"></i>
                 </button>
             </div>
         </div>
     </div>
     <style>
-        #pwa-install-modal.pwa-modal--visible {
-            background: rgba(0,0,0,0.5);
+        #pwa-install-modal {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 1075;
+            max-width: 26rem;
+            width: calc(100vw - 2rem);
         }
-        #pwa-install-modal.pwa-modal--visible .pwa-modal-inner {
-            transform: scale(1) translateY(0);
+        .pwa-toast-inner {
+            background: #fff;
+            border-radius: 0.875rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08);
+            padding: 0.875rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+            pointer-events: auto;
+            transform: translateY(1.5rem);
+            opacity: 0;
+            transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease;
+        }
+        #pwa-install-modal.pwa-modal--visible .pwa-toast-inner {
+            transform: translateY(0);
             opacity: 1;
+        }
+        @media (max-width: 480px) {
+            #pwa-install-modal {
+                bottom: 1rem;
+                right: 1rem;
+                left: 1rem;
+                width: auto;
+                max-width: none;
+            }
         }
     </style>
 
