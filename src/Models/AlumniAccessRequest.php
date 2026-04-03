@@ -4,18 +4,14 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 
 /**
  * AlumniAccessRequest Model
  * Manages alumni e-mail recovery requests
  */
 
-class AlumniAccessRequest extends Model
+class AlumniAccessRequest
 {
-    protected $connection = 'user';
-    protected $table = 'alumni_access_requests';
-    protected static $unguarded = true;
     protected $timestamps = false;
 
     // ---------------------------------------------------------------------------

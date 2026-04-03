@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Services\EasyVereinInventory;
 use App\Services\MicrosoftGraphService;
 use App\Services\EasyVereinSync;
@@ -16,11 +15,8 @@ use App\Services\EasyVereinSync;
  * source of truth for inventory data.
  */
 
-class Inventory extends Model
+class Inventory
 {
-    protected $connection = 'inventory';
-    protected $table = 'inventory_items';
-    protected static $unguarded = true;
     protected $timestamps = false;
 
     /**

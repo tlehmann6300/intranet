@@ -33,7 +33,7 @@ use Psr\Clock\ClockInterface;
  */
 class ClockFactory implements ClockInterface
 {
-    private readonly DateTimeZone|string|null $timezone;
+    private DateTimeZone|string|null $timezone;
 
     /**
      * Constructor.

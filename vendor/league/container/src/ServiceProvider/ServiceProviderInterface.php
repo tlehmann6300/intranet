@@ -10,10 +10,6 @@ interface ServiceProviderInterface extends ContainerAwareInterface
 {
     public function getIdentifier(): string;
     public function provides(string $id): bool;
-
-    /** @return list<string> */
-    public function getProvidedIds(): array;
-
     public function register(): void;
     public function setIdentifier(string $id): ServiceProviderInterface;
 }

@@ -4,26 +4,28 @@ declare(strict_types=1);
 
 namespace League\Container\Event;
 
-use Override;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
 
 class EventDispatcher implements EventDispatcherInterface, ListenerProviderInterface
 {
-    /** @var array<string, array<int, callable>> */
+    /**
+     * @var array<class-string, callable[]>
+     */
     protected array $listeners = [];
 
-    /** @var array<string, array<int, EventFilter>> */
+    /**
+     * @var array<string, EventFilter[]>
+     */
     protected array $filters = [];
 
-    #[Override]
     public function dispatch(object $event): object
     {
         if (!$event instanceof ContainerEvent) {
             return $event;
         }
 
-        $eventType = $event::class;
+        $eventType = get_class($event);
 
         foreach ($this->getListenersForEvent($event) as $listener) {
             if ($event->isPropagationStopped()) {
@@ -52,10 +54,9 @@ class EventDispatcher implements EventDispatcherInterface, ListenerProviderInter
     /**
      * @return iterable<callable>
      */
-    #[Override]
     public function getListenersForEvent(object $event): iterable
     {
-        $eventClass = $event::class;
+        $eventClass = get_class($event);
         return $this->listeners[$eventClass] ?? [];
     }
 
@@ -101,13 +102,11 @@ class EventDispatcher implements EventDispatcherInterface, ListenerProviderInter
         return !empty($this->listeners[$eventType]) || !empty($this->filters[$eventType]);
     }
 
-    /** @return array<string, array<int, callable>> */
     public function getListeners(): array
     {
         return $this->listeners;
     }
 
-    /** @return array<string, array<int, EventFilter>> */
     public function getFilters(): array
     {
         return $this->filters;

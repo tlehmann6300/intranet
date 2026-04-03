@@ -22,6 +22,8 @@ class Translator
 {
     /**
      * Translation strings.
+     *
+     * @var array
      */
     public static array $strings = [
         'year' => '1 year',

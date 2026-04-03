@@ -4,18 +4,14 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 
 /**
  * Link Model
  * Manages useful links stored in the database
  */
 
-class Link extends Model
+class Link
 {
-    protected $connection = 'content';
-    protected $table = 'links';
-    protected static $unguarded = true;
     protected $timestamps = false;
 
     /**

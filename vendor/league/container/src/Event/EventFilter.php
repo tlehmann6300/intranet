@@ -8,16 +8,9 @@ use Closure;
 
 class EventFilter
 {
-    /** @var array<int, string> */
     protected array $typeFilters = [];
-
-    /** @var array<int, string> */
     protected array $tagFilters = [];
-
-    /** @var array<int, string> */
     protected array $idFilters = [];
-
-    /** @var array<int, Closure> */
     protected array $customFilters = [];
 
     /**
@@ -25,23 +18,25 @@ class EventFilter
      */
     protected mixed $listener = null;
 
-    public function __construct(protected EventDispatcher $dispatcher, protected string $eventType) {}
+    public function __construct(protected EventDispatcher $dispatcher, protected string $eventType)
+    {
+    }
 
     public function forType(string ...$types): self
     {
-        array_push($this->typeFilters, ...$types);
+        $this->typeFilters = array_merge($this->typeFilters, $types);
         return $this;
     }
 
     public function forTag(string ...$tags): self
     {
-        array_push($this->tagFilters, ...$tags);
+        $this->tagFilters = array_merge($this->tagFilters, $tags);
         return $this;
     }
 
     public function forId(string ...$ids): self
     {
-        array_push($this->idFilters, ...$ids);
+        $this->idFilters = array_merge($this->idFilters, $ids);
         return $this;
     }
 
@@ -97,7 +92,7 @@ class EventFilter
 
     public function __invoke(ContainerEvent $event): void
     {
-        if ($this->matches($event) && $this->listener !== null) {
+        if ($this->matches($event)) {
             ($this->listener)($event);
         }
     }

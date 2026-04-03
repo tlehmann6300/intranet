@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Models\Invoice;
 use App\Models\JobBoard;
 use App\Models\BlogPost;
@@ -14,31 +13,15 @@ use App\Models\BlogPost;
  * Manages user data and operations
  */
 
-class User extends Model
+class User
 {
-    protected $connection = 'user';
-    protected $table = 'users';
-    protected static $unguarded = true;
     protected $timestamps = false;
 
     // ---------------------------------------------------------------------------
     // Relationships
     // ---------------------------------------------------------------------------
 
-    public function invoices()
-    {
-        return $this->hasMany(Invoice::class, 'user_id');
-    }
 
-    public function jobBoardListings()
-    {
-        return $this->hasMany(JobBoard::class, 'user_id');
-    }
-
-    public function blogPosts()
-    {
-        return $this->hasMany(BlogPost::class, 'author_id');
-    }
     
     /**
      * Email change token expiration time in hours

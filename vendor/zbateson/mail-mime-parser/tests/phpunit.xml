@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  bootstrap="./bootstrap.php"
+  colors="true"
+  xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
+>
+  <source>
+    <include>
+      <directory suffix=".php">../src/</directory>
+    </include>
+  </source>
+  <php>
+    <const name="TEST_DATA_DIR" value="_data"/>
+    <const name="TEST_OUTPUT_DIR" value="_output"/>
+    <const name="TEST_LOG_FILE" value="_output/debug.log"/>
+  </php>
+  <testsuites>
+    <testsuite name="default">
+      <directory suffix="Test.php">MailMimeParser</directory>
+    </testsuite>
+  </testsuites>
+</phpunit>

@@ -4,18 +4,14 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 
 /**
  * Newsletter Model
  * Manages the internal newsletter archive (.eml files)
  */
 
-class Newsletter extends Model
+class Newsletter
 {
-    protected $connection = 'news';
-    protected $table = 'newsletters';
-    protected static $unguarded = true;
     protected $timestamps = false;
 
     /** Allowed file extensions for newsletter uploads */

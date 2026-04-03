@@ -1,0 +1,57 @@
+<?php
+
+namespace ZBateson\MailMimeParser\Header\Consumer;
+
+use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
+
+/**
+ * Description of SubjectConsumerServiceTest
+ *
+ * @author Zaahid Bateson
+ */
+#[CoversClass(SubjectConsumerService::class)]
+#[CoversClass(AbstractConsumerService::class)]
+#[Group('Consumers')]
+#[Group('SubjectConsumerService')]
+class SubjectConsumerServiceTest extends TestCase
+{
+    // @phpstan-ignore-next-line
+    private $subjectConsumer;
+
+    private $logger;
+
+    protected function setUp() : void
+    {
+        $this->logger = \mmpGetTestLogger();
+        $charsetConverter = $this->getMockBuilder(\ZBateson\MbWrapper\MbWrapper::class)
+            ->onlyMethods([])
+            ->getMock();
+        $mlpf = $this->getMockBuilder(\ZBateson\MailMimeParser\Header\Part\MimeTokenPartFactory::class)
+            ->setConstructorArgs([$this->logger, $charsetConverter])
+            ->onlyMethods([])
+            ->getMock();
+        $this->subjectConsumer = new SubjectConsumerService($this->logger, $mlpf);
+    }
+
+    public function testConsumeTokens() : void
+    {
+        $value = "Je\ \t suis\nici";
+
+        $ret = $this->subjectConsumer->__invoke($value);
+        $this->assertNotEmpty($ret);
+        $this->assertCount(1, $ret);
+        $this->assertEquals("Je\ \t suis ici", $ret[0]->getValue());
+    }
+
+    public function testFilterSpacesBetweenMimeParts() : void
+    {
+        $value = "=?US-ASCII?Q?Je?=    =?US-ASCII?Q?suis?=\n=?US-ASCII?Q?ici?=";
+
+        $ret = $this->subjectConsumer->__invoke($value);
+        $this->assertNotEmpty($ret);
+        $this->assertCount(1, $ret);
+        $this->assertEquals('Jesuisici', $ret[0]->getValue());
+    }
+}

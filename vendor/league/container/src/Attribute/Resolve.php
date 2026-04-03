@@ -8,7 +8,6 @@ use Attribute;
 use League\Container\ContainerAwareInterface;
 use League\Container\ContainerAwareTrait;
 use League\Container\Exception\NotFoundException;
-use Override;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
@@ -17,13 +16,14 @@ class Resolve implements AttributeInterface, ContainerAwareInterface
 {
     use ContainerAwareTrait;
 
-    public function __construct(protected string $resolver, protected string $path) {}
+    public function __construct(protected string $resolver, protected string $path)
+    {
+    }
 
     /**
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    #[Override]
     public function resolve(): mixed
     {
         $resolved = $this->getContainer()->get($this->resolver);
@@ -53,8 +53,8 @@ class Resolve implements AttributeInterface, ContainerAwareInterface
             sprintf(
                 'Unable to resolve value for path (%s) on resolver (%s)',
                 $this->path,
-                $this->resolver,
-            ),
+                $this->resolver
+            )
         );
     }
 }

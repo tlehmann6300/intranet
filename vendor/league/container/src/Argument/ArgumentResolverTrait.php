@@ -8,7 +8,6 @@ use League\Container\DefinitionContainerInterface;
 use League\Container\Exception\ContainerException;
 use League\Container\Exception\NotFoundException;
 use League\Container\ReflectionContainer;
-use Override;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -17,13 +16,10 @@ use ReflectionException;
 trait ArgumentResolverTrait
 {
     /**
-     * @param array<int, mixed> $arguments
-     * @return array<int, mixed>
      * @throws ContainerExceptionInterface
      * @throws ReflectionException
      * @throws NotFoundExceptionInterface
      */
-    #[Override]
     public function resolveArguments(array $arguments): array
     {
         try {
@@ -46,7 +42,7 @@ trait ArgumentResolverTrait
             }
 
             if (!is_string($argValue)) {
-                continue;
+                 continue;
             }
 
             // resolve the argument from the container, if it happens to be another

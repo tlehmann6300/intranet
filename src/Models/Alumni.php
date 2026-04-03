@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 
 /**
@@ -12,20 +11,12 @@ use App\Models\User;
  * Manages alumni profile data and operations
  */
 
-class Alumni extends Model
+class Alumni
 {
-    protected $connection = 'user';
-    protected $table = 'alumni_profiles';
-    protected static $unguarded = true;
 
     // ---------------------------------------------------------------------------
     // Relationships
     // ---------------------------------------------------------------------------
-
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'user_id');
-    }
 
     /**
      * Alumni roles (excludes active member roles)

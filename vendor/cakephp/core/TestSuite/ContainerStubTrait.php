@@ -19,8 +19,6 @@ use Cake\Core\Configure;
 use Cake\Core\ConsoleApplicationInterface;
 use Cake\Core\ContainerInterface;
 use Cake\Core\HttpApplicationInterface;
-use Cake\Core\PluginApplicationInterface;
-use Cake\Event\EventDispatcherInterface;
 use Cake\Event\EventInterface;
 use Cake\Routing\Router;
 use Closure;
@@ -41,7 +39,8 @@ trait ContainerStubTrait
     /**
      * The customized application class name.
      *
-     * @var class-string<\Cake\Core\HttpApplicationInterface>|class-string<\Cake\Core\ConsoleApplicationInterface>|null
+     * @phpstan-var class-string<\Cake\Core\HttpApplicationInterface>|class-string<\Cake\Core\ConsoleApplicationInterface>|null
+     * @var string|null
      */
     protected ?string $_appClass = null;
 
@@ -62,9 +61,10 @@ trait ContainerStubTrait
     /**
      * Configure the application class to use in integration tests.
      *
-     * @param class-string<\Cake\Core\HttpApplicationInterface>|class-string<\Cake\Core\ConsoleApplicationInterface> $class The application class name.
+     * @param string $class The application class name.
      * @param array|null $constructorArgs The constructor arguments for your application class.
      * @return void
+     * @phpstan-param class-string<\Cake\Core\HttpApplicationInterface>|class-string<\Cake\Core\ConsoleApplicationInterface> $class
      */
     public function configApplication(string $class, ?array $constructorArgs): void
     {
@@ -88,7 +88,7 @@ trait ContainerStubTrait
         if ($this->_appClass) {
             $appClass = $this->_appClass;
         } else {
-            /** @var class-string<\Cake\Core\HttpApplicationInterface>|class-string<\Cake\Core\ConsoleApplicationInterface> $appClass */
+            /** @var class-string<\Cake\Http\BaseApplication> $appClass */
             $appClass = Configure::read('App.namespace') . '\Application';
         }
         if (!class_exists($appClass)) {
@@ -97,17 +97,15 @@ trait ContainerStubTrait
         $appArgs = $this->_appArgs ?: [CONFIG];
 
         $app = new $appClass(...$appArgs);
-        if ($this->containerServices && $app instanceof EventDispatcherInterface) {
+        if ($this->containerServices && method_exists($app, 'getEventManager')) {
             $app->getEventManager()->on('Application.buildContainer', [$this, 'modifyContainer']);
         }
 
-        if ($app instanceof PluginApplicationInterface) {
-            foreach ($this->appPluginsToLoad as $pluginName => $config) {
-                if (is_array($config)) {
-                    $app->addPlugin($pluginName, $config);
-                } else {
-                    $app->addPlugin($config);
-                }
+        foreach ($this->appPluginsToLoad as $pluginName => $config) {
+            if (is_array($config)) {
+                $app->addPlugin($pluginName, $config);
+            } else {
+                $app->addPlugin($config);
             }
         }
 
