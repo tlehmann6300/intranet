@@ -1528,13 +1528,172 @@ if (!isset($currentUser)) {
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
     <script src="<?php echo asset('js/navbar-scroll.js'); ?>" defer></script>
+    <!-- PWA: Service Worker registration & Install-App toast -->
     <script>
+    (function () {
+        // ── Service Worker ──────────────────────────────────────────────────
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('<?php echo asset('sw.js'); ?>');
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('<?php echo asset('sw.js'); ?>', { scope: '/' })
+                    .catch(function (err) { console.error('[SW] Registration failed:', err); });
             });
         }
+
+        // ── Install-App Toast ───────────────────────────────────────────────
+        var deferredPrompt = null;
+        var DISMISS_KEY    = 'pwa_install_dismissed';
+
+        // Don't show if already dismissed or running in standalone mode
+        if (
+            window.matchMedia('(display-mode: standalone)').matches ||
+            window.navigator.standalone === true ||
+            sessionStorage.getItem(DISMISS_KEY)
+        ) {
+            return;
+        }
+
+        window.addEventListener('beforeinstallprompt', function (e) {
+            e.preventDefault();
+            deferredPrompt = e;
+            showInstallToast();
+        });
+
+        function showInstallToast() {
+            var toast = document.getElementById('pwa-install-toast');
+            if (!toast) return;
+            toast.removeAttribute('hidden');
+            // Animate in
+            requestAnimationFrame(function () {
+                toast.classList.add('pwa-toast--visible');
+            });
+        }
+
+        function hideInstallToast() {
+            var toast = document.getElementById('pwa-install-toast');
+            if (!toast) return;
+            toast.classList.remove('pwa-toast--visible');
+            toast.addEventListener('transitionend', function () {
+                toast.setAttribute('hidden', '');
+            }, { once: true });
+        }
+
+        window.__pwaInstall = function () {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(function () {
+                deferredPrompt = null;
+                hideInstallToast();
+            });
+        };
+
+        window.__pwaDismiss = function () {
+            sessionStorage.setItem(DISMISS_KEY, '1');
+            hideInstallToast();
+        };
+    }());
     </script>
+
+    <!-- Install-App Toast (hidden until beforeinstallprompt fires) -->
+    <style>
+        #pwa-install-toast {
+            position: fixed;
+            bottom: 1.25rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(120%);
+            z-index: 1080;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: var(--ibc-blue, #0066b3);
+            color: #fff;
+            padding: 0.75rem 1rem 0.75rem 1.25rem;
+            border-radius: 1rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+            min-width: 280px;
+            max-width: calc(100vw - 2.5rem);
+            font-size: 0.9375rem;
+            font-weight: 500;
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s;
+            opacity: 0;
+            pointer-events: none;
+        }
+        #pwa-install-toast.pwa-toast--visible {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #pwa-install-toast .pwa-toast-icon {
+            flex-shrink: 0;
+            width: 2.25rem;
+            height: 2.25rem;
+            background: rgba(255,255,255,0.15);
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #pwa-install-toast .pwa-toast-text {
+            flex: 1;
+            line-height: 1.3;
+        }
+        #pwa-install-toast .pwa-toast-text small {
+            display: block;
+            font-size: 0.8125rem;
+            opacity: 0.8;
+            font-weight: 400;
+        }
+        #pwa-install-toast .pwa-toast-btn-install {
+            flex-shrink: 0;
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+            border: 1.5px solid rgba(255,255,255,0.4);
+            border-radius: 0.5rem;
+            padding: 0.4rem 0.875rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s;
+            min-height: 36px;
+        }
+        #pwa-install-toast .pwa-toast-btn-install:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        #pwa-install-toast .pwa-toast-btn-dismiss {
+            flex-shrink: 0;
+            background: transparent;
+            border: none;
+            color: rgba(255,255,255,0.7);
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 0.375rem;
+            line-height: 1;
+            font-size: 1.125rem;
+            transition: color 0.15s;
+            min-height: 36px;
+            min-width: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #pwa-install-toast .pwa-toast-btn-dismiss:hover {
+            color: #fff;
+        }
+    </style>
+    <div id="pwa-install-toast" hidden role="status" aria-live="polite" aria-label="App installieren">
+        <div class="pwa-toast-icon" aria-hidden="true">
+            <i class="fas fa-download"></i>
+        </div>
+        <div class="pwa-toast-text">
+            App installieren
+            <small>Für schnelleren Zugriff</small>
+        </div>
+        <button class="pwa-toast-btn-install" onclick="__pwaInstall()" type="button">
+            Installieren
+        </button>
+        <button class="pwa-toast-btn-dismiss" onclick="__pwaDismiss()" type="button" aria-label="Schließen">
+            &times;
+        </button>
+    </div>
 
     <?php if (isset($_SESSION['show_2fa_nudge']) && $_SESSION['show_2fa_nudge']): ?>
     <div id="tfa-nudge-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1070] p-4" role="dialog" aria-modal="true" aria-labelledby="tfa-nudge-title">
