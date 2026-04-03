@@ -39,6 +39,9 @@
     # Redirect legacy login URL (bookmarks, emails, session-timeout links)
     RewriteRule ^pages/auth/login\.php$ /login [QSA,R=301,L]
 
+    # Redirect legacy OAuth callback URL
+    RewriteRule ^auth/callback\.php$ /auth/callback [QSA,R=301,L]
+
     # Block direct access to PHP scripts in internal directories.
     # All requests must go through the front-controller so that
     # authentication, CSRF protection and middleware are enforced uniformly.
