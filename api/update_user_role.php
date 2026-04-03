@@ -5,82 +5,82 @@
  * Required permissions: canManageUsers (board or higher)
  */
 
-require_once __DIR__ . '/../includes/handlers/AuthHandler.php';
-require_once __DIR__ . '/../includes/handlers/CSRFHandler.php';
-require_once __DIR__ . '/../includes/models/User.php';
-require_once __DIR__ . '/../includes/services/MicrosoftGraphService.php';
+require_once __DIR__ . '/../includes/handlers/ApiMiddleware.php';
 require_once __DIR__ . '/../src/Auth.php';
+require_once __DIR__ . '/../src/Database.php';
+require_once __DIR__ . '/../includes/services/MicrosoftGraphService.php';
 
-AuthHandler::startSession();
+// ── 1. Bootstrap: Content-Type + session + auth + method + CSRF ───────────
+$user = ApiMiddleware::requireAuth('POST');
 
-header('Content-Type: application/json');
-
-if (!AuthHandler::isAuthenticated() || !AuthHandler::canManageUsers()) {
-    echo json_encode(['success' => false, 'message' => 'Nicht autorisiert']);
-    exit;
+// ── 2. Permission check ───────────────────────────────────────────────────
+if (!Auth::canManageUsers()) {
+    ApiMiddleware::error(403, 'Keine Berechtigung');
 }
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['success' => false, 'message' => 'Ungültige Anfrage']);
-    exit;
-}
+// ── 3. Input validation ───────────────────────────────────────────────────
+$userId = filter_input(INPUT_POST, 'user_id', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+$newRole = trim(filter_input(INPUT_POST, 'new_role', FILTER_DEFAULT) ?? '');
 
-CSRFHandler::verifyToken($_POST['csrf_token'] ?? '');
-
-$userId  = intval($_POST['user_id'] ?? 0);
-$newRole = $_POST['new_role'] ?? '';
-
-if ($userId <= 0) {
-    echo json_encode(['success' => false, 'message' => 'Ungültige Benutzer-ID']);
-    exit;
+if ($userId === false || $userId === null) {
+    ApiMiddleware::error(400, 'Ungültige Benutzer-ID');
 }
 
 if (!in_array($newRole, Auth::VALID_ROLES, true)) {
-    echo json_encode(['success' => false, 'message' => 'Ungültige Rolle']);
-    exit;
+    ApiMiddleware::error(400, 'Ungültige Rolle');
 }
 
-if ($userId === intval($_SESSION['user_id'] ?? 0)) {
-    echo json_encode(['success' => false, 'message' => 'Du kannst Deine eigene Rolle nicht ändern']);
-    exit;
+if ($userId === (int) ($_SESSION['user_id'] ?? 0)) {
+    ApiMiddleware::error(403, 'Du kannst Deine eigene Rolle nicht ändern');
 }
 
-// Sync role change to Microsoft Entra ID if the user has an azure_oid.
+// ── 4. Entra ID sync (non-blocking) ──────────────────────────────────────
 $entraWarning = null;
 try {
     $db = Database::getUserDB();
-    $stmt = $db->prepare("SELECT azure_oid FROM users WHERE id = ?");
-    $stmt->execute([$userId]);
-    $row = $stmt->fetch();
+    $stmt = $db->prepare('SELECT azure_oid FROM users WHERE id = :id');
+    $stmt->execute([':id' => $userId]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row === false) {
+        ApiMiddleware::error(400, 'Benutzer nicht gefunden');
+    }
+
     $azureOid = $row['azure_oid'] ?? null;
 
-    if ($azureOid) {
+    if ($azureOid !== null && $azureOid !== '') {
         $graphService = new MicrosoftGraphService();
         $graphService->updateUserRole($azureOid, $newRole);
     } else {
-        // User has no azure_oid yet - local DB will be updated but Entra is not synced.
+        // User has no azure_oid yet – local DB will be updated but Entra is not synced.
         // The change will be overwritten by Entra on the user's next Microsoft login.
-        error_log('[update_user_role] User ' . $userId . ' has no azure_oid - role change is local only.');
+        error_log('[update_user_role] User ' . $userId . ' has no azure_oid – role change is local only.');
     }
 } catch (Exception $e) {
-    // Log the error but do not block the local role update -
+    // Log the error but do not block the local role update –
     // an admin should still be able to manage roles even if Entra is temporarily unavailable.
     error_log('[update_user_role] Entra sync failed for user ' . $userId . ': ' . $e->getMessage());
     $entraWarning = 'Entra-Synchronisierung fehlgeschlagen: ' . $e->getMessage();
 }
 
+// ── 5. Persist the role change (prepared statement) ───────────────────────
 try {
-    if (User::update($userId, ['role' => $newRole])) {
-        $response = ['success' => true, 'message' => 'Rolle erfolgreich geändert'];
-        if ($entraWarning !== null) {
-            $response['warning'] = $entraWarning;
-        }
-        echo json_encode($response);
-    } else {
-        echo json_encode(['success' => false, 'message' => 'Fehler beim Ändern der Rolle']);
+    $db = Database::getUserDB();
+    $stmt = $db->prepare('UPDATE users SET role = :role WHERE id = :id');
+    $stmt->execute([':role' => $newRole, ':id' => $userId]);
+
+    // rowCount() returns 0 when the role was already set to the requested value.
+    // This is a valid success: the user exists (confirmed in step 4) and the DB
+    // reflects the desired state, so no error is raised in that case.
+
+    $response = ['success' => true, 'message' => 'Rolle erfolgreich geändert'];
+    if ($entraWarning !== null) {
+        $response['warning'] = $entraWarning;
     }
+    http_response_code(200);
+    echo json_encode($response);
 } catch (Exception $e) {
-    error_log('[update_user_role] User update failed: ' . $e->getMessage());
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Server-Fehler']);
+    error_log('[update_user_role] DB update failed: ' . $e->getMessage());
+    ApiMiddleware::error(500, 'Server-Fehler');
 }
+
