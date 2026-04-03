@@ -775,41 +775,14 @@ class AuthHandler {
             // Don't throw - allow login to proceed even if profile sync fails
         }
         
-        // Check if profile is complete and 2FA status
+        // Check if profile is complete
         $userCheck = null;
         try {
-            $stmt = $db->prepare("SELECT profile_complete, tfa_enabled, tfa_secret, is_onboarded FROM users WHERE id = ?");
+            $stmt = $db->prepare("SELECT profile_complete, is_onboarded FROM users WHERE id = ?");
             $stmt->execute([$userId]);
             $userCheck = $stmt->fetch();
         } catch (PDOException $e) {
             error_log("[completeMicrosoftLogin] Failed to fetch user status for user {$userId}: " . $e->getMessage());
-            // Fall back to a minimal query without tfa columns in case they don't exist yet
-            try {
-                $stmt = $db->prepare("SELECT profile_complete, is_onboarded FROM users WHERE id = ?");
-                $stmt->execute([$userId]);
-                $userCheck = $stmt->fetch();
-            } catch (PDOException $e2) {
-                error_log("[completeMicrosoftLogin] Minimal fallback query also failed: " . $e2->getMessage());
-            }
-        }
-
-        // Check if 2FA is enabled AND the user has actually configured a secret - do this BEFORE setting authenticated session
-        if ($userCheck && intval($userCheck['tfa_enabled']) === 1 && !empty($userCheck['tfa_secret'])) {
-            // Store pending authentication state (without granting full access)
-            $_SESSION['pending_2fa_user_id'] = $userId;
-            $_SESSION['pending_2fa_email'] = $email;
-            $_SESSION['pending_2fa_role'] = $roleName;
-            $_SESSION['pending_2fa_profile_complete'] = $userCheck['profile_complete'] ?? 1;
-            $_SESSION['pending_2fa_is_onboarded'] = $userCheck['is_onboarded'] ?? 0;
-            $_SESSION['pending_2fa_show_role_notice'] = empty($azureRoles);
-            
-            // Log 2FA required
-            self::logSystemAction($userId, 'login_2fa_required', 'user', $userId, 'Microsoft login successful, 2FA verification required');
-            
-            // Redirect to 2FA verification page
-            $verify2faUrl = (defined('BASE_URL') && BASE_URL) ? BASE_URL . '/verify-2fa' : '/verify-2fa';
-            header('Location: ' . $verify2faUrl);
-            exit;
         }
 
         // Regenerate session ID to prevent session fixation attacks.
@@ -818,7 +791,7 @@ class AuthHandler {
         // a brand-new session ID is issued for the authenticated session.
         session_regenerate_id(true);
 
-        // Set session variables (only after confirming 2FA is not required)
+        // Set session variables
         $_SESSION['user_id'] = $userId;
         $_SESSION['user_email'] = $email;
         $_SESSION['user_role'] = $roleName;
@@ -831,11 +804,6 @@ class AuthHandler {
             $_SESSION['profile_incomplete'] = false;
         }
         $_SESSION['is_onboarded'] = (bool)($userCheck['is_onboarded'] ?? false);
-
-        // Show 2FA nudge popup if 2FA is not enabled
-        if ($userCheck && intval($userCheck['tfa_enabled'] ?? 0) !== 1) {
-            $_SESSION['show_2fa_nudge'] = true;
-        }
 
         // Show role notice popup when user had no Azure roles and was assigned the default 'mitglied' role
         if (empty($azureRoles)) {

@@ -11,255 +11,26 @@ class AuthController extends BaseController
         parent::__construct($twig);
     }
 
-    public function login(array $vars = []): void
+    // Leitet den User direkt zum Microsoft Login weiter – es gibt keine Anmeldemaske mehr
+    public function loginWithMicrosoft(array $vars = []): void
     {
         if (\Auth::check()) {
             $this->redirect(\BASE_URL . '/dashboard');
         }
 
-        $error   = isset($_GET['error']) ? urldecode($_GET['error']) : '';
-        $timeout = isset($_GET['timeout']) ? (int) $_GET['timeout'] : 0;
-        $logout  = isset($_GET['logout']) ? (int) $_GET['logout'] : 0;
-
-        $this->render('auth/login.twig', [
-            'error'   => $error,
-            'timeout' => $timeout,
-            'logout'  => $logout,
-        ]);
+        try {
+            \AuthHandler::initiateMicrosoftLogin();
+        } catch (\Exception $e) {
+            error_log('Microsoft login initiation error: ' . $e->getMessage());
+            $error = urlencode('Microsoft Login konnte nicht gestartet werden. Bitte kontaktieren Sie den Administrator.');
+            $this->redirect(\BASE_URL . '/?error=' . $error);
+        }
     }
 
     public function logout(array $vars = []): void
     {
         \Auth::logout();
-        $this->redirect(\BASE_URL . '/login?logout=1');
-    }
-
-    public function verify2fa(array $vars = []): void
-    {
-        if (!isset($_SESSION['pending_2fa_user_id'])) {
-            $this->redirect(\BASE_URL . '/login');
-        }
-
-        $error   = '';
-        $success = '';
-        $csrfToken = \CSRFHandler::getToken();
-
-        // Check if 2FA is temporarily locked
-        try {
-            $db   = \Database::getUserDB();
-            $stmt = $db->prepare("SELECT tfa_locked_until FROM users WHERE id = ?");
-            $stmt->execute([$_SESSION['pending_2fa_user_id']]);
-            $lockRow = $stmt->fetch();
-            if ($lockRow && !empty($lockRow['tfa_locked_until']) && strtotime($lockRow['tfa_locked_until']) > time()) {
-                $remainingMinutes = ceil((strtotime($lockRow['tfa_locked_until']) - time()) / 60);
-                unset(
-                    $_SESSION['pending_2fa_user_id'],
-                    $_SESSION['pending_2fa_email'],
-                    $_SESSION['pending_2fa_role'],
-                    $_SESSION['pending_2fa_profile_complete'],
-                    $_SESSION['pending_2fa_is_onboarded']
-                );
-                $this->redirect(\BASE_URL . '/login?error=' . urlencode("Konto gesperrt. Zu viele fehlgeschlagene 2FA-Versuche. Bitte warten Sie noch {$remainingMinutes} Minute(n)."));
-            }
-        } catch (\PDOException $e) {
-            error_log('DB error checking 2FA lockout: ' . $e->getMessage());
-        }
-
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify_2fa'])) {
-            $code = $_POST['code'] ?? '';
-
-            if (empty($code)) {
-                $error = 'Bitte geben Sie den 2FA-Code ein.';
-            } else {
-                $userId = $_SESSION['pending_2fa_user_id'];
-                $db     = \Database::getUserDB();
-                $stmt   = $db->prepare("SELECT tfa_secret FROM users WHERE id = ?");
-                $stmt->execute([$userId]);
-                $user = $stmt->fetch();
-
-                if (!$user) {
-                    $error = 'Benutzer nicht gefunden.';
-                } else {
-                    $tfaSecret = $user['tfa_secret'] ?? null;
-
-                    if (empty($tfaSecret)) {
-                        $error = '2FA ist nicht korrekt konfiguriert. Bitte kontaktieren Sie den Administrator.';
-                    } else {
-                        $tfaLocked = false;
-                        try {
-                            $stmt = $db->prepare("SELECT tfa_failed_attempts, tfa_locked_until FROM users WHERE id = ?");
-                            $stmt->execute([$userId]);
-                            $lockStatus = $stmt->fetch();
-                            if ($lockStatus && !empty($lockStatus['tfa_locked_until']) && strtotime($lockStatus['tfa_locked_until']) > time()) {
-                                $remainingMinutes = ceil((strtotime($lockStatus['tfa_locked_until']) - time()) / 60);
-                                $error     = "Zu viele fehlgeschlagene Versuche. Bitte warten Sie noch {$remainingMinutes} Minute(n).";
-                                $tfaLocked = true;
-                            }
-                        } catch (\PDOException $e) {
-                            error_log('DB error checking 2FA lockout: ' . $e->getMessage());
-                        }
-
-                        if (!$tfaLocked) {
-                            $ga = new \PHPGangsta_GoogleAuthenticator();
-
-                            if ($ga->verifyCode($tfaSecret, $code, 2)) {
-                                try {
-                                    $stmt = $db->prepare("UPDATE users SET tfa_failed_attempts = 0, tfa_locked_until = NULL WHERE id = ?");
-                                    $stmt->execute([$userId]);
-                                } catch (\PDOException $e) {
-                                    error_log('DB error resetting 2FA counters: ' . $e->getMessage());
-                                }
-
-                                session_regenerate_id(true);
-
-                                $_SESSION['user_id']       = $_SESSION['pending_2fa_user_id'];
-                                $_SESSION['user_email']    = $_SESSION['pending_2fa_email'];
-                                $_SESSION['user_role']     = $_SESSION['pending_2fa_role'];
-                                $_SESSION['authenticated'] = true;
-                                $_SESSION['last_activity'] = time();
-                                $_SESSION['profile_incomplete'] = (intval($_SESSION['pending_2fa_profile_complete'] ?? 1) === 0);
-                                $_SESSION['is_onboarded']  = (bool)($_SESSION['pending_2fa_is_onboarded'] ?? false);
-
-                                if (!empty($_SESSION['pending_2fa_show_role_notice'])) {
-                                    $_SESSION['show_role_notice'] = true;
-                                }
-
-                                unset(
-                                    $_SESSION['pending_2fa_user_id'],
-                                    $_SESSION['pending_2fa_email'],
-                                    $_SESSION['pending_2fa_role'],
-                                    $_SESSION['pending_2fa_profile_complete'],
-                                    $_SESSION['pending_2fa_is_onboarded'],
-                                    $_SESSION['pending_2fa_show_role_notice']
-                                );
-
-                                $stmt = $db->prepare("UPDATE users SET last_login = NOW() WHERE id = ?");
-                                $stmt->execute([$userId]);
-                                $sessionToken = bin2hex(random_bytes(32));
-                                $stmt = $db->prepare("UPDATE users SET current_session_id = ?, session_token = ? WHERE id = ?");
-                                $stmt->execute([session_id(), $sessionToken, $userId]);
-                                $_SESSION['session_token'] = $sessionToken;
-
-                                \AuthHandler::logSystemAction($userId, 'login_2fa_success', 'user', $userId, '2FA verification successful');
-
-                                $this->redirect(\BASE_URL . '/dashboard');
-                            } else {
-                                try {
-                                    $stmt = $db->prepare("SELECT tfa_failed_attempts FROM users WHERE id = ?");
-                                    $stmt->execute([$userId]);
-                                    $r           = $stmt->fetch();
-                                    $newAttempts = ($r['tfa_failed_attempts'] ?? 0) + 1;
-
-                                    if ($newAttempts >= 5) {
-                                        $lockedUntil = date('Y-m-d H:i:s', time() + 900);
-                                        $stmt = $db->prepare("UPDATE users SET tfa_failed_attempts = ?, tfa_locked_until = ? WHERE id = ?");
-                                        $stmt->execute([$newAttempts, $lockedUntil, $userId]);
-                                        \AuthHandler::logSystemAction($userId, 'login_2fa_locked', 'user', $userId, '2FA account locked after ' . $newAttempts . ' failed attempts');
-                                        unset(
-                                            $_SESSION['pending_2fa_user_id'],
-                                            $_SESSION['pending_2fa_email'],
-                                            $_SESSION['pending_2fa_role'],
-                                            $_SESSION['pending_2fa_profile_complete'],
-                                            $_SESSION['pending_2fa_is_onboarded']
-                                        );
-                                        $this->redirect(\BASE_URL . '/login?error=' . urlencode('Konto gesperrt. Zu viele fehlgeschlagene 2FA-Versuche. Bitte warten Sie 15 Minuten.'));
-                                    } else {
-                                        $stmt = $db->prepare("UPDATE users SET tfa_failed_attempts = ? WHERE id = ?");
-                                        $stmt->execute([$newAttempts, $userId]);
-                                    }
-                                } catch (\PDOException $e) {
-                                    error_log('DB error tracking 2FA failed attempt: ' . $e->getMessage());
-                                    $newAttempts = 1;
-                                }
-
-                                $remainingAttempts = max(0, 5 - ($newAttempts ?? 1));
-                                $error = $remainingAttempts > 0
-                                    ? "Ungültiger 2FA-Code. Noch {$remainingAttempts} Versuch(e) verbleibend."
-                                    : 'Ungültiger 2FA-Code. Bitte versuchen Sie es erneut.';
-
-                                \AuthHandler::logSystemAction($userId, 'login_2fa_failed', 'user', $userId, 'Invalid 2FA code entered');
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        $this->render('auth/verify_2fa.twig', [
-            'error'     => $error,
-            'success'   => $success,
-            'csrfToken' => $csrfToken,
-        ]);
-    }
-
-    public function onboarding(array $vars = []): void
-    {
-        if (!\Auth::check()) {
-            $this->redirect(\BASE_URL . '/login');
-        }
-
-        if (!empty($_SESSION['is_onboarded'])) {
-            $this->redirect(\BASE_URL . '/dashboard');
-        }
-
-        $user      = \Auth::user();
-        $csrfToken = \CSRFHandler::getToken();
-        $step      = $_GET['step'] ?? '1';
-        $message   = '';
-        $error     = '';
-        $showQRCode = false;
-        $qrCodeUrl  = '';
-        $secret     = '';
-
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $postAction = $_POST['action'] ?? '';
-            \CSRFHandler::verifyToken($_POST['csrf_token'] ?? '');
-
-            if ($postAction === 'start_2fa') {
-                $ga        = new \PHPGangsta_GoogleAuthenticator();
-                $secret    = $ga->createSecret();
-                $qrCodeUrl = $ga->getQRCodeUrl($user['email'], $secret, 'IBC Intranet');
-                $showQRCode = true;
-                $step      = '1b';
-            } elseif ($postAction === 'confirm_2fa') {
-                $secret = $_POST['secret'] ?? '';
-                $code   = trim($_POST['code'] ?? '');
-                $ga     = new \PHPGangsta_GoogleAuthenticator();
-
-                if ($ga->verifyCode($secret, $code, 2)) {
-                    if (\User::enable2FA($user['id'], $secret)) {
-                        $this->redirect(\BASE_URL . '/onboarding?step=2&tfa_done=1');
-                    } else {
-                        $error      = 'Fehler beim Aktivieren von 2FA. Bitte versuche es erneut.';
-                        $showQRCode = true;
-                        $ga         = new \PHPGangsta_GoogleAuthenticator();
-                        $qrCodeUrl  = $ga->getQRCodeUrl($user['email'], $secret, 'IBC Intranet');
-                    }
-                } else {
-                    $error      = 'Ungültiger Code. Bitte versuche es erneut.';
-                    $showQRCode = true;
-                    $ga         = new \PHPGangsta_GoogleAuthenticator();
-                    $qrCodeUrl  = $ga->getQRCodeUrl($user['email'], $secret, 'IBC Intranet');
-                }
-                $step = '1b';
-            }
-        }
-
-        if ($showQRCode) {
-            $step = '1b';
-        }
-
-        $this->render('auth/onboarding.twig', [
-            'user'       => $user,
-            'csrfToken'  => $csrfToken,
-            'step'       => $step,
-            'message'    => $message,
-            'error'      => $error,
-            'showQRCode' => $showQRCode,
-            'qrCodeUrl'  => $qrCodeUrl,
-            'secret'     => $secret,
-            'tfaDone'    => !empty($_GET['tfa_done']),
-        ]);
+        $this->redirect(\BASE_URL . '/');
     }
 
     public function profile(array $vars = []): void
@@ -583,39 +354,11 @@ class AuthController extends BaseController
             'csrfToken'  => \CSRFHandler::getToken(),
         ]);
     }
-
-    /**
-     * Initiates the Microsoft Entra ID OAuth login flow.
-     * Replaces auth/login_start.php.
-     */
-    public function loginStart(array $vars = []): void
-    {
-        // Rate-limit: max 20 OAuth initiations per IP per 10 minutes
-        $loginLimiter = new \RateLimiter('oauth_login', maxAttempts: 20, windowSeconds: 600);
-        if ($loginLimiter->tooManyAttempts()) {
-            $retryAfter = $loginLimiter->availableIn();
-            http_response_code(429);
-            header('Retry-After: ' . $retryAfter);
-            $error = urlencode('Zu viele Anmeldeversuche. Bitte warte ' . ceil($retryAfter / 60) . ' Minute(n) und versuche es erneut.');
-            $this->redirect(\BASE_URL . '/login?error=' . $error);
-        }
-        $loginLimiter->hit();
-
-        try {
-            \AuthHandler::initiateMicrosoftLogin();
-        } catch (\Exception $e) {
-            error_log('Microsoft login initiation error: ' . $e->getMessage());
-            error_log('Stack trace: ' . $e->getTraceAsString());
-            $error = urlencode('Microsoft Login konnte nicht gestartet werden. Bitte kontaktieren Sie den Administrator.');
-            $this->redirect(\BASE_URL . '/login?error=' . $error);
-        }
-    }
-
     /**
      * Handles the Microsoft Entra ID OAuth callback.
      * Replaces auth/callback.php.
      */
-    public function oauthCallback(array $vars = []): void
+    public function microsoftCallback(array $vars = []): void
     {
         $stateGet     = $_GET['state'] ?? null;
         $stateSession = $_SESSION['oauth2state'] ?? null;
@@ -776,7 +519,7 @@ class AuthController extends BaseController
             error_log('[OAuth Callback] Stack Trace: ' . $e->getTraceAsString());
 
             $error = urlencode('Authentifizierung fehlgeschlagen. Bitte versuchen Sie es erneut.');
-            $this->redirect(\BASE_URL . '/login?error=' . $error);
+            $this->redirect(\BASE_URL . '/?error=' . $error);
         }
     }
 }

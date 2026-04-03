@@ -25,14 +25,12 @@ $r->addRoute('GET', '/', static function () use ($redirect): void {
     $redirect(\Auth::check() ? \BASE_URL . '/dashboard' : \BASE_URL . '/login');
 });
 
-$r->addRoute(['GET', 'POST'], '/login',          ['App\Controllers\AuthController@login',        [new RateLimitMiddleware('login', 10, 600)]]);
-$r->addRoute(['GET', 'POST'], '/logout',         'App\Controllers\AuthController@logout');
-$r->addRoute(['GET', 'POST'], '/verify-2fa',     'App\Controllers\AuthController@verify2fa');
-$r->addRoute(['GET', 'POST'], '/onboarding',     'App\Controllers\AuthController@onboarding');
-
-// Microsoft OAuth flow (replaces auth/login_start.php and auth/callback.php)
-$r->addRoute('GET', '/auth/login-start', ['App\Controllers\AuthController@loginStart', [new RateLimitMiddleware('oauth_initiate', 20, 600)]]);
-$r->addRoute('GET', '/auth/callback',    'App\Controllers\AuthController@oauthCallback');
+// --- AUTHENTIFIZIERUNG (NUR MICROSOFT) ---
+// /login leitet direkt zu Microsoft weiter – es gibt keine Anmeldemaske mehr
+$r->addRoute('GET', '/login',                    ['App\Controllers\AuthController@loginWithMicrosoft', [new RateLimitMiddleware('oauth_initiate', 20, 600)]]);
+$r->addRoute('GET', '/auth/microsoft',           ['App\Controllers\AuthController@loginWithMicrosoft', [new RateLimitMiddleware('oauth_initiate', 20, 600)]]);
+$r->addRoute('GET', '/auth/microsoft/callback',  'App\Controllers\AuthController@microsoftCallback');
+$r->addRoute('GET', '/logout',                   'App\Controllers\AuthController@logout');
 
 $r->addRoute(['GET', 'POST'], '/alumni-recovery', 'App\Controllers\PublicController@alumniRecovery');
 $r->addRoute(['GET', 'POST'], '/neue-alumni',      'App\Controllers\PublicController@neueAlumni');
