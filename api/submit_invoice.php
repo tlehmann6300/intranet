@@ -68,7 +68,7 @@ try {
 
     $subject = "Neue Rechnung eingereicht von " . $uploaderName;
 
-    $mailBody = MailService::getTemplate(
+    $body = MailService::getTemplate(
         'Neue Rechnung eingereicht',
         '<p>Eine neue Rechnung wurde zur Genehmigung eingereicht.</p>' .
         '<p><strong>Eingereicht von:</strong> ' . htmlspecialchars($uploaderName) . '</p>' .
@@ -77,7 +77,7 @@ try {
         '<p>Bitte prüfen Sie die Rechnung im System.</p>'
     );
 
-    MailService::sendEmail(MAIL_FINANCE, $subject, $mailBody);
+    MailService::sendEmail(MAIL_FINANCE, $subject, $body);
 } catch (Exception $e) {
     error_log("Error sending invoice notification email: " . $e->getMessage());
 }

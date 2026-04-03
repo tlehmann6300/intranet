@@ -994,9 +994,9 @@ submissionForm.addEventListener('submit', (e) => {
         method: 'POST',
         body: new FormData(submissionForm)
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
+    .then(response => response.json().then(data => ({ ok: response.ok, data })))
+    .then(({ ok, data }) => {
+        if (ok && data.success) {
             window.location.reload();
         } else {
             submissionErrText.textContent = data.message || 'Unbekannter Fehler';
