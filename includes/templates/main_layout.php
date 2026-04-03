@@ -385,154 +385,15 @@ if (!isset($currentUser)) {
 
         /* ══════════════════════════════════════════════════════════
            ENTERPRISE-GRADE DESIGN ENHANCEMENTS
-           Glassmorphism · 300 ms Transitions · Glow States
-           Dark Mode · Enhanced Skeleton Loading
+           Glassmorphism sidebar/topbar/bottom-nav: see .glass-sidebar,
+           .glass-topbar, .glass-bottom-nav in tailwind.css.
+           Skeleton loading: see .skeleton, .skeleton-enterprise in tailwind.css.
            ══════════════════════════════════════════════════════════ */
-
-        /* ── GLASSMORPHISM SIDEBAR ────────────────────────────────
-           Semi-transparent gradient + backdrop-blur replaces the
-           old solid Corporate Blue for a premium frosted-glass look. */
-        #sidebar.sidebar {
-            background: linear-gradient(
-                168deg,
-                rgba(0, 57, 105, 0.93) 0%,
-                rgba(0, 42, 82, 0.96) 55%,
-                rgba(0, 30, 62, 0.99) 100%
-            ) !important;
-            backdrop-filter: blur(24px) saturate(1.8);
-            -webkit-backdrop-filter: blur(24px) saturate(1.8);
-            border-right: 1px solid rgba(255, 255, 255, 0.07) !important;
-            box-shadow:
-                4px 0 40px rgba(0, 0, 0, 0.28),
-                inset -1px 0 0 rgba(255, 255, 255, 0.04) !important;
-        }
-        body.dark-mode #sidebar.sidebar {
-            background: linear-gradient(
-                168deg,
-                rgba(10, 15, 36, 0.95) 0%,
-                rgba(7, 10, 26, 0.97) 55%,
-                rgba(5, 7, 18, 1) 100%
-            ) !important;
-            backdrop-filter: blur(24px) saturate(1.4);
-            -webkit-backdrop-filter: blur(24px) saturate(1.4);
-            border-right: 1px solid rgba(255, 255, 255, 0.04) !important;
-            box-shadow:
-                4px 0 40px rgba(0, 0, 0, 0.55),
-                inset -1px 0 0 rgba(255, 255, 255, 0.02) !important;
-        }
-
-        /* ── GLASSMORPHISM MOBILE TOPBAR ──────────────────────────
-           Frosted-glass header that feels native on iOS / Android. */
-        #mobile-header.mobile-topbar {
-            background: rgba(0, 55, 105, 0.82) !important;
-            backdrop-filter: blur(20px) saturate(1.8);
-            -webkit-backdrop-filter: blur(20px) saturate(1.8);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.09) !important;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18) !important;
-        }
-        body.dark-mode #mobile-header.mobile-topbar {
-            background: rgba(7, 10, 28, 0.88) !important;
-            backdrop-filter: blur(20px) saturate(1.5);
-            -webkit-backdrop-filter: blur(20px) saturate(1.5);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
-        }
 
         /* ── GLASSMORPHISM MOBILE SLIDE-DOWN MENU ─────────────── */
         #mobile-menu {
             backdrop-filter: blur(20px) saturate(1.6) !important;
             -webkit-backdrop-filter: blur(20px) saturate(1.6) !important;
-        }
-
-        /* ── ENTERPRISE NAV ITEM TRANSITIONS ─────────────────────
-           Upgrade from 0.18 s to the required 0.3 s ease-in-out. */
-        .sidebar nav .sidebar-nav-item,
-        .sidebar .sidebar-nav-item {
-            transition: all 0.3s ease-in-out !important;
-        }
-        .sidebar nav .sidebar-nav-item:hover,
-        .sidebar .sidebar-nav-item:hover {
-            transform: translate3d(5px, 0, 0) !important;
-            background: rgba(255, 255, 255, 0.14) !important;
-        }
-
-        /* ── ACTIVE NAV ITEM – ENTERPRISE GLOW ───────────────────
-           Active item gets a brighter left-border accent + soft
-           inset glow to signal the current page clearly. */
-        .sidebar nav .sidebar-nav-item--active,
-        .sidebar .sidebar-nav-item--active {
-            background: rgba(255, 255, 255, 0.22) !important;
-            border-left: 3px solid rgba(255, 255, 255, 0.92) !important;
-            box-shadow:
-                inset 3px 0 14px rgba(255, 255, 255, 0.06),
-                inset 0 0 20px rgba(255, 255, 255, 0.03) !important;
-        }
-        body.dark-mode .sidebar nav .sidebar-nav-item--active,
-        body.dark-mode .sidebar .sidebar-nav-item--active {
-            background: rgba(255, 255, 255, 0.14) !important;
-            border-left: 3px solid rgba(99, 179, 237, 0.85) !important;
-            box-shadow:
-                inset 3px 0 14px rgba(99, 179, 237, 0.08),
-                inset 0 0 20px rgba(99, 179, 237, 0.04) !important;
-        }
-
-        /* ── ENTERPRISE SECTION LABELS ────────────────────────── */
-        .sidebar-section-label {
-            font-size: 0.6rem !important;
-            letter-spacing: 0.12em !important;
-            color: rgba(255, 255, 255, 0.30) !important;
-            padding: 1rem 1.25rem 0.375rem !important;
-            border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
-        }
-
-        /* ── SIDEBAR FOOTER BUTTONS – 300 ms TRANSITIONS ─────── */
-        .sidebar-footer-btn {
-            transition: all 0.3s ease-in-out !important;
-        }
-        .sidebar-footer-btn:hover {
-            transform: translateX(4px) !important;
-        }
-
-        /* ── MOBILE BOTTOM NAV – 300 ms TRANSITIONS ──────────── */
-        .mobile-bottom-nav-item {
-            transition: all 0.3s ease-in-out !important;
-        }
-        .mobile-bottom-nav-item i {
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-        }
-
-        /* ── MOBILE MENU LINKS – 300 ms TRANSITIONS ──────────── */
-        .mobile-menu-link {
-            transition: all 0.3s ease-in-out !important;
-        }
-
-        /* ── ENTERPRISE SKELETON LOADING ─────────────────────────
-           Override the existing shimmer keyframe with a smoother,
-           wider gradient sweep (400 % width → gentler wave). */
-        @keyframes enterprise-shimmer {
-            0%   { background-position: -200% 0; }
-            100% { background-position:  200% 0; }
-        }
-
-        .skeleton,
-        .skeleton-enterprise {
-            background: linear-gradient(
-                90deg,
-                var(--ibc-gray-200) 25%,
-                var(--ibc-gray-100) 50%,
-                var(--ibc-gray-200) 75%
-            ) !important;
-            background-size: 400% 100% !important;
-            animation: enterprise-shimmer 1.8s ease-in-out infinite !important;
-        }
-        body.dark-mode .skeleton,
-        body.dark-mode .skeleton-enterprise {
-            background: linear-gradient(
-                90deg,
-                rgba(255, 255, 255, 0.05) 25%,
-                rgba(255, 255, 255, 0.11) 50%,
-                rgba(255, 255, 255, 0.05) 75%
-            ) !important;
-            background-size: 400% 100% !important;
         }
 
         /* ── ENTERPRISE DARK-MODE BODY/LAYOUT ────────────────── */
@@ -544,11 +405,9 @@ if (!isset($currentUser)) {
             background-color: transparent !important;
         }
 
-        /* ── LINK & BUTTON GLOBAL TRANSITION ─────────────────────
-           A broad base rule (300ms ease-in-out) applies to all links
-           and buttons. More-specific selectors (sidebar items, footer
-           buttons, etc.) above use !important and override this base
-           where a custom timing is needed. */
+        /* ── LINK & BUTTON GLOBAL TRANSITION (300 ms ease-in-out) ─
+           Applies to all links and buttons as a base; more-specific
+           selectors in theme.css override where custom timing is needed. */
         a, button {
             transition-duration: 300ms;
             transition-timing-function: ease-in-out;
@@ -601,7 +460,7 @@ if (!isset($currentUser)) {
     <div id="sidebar-overlay" class="sidebar-overlay"></div>
 
     <!-- Mobile Header Bar (visible on small screens only) -->
-    <header id="mobile-header" class="mobile-topbar md:hidden flex items-center px-3" aria-label="Mobile-Navigation">
+    <header id="mobile-header" class="mobile-topbar glass-topbar md:hidden flex items-center px-3" aria-label="Mobile-Navigation">
         <button id="mobile-menu-btn" class="mobile-topbar-btn block md:hidden shrink-0" aria-label="Menü öffnen" aria-expanded="false" aria-controls="mobile-menu">
             <svg class="w-5 h-5 text-white" id="menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path id="menu-icon-top" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16" class="transition-all duration-300"></path>
@@ -771,7 +630,7 @@ if (!isset($currentUser)) {
     </div>
 
     <!-- Sidebar -->
-    <aside id="sidebar" class="sidebar fixed left-0 top-0 h-screen w-64 md:w-72 transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-40 text-white shadow-2xl flex flex-col backdrop-blur-2xl" aria-label="Seitenleiste">
+    <aside id="sidebar" class="sidebar glass-sidebar fixed left-0 top-0 h-screen w-64 md:w-72 transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-40 text-white shadow-2xl flex flex-col backdrop-blur-2xl" aria-label="Seitenleiste">
         <?php 
         $currentUser = Auth::user();
         $userRole = $currentUser['role'] ?? '';
@@ -1301,7 +1160,7 @@ if (!isset($currentUser)) {
     </main>
 
     <!-- Mobile Bottom Navigation Bar (visible on small screens only) -->
-    <nav id="mobile-bottom-nav" class="mobile-bottom-nav md:hidden" role="navigation" aria-label="Schnellnavigation">
+    <nav id="mobile-bottom-nav" class="mobile-bottom-nav glass-bottom-nav md:hidden" role="navigation" aria-label="Schnellnavigation">
         <a href="<?php echo asset('pages/dashboard/index.php'); ?>"
            class="mobile-bottom-nav-item <?php echo is_nav_active('/dashboard/') ? 'active' : ''; ?>"
            aria-label="Dashboard"
