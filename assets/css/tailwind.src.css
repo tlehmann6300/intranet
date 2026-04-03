@@ -1,3 +1,90 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ══════════════════════════════════════════════════════════════
+   ENTERPRISE-GRADE COMPONENT LAYER
+   Glassmorphism · Skeleton Loading · Transitions · Cards
+   ══════════════════════════════════════════════════════════════ */
+
+@layer components {
+  /* ── GLASSMORPHISM PANELS ─────────────────────────────────── */
+  .glass-panel {
+    backdrop-filter: blur(20px) saturate(1.8);
+    -webkit-backdrop-filter: blur(20px) saturate(1.8);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .glass-panel-dark {
+    backdrop-filter: blur(20px) saturate(1.5);
+    -webkit-backdrop-filter: blur(20px) saturate(1.5);
+    background: rgba(0, 0, 0, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
+  /* ── ENTERPRISE CARD ──────────────────────────────────────── */
+  .card-enterprise {
+    @apply rounded-2xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700/50 shadow-sm;
+    @apply transition-all duration-300 ease-in-out;
+  }
+  .card-enterprise:hover {
+    @apply shadow-md -translate-y-0.5;
+  }
+
+  /* ── SKELETON LOADING – ENTERPRISE SHIMMER ───────────────── */
+  .skeleton-enterprise {
+    background: linear-gradient(
+      90deg,
+      #e5e7eb 25%,
+      #f3f4f6 50%,
+      #e5e7eb 75%
+    );
+    background-size: 400% 100%;
+    animation: skeleton-enterprise-shimmer 1.8s ease-in-out infinite;
+    border-radius: 0.5rem;
+  }
+
+  .dark .skeleton-enterprise,
+  .dark-mode .skeleton-enterprise {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.05) 25%,
+      rgba(255, 255, 255, 0.10) 50%,
+      rgba(255, 255, 255, 0.05) 75%
+    );
+    background-size: 400% 100%;
+  }
+
+  /* ── ENTERPRISE BUTTON ────────────────────────────────────── */
+  .btn-enterprise {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm;
+    @apply transition-all duration-300 ease-in-out;
+    @apply hover:scale-[1.02] active:scale-[0.98];
+  }
+}
+
+@layer utilities {
+  /* ── SIDEBAR GRADIENT ─────────────────────────────────────── */
+  .gradient-sidebar {
+    background: linear-gradient(168deg, #003d7a 0%, #002850 60%, #001e40 100%);
+  }
+
+  .gradient-sidebar-dark {
+    background: linear-gradient(168deg, #0a0f23 0%, #070a19 60%, #050814 100%);
+  }
+
+  /* ── GLOW EFFECTS ─────────────────────────────────────────── */
+  .glow-blue {
+    box-shadow: 0 0 20px rgba(0, 102, 179, 0.35);
+  }
+
+  .glow-green {
+    box-shadow: 0 0 20px rgba(0, 166, 81, 0.35);
+  }
+}
+
+@keyframes skeleton-enterprise-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}

@@ -42,6 +42,29 @@ module.exports = {
     // Sidebar mobile menu toggle classes added via JavaScript
     'translate-x-0',
     '-translate-x-full',
+    // Enterprise glassmorphism / skeleton / card utilities
+    'glass-panel',
+    'glass-panel-dark',
+    'card-enterprise',
+    'skeleton-enterprise',
+    'btn-enterprise',
+    'gradient-sidebar',
+    'gradient-sidebar-dark',
+    'glow-blue',
+    'glow-green',
+    // Transition utilities used on dynamic elements
+    'transition-all',
+    'duration-300',
+    'ease-in-out',
+    // Backdrop blur (used in glassmorphism CSS)
+    'backdrop-blur-sm',
+    'backdrop-blur-md',
+    'backdrop-blur-lg',
+    'backdrop-blur-xl',
+    'backdrop-blur-2xl',
+    // Dark-mode body/layout classes applied via JS
+    'dark:bg-gray-900',
+    'dark:text-white',
   ],
   plugins: [],
 };
