@@ -223,20 +223,9 @@ if (!isset($currentUser)) {
             }
         }
 
-        /* ── SIDEBAR CLOSING ANIMATION ───────────────────────────── */
+        /* ── SIDEBAR: ALWAYS VISIBLE, FIXED LEFT ────────────────── */
         .sidebar {
-            transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1), visibility 0s 0.3s;
-            visibility: hidden;
-        }
-        .sidebar.open {
             visibility: visible;
-            transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1), visibility 0s 0s;
-        }
-        @media (min-width: 768px) {
-            .sidebar {
-                visibility: visible;
-                transition: none;
-            }
         }
 
         /* ── SIDEBAR OVERLAY Z-INDEX ─────────────────────────────── */
@@ -433,10 +422,10 @@ if (!isset($currentUser)) {
         #top-header {
             position: fixed;
             top: 0;
-            left: 0;
+            left: 16rem; /* sidebar w-64 = 256px */
             right: 0;
             height: var(--topbar-height, 64px);
-            padding: 0 1rem;
+            padding: 0 1.5rem;
             display: flex;
             align-items: center;
             gap: 0.5rem;
@@ -447,12 +436,6 @@ if (!isset($currentUser)) {
             box-shadow: 0 1px 10px rgba(0, 0, 0, 0.06);
             z-index: var(--z-topbar, 1060);
             transition: background 0.3s ease, box-shadow 0.3s ease;
-        }
-        @media (min-width: 768px) {
-            #top-header {
-                left: 16rem; /* sidebar w-64 = 256px */
-                padding: 0 1.5rem;
-            }
         }
         body.dark-mode #top-header {
             background: rgba(15, 23, 42, 0.88);
@@ -871,9 +854,9 @@ if (!isset($currentUser)) {
          Uses backdrop-blur-md for the frosted glass effect
          ════════════════════════════════════════════════════════════ -->
     <header id="top-header" class="backdrop-blur-md" aria-label="Hauptnavigation oben">
-        <!-- Mobile hamburger (hidden on desktop) -->
+        <!-- Mobile hamburger hidden: sidebar is always fixed at left-0 -->
         <button id="mobile-menu-btn"
-                class="md:hidden"
+                class="hidden"
                 aria-label="Menü öffnen"
                 aria-expanded="false"
                 aria-controls="sidebar">
@@ -985,7 +968,7 @@ if (!isset($currentUser)) {
     </div>
 
     <!-- Sidebar (Business Consulting – dark, fixed left, Lucide icons) -->
-    <aside id="sidebar" class="sidebar glass-sidebar fixed left-0 top-0 h-screen w-64 transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-40 text-white shadow-2xl flex flex-col backdrop-blur-2xl" aria-label="Seitenleiste">
+    <aside id="sidebar" class="sidebar glass-sidebar fixed left-0 top-0 h-screen w-64 z-40 text-white shadow-2xl flex flex-col backdrop-blur-2xl" aria-label="Seitenleiste">
         <?php
         // $currentUser, $userRole already set by the early PHP block above
         ?>
@@ -1300,7 +1283,7 @@ if (!isset($currentUser)) {
 
 
     <!-- Main Content -->
-    <main id="main-content" role="main" class="md:ml-64 min-h-screen px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-gray-900 dark:text-white transition-all duration-300 ease-in-out" style="padding-bottom: max(1rem, env(safe-area-inset-bottom, 0))">
+    <main id="main-content" role="main" class="ml-64 min-h-screen px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-gray-900 dark:text-white transition-all duration-300 ease-in-out" style="padding-bottom: max(1rem, env(safe-area-inset-bottom, 0))">
         <!-- Page content; AJAX-loaded sections inside should use .skeleton-enterprise or .skeleton
              on placeholder elements until data arrives, then swap them out via JS. -->
         <div class="max-w-7xl mx-auto">
