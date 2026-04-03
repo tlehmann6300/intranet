@@ -7,8 +7,8 @@ namespace Composer\Autoload;
 class ComposerStaticInit767b59d6c51ddfb9d5ddf2cb1727bfa6
 {
     public static $files = array (
-        '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
+        '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         '606a39d89246991a373564698c2d8383' => __DIR__ . '/..' . '/symfony/polyfill-php85/bootstrap.php',
         '9d2b9fc6db0f153a0a149fefb182415e' => __DIR__ . '/..' . '/symfony/polyfill-php84/bootstrap.php',
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
@@ -129,6 +129,10 @@ class ComposerStaticInit767b59d6c51ddfb9d5ddf2cb1727bfa6
             'ZBateson\\MbWrapper\\' => 19,
             'ZBateson\\MailMimeParser\\' => 24,
         ),
+        'W' =>
+        array (
+            'Whoops\\' => 7,
+        ),
         'T' =>
         array (
             'Twig\\' => 5,
@@ -180,6 +184,7 @@ class ComposerStaticInit767b59d6c51ddfb9d5ddf2cb1727bfa6
         ),
         'M' =>
         array (
+            'Monolog\\' => 8,
             'Masterminds\\' => 12,
         ),
         'L' =>
@@ -250,6 +255,10 @@ class ComposerStaticInit767b59d6c51ddfb9d5ddf2cb1727bfa6
         'ZBateson\\MailMimeParser\\' =>
         array (
             0 => __DIR__ . '/..' . '/zbateson/mail-mime-parser/src',
+        ),
+        'Whoops\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/filp/whoops/src/Whoops',
         ),
         'Twig\\' =>
         array (
@@ -399,6 +408,10 @@ class ComposerStaticInit767b59d6c51ddfb9d5ddf2cb1727bfa6
         'PHPMailer\\PHPMailer\\' =>
         array (
             0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
+        ),
+        'Monolog\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/monolog/monolog/src/Monolog',
         ),
         'Masterminds\\' =>
         array (
