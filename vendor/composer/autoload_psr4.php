@@ -75,5 +75,5 @@ return array(
     'Cake\\Core\\' => array($vendorDir . '/cakephp/core'),
     'Cake\\Chronos\\' => array($vendorDir . '/cakephp/chronos/src'),
     'Brick\\Math\\' => array($vendorDir . '/brick/math/src'),
-    'App\\\\' => array($baseDir . '/src'),
+    'App\\' => array($baseDir . '/src'),
 );
