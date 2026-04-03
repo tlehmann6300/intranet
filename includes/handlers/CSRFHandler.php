@@ -118,6 +118,40 @@ class CSRFHandler {
     }
     
     /**
+     * Verify CSRF token and throw a RuntimeException on failure.
+     * Intended for use in API middleware / try-catch contexts where die() is
+     * not appropriate (e.g. JSON API endpoints).
+     *
+     * @param string $token The token to verify.
+     * @throws RuntimeException When the token is missing, expired, or invalid.
+     */
+    public static function verifyTokenOrThrow(string $token): void
+    {
+        init_session();
+        self::cleanExpiredTokens();
+
+        if (empty($token)) {
+            self::logCSRFFailure('Empty token');
+            throw new RuntimeException('Invalid token');
+        }
+
+        if (isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token)) {
+            return;
+        }
+
+        if (isset($_SESSION['csrf_tokens']) && is_array($_SESSION['csrf_tokens'])) {
+            foreach ($_SESSION['csrf_tokens'] as $validToken => $timestamp) {
+                if (hash_equals($validToken, $token)) {
+                    return;
+                }
+            }
+        }
+
+        self::logCSRFFailure('Token mismatch');
+        throw new RuntimeException('Invalid or expired token');
+    }
+
+    /**
      * Log CSRF validation failures for security monitoring
      * Sanitizes all inputs to prevent log injection attacks
      * 
