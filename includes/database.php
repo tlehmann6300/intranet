@@ -1,18 +1,57 @@
 <?php
 /**
  * Database Connection Handler
- * Manages connections to both User and Content databases
+ *
+ * Verwaltet Verbindungen zu allen Datenbanken des Projekts.
+ *
+ * Singleton-Prinzip: Pro Request wird für jede Datenbank exakt EINE
+ * PDO-Instanz erzeugt und danach wiederverwendet (lazy initialisation über
+ * statische Eigenschaften).  Keine öffentliche Instanziierung nötig – alle
+ * Methoden sind statisch.
+ *
+ * Fehler-Logging: Über eine injizierbare PSR-3-Logger-Instanz
+ * (Psr\Log\LoggerInterface).  Wird kein Logger gesetzt, greift der
+ * NullLogger, der Einträge still verwirft.  Für persistentes File-Logging
+ * kann ein FileLogger injiziert werden:
+ *
+ *   Database::setLogger(new FileLogger(__DIR__ . '/../logs/db.log'));
  */
 
 require_once __DIR__ . '/../config/config.php';
 
+// Lade Composer-Autoloader, falls noch nicht geschehen (für PSR-Log-Klassen)
+$_dbAutoload = __DIR__ . '/../vendor/autoload.php';
+if (file_exists($_dbAutoload) && !class_exists('Psr\\Log\\NullLogger')) {
+    require_once $_dbAutoload;
+}
+unset($_dbAutoload);
+
+// FileLogger für file-basiertes Logging laden
+require_once __DIR__ . '/../src/FileLogger.php';
+
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+
 class Database {
+    // -------------------------------------------------------------------------
+    // Singleton-Verbindungen (eine Instanz pro Datenbank pro Request)
+    // -------------------------------------------------------------------------
+    /** @var PDO|null */
     private static $userConnection = null;
+    /** @var PDO|null */
     private static $contentConnection = null;
+    /** @var PDO|null */
     private static $rechConnection = null;
+    /** @var PDO|null */
     private static $inventoryConnection = null;
+    /** @var PDO|null */
     private static $newsConnection = null;
+    /** @var PDO|null */
     private static $vcardConnection = null;
+
+    // -------------------------------------------------------------------------
+    // Schema-Migrations-Flags (je einmal pro Request ausführen)
+    // -------------------------------------------------------------------------
     /** @var bool Tracks whether content-DB schema migration has run this request */
     private static $contentMigrated = false;
     /** @var bool Tracks whether user-DB schema migration has run this request */
@@ -22,24 +61,77 @@ class Database {
     /** @var bool Tracks whether vCard-DB schema migration has run this request */
     private static $vcardMigrated = false;
 
+    // -------------------------------------------------------------------------
+    // PSR-3 Logger
+    // -------------------------------------------------------------------------
+    /** @var LoggerInterface|null Injizierter Logger; null = NullLogger-Fallback */
+    private static $logger = null;
+
+    /** Nicht instanziierbar – alle Methoden sind statisch. */
+    private function __construct() {}
+
+    /**
+     * Setzt den PSR-3-Logger, der für alle Datenbankfehler genutzt wird.
+     * Wird diese Methode nicht aufgerufen, werden Fehler still verworfen (NullLogger).
+     *
+     * Beispiel:
+     *   Database::setLogger(new FileLogger(__DIR__ . '/../logs/db.log'));
+     */
+    public static function setLogger(LoggerInterface $logger): void
+    {
+        self::$logger = $logger;
+    }
+
+    /**
+     * Gibt den aktiven Logger zurück.  Fällt auf NullLogger zurück, falls
+     * noch keiner gesetzt wurde.
+     */
+    private static function getLogger(): LoggerInterface
+    {
+        if (self::$logger === null) {
+            self::$logger = new NullLogger();
+        }
+        return self::$logger;
+    }
+
+    /**
+     * Standard-PDO-Optionen, die auf allen Verbindungen gesetzt werden.
+     *
+     * PDO::ATTR_EMULATE_PREPARES = false erzwingt serverseitige Prepared
+     * Statements – bessere Security (Typ-sicheres Binding) und Performance.
+     *
+     * @return array<int, mixed>
+     */
+    private static function defaultOptions(): array
+    {
+        return [
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES   => false,
+        ];
+    }
+
     /**
      * Get User Database Connection
+     *
+     * @return PDO Database connection instance (Singleton pro Request)
+     * @throws Exception If database connection fails
      */
-    public static function getUserDB() {
+    public static function getUserDB(): PDO
+    {
         if (self::$userConnection === null) {
             try {
                 self::$userConnection = new PDO(
                     "mysql:host=" . DB_USER_HOST . ";dbname=" . DB_USER_NAME . ";charset=utf8mb4",
                     DB_USER_USER,
                     DB_USER_PASS,
-                    [
-                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                        PDO::ATTR_EMULATE_PREPARES => false
-                    ]
+                    self::defaultOptions()
                 );
             } catch (PDOException $e) {
-                error_log("Verbindung fehlgeschlagen: " . $e->getCode());
+                self::getLogger()->error(
+                    'User-DB Verbindung fehlgeschlagen: [{code}] {message}',
+                    ['code' => $e->getCode(), 'message' => $e->getMessage()]
+                );
                 throw new Exception("Database connection failed");
             }
         }
@@ -52,22 +144,25 @@ class Database {
 
     /**
      * Get Content Database Connection
+     *
+     * @return PDO Database connection instance (Singleton pro Request)
+     * @throws Exception If database connection fails
      */
-    public static function getContentDB() {
+    public static function getContentDB(): PDO
+    {
         if (self::$contentConnection === null) {
             try {
                 self::$contentConnection = new PDO(
                     "mysql:host=" . DB_CONTENT_HOST . ";dbname=" . DB_CONTENT_NAME . ";charset=utf8mb4",
                     DB_CONTENT_USER,
                     DB_CONTENT_PASS,
-                    [
-                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                        PDO::ATTR_EMULATE_PREPARES => false
-                    ]
+                    self::defaultOptions()
                 );
             } catch (PDOException $e) {
-                error_log("Verbindung fehlgeschlagen: " . $e->getCode());
+                self::getLogger()->error(
+                    'Content-DB Verbindung fehlgeschlagen: [{code}] {message}',
+                    ['code' => $e->getCode(), 'message' => $e->getMessage()]
+                );
                 throw new Exception("Database connection failed");
             }
         }
@@ -100,10 +195,16 @@ class Database {
                 $stmt->execute([$column]);
                 if (!$stmt->fetch()) {
                     $db->exec($alterSql);
-                    error_log("User schema migration applied: added column '$column' to users");
+                    self::getLogger()->info(
+                        "User schema migration applied: added column '{column}' to users",
+                        ['column' => $column]
+                    );
                 }
             } catch (PDOException $e) {
-                error_log("User schema migration skipped for column '$column': " . $e->getMessage());
+                self::getLogger()->warning(
+                    "User schema migration skipped for column '{column}': {message}",
+                    ['column' => $column, 'message' => $e->getMessage()]
+                );
             }
         }
     }
@@ -131,14 +232,20 @@ class Database {
                 $stmt->execute([$column]);
                 if (!$stmt->fetch()) {
                     $db->exec($alterSql);
-                    error_log("Content schema migration applied: added column '$column' to alumni_profiles");
+                    self::getLogger()->info(
+                        "Content schema migration applied: added column '{column}' to alumni_profiles",
+                        ['column' => $column]
+                    );
                 }
             } catch (PDOException $e) {
                 // Table may not exist yet on a brand-new install, or the DB user may
                 // lack ALTER TABLE permission.  Log and continue – the existing
                 // query-level fallbacks in Alumni/Member models will still protect
                 // against hard failures.
-                error_log("Content schema migration skipped for column '$column': " . $e->getMessage());
+                self::getLogger()->warning(
+                    "Content schema migration skipped for column '{column}': {message}",
+                    ['column' => $column, 'message' => $e->getMessage()]
+                );
             }
         }
 
@@ -166,10 +273,13 @@ class Database {
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
                     COMMENT='Internes Newsletter-Archiv (.eml Dateien)'"
                 );
-                error_log("Content schema migration applied: created table 'newsletters'");
+                self::getLogger()->info("Content schema migration applied: created table 'newsletters'");
             }
         } catch (PDOException $e) {
-            error_log("Content schema migration skipped for table 'newsletters': " . $e->getMessage());
+            self::getLogger()->warning(
+                "Content schema migration skipped for table 'newsletters': {message}",
+                ['message' => $e->getMessage()]
+            );
         }
     }
 
@@ -201,10 +311,13 @@ class Database {
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
                     COMMENT='Internes Newsletter-Archiv (.eml Dateien)'"
                 );
-                error_log("News schema migration applied: created table 'newsletters'");
+                self::getLogger()->info("News schema migration applied: created table 'newsletters'");
             }
         } catch (PDOException $e) {
-            error_log("News schema migration skipped for table 'newsletters': " . $e->getMessage());
+            self::getLogger()->warning(
+                "News schema migration skipped for table 'newsletters': {message}",
+                ['message' => $e->getMessage()]
+            );
         }
     }
 
@@ -221,25 +334,25 @@ class Database {
 
     /**
      * Get Invoice/Rech Database Connection
-     * 
-     * @return PDO Database connection instance
+     *
+     * @return PDO Database connection instance (Singleton pro Request)
      * @throws Exception If database connection fails
      */
-    public static function getRechDB() {
+    public static function getRechDB(): PDO
+    {
         if (self::$rechConnection === null) {
             try {
                 self::$rechConnection = new PDO(
                     "mysql:host=" . DB_RECH_HOST . ";port=" . DB_RECH_PORT . ";dbname=" . DB_RECH_NAME . ";charset=utf8mb4",
                     DB_RECH_USER,
                     DB_RECH_PASS,
-                    [
-                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                        PDO::ATTR_EMULATE_PREPARES => false
-                    ]
+                    self::defaultOptions()
                 );
             } catch (PDOException $e) {
-                error_log("Verbindung fehlgeschlagen: " . $e->getCode());
+                self::getLogger()->error(
+                    'Rech-DB Verbindung fehlgeschlagen: [{code}] {message}',
+                    ['code' => $e->getCode(), 'message' => $e->getMessage()]
+                );
                 throw new Exception("Database connection failed");
             }
         }
@@ -249,24 +362,24 @@ class Database {
     /**
      * Get Inventory Database Connection
      *
-     * @return PDO Database connection instance
+     * @return PDO Database connection instance (Singleton pro Request)
      * @throws Exception If database connection fails
      */
-    public static function getInventoryDB() {
+    public static function getInventoryDB(): PDO
+    {
         if (self::$inventoryConnection === null) {
             try {
                 self::$inventoryConnection = new PDO(
                     "mysql:host=" . DB_INVENTORY_HOST . ";port=" . DB_INVENTORY_PORT . ";dbname=" . DB_INVENTORY_NAME . ";charset=utf8mb4",
                     DB_INVENTORY_USER,
                     DB_INVENTORY_PASS,
-                    [
-                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                        PDO::ATTR_EMULATE_PREPARES => false
-                    ]
+                    self::defaultOptions()
                 );
             } catch (PDOException $e) {
-                error_log("Verbindung fehlgeschlagen: " . $e->getCode());
+                self::getLogger()->error(
+                    'Inventory-DB Verbindung fehlgeschlagen: [{code}] {message}',
+                    ['code' => $e->getCode(), 'message' => $e->getMessage()]
+                );
                 throw new Exception("Database connection failed");
             }
         }
@@ -276,24 +389,24 @@ class Database {
     /**
      * Get News Database Connection
      *
-     * @return PDO Database connection instance
+     * @return PDO Database connection instance (Singleton pro Request)
      * @throws Exception If database connection fails
      */
-    public static function getNewsDB() {
+    public static function getNewsDB(): PDO
+    {
         if (self::$newsConnection === null) {
             try {
                 self::$newsConnection = new PDO(
                     "mysql:host=" . DB_NEWS_HOST . ";dbname=" . DB_NEWS_NAME . ";charset=utf8mb4",
                     DB_NEWS_USER,
                     DB_NEWS_PASS,
-                    [
-                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                        PDO::ATTR_EMULATE_PREPARES => false
-                    ]
+                    self::defaultOptions()
                 );
             } catch (PDOException $e) {
-                error_log("Verbindung fehlgeschlagen: " . $e->getCode());
+                self::getLogger()->error(
+                    'News-DB Verbindung fehlgeschlagen: [{code}] {message}',
+                    ['code' => $e->getCode(), 'message' => $e->getMessage()]
+                );
                 throw new Exception("Database connection failed");
             }
         }
@@ -362,34 +475,37 @@ class Database {
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
                     COMMENT='Kontaktkarten (vCards)'"
                 );
-                error_log("VCard schema migration applied: created table 'vcards_table'");
+                self::getLogger()->info("VCard schema migration applied: created table 'vcards_table'");
             }
         } catch (PDOException $e) {
-            error_log("VCard schema migration skipped for table 'vcards_table': " . $e->getMessage());
+            self::getLogger()->warning(
+                "VCard schema migration skipped for table 'vcards_table': {message}",
+                ['message' => $e->getMessage()]
+            );
         }
     }
 
     /**
      * Get vCard Database Connection (external)
      *
-     * @return PDO Database connection instance
+     * @return PDO Database connection instance (Singleton pro Request)
      * @throws Exception If database connection fails
      */
-    public static function getVCardDB() {
+    public static function getVCardDB(): PDO
+    {
         if (self::$vcardConnection === null) {
             try {
                 self::$vcardConnection = new PDO(
                     "mysql:host=" . DB_VCARD_HOST . ";dbname=" . DB_VCARD_NAME . ";charset=utf8mb4",
                     DB_VCARD_USER,
                     DB_VCARD_PASS,
-                    [
-                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                        PDO::ATTR_EMULATE_PREPARES => false
-                    ]
+                    self::defaultOptions()
                 );
             } catch (PDOException $e) {
-                error_log("Verbindung fehlgeschlagen: " . $e->getCode());
+                self::getLogger()->error(
+                    'VCard-DB Verbindung fehlgeschlagen: [{code}] {message}',
+                    ['code' => $e->getCode(), 'message' => $e->getMessage()]
+                );
                 throw new Exception("Database connection failed");
             }
         }
