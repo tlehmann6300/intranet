@@ -1,9 +1,19 @@
-// IBC Intranet – Service Worker
-// Caches static assets (CSS, JS, images) for offline availability.
+// IBC Intranet – Service Worker v3
+// Strategies:
+//   • Stale-while-revalidate  → static assets (CSS, JS, fonts, images)
+//   • Network-first           → pages/ routes and API calls
+//   • Offline fallback        → pages/errors/offline.html for navigation failures
 
-const CACHE_NAME = 'ibc-intranet-v2';
+const CACHE_VERSION = 'v3';
+const STATIC_CACHE  = `ibc-static-${CACHE_VERSION}`;
+const PAGE_CACHE    = `ibc-pages-${CACHE_VERSION}`;
+const ALL_CACHES    = [STATIC_CACHE, PAGE_CACHE];
 
-const STATIC_ASSETS = [
+const OFFLINE_URL = '/pages/errors/offline.html';
+
+// Assets to pre-cache on install (images + offline page)
+const PRECACHE_ASSETS = [
+    OFFLINE_URL,
     '/assets/img/cropped_maskottchen_32x32.webp',
     '/assets/img/cropped_maskottchen_180x180.webp',
     '/assets/img/cropped_maskottchen_192x192.webp',
@@ -13,21 +23,21 @@ const STATIC_ASSETS = [
     '/assets/img/default_profil.png',
 ];
 
-// Install: pre-cache static assets
+// ── Install: pre-cache essential assets ──────────────────────────────────────
 self.addEventListener('install', (event) => {
     event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
+        caches.open(STATIC_CACHE).then((cache) => cache.addAll(PRECACHE_ASSETS))
     );
     self.skipWaiting();
 });
 
-// Activate: remove outdated caches
+// ── Activate: remove outdated caches ─────────────────────────────────────────
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((keys) =>
             Promise.all(
                 keys
-                    .filter((key) => key !== CACHE_NAME)
+                    .filter((key) => !ALL_CACHES.includes(key))
                     .map((key) => caches.delete(key))
             )
         )
@@ -35,41 +45,79 @@ self.addEventListener('activate', (event) => {
     self.clients.claim();
 });
 
-// Fetch: cache-first for static assets, network-first for everything else
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function isStaticAsset(url) {
+    return (
+        url.pathname.startsWith('/assets/') ||
+        /\.(css|js|woff2?|ttf|eot|webp|png|jpg|jpeg|gif|svg|ico)$/i.test(url.pathname)
+    );
+}
+
+function isNavigationOrPage(request, url) {
+    return (
+        request.mode === 'navigate' ||
+        url.pathname.startsWith('/pages/') ||
+        url.pathname === '/' ||
+        url.pathname.endsWith('.php')
+    );
+}
+
+function isApiCall(url) {
+    return url.pathname.startsWith('/api/');
+}
+
+// ── Stale-while-revalidate for static assets ──────────────────────────────────
+function staleWhileRevalidate(request) {
+    return caches.open(STATIC_CACHE).then((cache) =>
+        cache.match(request).then((cached) => {
+            const networkFetch = fetch(request).then((response) => {
+                if (response && response.status === 200 && response.type !== 'opaque') {
+                    cache.put(request, response.clone());
+                }
+                return response;
+            });
+            // Return the cached version immediately; update in background
+            return cached || networkFetch;
+        })
+    );
+}
+
+// ── Network-first with page-cache fallback ────────────────────────────────────
+function networkFirst(request) {
+    return fetch(request)
+        .then((response) => {
+            if (response && response.status === 200 && request.mode === 'navigate') {
+                caches.open(PAGE_CACHE).then((cache) => cache.put(request, response.clone()));
+            }
+            return response;
+        })
+        .catch(() =>
+            caches.match(request).then(
+                (cached) => cached || caches.match(OFFLINE_URL)
+            )
+        );
+}
+
+// ── Fetch handler ─────────────────────────────────────────────────────────────
 self.addEventListener('fetch', (event) => {
     const { request } = event;
 
-    // Only handle GET requests
+    // Only handle same-origin GET requests
     if (request.method !== 'GET') return;
-
     const url = new URL(request.url);
+    if (url.origin !== self.location.origin) return;
 
-    // Cache-first strategy for static assets (CSS, JS, images, fonts)
-    const isStaticAsset =
-        url.pathname.startsWith('/assets/') ||
-        /\.(css|js|webp|png|jpg|jpeg|gif|svg|ico|woff2?|ttf|eot)$/i.test(url.pathname);
-
-    if (isStaticAsset) {
-        event.respondWith(
-            caches.match(request).then((cached) => {
-                if (cached) return cached;
-                return fetch(request).then((response) => {
-                    if (!response || response.status !== 200) {
-                        return response;
-                    }
-                    const clone = response.clone();
-                    caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-                    return response;
-                });
-            })
-        );
+    if (isStaticAsset(url)) {
+        event.respondWith(staleWhileRevalidate(request));
         return;
     }
 
-    // Network-first strategy for HTML pages
-    event.respondWith(
-        fetch(request).catch(() =>
-            caches.match(request).then((cached) => cached || Response.error())
-        )
-    );
+    if (isNavigationOrPage(request, url) || isApiCall(url)) {
+        event.respondWith(networkFirst(request));
+        return;
+    }
+
+    // Default: network-first for everything else
+    event.respondWith(networkFirst(request));
 });
