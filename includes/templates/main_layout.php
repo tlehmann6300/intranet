@@ -1528,6 +1528,7 @@ if (!isset($currentUser)) {
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
     <script src="<?php echo asset('js/navbar-scroll.js'); ?>" defer></script>
+    <script src="<?php echo asset('js/pjax-navigation.js'); ?>" defer></script>
     <!-- PWA: Service Worker registration & Install-App toast -->
     <script>
     (function () {
