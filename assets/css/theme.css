@@ -215,21 +215,12 @@ body {
     height: 100vh;
     height: 100dvh;
     height: -webkit-fill-available;
-    /* Critical layout fallbacks (mirrors Tailwind: fixed left-0 top-0 z-40 w-64 -translate-x-full transition-transform) */
+    /* Layout fallbacks: fixed left-0 top-0 z-40 w-64 */
     position: fixed;
     left: 0;
     top: 0;
     z-index: 40;
     width: 16rem;
-    transform: translate3d(-100%, 0, 0);
-    transition: transform 0.3s ease;
-}
-
-/* Sidebar visible on desktop (mirrors Tailwind: md:translate-x-0) */
-@media (min-width: 768px) {
-    .sidebar {
-        transform: translate3d(0, 0, 0);
-    }
 }
 
 /* Sidebar Text - Always White on Blue Background */
