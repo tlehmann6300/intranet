@@ -69,6 +69,16 @@ jobs:
             --exclude='uploads/' \
             --exclude='storage/twig_cache/' \
             --exclude='vendor/' \
+            --exclude='tests/' \
+            --exclude='phpunit.xml.dist' \
+            --exclude='phpstan.neon' \
+            --exclude='.php-cs-fixer.php' \
+            --exclude='.php-cs-fixer.cache' \
+            --exclude='crontab.example' \
+            --exclude='package.json' \
+            --exclude='package-lock.json' \
+            --exclude='tailwind.config.js' \
+            --exclude='vite.config.js' \
             -e "ssh -p ${{ secrets.DEPLOY_PORT || '22' }}" \
             ./ \
             "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ secrets.DEPLOY_PATH }}/"
