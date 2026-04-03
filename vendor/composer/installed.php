@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => '__root__',
-        'pretty_version' => 'dev-main',
-        'version' => 'dev-main',
-        'reference' => '94ccce35635880ef4a8ea963d43618a5611a7391',
+        'pretty_version' => 'dev-copilot/add-azure-group-check-login',
+        'version' => 'dev-copilot/add-azure-group-check-login',
+        'reference' => '11e575ae55b07f9ca282a3160d51da65a10e60f2',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -11,9 +11,9 @@
     ),
     'versions' => array(
         '__root__' => array(
-            'pretty_version' => 'dev-main',
-            'version' => 'dev-main',
-            'reference' => '94ccce35635880ef4a8ea963d43618a5611a7391',
+            'pretty_version' => 'dev-copilot/add-azure-group-check-login',
+            'version' => 'dev-copilot/add-azure-group-check-login',
+            'reference' => '11e575ae55b07f9ca282a3160d51da65a10e60f2',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
