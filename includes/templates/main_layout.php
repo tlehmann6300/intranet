@@ -1535,7 +1535,7 @@ if (!isset($currentUser)) {
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function () {
                 navigator.serviceWorker.register('<?php echo asset('sw.js'); ?>', { scope: '/' })
-                    .catch(function () { /* SW registration failed silently */ });
+                    .catch(function (err) { console.error('[SW] Registration failed:', err); });
             });
         }
 

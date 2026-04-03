@@ -72,7 +72,7 @@ function staleWhileRevalidate(request) {
     return caches.open(STATIC_CACHE).then((cache) =>
         cache.match(request).then((cached) => {
             const networkFetch = fetch(request).then((response) => {
-                if (response && response.status === 200 && response.type !== 'opaque') {
+                if (response && response.status === 200) {
                     cache.put(request, response.clone());
                 }
                 return response;
