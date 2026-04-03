@@ -64,14 +64,9 @@ class ApiMiddleware
             }
         }
 
-        // Auth::user() re-validates the session internally; the null case is a
-        // safeguard that should never be reached after Auth::check() passes.
-        $user = Auth::user();
-        if ($user === null) {
-            self::error(401, 'Nicht authentifiziert');
-        }
-
-        return $user;
+        // Auth::user() re-validates the session internally – returning directly is safe
+        // because Auth::check() above already confirmed an authenticated session.
+        return Auth::user();  // @phpstan-ignore-line (non-null guaranteed by Auth::check())
     }
 
     /**

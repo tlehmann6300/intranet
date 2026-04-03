@@ -20,7 +20,7 @@ if (!Auth::canManageUsers()) {
 
 // ── 3. Input validation ───────────────────────────────────────────────────
 $userId = filter_input(INPUT_POST, 'user_id', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
-$newRole = trim($_POST['new_role'] ?? '');
+$newRole = trim(filter_input(INPUT_POST, 'new_role', FILTER_DEFAULT) ?? '');
 
 if ($userId === false || $userId === null) {
     ApiMiddleware::error(400, 'Ungültige Benutzer-ID');
@@ -38,9 +38,14 @@ if ($userId === (int) ($_SESSION['user_id'] ?? 0)) {
 $entraWarning = null;
 try {
     $db = Database::getUserDB();
-    $stmt = $db->prepare('SELECT azure_oid FROM users WHERE id = :id');
+    $stmt = $db->prepare('SELECT azure_oid, role FROM users WHERE id = :id');
     $stmt->execute([':id' => $userId]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row === false) {
+        ApiMiddleware::error(400, 'Benutzer nicht gefunden');
+    }
+
     $azureOid = $row['azure_oid'] ?? null;
 
     if ($azureOid !== null && $azureOid !== '') {
@@ -63,6 +68,12 @@ try {
     $db = Database::getUserDB();
     $stmt = $db->prepare('UPDATE users SET role = :role WHERE id = :id');
     $stmt->execute([':role' => $newRole, ':id' => $userId]);
+
+    // rowCount() may be 0 when the role is already set to the requested value –
+    // that is still a valid outcome (user exists, confirmed in step 4).
+    if ($stmt->rowCount() < 1 && $newRole !== ($row['role'] ?? null)) {
+        ApiMiddleware::error(500, 'Fehler beim Ändern der Rolle');
+    }
 
     $response = ['success' => true, 'message' => 'Rolle erfolgreich geändert'];
     if ($entraWarning !== null) {
