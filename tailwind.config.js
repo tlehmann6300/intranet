@@ -42,6 +42,22 @@ module.exports = {
     // Sidebar mobile menu toggle classes added via JavaScript
     'translate-x-0',
     '-translate-x-full',
+    // Skeleton loading placeholders (applied dynamically via JavaScript)
+    'skeleton',
+    'skeleton-text',
+    'skeleton-text-sm',
+    'skeleton-title',
+    'skeleton-avatar',
+    'skeleton-avatar-lg',
+    'skeleton-card',
+    'skeleton-btn',
+    'skeleton-img',
+    'skeleton-badge',
+    // Glassmorphism utilities used in dynamic contexts
+    'backdrop-blur-xl',
+    'backdrop-blur-2xl',
+    'backdrop-saturate-150',
+    'backdrop-saturate-200',
   ],
   plugins: [],
 };

@@ -314,11 +314,13 @@ body:not(.dark-mode) .sidebar a:hover {
     scrollbar-color: rgba(255, 255, 255, 0.25) rgba(255, 255, 255, 0.05);
 }
 
-/* Dark Mode: Enhanced Sidebar Styling */
+/* Dark Mode: Enhanced Sidebar Glassmorphism */
 body.dark-mode .sidebar {
-    background-color: var(--sidebar-bg-dark) !important;
-    border-right: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+    background: rgba(10, 14, 28, 0.82) !important;
+    backdrop-filter: blur(24px) saturate(1.4) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(1.4) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 4px 0 32px rgba(0, 0, 0, 0.55) !important;
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.3) rgba(255, 255, 255, 0.05);
 }
@@ -464,7 +466,7 @@ body:not(.dark-mode) .sidebar .sidebar-logout:hover {
     color: rgba(255, 255, 255, 0.9);
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.15);
-    transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+    transition: all 0.3s ease-in-out;
     cursor: pointer;
     text-decoration: none !important;
     margin-bottom: 0.25rem;
@@ -8321,10 +8323,7 @@ body {
     border: none;
     background: none;
     cursor: pointer;
-    transition: color 0.2s ease;
-    position: relative;
-    font-family: var(--ibc-font-family);
-    min-height: 60px;
+    transition: color 0.3s ease-in-out;
     -webkit-tap-highlight-color: transparent;
 
     /* Reset button defaults */
@@ -8341,7 +8340,7 @@ body {
 /* Icon */
 .mobile-bottom-nav-item i {
     font-size: 1.25rem; /* 20px */
-    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s ease;
+    transition: transform 0.3s ease-in-out, color 0.3s ease-in-out;
     display: block;
 }
 
@@ -8351,10 +8350,7 @@ body {
     font-weight: 500;
     letter-spacing: 0.01em;
     line-height: 1;
-    transition: color 0.2s ease;
-}
-
-/* Active indicator pill at the top of the tab */
+    transition: color 0.3s ease-in-out;
 .mobile-bottom-nav-item::before {
     content: '';
     position: absolute;
@@ -10325,11 +10321,28 @@ a:focus-visible,
     --card-shadow-hover: 0 12px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06);
 }
 
-/* ── PREMIUM SIDEBAR GRADIENT ────────────────────────────────── */
+/* ── PREMIUM BODY BACKGROUND (enables glassmorphism to render depth) ─ */
+html {
+    /* Subtle radial mesh that sits behind the glassmorphism sidebar */
+    background:
+        radial-gradient(ellipse 60% 40% at 0% 50%, rgba(0,102,179,0.07) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 60% at 100% 20%, rgba(0,166,81,0.05) 0%, transparent 65%),
+        var(--bg-body);
+}
+html.dark-mode, body.dark-mode {
+    background:
+        radial-gradient(ellipse 60% 40% at 0% 50%, rgba(0,80,144,0.14) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 60% at 100% 20%, rgba(0,120,60,0.08) 0%, transparent 65%),
+        var(--bg-body);
+}
+
+/* ── PREMIUM SIDEBAR GLASSMORPHISM ───────────────────────────── */
 .sidebar {
-    background: var(--sidebar-gradient) !important;
-    border-right: none !important;
-    box-shadow: 6px 0 30px rgba(0,0,0,0.22) !important;
+    background: rgba(0, 55, 100, 0.78) !important;
+    backdrop-filter: blur(24px) saturate(1.8) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(1.8) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.10) !important;
+    box-shadow: 6px 0 40px rgba(0, 0, 0, 0.30) !important;
 }
 
 /* Sidebar nav items: cleaner padding + smooth translate on hover */
@@ -10338,7 +10351,7 @@ a:focus-visible,
     margin: 2px 8px !important;
     padding: 0.6rem 0.875rem !important;
     font-size: 0.875rem !important;
-    transition: background 0.18s ease, transform 0.18s cubic-bezier(0.4,0,0.2,1), box-shadow 0.18s ease !important;
+    transition: background 0.3s ease-in-out, transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out !important;
     position: relative !important;
     display: flex !important;
     align-items: center !important;
@@ -10395,11 +10408,13 @@ a:focus-visible,
     border-color: rgba(255,255,255,0.08) !important;
 }
 
-/* ── PREMIUM MOBILE TOPBAR ────────────────────────────────────── */
+/* ── PREMIUM MOBILE TOPBAR (GLASSMORPHISM) ───────────────────── */
 .mobile-topbar {
-    background: var(--topbar-gradient) !important;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.28), 0 1px 0 rgba(255,255,255,0.06) inset !important;
-    border-bottom: none !important;
+    background: rgba(0, 55, 100, 0.80) !important;
+    backdrop-filter: blur(24px) saturate(1.8) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(1.8) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.10) !important;
+    box-shadow: 0 2px 24px rgba(0, 0, 0, 0.25), 0 1px 0 rgba(255,255,255,0.06) inset !important;
 }
 
 /* Topbar button: rounded with tap feedback */
@@ -10413,7 +10428,7 @@ a:focus-visible,
     background: rgba(255,255,255,0.1) !important;
     border: 1px solid rgba(255,255,255,0.12) !important;
     cursor: pointer !important;
-    transition: background 0.15s ease, transform 0.1s ease !important;
+    transition: all 0.3s ease-in-out !important;
     -webkit-tap-highlight-color: transparent;
 }
 
@@ -11330,8 +11345,8 @@ body:not(.dark-mode) .sidebar p.text-xs {
 
 /* Mobile topbar: better visual quality in light mode */
 body:not(.dark-mode) .mobile-topbar {
-    background: linear-gradient(135deg, var(--ibc-blue-dark) 0%, var(--ibc-blue) 100%) !important;
-    box-shadow: 0 2px 12px rgba(0,69,125,0.25) !important;
+    background: rgba(0, 55, 100, 0.80) !important;
+    box-shadow: 0 2px 16px rgba(0,69,125,0.25) !important;
 }
 .mobile-topbar {
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
@@ -11348,7 +11363,7 @@ body:not(.dark-mode) .mobile-topbar {
     background: rgba(255,255,255,0.12) !important;
     border: none !important;
     cursor: pointer;
-    transition: background 0.15s ease, transform 0.1s ease;
+    transition: all 0.3s ease-in-out;
     flex-shrink: 0;
 }
 .mobile-topbar-btn:hover {
@@ -11564,7 +11579,7 @@ body:not(.dark-mode) .rounded-xl.bg-indigo-100 { background-color: #e0e7ff !impo
     text-decoration: none !important;
     font-size: 0.9rem !important;
     font-weight: 500 !important;
-    transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.18s ease !important;
+    transition: background 0.3s ease-in-out, color 0.3s ease-in-out, border-color 0.3s ease-in-out, transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out !important;
     line-height: 1.4 !important;
     position: relative;
     border-left: 3px solid transparent;

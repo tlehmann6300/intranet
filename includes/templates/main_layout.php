@@ -343,7 +343,7 @@ if (!isset($currentUser)) {
             font-weight: 500;
             text-decoration: none;
             border-bottom: 1px solid var(--border-color);
-            transition: background-color 0.15s ease;
+            transition: all 0.3s ease-in-out;
             color: var(--text-main);
         }
         .mobile-menu-link:hover {
@@ -585,7 +585,7 @@ if (!isset($currentUser)) {
     </div>
 
     <!-- Sidebar -->
-    <aside id="sidebar" class="sidebar fixed left-0 top-0 h-screen w-64 md:w-72 transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-40 text-white shadow-2xl flex flex-col" aria-label="Seitenleiste">
+    <aside id="sidebar" class="sidebar fixed left-0 top-0 h-screen w-64 md:w-72 transform -translate-x-full md:translate-x-0 transition-all duration-300 ease-in-out z-40 text-white shadow-2xl flex flex-col" aria-label="Seitenleiste">
         <?php 
         $currentUser = Auth::user();
         $userRole = $currentUser['role'] ?? '';
@@ -1108,7 +1108,7 @@ if (!isset($currentUser)) {
             <div class="flex flex-col items-center md:flex-row md:justify-between gap-2 text-sm text-gray-500 dark:text-gray-400">
                 <p>&copy; <?php echo date('Y'); ?> IBC Business Consulting. Alle Rechte vorbehalten.</p>
                 <div class="flex gap-4">
-                    <a href="<?php echo asset('pages/impressum.php'); ?>" class="hover:text-ibc-green transition-colors" aria-label="Impressum – Rechtliche Hinweise">Impressum</a>
+                    <a href="<?php echo asset('pages/impressum.php'); ?>" class="hover:text-ibc-green transition-all duration-300 ease-in-out" aria-label="Impressum – Rechtliche Hinweise">Impressum</a>
                 </div>
             </div>
         </footer>

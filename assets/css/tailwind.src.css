@@ -1,3 +1,71 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ── SKELETON LOADING SHIMMER ─────────────────────────────────────
+   Reusable skeleton-loading placeholders for AJAX/API-loaded areas.
+   Usage: add .skeleton to any container; .skeleton-text / .skeleton-title /
+   .skeleton-avatar / .skeleton-card for pre-built shapes.
+   ─────────────────────────────────────────────────────────────── */
+@keyframes skeleton-shimmer {
+    0%   { transform: translateX(-100%); }
+    100% { transform: translateX(200%); }
+}
+
+@layer components {
+    /* Base skeleton — apply to any placeholder element */
+    .skeleton {
+        @apply relative overflow-hidden rounded bg-gray-200 dark:bg-gray-700;
+    }
+    .skeleton::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.45) 50%,
+            transparent 100%
+        );
+        animation: skeleton-shimmer 1.6s ease-in-out infinite;
+    }
+
+    /* Pre-built skeleton shapes */
+    .skeleton-text {
+        @apply skeleton h-4 w-full mb-2;
+    }
+    .skeleton-text-sm {
+        @apply skeleton h-3 w-3/4 mb-1;
+    }
+    .skeleton-title {
+        @apply skeleton h-6 w-2/3 mb-4;
+    }
+    .skeleton-avatar {
+        @apply skeleton rounded-full flex-shrink-0;
+        width: 2.5rem;
+        height: 2.5rem;
+    }
+    .skeleton-avatar-lg {
+        @apply skeleton rounded-full flex-shrink-0;
+        width: 4rem;
+        height: 4rem;
+    }
+    .skeleton-card {
+        @apply skeleton rounded-xl w-full;
+        min-height: 8rem;
+    }
+    .skeleton-btn {
+        @apply skeleton rounded-lg;
+        height: 2.5rem;
+        width: 8rem;
+    }
+    .skeleton-img {
+        @apply skeleton rounded-lg w-full;
+        aspect-ratio: 16 / 9;
+    }
+    .skeleton-badge {
+        @apply skeleton rounded-full;
+        height: 1.25rem;
+        width: 4rem;
+    }
+}
