@@ -772,6 +772,54 @@ class MicrosoftGraphService {
     }
 
     /**
+     * Get direct (non-transitive) group and directory-role memberships via the /memberOf API.
+     *
+     * When $userId is provided the method uses the application token (client-credentials flow)
+     * and calls /users/{userId}/memberOf – suitable for server-side checks during login.
+     * When $userId is omitted the method calls /me/memberOf and requires a delegated user token
+     * with GroupMember.Read.All permission.
+     *
+     * @param string|null $userId Azure Object ID of the user (omit to use /me)
+     * @return array Array of objects with 'id' and 'displayName'
+     * @throws Exception If the Graph API call fails
+     */
+    public function getMemberOf(?string $userId = null): array {
+        $url = $userId !== null
+            ? 'https://graph.microsoft.com/v1.0/users/' . rawurlencode($userId) . '/memberOf?$select=id,displayName'
+            : 'https://graph.microsoft.com/v1.0/me/memberOf?$select=id,displayName';
+
+        try {
+            $response = $this->httpClient->get($url, [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $this->accessToken,
+                    'Content-Type'  => 'application/json',
+                ]
+            ]);
+
+            $body = json_decode($response->getBody()->getContents(), true);
+
+            if (!isset($body['value']) || !is_array($body['value'])) {
+                return [];
+            }
+
+            $groups = [];
+            foreach ($body['value'] as $entry) {
+                if (isset($entry['id']) && isset($entry['displayName'])) {
+                    $groups[] = [
+                        'id'          => $entry['id'],
+                        'displayName' => $entry['displayName'],
+                    ];
+                }
+            }
+
+            return $groups;
+
+        } catch (GuzzleException $e) {
+            throw new Exception('Failed to fetch /memberOf groups: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Get member groups for the current user (requires user access token)
      * This method uses the /me endpoint and requires a user access token (not service account)
      * 

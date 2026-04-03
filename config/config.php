@@ -126,6 +126,29 @@ define('CLIENT_ID',    AZURE_CLIENT_ID);
 define('CLIENT_SECRET', AZURE_CLIENT_SECRET);
 define('REDIRECT_URI', AZURE_REDIRECT_URI);
 
+// Session token encryption key for storing sensitive data (e.g. MS Graph access token).
+// Set SESSION_ENCRYPTION_KEY in .env to a long random secret for each deployment.
+// Falls back to a key derived from the Azure credentials when not explicitly configured.
+define('SESSION_ENCRYPTION_KEY', _env('SESSION_ENCRYPTION_KEY', hash('sha256', AZURE_CLIENT_SECRET . AZURE_CLIENT_ID)));
+
+// Azure AD Group UUID → local role mapping used in auth/callback.php for login access control.
+// Set AZURE_GROUP_<ROLENAME>_ID=<uuid> in .env for each group that should be permitted.
+// Users who do not belong to any listed group will be denied access at login time.
+$_azureGroupRoleMap = [];
+foreach ([
+    'AZURE_GROUP_VORSTAND_ID'  => 'vorstand_intern',
+    'AZURE_GROUP_FINANZEN_ID'  => 'vorstand_finanzen',
+    'AZURE_GROUP_EXTERN_ID'    => 'vorstand_extern',
+    'AZURE_GROUP_MITGLIED_ID'  => 'mitglied',
+] as $_azureEnvKey => $_azureRole) {
+    $_azureUuid = _env($_azureEnvKey, '');
+    if ($_azureUuid !== '') {
+        $_azureGroupRoleMap[$_azureUuid] = $_azureRole;
+    }
+}
+define('AZURE_GROUP_ROLE_MAP', $_azureGroupRoleMap);
+unset($_azureGroupRoleMap, $_azureEnvKey, $_azureRole, $_azureUuid);
+
 // Default profile image fallback path
 define('DEFAULT_PROFILE_IMAGE', 'assets/img/default_profil.png');
 

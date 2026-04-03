@@ -151,6 +151,52 @@ try {
     $userEmail = $claims['email'] ?? $claims['mail'] ?? $claims['userPrincipalName'] ?? null;
     error_log(sprintf("[OAuth] Claims received. azure_oid: %s | email: %s", $azureOid ?? 'null', $userEmail ?? 'null'));
 
+    // ── Azure AD group membership check ──────────────────────────────────────
+    // Fetch the user's direct group memberships and enforce the group → role map
+    // defined in AZURE_GROUP_ROLE_MAP (config.php / .env).
+    // Access is denied when the map is non-empty and the user is not a member of
+    // any listed group.
+    require_once __DIR__ . '/../includes/services/MicrosoftGraphService.php';
+
+    $azureGroupRoleMap = defined('AZURE_GROUP_ROLE_MAP') ? AZURE_GROUP_ROLE_MAP : [];
+
+    if (!empty($azureGroupRoleMap)) {
+        if (!$azureOid) {
+            throw new Exception('Azure OID nicht verfügbar – Gruppenprüfung nicht möglich.');
+        }
+
+        $mappedGroupRole = null;
+        try {
+            $graphSvcGroups = new MicrosoftGraphService(); // client-credentials flow
+            $memberOf = $graphSvcGroups->getMemberOf($azureOid);
+
+            foreach ($memberOf as $group) {
+                if (isset($azureGroupRoleMap[$group['id']])) {
+                    $mappedGroupRole = $azureGroupRoleMap[$group['id']];
+                    error_log(sprintf('[OAuth] Group mapping: user %s is in group "%s" (%s) → role %s',
+                        $azureOid, $group['displayName'], $group['id'], $mappedGroupRole));
+                    break;
+                }
+            }
+        } catch (Exception $groupEx) {
+            error_log('[OAuth] getMemberOf() failed for ' . $azureOid . ': ' . $groupEx->getMessage());
+            throw new Exception('Azure-Gruppenmitgliedschaft konnte nicht geprüft werden: ' . $groupEx->getMessage());
+        }
+
+        if ($mappedGroupRole === null) {
+            error_log(sprintf('[OAuth] Login denied for %s: not a member of any permitted Azure group.', $azureOid));
+            $loginUrl     = (defined('BASE_URL') && BASE_URL) ? BASE_URL . '/pages/auth/login.php' : '/pages/auth/login.php';
+            $errorMessage = urlencode('Zugriff verweigert: Ihre Azure-Gruppe ist nicht für die Anmeldung berechtigt. Wenden Sie sich an den Administrator.');
+            header('Location: ' . $loginUrl . '?error=' . $errorMessage);
+            exit;
+        }
+
+        // Inject the group-derived role into claims so completeMicrosoftLogin can use it
+        // as a fallback when the Enterprise Application has no role assigned.
+        $claims['roles'] = array_values(array_unique(array_merge($claims['roles'] ?? [], [$mappedGroupRole])));
+    }
+    // ── End group membership check ────────────────────────────────────────────
+
     // Look up user in local database by azure_oid
     $db = Database::getUserDB();
     $existingUser = null;
@@ -186,6 +232,11 @@ try {
     // Complete the login process (role mapping, user create/update, session setup)
     // Note: Entra profile photo sync for existing users is handled inside syncEntraData() above.
     // New users receive their photo via completeMicrosoftLogin() after their record is created.
+
+    // Store the access token encrypted in the session so that later page loads can make
+    // delegated Graph API calls without re-authenticating (e.g. to load live data).
+    $_SESSION['graph_token'] = AuthHandler::encryptToken($accessTokenValue);
+
     AuthHandler::completeMicrosoftLogin($claims, $existingUser, $accessTokenValue);
 
 } catch (Exception $e) {
