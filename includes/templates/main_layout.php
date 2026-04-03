@@ -517,9 +517,9 @@ if (!isset($currentUser)) {
         .skeleton-enterprise {
             background: linear-gradient(
                 90deg,
-                var(--ibc-gray-200, #e5e7eb) 25%,
-                var(--ibc-gray-100, #f3f4f6) 50%,
-                var(--ibc-gray-200, #e5e7eb) 75%
+                var(--ibc-gray-200) 25%,
+                var(--ibc-gray-100) 50%,
+                var(--ibc-gray-200) 75%
             ) !important;
             background-size: 400% 100% !important;
             animation: enterprise-shimmer 1.8s ease-in-out infinite !important;
@@ -544,9 +544,12 @@ if (!isset($currentUser)) {
             background-color: transparent !important;
         }
 
-        /* ── LINK & BUTTON GLOBAL TRANSITION ─────────────────── */
-        a:not(.mobile-menu-link):not(.sidebar-nav-item):not(.sidebar-footer-btn),
-        button:not(.sidebar-footer-btn):not(.mobile-bottom-nav-item) {
+        /* ── LINK & BUTTON GLOBAL TRANSITION ─────────────────────
+           A broad base rule (300ms ease-in-out) applies to all links
+           and buttons. More-specific selectors (sidebar items, footer
+           buttons, etc.) above use !important and override this base
+           where a custom timing is needed. */
+        a, button {
             transition-duration: 300ms;
             transition-timing-function: ease-in-out;
             transition-property: color, background-color, border-color,
