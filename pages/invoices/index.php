@@ -650,9 +650,15 @@ ob_start();
             </button>
         </div>
 
-        <form id="submissionForm" action="<?php echo asset('api/submit_invoice.php'); ?>" method="POST" enctype="multipart/form-data" class="flex flex-col flex-1 min-h-0">
+        <form id="submissionForm" class="flex flex-col flex-1 min-h-0">
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(CSRFHandler::getToken(), ENT_QUOTES, 'UTF-8'); ?>">
             <div class="p-6 overflow-y-auto flex-1 space-y-4">
+
+                <!-- Inline error banner (hidden by default) -->
+                <div id="submissionError" class="hidden p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 text-red-700 dark:text-red-300 rounded-xl text-sm font-medium flex items-center gap-2">
+                    <i class="fas fa-exclamation-circle text-red-500 flex-shrink-0"></i>
+                    <span id="submissionErrorText"></span>
+                </div>
 
                 <!-- Amount + Date row -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -740,10 +746,11 @@ ob_start();
             <div class="flex flex-col md:flex-row gap-3 px-6 pb-6 pt-2 flex-shrink-0">
                 <button
                     type="submit"
-                    class="flex-1 flex items-center justify-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-sm hover:shadow-md transition-all text-sm"
+                    id="submitInvoiceBtn"
+                    class="flex-1 flex items-center justify-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-sm hover:shadow-md transition-all text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                    <i class="fas fa-paper-plane"></i>
-                    Einreichen
+                    <i class="fas fa-paper-plane" id="submitInvoiceIcon"></i>
+                    <span id="submitInvoiceLabel">Einreichen</span>
                 </button>
                 <button
                     type="button"
@@ -963,6 +970,50 @@ function updateFileInfo() {
         fileInfo.classList.remove('hidden');
     }
 }
+
+// ── Submission form: fetch-based POST ────────────────────────────────────────
+const submissionForm    = document.getElementById('submissionForm');
+const submitBtn         = document.getElementById('submitInvoiceBtn');
+const submitIcon        = document.getElementById('submitInvoiceIcon');
+const submitLabel       = document.getElementById('submitInvoiceLabel');
+const submissionError   = document.getElementById('submissionError');
+const submissionErrText = document.getElementById('submissionErrorText');
+
+submissionForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    // Hide previous errors
+    submissionError.classList.add('hidden');
+
+    // Loading state
+    submitBtn.disabled = true;
+    submitIcon.className = 'fas fa-spinner fa-spin';
+    submitLabel.textContent = 'Wird eingereicht…';
+
+    fetch('<?php echo asset('api/submit_invoice.php'); ?>', {
+        method: 'POST',
+        body: new FormData(submissionForm)
+    })
+    .then(response => response.json().then(data => ({ ok: response.ok, data })))
+    .then(({ ok, data }) => {
+        if (ok && data.success) {
+            window.location.reload();
+        } else {
+            submissionErrText.textContent = data.message || 'Unbekannter Fehler';
+            submissionError.classList.remove('hidden');
+            submitBtn.disabled = false;
+            submitIcon.className = 'fas fa-paper-plane';
+            submitLabel.textContent = 'Einreichen';
+        }
+    })
+    .catch(() => {
+        submissionErrText.textContent = 'Netzwerkfehler – bitte erneut versuchen.';
+        submissionError.classList.remove('hidden');
+        submitBtn.disabled = false;
+        submitIcon.className = 'fas fa-paper-plane';
+        submitLabel.textContent = 'Einreichen';
+    });
+});
 
 <?php endif; ?>
 // ── Status filter tabs ──────────────────────────────────────────────────────
