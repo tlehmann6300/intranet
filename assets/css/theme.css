@@ -317,8 +317,8 @@ body:not(.dark-mode) .sidebar a:hover {
 /* Dark Mode: Enhanced Sidebar Glassmorphism */
 body.dark-mode .sidebar {
     background: rgba(10, 14, 28, 0.82) !important;
-    backdrop-filter: blur(24px) saturate(1.4) !important;
-    -webkit-backdrop-filter: blur(24px) saturate(1.4) !important;
+    backdrop-filter: blur(24px) saturate(1.8) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(1.8) !important;
     border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
     box-shadow: 4px 0 32px rgba(0, 0, 0, 0.55) !important;
     scrollbar-width: thin;
@@ -8324,6 +8324,9 @@ body {
     background: none;
     cursor: pointer;
     transition: color 0.3s ease-in-out;
+    position: relative;
+    font-family: var(--ibc-font-family);
+    min-height: 60px;
     -webkit-tap-highlight-color: transparent;
 
     /* Reset button defaults */
@@ -8351,6 +8354,9 @@ body {
     letter-spacing: 0.01em;
     line-height: 1;
     transition: color 0.3s ease-in-out;
+}
+
+/* Active indicator pill at the top of the tab */
 .mobile-bottom-nav-item::before {
     content: '';
     position: absolute;
