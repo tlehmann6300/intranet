@@ -56,7 +56,7 @@ class JobController extends BaseController
                         @unlink($realFile);
                     }
                 }
-                \JobBoard::delete($deleteId);
+                \JobBoard::deleteByOwner($deleteId, $userId);
                 $_SESSION['success_message'] = 'Anzeige erfolgreich gelöscht.';
             } else {
                 $_SESSION['error_message'] = 'Keine Berechtigung zum Löschen.';
@@ -268,7 +268,7 @@ class JobController extends BaseController
                     }
                 }
 
-                \JobBoard::update($listingId, $updateData);
+                \JobBoard::updateByOwner($listingId, $userId, $updateData, array_key_exists('pdf_path', $updateData) && $updateData['pdf_path'] === null);
                 $_SESSION['success_message'] = 'Anzeige erfolgreich aktualisiert.';
                 $this->redirect(\BASE_URL . '/jobs');
             }
