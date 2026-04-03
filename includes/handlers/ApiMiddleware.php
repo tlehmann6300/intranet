@@ -71,6 +71,7 @@ class ApiMiddleware
 
     /**
      * Terminate the request immediately with a JSON error response.
+     * Errors are also written to logs/api_errors.log for central monitoring.
      *
      * @param int    $status  HTTP status code (e.g. 400, 401, 403, 500).
      * @param string $message Human-readable error message.
@@ -80,6 +81,27 @@ class ApiMiddleware
     {
         http_response_code($status);
         echo json_encode(['success' => false, 'message' => $message]);
+
+        $logFile = __DIR__ . '/../../logs/api_errors.log';
+        $logDir  = dirname($logFile);
+        if (is_dir($logDir) && is_writable($logDir)) {
+            $uri    = $_SERVER['REQUEST_URI'] ?? 'unknown';
+            $method = $_SERVER['REQUEST_METHOD'] ?? 'unknown';
+            $userId = $_SESSION['user_id'] ?? 'unauthenticated';
+            $ip     = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+            $entry  = sprintf(
+                '[%s] %d %s %s | user=%s ip=%s | %s' . PHP_EOL,
+                date('Y-m-d H:i:s'),
+                $status,
+                $method,
+                $uri,
+                $userId,
+                $ip,
+                $message
+            );
+            error_log($entry, 3, $logFile);
+        }
+
         exit;
     }
 

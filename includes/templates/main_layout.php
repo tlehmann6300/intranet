@@ -727,6 +727,49 @@ if (!isset($currentUser)) {
     <!-- Sidebar Overlay (mobile) -->
     <div id="sidebar-overlay" class="sidebar-overlay"></div>
 
+    <!-- Offline Banner -->
+    <div id="offline-banner" role="status" aria-live="polite" aria-atomic="true" hidden
+         style="position:fixed;top:0;left:0;right:0;z-index:9999;
+                display:flex;align-items:center;justify-content:center;gap:0.625rem;
+                background:#ef4444;color:#fff;padding:0.625rem 1rem;
+                font-size:0.9375rem;font-weight:600;letter-spacing:0.01em;
+                box-shadow:0 2px 8px rgba(0,0,0,0.25);
+                transform:translateY(-100%);transition:transform 0.3s ease;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24"
+             stroke="currentColor" stroke-width="2.5" aria-hidden="true" focusable="false">
+            <line x1="1" y1="1" x2="23" y2="23"/>
+            <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/>
+            <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/>
+            <path d="M10.71 5.05A16 16 0 0 1 22.56 9"/>
+            <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/>
+            <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+            <line x1="12" y1="20" x2="12.01" y2="20"/>
+        </svg>
+        Du arbeitest gerade offline
+    </div>
+    <script>
+    (function () {
+        var banner = document.getElementById('offline-banner');
+        function showBanner() {
+            if (!banner) return;
+            banner.removeAttribute('hidden');
+            requestAnimationFrame(function () {
+                banner.style.transform = 'translateY(0)';
+            });
+        }
+        function hideBanner() {
+            if (!banner) return;
+            banner.style.transform = 'translateY(-100%)';
+            banner.addEventListener('transitionend', function () {
+                banner.setAttribute('hidden', '');
+            }, { once: true });
+        }
+        if (!navigator.onLine) { showBanner(); }
+        window.addEventListener('offline', showBanner);
+        window.addEventListener('online',  hideBanner);
+    }());
+    </script>
+
     <?php
     // ── Pre-compute user data for header dropdown & sidebar ─────────────
     $currentUser  = Auth::user();
@@ -1692,7 +1735,7 @@ if (!isset($currentUser)) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
     <script src="<?php echo asset('js/navbar-scroll.js'); ?>" defer></script>
     <script src="<?php echo asset('js/pjax-navigation.js'); ?>" defer></script>
-    <!-- PWA: Service Worker registration & Install-App toast -->
+    <!-- PWA: Service Worker registration & Install-App modal -->
     <script>
     (function () {
         // ── Service Worker ──────────────────────────────────────────────────
@@ -1703,15 +1746,19 @@ if (!isset($currentUser)) {
             });
         }
 
-        // ── Install-App Toast ───────────────────────────────────────────────
+        // ── Install-App Modal (A2HS) ────────────────────────────────────────
+        // Shown once per user per browser (localStorage), on first visit after
+        // login where the browser fires beforeinstallprompt.
         var deferredPrompt = null;
-        var DISMISS_KEY    = 'pwa_install_dismissed';
+        var userId         = <?php echo json_encode((int)($_SESSION['user_id'] ?? 0)); ?>;
+        var SHOWN_KEY      = 'pwa_install_shown_' + userId;
 
-        // Don't show if already dismissed or running in standalone mode
+        // Skip if already installed, already shown, or no valid user session
         if (
             window.matchMedia('(display-mode: standalone)').matches ||
             window.navigator.standalone === true ||
-            sessionStorage.getItem(DISMISS_KEY)
+            localStorage.getItem(SHOWN_KEY) ||
+            userId === 0
         ) {
             return;
         }
@@ -1719,25 +1766,26 @@ if (!isset($currentUser)) {
         window.addEventListener('beforeinstallprompt', function (e) {
             e.preventDefault();
             deferredPrompt = e;
-            showInstallToast();
+            // Small delay so the page renders first
+            setTimeout(showInstallModal, 1500);
         });
 
-        function showInstallToast() {
-            var toast = document.getElementById('pwa-install-toast');
-            if (!toast) return;
-            toast.removeAttribute('hidden');
-            // Animate in
+        function showInstallModal() {
+            var modal = document.getElementById('pwa-install-modal');
+            if (!modal) return;
+            localStorage.setItem(SHOWN_KEY, '1');
+            modal.removeAttribute('hidden');
             requestAnimationFrame(function () {
-                toast.classList.add('pwa-toast--visible');
+                modal.classList.add('pwa-modal--visible');
             });
         }
 
-        function hideInstallToast() {
-            var toast = document.getElementById('pwa-install-toast');
-            if (!toast) return;
-            toast.classList.remove('pwa-toast--visible');
-            toast.addEventListener('transitionend', function () {
-                toast.setAttribute('hidden', '');
+        function hideInstallModal() {
+            var modal = document.getElementById('pwa-install-modal');
+            if (!modal) return;
+            modal.classList.remove('pwa-modal--visible');
+            modal.addEventListener('transitionend', function () {
+                modal.setAttribute('hidden', '');
             }, { once: true });
         }
 
@@ -1746,118 +1794,86 @@ if (!isset($currentUser)) {
             deferredPrompt.prompt();
             deferredPrompt.userChoice.then(function () {
                 deferredPrompt = null;
-                hideInstallToast();
+                hideInstallModal();
             });
         };
 
         window.__pwaDismiss = function () {
-            sessionStorage.setItem(DISMISS_KEY, '1');
-            hideInstallToast();
+            hideInstallModal();
         };
     }());
     </script>
 
-    <!-- Install-App Toast (hidden until beforeinstallprompt fires) -->
+    <!-- Install-App Modal (A2HS, hidden until beforeinstallprompt fires) -->
+    <div id="pwa-install-modal" hidden role="dialog" aria-modal="true" aria-labelledby="pwa-modal-title"
+         style="position:fixed;inset:0;z-index:1075;display:flex;align-items:center;justify-content:center;
+                padding:1rem;background:rgba(0,0,0,0);transition:background 0.3s;">
+        <div style="background:#fff;border-radius:1rem;box-shadow:0 20px 60px rgba(0,0,0,0.3);
+                    width:100%;max-width:28rem;overflow:hidden;
+                    transform:scale(0.92) translateY(12px);transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1),opacity 0.3s;
+                    opacity:0;" class="pwa-modal-inner dark:bg-slate-800">
+            <!-- Header -->
+            <div style="background:linear-gradient(135deg,#0066b3,#0099e6);padding:1.5rem;">
+                <div style="display:flex;align-items:center;gap:1rem;">
+                    <div style="width:3rem;height:3rem;background:rgba(255,255,255,0.2);border-radius:0.75rem;
+                                display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i class="fas fa-mobile-alt" style="color:#fff;font-size:1.375rem;" aria-hidden="true"></i>
+                    </div>
+                    <h3 id="pwa-modal-title" style="color:#fff;font-size:1.125rem;font-weight:700;margin:0;">
+                        App installieren
+                    </h3>
+                </div>
+            </div>
+            <!-- Body -->
+            <div style="padding:1.5rem;">
+                <p style="font-weight:600;font-size:1rem;margin:0 0 0.5rem;" class="text-slate-800 dark:text-slate-100">
+                    IBC Intranet als App nutzen
+                </p>
+                <p style="font-size:0.9375rem;margin:0 0 1.25rem;" class="text-slate-600 dark:text-slate-300">
+                    Installiere das Intranet auf deinem Gerät für schnelleren Zugriff, Offline-Unterstützung und ein natives App-Erlebnis.
+                </p>
+                <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:0.625rem;padding:0.875rem;"
+                     class="dark:bg-blue-900/30 dark:border-blue-700">
+                    <div style="display:flex;gap:0.625rem;align-items:flex-start;">
+                        <i class="fas fa-check-circle" style="color:#2563eb;margin-top:2px;flex-shrink:0;" aria-hidden="true"></i>
+                        <p style="font-size:0.875rem;margin:0;" class="text-slate-700 dark:text-slate-200">
+                            Kein App-Store nötig &nbsp;·&nbsp; Immer aktuell &nbsp;·&nbsp; Offline verfügbar
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <!-- Footer -->
+            <div style="display:flex;gap:0.75rem;padding:1rem 1.5rem 1.5rem;flex-wrap:wrap;"
+                 class="bg-gray-50 dark:bg-slate-700">
+                <button onclick="__pwaInstall()" type="button"
+                        style="flex:1;padding:0.75rem 1.25rem;background:linear-gradient(135deg,#0066b3,#0099e6);
+                               color:#fff;border:none;border-radius:0.5rem;font-weight:600;font-size:0.9375rem;
+                               cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;
+                               transition:opacity 0.15s;min-height:44px;"
+                        onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                    <i class="fas fa-download" aria-hidden="true"></i>
+                    Installieren
+                </button>
+                <button onclick="__pwaDismiss()" type="button"
+                        style="flex:1;padding:0.75rem 1.25rem;background:#e2e8f0;color:#475569;
+                               border:none;border-radius:0.5rem;font-weight:600;font-size:0.9375rem;
+                               cursor:pointer;transition:background 0.15s;min-height:44px;"
+                        class="dark:bg-slate-600 dark:text-slate-200"
+                        onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                    Später
+                </button>
+            </div>
+        </div>
+    </div>
     <style>
-        #pwa-install-toast {
-            position: fixed;
-            bottom: 1.25rem;
-            left: 50%;
-            transform: translateX(-50%) translateY(120%);
-            z-index: 1080;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            background: var(--ibc-blue, #0066b3);
-            color: #fff;
-            padding: 0.75rem 1rem 0.75rem 1.25rem;
-            border-radius: 1rem;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
-            min-width: 280px;
-            max-width: calc(100vw - 2.5rem);
-            font-size: 0.9375rem;
-            font-weight: 500;
-            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s;
-            opacity: 0;
-            pointer-events: none;
+        #pwa-install-modal.pwa-modal--visible {
+            background: rgba(0,0,0,0.5);
         }
-        #pwa-install-toast.pwa-toast--visible {
-            transform: translateX(-50%) translateY(0);
+        #pwa-install-modal.pwa-modal--visible .pwa-modal-inner {
+            transform: scale(1) translateY(0);
             opacity: 1;
-            pointer-events: auto;
-        }
-        #pwa-install-toast .pwa-toast-icon {
-            flex-shrink: 0;
-            width: 2.25rem;
-            height: 2.25rem;
-            background: rgba(255,255,255,0.15);
-            border-radius: 0.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        #pwa-install-toast .pwa-toast-text {
-            flex: 1;
-            line-height: 1.3;
-        }
-        #pwa-install-toast .pwa-toast-text small {
-            display: block;
-            font-size: 0.8125rem;
-            opacity: 0.8;
-            font-weight: 400;
-        }
-        #pwa-install-toast .pwa-toast-btn-install {
-            flex-shrink: 0;
-            background: rgba(255,255,255,0.2);
-            color: #fff;
-            border: 1.5px solid rgba(255,255,255,0.4);
-            border-radius: 0.5rem;
-            padding: 0.4rem 0.875rem;
-            font-size: 0.875rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.15s;
-            min-height: 36px;
-        }
-        #pwa-install-toast .pwa-toast-btn-install:hover {
-            background: rgba(255,255,255,0.3);
-        }
-        #pwa-install-toast .pwa-toast-btn-dismiss {
-            flex-shrink: 0;
-            background: transparent;
-            border: none;
-            color: rgba(255,255,255,0.7);
-            cursor: pointer;
-            padding: 0.25rem;
-            border-radius: 0.375rem;
-            line-height: 1;
-            font-size: 1.125rem;
-            transition: color 0.15s;
-            min-height: 36px;
-            min-width: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        #pwa-install-toast .pwa-toast-btn-dismiss:hover {
-            color: #fff;
         }
     </style>
-    <div id="pwa-install-toast" hidden role="status" aria-live="polite" aria-label="App installieren">
-        <div class="pwa-toast-icon" aria-hidden="true">
-            <i class="fas fa-download"></i>
-        </div>
-        <div class="pwa-toast-text">
-            App installieren
-            <small>Für schnelleren Zugriff</small>
-        </div>
-        <button class="pwa-toast-btn-install" onclick="__pwaInstall()" type="button">
-            Installieren
-        </button>
-        <button class="pwa-toast-btn-dismiss" onclick="__pwaDismiss()" type="button" aria-label="Schließen">
-            &times;
-        </button>
-    </div>
 
     <?php if (isset($_SESSION['show_2fa_nudge']) && $_SESSION['show_2fa_nudge']): ?>
     <div id="tfa-nudge-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1070] p-4" role="dialog" aria-modal="true" aria-labelledby="tfa-nudge-title">
