@@ -213,15 +213,18 @@ class AuthHandler {
      * The encryption key is derived from the SESSION_ENCRYPTION_KEY config constant.
      *
      * @param string $plaintext Value to encrypt
-     * @return string Base64-encoded IV + ciphertext, or empty string on failure
+     * @return string Base64-encoded IV + ciphertext
+     * @throws \RuntimeException If SESSION_ENCRYPTION_KEY is not configured or encryption fails
      */
     public static function encryptToken(string $plaintext): string {
-        $key = hash('sha256', defined('SESSION_ENCRYPTION_KEY') ? SESSION_ENCRYPTION_KEY : '', true);
+        if (!defined('SESSION_ENCRYPTION_KEY') || SESSION_ENCRYPTION_KEY === '') {
+            throw new \RuntimeException('SESSION_ENCRYPTION_KEY is not configured. Set it in .env before storing session tokens.');
+        }
+        $key = hash('sha256', SESSION_ENCRYPTION_KEY, true);
         $iv  = random_bytes(16);
         $encrypted = openssl_encrypt($plaintext, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
         if ($encrypted === false) {
-            error_log('[AuthHandler] encryptToken: openssl_encrypt failed');
-            return '';
+            throw new \RuntimeException('encryptToken: openssl_encrypt failed');
         }
         return base64_encode($iv . $encrypted);
     }
@@ -233,14 +236,17 @@ class AuthHandler {
      * @return string|null Decrypted plaintext, or null if decryption fails
      */
     public static function decryptToken(string $encoded): ?string {
+        if (!defined('SESSION_ENCRYPTION_KEY') || SESSION_ENCRYPTION_KEY === '') {
+            return null;
+        }
         $raw = base64_decode($encoded, true);
         if ($raw === false || strlen($raw) <= 16) {
             return null;
         }
-        $key       = hash('sha256', defined('SESSION_ENCRYPTION_KEY') ? SESSION_ENCRYPTION_KEY : '', true);
-        $iv        = substr($raw, 0, 16);
+        $key        = hash('sha256', SESSION_ENCRYPTION_KEY, true);
+        $iv         = substr($raw, 0, 16);
         $ciphertext = substr($raw, 16);
-        $decrypted = openssl_decrypt($ciphertext, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+        $decrypted  = openssl_decrypt($ciphertext, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
         return $decrypted !== false ? $decrypted : null;
     }
 
