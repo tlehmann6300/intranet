@@ -343,7 +343,7 @@ if (!isset($currentUser)) {
             font-weight: 500;
             text-decoration: none;
             border-bottom: 1px solid var(--border-color);
-            transition: background-color 0.15s ease;
+            transition: all 0.3s ease-in-out;
             color: var(--text-main);
         }
         .mobile-menu-link:hover {
@@ -409,11 +409,7 @@ if (!isset($currentUser)) {
            Applies to all links and buttons as a base; more-specific
            selectors in theme.css override where custom timing is needed. */
         a, button {
-            transition-duration: 300ms;
-            transition-timing-function: ease-in-out;
-            transition-property: color, background-color, border-color,
-                                  text-decoration-color, fill, stroke,
-                                  opacity, box-shadow, transform, filter;
+            transition: all 0.3s ease-in-out;
         }
 
         /* ── MAIN CONTENT DARK-MODE FOOTER ───────────────────── */
@@ -477,7 +473,7 @@ if (!isset($currentUser)) {
             color: #64748b;
             cursor: pointer;
             flex-shrink: 0;
-            transition: background 0.15s ease, color 0.15s ease;
+            transition: all 0.3s ease-in-out;
         }
         #mobile-menu-btn:hover { background: rgba(0,0,0,0.05); color: #334155; }
         #mobile-menu-btn:focus-visible { outline: 2px solid var(--ibc-blue, #0066b3); outline-offset: 2px; }
@@ -497,7 +493,7 @@ if (!isset($currentUser)) {
             color: #64748b;
             cursor: pointer;
             flex-shrink: 0;
-            transition: background 0.15s ease, color 0.15s ease;
+            transition: all 0.3s ease-in-out;
         }
         #theme-toggle:hover { background: rgba(0,0,0,0.05); color: #334155; }
         body.dark-mode #theme-toggle { color: #94a3b8; }
@@ -513,7 +509,7 @@ if (!isset($currentUser)) {
             border: none;
             background: transparent;
             cursor: pointer;
-            transition: background 0.15s ease;
+            transition: all 0.3s ease-in-out;
         }
         #user-dropdown-btn:hover { background: rgba(0,0,0,0.05); }
         body.dark-mode #user-dropdown-btn:hover { background: rgba(255,255,255,0.07); }
@@ -551,7 +547,7 @@ if (!isset($currentUser)) {
             transform: scale(0.95) translateY(-6px);
             opacity: 0;
             pointer-events: none;
-            transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.15s ease;
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
         }
         #user-dropdown.open {
             transform: scale(1) translateY(0);
@@ -583,7 +579,7 @@ if (!isset($currentUser)) {
             background: transparent;
             border: none;
             cursor: pointer;
-            transition: background 0.15s ease, color 0.15s ease;
+            transition: all 0.3s ease-in-out;
             text-align: left;
             box-sizing: border-box;
         }
@@ -874,7 +870,7 @@ if (!isset($currentUser)) {
          Mobile:  full-width with hamburger
          Uses backdrop-blur-md for the frosted glass effect
          ════════════════════════════════════════════════════════════ -->
-    <header id="top-header" aria-label="Hauptnavigation oben">
+    <header id="top-header" class="backdrop-blur-md" aria-label="Hauptnavigation oben">
         <!-- Mobile hamburger (hidden on desktop) -->
         <button id="mobile-menu-btn"
                 class="md:hidden"
@@ -1304,7 +1300,9 @@ if (!isset($currentUser)) {
 
 
     <!-- Main Content -->
-    <main id="main-content" role="main" class="md:ml-64 min-h-screen px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-gray-900 dark:text-white transition-colors duration-300" style="padding-bottom: max(1rem, env(safe-area-inset-bottom, 0))">
+    <main id="main-content" role="main" class="md:ml-64 min-h-screen px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-gray-900 dark:text-white transition-all duration-300 ease-in-out" style="padding-bottom: max(1rem, env(safe-area-inset-bottom, 0))">
+        <!-- Page content; AJAX-loaded sections inside should use .skeleton-enterprise or .skeleton
+             on placeholder elements until data arrives, then swap them out via JS. -->
         <div class="max-w-7xl mx-auto">
             <?php echo $content ?? ''; ?>
         </div>
@@ -1312,14 +1310,14 @@ if (!isset($currentUser)) {
             <div class="flex flex-col items-center md:flex-row md:justify-between gap-2 text-sm text-gray-500 dark:text-gray-400">
                 <p>&copy; <?php echo date('Y'); ?> IBC Business Consulting. Alle Rechte vorbehalten.</p>
                 <div class="flex gap-4">
-                    <a href="<?php echo asset('pages/impressum.php'); ?>" class="hover:text-ibc-green transition-colors" aria-label="Impressum – Rechtliche Hinweise">Impressum</a>
+                    <a href="<?php echo asset('pages/impressum.php'); ?>" class="hover:text-ibc-green transition-all duration-300 ease-in-out" aria-label="Impressum – Rechtliche Hinweise">Impressum</a>
                 </div>
             </div>
         </footer>
     </main>
 
     <!-- Mobile Bottom Navigation Bar (visible on small screens only, sidebar becomes bottom nav) -->
-    <nav id="mobile-bottom-nav" class="mobile-bottom-nav glass-bottom-nav md:hidden" role="navigation" aria-label="Schnellnavigation">
+    <nav id="mobile-bottom-nav" class="mobile-bottom-nav glass-bottom-nav backdrop-blur-md md:hidden" role="navigation" aria-label="Schnellnavigation">
         <a href="<?php echo asset('pages/dashboard/index.php'); ?>"
            class="mobile-bottom-nav-item <?php echo is_nav_active('/dashboard/') ? 'active' : ''; ?>"
            aria-label="Dashboard"

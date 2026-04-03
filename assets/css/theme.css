@@ -8321,7 +8321,7 @@ body {
     border: none;
     background: none;
     cursor: pointer;
-    transition: color 0.2s ease;
+    transition: all 0.3s ease-in-out;
     position: relative;
     font-family: var(--ibc-font-family);
     min-height: 60px;
@@ -8341,7 +8341,7 @@ body {
 /* Icon */
 .mobile-bottom-nav-item i {
     font-size: 1.25rem; /* 20px */
-    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s ease;
+    transition: all 0.3s ease-in-out;
     display: block;
 }
 
@@ -8351,7 +8351,7 @@ body {
     font-weight: 500;
     letter-spacing: 0.01em;
     line-height: 1;
-    transition: color 0.2s ease;
+    transition: all 0.3s ease-in-out;
 }
 
 /* Active indicator pill at the top of the tab */
@@ -11564,7 +11564,7 @@ body:not(.dark-mode) .rounded-xl.bg-indigo-100 { background-color: #e0e7ff !impo
     text-decoration: none !important;
     font-size: 0.9rem !important;
     font-weight: 500 !important;
-    transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.18s ease !important;
+    transition: all 0.3s ease-in-out !important;
     line-height: 1.4 !important;
     position: relative;
     border-left: 3px solid transparent;
