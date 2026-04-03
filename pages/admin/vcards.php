@@ -290,7 +290,7 @@ ob_start();
 </div>
 
 <!-- Create Modal -->
-<div id="createModal" class="hidden fixed inset-0 z-50 items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm overflow-y-auto">
+<div id="createModal" class="hidden fixed inset-0 z-[60] items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm overflow-y-auto">
     <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 m-auto relative">
 
         <!-- X-Button -->
