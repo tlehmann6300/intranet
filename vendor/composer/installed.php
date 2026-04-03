@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => '__root__',
-        'pretty_version' => 'dev-main',
-        'version' => 'dev-main',
-        'reference' => 'bb90b4c305eb18b9ac47ffde7c37890a0bd0068d',
+        'pretty_version' => 'dev-copilot/fix-internal-server-error-one-more-time',
+        'version' => 'dev-copilot/fix-internal-server-error-one-more-time',
+        'reference' => '650e73e15f482c20c7fba3e67f862640b264fc62',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -11,9 +11,9 @@
     ),
     'versions' => array(
         '__root__' => array(
-            'pretty_version' => 'dev-main',
-            'version' => 'dev-main',
-            'reference' => 'bb90b4c305eb18b9ac47ffde7c37890a0bd0068d',
+            'pretty_version' => 'dev-copilot/fix-internal-server-error-one-more-time',
+            'version' => 'dev-copilot/fix-internal-server-error-one-more-time',
+            'reference' => '650e73e15f482c20c7fba3e67f862640b264fc62',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

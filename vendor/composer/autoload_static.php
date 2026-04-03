@@ -235,7 +235,7 @@ class ComposerStaticInit767b59d6c51ddfb9d5ddf2cb1727bfa6
         ),
         'A' =>
         array (
-            'App\\' => 5,
+            'App\\\\' => 5,
         ),
     );
 
@@ -521,7 +521,7 @@ class ComposerStaticInit767b59d6c51ddfb9d5ddf2cb1727bfa6
         array (
             0 => __DIR__ . '/..' . '/brick/math/src',
         ),
-        'App\\' =>
+        'App\\\\' =>
         array (
             0 => __DIR__ . '/../..' . '/src',
         ),
@@ -628,7 +628,7 @@ class ComposerStaticInit767b59d6c51ddfb9d5ddf2cb1727bfa6
         'Safe\\Exceptions\\YazException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/YazException.php',
         'Safe\\Exceptions\\ZipException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/ZipException.php',
         'Safe\\Exceptions\\ZlibException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/ZlibException.php',
-        'ï¿½' => __DIR__ . '/..' . '/symfony/cache/Traits/ValueWrapper.php',
+        '©' => __DIR__ . '/..' . '/symfony/cache/Traits/ValueWrapper.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
