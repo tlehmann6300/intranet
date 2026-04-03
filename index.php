@@ -1,190 +1,97 @@
 <?php
-/**
- * index.php – Front-Controller (Haupt-Einstiegspunkt)
- *
- * All HTTP requests that do not match a real file or directory are routed here
- * by the `.htaccess` RewriteRule.  This controller loads the application
- * bootstrap, resolves the requested URI via FastRoute and delegates to the
- * matching handler defined in `routes/web.php`.
- */
+// index.php - Haupt-Einstiegspunkt (Bulletproof Version)
 
-declare(strict_types=1);
-
-// 1. Output buffering – prevents "Headers already sent" errors
+// 1. Buffer starten (Verhindert "Headers already sent" Fehler)
 ob_start();
 
 try {
-    // 2. Bootstrap: loads config, helpers, auth, autoloader and returns DI container
-    $container = require __DIR__ . '/bootstrap/app.php';
-
-    /** @var \Twig\Environment $twig */
-    $twig = $container->get(\Twig\Environment::class);
-
-    $isProduction = !defined('ENVIRONMENT') || ENVIRONMENT === 'production';
-
-    // 3. Error handling setup
-    if (!$isProduction) {
-        // Development: use Whoops for rich, interactive error pages
-        $whoops = new \Whoops\Run();
-        $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler());
-        $whoops->register();
+    // 3. Prüfen & Laden der Config (Mit absolutem Pfad!)
+    $configFile = __DIR__ . '/config/config.php';
+    if (!file_exists($configFile)) {
+        throw new Exception("Kritisch: config.php nicht gefunden in $configFile");
     }
+    require_once $configFile;
 
-    // 4. BASE_URL fallback
+    // 4. Prüfen & Laden der Helper
+    $helperFile = __DIR__ . '/includes/helpers.php';
+    if (!file_exists($helperFile)) {
+        throw new Exception("Kritisch: helpers.php nicht gefunden in $helperFile");
+    }
+    require_once $helperFile;
+
+    // 5. Prüfen & Laden von Auth
+    $authFile = __DIR__ . '/src/Auth.php';
+    if (!file_exists($authFile)) {
+        throw new Exception("Kritisch: Auth.php nicht gefunden in $authFile");
+    }
+    require_once $authFile;
+
+    // 6. BASE_URL Check
     if (!defined('BASE_URL')) {
-        $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
-        $baseUrl  = $protocol . '://' . $_SERVER['HTTP_HOST'];
-        $path     = dirname($_SERVER['PHP_SELF']);
+        // Fallback, falls Config versagt hat
+        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
+        $baseUrl = $protocol . "://" . $_SERVER['HTTP_HOST'];
+        // Optional: Unterordner erkennen
+        $path = dirname($_SERVER['PHP_SELF']);
         if ($path !== '/' && $path !== '\\') {
             $baseUrl .= $path;
         }
         define('BASE_URL', rtrim($baseUrl, '/'));
     }
 
-    // 5. FastRoute – dispatch the current request
-    $dispatcher = FastRoute\simpleDispatcher(static function (FastRoute\RouteCollector $r): void {
-        $redirect = static function (string $url): never {
-            header('Location: ' . $url, true, 302);
-            exit;
-        };
-        require __DIR__ . '/routes/web.php';
-    });
-
-    // Strip query string and decode URI for matching
-    $uri    = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
-    $uri    = rawurldecode((string) $uri);
-    $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-
-    // Remove BASE_URL path prefix if the app is installed in a subdirectory
-    $basePath = rtrim(parse_url(BASE_URL, PHP_URL_PATH) ?? '', '/');
-    if ($basePath !== '' && strpos($uri, $basePath) === 0) {
-        $uri = substr($uri, strlen($basePath));
-    }
-    if ($uri === '' || $uri === false) {
-        $uri = '/';
+    // 7. Routing-Logik
+    $target = '';
+    if (class_exists('Auth') && Auth::check()) {
+        // Check if profile is incomplete and redirect to profile page
+        if (isset($_SESSION['profile_incomplete']) && $_SESSION['profile_incomplete'] === true) {
+            $target = BASE_URL . '/pages/auth/profile.php';
+        } else {
+            $target = BASE_URL . '/pages/dashboard/index.php';
+        }
+    } else {
+        $target = BASE_URL . '/pages/auth/login.php';
     }
 
-    $routeInfo = $dispatcher->dispatch($method, $uri);
-
+    // Puffer leeren
     ob_end_clean();
 
-    switch ($routeInfo[0]) {
-        case FastRoute\Dispatcher::FOUND:
-            $handler  = $routeInfo[1];
-            $vars     = $routeInfo[2];
-
-            // Handlers may be:
-            //   (a) a plain string 'ControllerClass@method'
-            //   (b) an array  ['ControllerClass@method', [MiddlewareClass::class, ...]]
-            //   (c) a closure (legacy)
-            $middlewareClasses = [];
-            if (is_array($handler)) {
-                [$handler, $middlewareClasses] = $handler;
-            }
-
-            // Build the terminal callable that invokes the actual controller/closure
-            $terminal = static function () use ($handler, $vars, $container): void {
-                if (is_string($handler)) {
-                    [$class, $method_name] = explode('@', $handler, 2);
-                    if (!str_contains($class, '\\')) {
-                        $class = 'App\\Controllers\\' . $class;
-                    }
-                    $controller = $container->get($class);
-                    $controller->$method_name($vars);
-                } else {
-                    $handler($vars);
-                }
-            };
-
-            // Resolve and instantiate per-route middleware classes.
-            // Middleware entries may be class-name strings (resolved via DI container)
-            // or pre-configured MiddlewareInterface instances (e.g. RateLimitMiddleware with custom args).
-            $middlewareInstances = array_map(
-                static function (string|\App\Middleware\MiddlewareInterface $entry) use ($container): \App\Middleware\MiddlewareInterface {
-                    if ($entry instanceof \App\Middleware\MiddlewareInterface) {
-                        return $entry;
-                    }
-                    return $container->get($entry);
-                },
-                $middlewareClasses
-            );
-
-            // Global middleware: CSRF validation for every state-changing request.
-            // CsrfMiddleware checks the HTTP method internally (POST/PUT/PATCH/DELETE)
-            // and is a no-op for GET/HEAD/OPTIONS, so it is safe to prepend to all routes.
-            $globalMiddlewares = [
-                $container->get(\App\Middleware\CsrfMiddleware::class),
-            ];
-
-            $allMiddlewares = array_merge($globalMiddlewares, $middlewareInstances);
-
-            $pipeline = new \App\Middleware\MiddlewarePipeline(
-                $allMiddlewares,
-                static function () use ($terminal): void { $terminal(); }
-            );
-            $pipeline->run($method, $uri);
-            break;
-
-        case FastRoute\Dispatcher::NOT_FOUND:
-            http_response_code(404);
-            echo '<h1>404 – Seite nicht gefunden</h1>';
-            break;
-
-        case FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
-            http_response_code(405);
-            header('Allow: ' . implode(', ', $routeInfo[1]));
-            echo '<h1>405 – Methode nicht erlaubt</h1>';
-            break;
+    // 8. Weiterleitung
+    if (!headers_sent()) {
+        header('Location: ' . $target);
+        exit;
+    } else {
+        throw new Exception("Header konnten nicht gesendet werden (Ausgabe vor header()).");
     }
 
-} catch (Throwable $e) {
-    // Discard any partial output
-    if (ob_get_level() > 0) {
-        ob_end_clean();
-    }
+} catch (Exception $e) {
+    ob_end_clean(); // Puffer verwerfen
 
     $isProduction = !defined('ENVIRONMENT') || ENVIRONMENT === 'production';
 
     if ($isProduction) {
-        // Production: log structured error via Monolog
-        try {
-            if (isset($container)) {
-                /** @var \Psr\Log\LoggerInterface $logger */
-                $logger = $container->get(\Psr\Log\LoggerInterface::class);
-                $logger->error($e->getMessage(), [
-                    'exception' => get_class($e),
-                    'file'      => $e->getFile(),
-                    'line'      => $e->getLine(),
-                    'trace'     => $e->getTraceAsString(),
-                ]);
-            }
-        } catch (Throwable $logError) {
-            // Fallback: write to error.log if container is unavailable
-            $logFile   = __DIR__ . '/logs/error.log';
-            $timestamp = date('Y-m-d H:i:s');
-            @file_put_contents(
-                $logFile,
-                "[$timestamp] " . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine() . PHP_EOL,
-                FILE_APPEND | LOCK_EX
-            );
-        }
+        // Log silently to error log, show no details to the user
+        $logFile = __DIR__ . '/logs/error.log';
+        $timestamp = date('Y-m-d H:i:s');
+        @file_put_contents(
+            $logFile,
+            "[$timestamp] " . $e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine() . PHP_EOL,
+            FILE_APPEND | LOCK_EX
+        );
         http_response_code(500);
-        echo '<p>Ein interner Fehler ist aufgetreten. Bitte versuche es später erneut.</p>';
+        echo "<p>Ein interner Fehler ist aufgetreten. Bitte versuche es später erneut.</p>";
     } else {
-        // Development: Whoops handles it if registered, otherwise fall back to plain output
-        if (class_exists(\Whoops\Run::class) && isset($whoops)) {
-            throw $e;
-        }
-        echo "<div style='font-family:sans-serif;padding:20px;background:#ffebee;border:1px solid #c62828;color:#b71c1c;'>";
-        echo '<h2>⚠️ System Fehler</h2>';
-        echo '<p><strong>Fehler:</strong> ' . htmlspecialchars($e->getMessage()) . '</p>';
-        echo '<p><strong>Datei:</strong> ' . htmlspecialchars($e->getFile()) . ' (Zeile ' . $e->getLine() . ')</p>';
-        echo '<pre>' . htmlspecialchars($e->getTraceAsString()) . '</pre>';
-        echo '</div>';
+        // Fehlerbehandlung: Zeige den Fehler an, statt einer weißen Seite
+        echo "<div style='font-family:sans-serif; padding:20px; background:#ffebee; border:1px solid #c62828; color:#b71c1c;'>";
+        echo "<h2>⚠️ System Fehler (500 Avoidance)</h2>";
+        echo "<p><strong>Fehler:</strong> " . htmlspecialchars($e->getMessage()) . "</p>";
+        echo "<p><strong>Datei:</strong> " . $e->getFile() . " (Zeile " . $e->getLine() . ")</p>";
+        echo "</div>";
 
+        // Fallback-Link anzeigen
         if (defined('BASE_URL')) {
-            echo "<p><a href='" . BASE_URL . "/login'>Zum Login</a></p>";
+            echo "<p><a href='" . BASE_URL . "/pages/auth/login.php'>Versuche direkten Login-Link</a></p>";
         }
     }
     exit;
 }
+?>

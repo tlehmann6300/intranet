@@ -1,6 +1,6 @@
 <?php
 // Security Headers – comprehensive set (HSTS, CSP, X-Frame-Options, …)
-require_once __DIR__ . '/security_headers.php';
+require_once __DIR__ . '/../includes/security_headers.php';
 
 // Load .env file
 $_envFile = __DIR__ . '/../.env';
@@ -97,7 +97,6 @@ define('DB_NEWS_PASS', _env('DB_NEWS_PASS', ''));
 // for the non-sensitive connection coordinates only.  The password MUST be set
 // via DB_VCARD_PASS in .env and has no default.
 define('DB_VCARD_HOST', _env('DB_VCARD_HOST', 'db5016986508.hosting-data.io'));
-define('DB_VCARD_PORT', _env('DB_VCARD_PORT', '3306'));
 define('DB_VCARD_NAME', _env('DB_VCARD_NAME', 'dbs13688083'));
 define('DB_VCARD_USER', _env('DB_VCARD_USER', 'dbu5428642'));
 define('DB_VCARD_PASS', _env('DB_VCARD_PASS', ''));

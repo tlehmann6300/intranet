@@ -1,6 +1,4 @@
 <?php
-
-declare(strict_types=1);
 /**
  * Mail Service
  * Handles email sending using SMTP configuration with IBC Corporate Design
@@ -436,7 +434,9 @@ class MailService {
      */
     public static function getBirthdayEmailTemplate(string $firstName, string $gender = ''): string {
         // Load the new responsive email templates
-        require_once __DIR__ . '/Templates/email_templates.php';
+        require_once __DIR__ . '/../includes/templates/email_templates.php';
+        
+        // Use the new responsive birthday template
         return EmailTemplates::getBirthdayTemplate($firstName, $gender);
     }
     
@@ -450,7 +450,9 @@ class MailService {
      */
     public static function getProfileReminderEmailTemplate(string $firstName, string $profileLink): string {
         // Load the new responsive email templates
-        require_once __DIR__ . '/Templates/email_templates.php';
+        require_once __DIR__ . '/../includes/templates/email_templates.php';
+        
+        // Use the new responsive profile reminder template
         return EmailTemplates::getProfileReminderTemplate($firstName, $profileLink);
     }
     
@@ -1319,7 +1321,7 @@ class MailService {
         $postLink = BASE_URL . '/pages/blog/view.php?id=' . $postId;
         $callToAction = '<a href="' . htmlspecialchars($postLink) . '" class="button">Artikel lesen</a>';
 
-        $settingsLink = BASE_URL . '/profile/settings';
+        $settingsLink = BASE_URL . '/pages/auth/settings.php';
         $bodyContent .= '<p class="email-text" style="margin-top:20px;font-size:13px;color:#6b7280;">
             Du erhältst diese E-Mail, weil du den Blog-Newsletter abonniert hast.
             Du kannst diese Benachrichtigung jederzeit in deinen
