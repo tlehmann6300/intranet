@@ -1,19 +1,28 @@
-// IBC Intranet – Service Worker v3
+// IBC Intranet – Service Worker v4
 // Strategies:
 //   • Stale-while-revalidate  → static assets (CSS, JS, fonts, images)
 //   • Network-first           → pages/ routes and API calls
 //   • Offline fallback        → pages/errors/offline.html for navigation failures
 
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v4';
 const STATIC_CACHE  = `ibc-static-${CACHE_VERSION}`;
 const PAGE_CACHE    = `ibc-pages-${CACHE_VERSION}`;
 const ALL_CACHES    = [STATIC_CACHE, PAGE_CACHE];
 
 const OFFLINE_URL = '/pages/errors/offline.html';
 
-// Assets to pre-cache on install (images + offline page)
+// Assets to pre-cache on install (core CSS/JS, images, offline page).
+// CSS/JS are listed without version query params; staleWhileRevalidate uses
+// ignoreSearch so these cached entries also serve versioned (?v=…) requests.
 const PRECACHE_ASSETS = [
     OFFLINE_URL,
+    // Core stylesheets
+    '/assets/css/theme.css',
+    '/assets/css/tailwind.css',
+    // Core scripts
+    '/js/navbar-scroll.js',
+    '/js/pjax-navigation.js',
+    // Images
     '/assets/img/cropped_maskottchen_32x32.webp',
     '/assets/img/cropped_maskottchen_180x180.webp',
     '/assets/img/cropped_maskottchen_192x192.webp',
@@ -68,9 +77,11 @@ function isApiCall(url) {
 }
 
 // ── Stale-while-revalidate for static assets ──────────────────────────────────
+// Uses ignoreSearch so pre-cached base paths (e.g. /assets/css/theme.css) also
+// serve versioned requests (e.g. /assets/css/theme.css?v=12345).
 function staleWhileRevalidate(request) {
     return caches.open(STATIC_CACHE).then((cache) =>
-        cache.match(request).then((cached) => {
+        cache.match(request, { ignoreSearch: true }).then((cached) => {
             const networkFetch = fetch(request).then((response) => {
                 if (response && response.status === 200) {
                     cache.put(request, response.clone());
