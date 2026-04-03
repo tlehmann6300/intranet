@@ -1,59 +1,65 @@
-# Options -Indexes
+# ==============================================================================
+# 1. GRUNDLEGENDE SICHERHEIT
+# ==============================================================================
+# Verzeichnis-Browsing komplett deaktivieren
+Options -Indexes
 
-# Security: Deny direct HTTP access to sensitive files
-# Covers environment config, secrets, lock files, build/tool config and raw data files.
-<FilesMatch "\.(env|log|sql|bak|sh|htpasswd|json|lock|xml|neon|dist|txt)$">
-    <IfModule mod_authz_core.c>
-        Require all denied
-    </IfModule>
-    <IfModule !mod_authz_core.c>
-        Order allow,deny
-        Deny from all
-    </IfModule>
+# Server-Signatur verbergen (Hacker sollen nicht sehen, welcher Server läuft)
+ServerSignature Off
+ServerTokens Prod
+
+# ==============================================================================
+# 2. ZUGRIFFSSCHUTZ FÜR SENSIBLE DATEIEN & ORDNER
+# ==============================================================================
+# Sperrt den direkten Zugriff auf Code-, Config- und Log-Ordner
+RedirectMatch 404 ^/(private|config|vendor|logs|sql|src|includes)/
+
+# Sperrt den Zugriff auf sensible Dateiendungen (z.B. .env, .log, .sql)
+<FilesMatch "\.(env|ini|log|sh|bak|sql|lock|json)$">
+    Require all denied
 </FilesMatch>
 
-# Allow public-facing manifests and service worker that intentionally live in the root
-<FilesMatch "^(manifest\.json|sw\.js)$">
-    <IfModule mod_authz_core.c>
-        Require all granted
-    </IfModule>
-    <IfModule !mod_authz_core.c>
-        Order deny,allow
-        Allow from all
-    </IfModule>
-</FilesMatch>
+# ==============================================================================
+# 3. HTTP ZU HTTPS WEITERLEITUNG
+# ==============================================================================
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-<IfModule mod_rewrite.c>
-    RewriteEngine On
+# ==============================================================================
+# 4. SECURITY HEADERS (OWASP Best Practices)
+# ==============================================================================
+<IfModule mod_headers.c>
+    # Verhindert Clickjacking (niemand kann dein Intranet in einem iFrame laden)
+    Header always set X-Frame-Options "SAMEORIGIN"
+    
+    # Verhindert MIME-Type Sniffing
+    Header always set X-Content-Type-Options "nosniff"
+    
+    # Aktiviert den XSS-Filter im Browser
+    Header always set X-XSS-Protection "1; mode=block"
+    
+    # HSTS (Zwingt Browser für 1 Jahr nur HTTPS zu nutzen)
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    
+    # Referrer Policy (Gibt keine genauen URLs an externe Seiten weiter)
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    
+    # Content-Security-Policy (CSP) - HINWEIS: Ggf. anpassen, wenn externe Scripte blockiert werden!
+    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:;"
+</IfModule>
 
-    # Enforce HTTPS – redirect all plain-HTTP requests to HTTPS.
-    # Uncomment the next two lines if HTTPS termination is done on this server
-    # (not already handled by a load balancer / reverse proxy sending X-Forwarded-Proto).
-    # RewriteCond %{HTTPS} off
-    # RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# ==============================================================================
+# 5. PERFORMANCE (GZIP & Caching)
+# ==============================================================================
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json image/svg+xml
+</IfModule>
 
-    # When behind a reverse proxy, redirect HTTP → HTTPS using the forwarded proto header.
-    RewriteCond %{HTTP:X-Forwarded-Proto} =http
-    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-
-    # Redirect legacy login URL (bookmarks, emails, session-timeout links)
-    RewriteRule ^pages/auth/login\.php$ /login [QSA,R=301,L]
-
-    # Redirect legacy OAuth callback URL
-    RewriteRule ^auth/callback\.php$ /auth/callback [QSA,R=301,L]
-
-    # Block direct access to PHP scripts in internal directories.
-    # All requests must go through the front-controller so that
-    # authentication, CSRF protection and middleware are enforced uniformly.
-    RewriteCond %{REQUEST_URI} ^(/[^/]+)?/(auth|pages|bootstrap|src|cron|config|vendor)/.*\.php
-    RewriteRule ^ - [F,L]
-
-    # Allow direct access to real files and directories
-    # (assets, uploads remain directly accessible)
-    RewriteCond %{REQUEST_FILENAME} -f [OR]
-    RewriteCond %{REQUEST_FILENAME} -d
-    RewriteRule ^ - [L]
-
-    # Route all other requests through the front-controller (index.php)
-    RewriteRule ^ index.php [L]
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
 </IfModule>
