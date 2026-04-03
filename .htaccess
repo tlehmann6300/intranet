@@ -1,65 +1,45 @@
 # ==============================================================================
-# 1. GRUNDLEGENDE SICHERHEIT
-# ==============================================================================
-# Verzeichnis-Browsing komplett deaktivieren
-Options -Indexes
-
-# Server-Signatur verbergen (Hacker sollen nicht sehen, welcher Server läuft)
-ServerSignature Off
-ServerTokens Prod
-
-# ==============================================================================
-# 2. ZUGRIFFSSCHUTZ FÜR SENSIBLE DATEIEN & ORDNER
-# ==============================================================================
-# Sperrt den direkten Zugriff auf Code-, Config- und Log-Ordner
-RedirectMatch 404 ^/(private|config|vendor|logs|sql|src|includes)/
-
-# Sperrt den Zugriff auf sensible Dateiendungen (z.B. .env, .log, .sql)
-<FilesMatch "\.(env|ini|log|sh|bak|sql|lock|json)$">
-    Require all denied
-</FilesMatch>
-
-# ==============================================================================
-# 3. HTTP ZU HTTPS WEITERLEITUNG
+# 1. DOMAIN & HTTPS ENFORCEMENT
 # ==============================================================================
 RewriteEngine On
+
+# Erzwinge die korrekte Domain (Redirect auf intra.business-consulting.de)
+RewriteCond %{HTTP_HOST} !^intra\.business-consulting\.de$ [NC]
+RewriteRule ^(.*)$ https://intra.business-consulting.de/$1 [L,R=301]
+
+# Erzwinge HTTPS
 RewriteCond %{HTTPS} off
 RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
 # ==============================================================================
-# 4. SECURITY HEADERS (OWASP Best Practices)
+# 2. ZUGRIFFSSCHUTZ (SYSTEM-ORDNER)
+# ==============================================================================
+# Verhindert Verzeichnis-Listing
+Options -Indexes
+
+# Schütze sensible Ordner, erlaube aber explizit assets, pages und api
+RewriteRule ^(private|config|vendor|logs|sql|includes|src)/.*$ - [F,L]
+
+# Schütze Konfigurationsdateien
+<FilesMatch "\.(env|ini|log|sh|bak|sql|json|lock|example)$">
+    Require all denied
+</FilesMatch>
+
+# Erlaube Zugriff auf die login.php explizit (falls nötig, eigentlich durch obige Regeln gedeckt)
+<Files "pages/auth/login.php">
+    Allow from all
+</Files>
+
+# ==============================================================================
+# 3. SECURITY HEADERS (ENTRA ID KOMPATIBEL)
 # ==============================================================================
 <IfModule mod_headers.c>
-    # Verhindert Clickjacking (niemand kann dein Intranet in einem iFrame laden)
     Header always set X-Frame-Options "SAMEORIGIN"
-    
-    # Verhindert MIME-Type Sniffing
     Header always set X-Content-Type-Options "nosniff"
-    
-    # Aktiviert den XSS-Filter im Browser
     Header always set X-XSS-Protection "1; mode=block"
-    
-    # HSTS (Zwingt Browser für 1 Jahr nur HTTPS zu nutzen)
-    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
-    
-    # Referrer Policy (Gibt keine genauen URLs an externe Seiten weiter)
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
     
-    # Content-Security-Policy (CSP) - HINWEIS: Ggf. anpassen, wenn externe Scripte blockiert werden!
-    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:;"
-</IfModule>
-
-# ==============================================================================
-# 5. PERFORMANCE (GZIP & Caching)
-# ==============================================================================
-<IfModule mod_deflate.c>
-    AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json image/svg+xml
-</IfModule>
-
-<IfModule mod_expires.c>
-    ExpiresActive On
-    ExpiresByType image/webp "access plus 1 year"
-    ExpiresByType image/jpeg "access plus 1 year"
-    ExpiresByType text/css "access plus 1 month"
-    ExpiresByType application/javascript "access plus 1 month"
+    # CSP angepasst für Microsoft Auth (login.microsoftonline.com)
+    # HINWEIS: Wenn Grafiken von Microsoft geladen werden, muss 'img-src' angepasst werden
+    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://login.microsoftonline.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://login.microsoftonline.com https://graph.microsoft.com;"
 </IfModule>
