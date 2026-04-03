@@ -116,6 +116,21 @@
     font-size: 9px;
   }
 
+  /* ── SIDEBAR NAV ITEM ───────────────────────────────────────── */
+  .sidebar-nav-item {
+    @apply transition-all duration-300 ease-in-out;
+  }
+
+  /* ── MOBILE BOTTOM NAV ITEM ─────────────────────────────────── */
+  .mobile-bottom-nav-item {
+    @apply transition-all duration-300 ease-in-out;
+  }
+
+  /* ── USER DROPDOWN ITEM ─────────────────────────────────────── */
+  .user-dropdown-item {
+    @apply transition-all duration-300 ease-in-out;
+  }
+
   /* ── SKELETON LOADING – ENTERPRISE SHIMMER ───────────────────── */
   .skeleton-enterprise {
     background: linear-gradient(
