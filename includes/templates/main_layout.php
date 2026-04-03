@@ -702,6 +702,8 @@ if (!isset($currentUser)) {
                 }
             }
         })();
+        // Avatar skeleton: removes the loading shimmer once an avatar image loads or fails
+        function avatarLoaded(img) { img.parentElement.classList.remove('avatar-img-loading'); }
     </script>
     <!-- Sidebar Overlay (mobile) -->
     <div id="sidebar-overlay" class="sidebar-overlay"></div>
@@ -888,12 +890,13 @@ if (!isset($currentUser)) {
                     aria-label="Benutzerprofil öffnen"
                     aria-expanded="false"
                     aria-haspopup="true">
-                <div class="header-avatar" style="background-color:<?php echo htmlspecialchars($sidebarAvatarColor); ?>">
+                <div class="header-avatar avatar-img-loading" style="background-color:<?php echo htmlspecialchars($sidebarAvatarColor); ?>">
                     <span class="header-avatar-initials" aria-hidden="true"><?php echo htmlspecialchars($initials); ?></span>
                     <img src="<?php echo htmlspecialchars($headerImgSrc); ?>"
                          alt=""
                          class="header-avatar-img"
-                         onerror="this.onerror=null; this.style.display='none';">
+                         onload="avatarLoaded(this)"
+                         onerror="this.onerror=null; this.style.display='none'; avatarLoaded(this);">
                 </div>
                 <span class="header-user-name hidden sm:block">
                     <?php echo htmlspecialchars(!empty($firstname) ? $firstname : ($email ?? '')); ?>
@@ -908,12 +911,13 @@ if (!isset($currentUser)) {
         <!-- User info -->
         <div class="p-4 user-dropdown-divider">
             <div class="flex items-center gap-3">
-                <div class="dropdown-avatar" style="background-color:<?php echo htmlspecialchars($sidebarAvatarColor); ?>">
+                <div class="dropdown-avatar avatar-img-loading" style="background-color:<?php echo htmlspecialchars($sidebarAvatarColor); ?>">
                     <span class="header-avatar-initials" aria-hidden="true"><?php echo htmlspecialchars($initials); ?></span>
                     <img src="<?php echo htmlspecialchars($headerImgSrc); ?>"
                          alt=""
                          class="header-avatar-img"
-                         onerror="this.onerror=null; this.style.display='none';">
+                         onload="avatarLoaded(this)"
+                         onerror="this.onerror=null; this.style.display='none'; avatarLoaded(this);">
                 </div>
                 <div class="min-w-0 flex-1">
                     <?php if (!empty($firstname) || !empty($lastname)): ?>
