@@ -991,8 +991,8 @@ if (!isset($currentUser)) {
         ?>
         <div class="p-5 flex-1 overflow-y-auto sidebar-scroll">
             <!-- IBC Logo in Navbar -->
-            <div class="mb-6 px-3 pt-2">
-                <img src="<?php echo asset('assets/img/ibc_logo_original_navbar.webp'); ?>" alt="IBC Logo" class="w-full h-auto drop-shadow-lg" decoding="async">
+            <div class="mb-6 px-3 pt-2 flex justify-center">
+                <img src="<?php echo asset('assets/img/ibc_logo_original_navbar.webp'); ?>" alt="IBC Logo" class="w-4/5 h-auto drop-shadow-lg" decoding="async">
             </div>
             
             <nav aria-label="Hauptnavigation">
@@ -1310,7 +1310,7 @@ if (!isset($currentUser)) {
             <div class="flex flex-col items-center md:flex-row md:justify-between gap-2 text-sm text-gray-500 dark:text-gray-400">
                 <p>&copy; <?php echo date('Y'); ?> IBC Business Consulting. Alle Rechte vorbehalten.</p>
                 <div class="flex gap-4">
-                    <a href="<?php echo asset('pages/impressum.php'); ?>" class="hover:text-ibc-green transition-all duration-300 ease-in-out" aria-label="Impressum – Rechtliche Hinweise">Impressum</a>
+                    <a href="https://business-consulting.de/impressum.html" target="_blank" rel="noopener noreferrer" class="hover:text-ibc-green transition-all duration-300 ease-in-out" aria-label="Impressum – Rechtliche Hinweise">Impressum</a>
                 </div>
             </div>
         </footer>

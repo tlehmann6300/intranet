@@ -117,7 +117,7 @@ ob_start();
         </p>
     </div>
 
-    <!-- Results Grid: Responsive (1 col mobile, 2 col 440px+, 3 cols desktop) -->
+    <!-- Results Grid: Responsive (1 col mobile, 2 col sm, 3 col lg, 4 col xl) -->
     <?php if (empty($members)): ?>
         <div class="card p-12 text-center rounded-2xl border border-dashed border-gray-300 dark:border-gray-600">
             <img src="<?php echo htmlspecialchars(BASE_URL); ?>/assets/img/cropped_maskottchen_270x270.webp"
@@ -133,7 +133,7 @@ ob_start();
         </div>
     <?php else: ?>
         <?php
-        // Pre-compute display data for each member once, shared by both mobile and desktop views
+        // Pre-compute display data for each member once
         $roleBadgeColors = [
             'vorstand_finanzen'   => 'bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-900 dark:text-purple-200 dark:border-purple-700',
             'vorstand_intern'     => 'bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-900 dark:text-purple-200 dark:border-purple-700',
@@ -197,8 +197,8 @@ ob_start();
         }
         ?>
 
-        <!-- Mobile Card View (visible on small screens only) -->
-        <div class="md:hidden directory-grid-responsive grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <!-- Unified Card Grid: 1 col mobile → 2 col sm → 3 col lg → 4 col xl -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             <?php foreach ($members as $idx => $member):
                 extract($memberDisplayData[$idx]);
             ?>
@@ -212,7 +212,7 @@ ob_start();
                             </span>
                         </div>
                         <div class="directory-card-avatar-wrap">
-                            <div class="directory-avatar directory-avatar--sm rounded-circle overflow-hidden border border-3 border-white shadow"
+                            <div class="directory-avatar rounded-circle overflow-hidden border border-3 border-white shadow"
                                  style="background-color:<?php echo htmlspecialchars($avatarColor); ?>;position:relative;color:#fff;font-weight:700;">
                                 <div style="position:absolute;inset:0;" class="d-flex align-items-center justify-content-center">
                                     <?php echo htmlspecialchars($initials); ?>
@@ -299,97 +299,6 @@ ob_start();
                     </div>
                 </div>
             <?php endforeach; ?>
-        </div>
-
-        <!-- Desktop Table View (hidden on mobile, visible on md+ screens) -->
-        <div class="overflow-x-auto w-full hidden md:block">
-            <table class="w-full card-table">
-                <thead class="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-                    <tr>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Mitglied</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Rolle</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Info</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Kontakt</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Aktion</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-100 dark:divide-gray-800">
-                    <?php foreach ($members as $idx => $member):
-                        extract($memberDisplayData[$idx]);
-                    ?>
-                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/60 transition-colors duration-150">
-                            <td class="px-4 py-3 whitespace-nowrap" data-label="Mitglied">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0"
-                                         style="background-color:<?php echo htmlspecialchars($avatarColor); ?>;position:relative;color:#fff;font-weight:700;">
-                                        <div style="position:absolute;inset:0;" class="d-flex align-items-center justify-content-center text-xs">
-                                            <?php echo htmlspecialchars($initials); ?>
-                                        </div>
-                                        <img
-                                            src="<?php echo htmlspecialchars($imageSrc); ?>"
-                                            alt="<?php echo htmlspecialchars($member['first_name'] . ' ' . $member['last_name']); ?>"
-                                            loading="lazy"
-                                            style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"
-                                            onerror="this.onerror=null; this.style.display='none';"
-                                        >
-                                    </div>
-                                    <span class="font-semibold text-sm text-gray-800 dark:text-gray-100">
-                                        <?php echo htmlspecialchars($member['first_name'] . ' ' . $member['last_name']); ?>
-                                    </span>
-                                </div>
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap" data-label="Rolle">
-                                <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold directory-role-badge border <?php echo $badgeClass; ?>">
-                                    <i class="fas <?php echo getRoleIcon($displayRoleKey); ?>" aria-hidden="true"></i>
-                                    <?php echo $displayRole; ?>
-                                </span>
-                            </td>
-                            <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 max-w-xs" data-label="Info">
-                                <?php if (!empty($infoSnippet)): ?>
-                                    <span class="truncate block"><?php echo htmlspecialchars($infoSnippet); ?></span>
-                                <?php else: ?>
-                                    <span class="text-gray-400 dark:text-gray-500">—</span>
-                                <?php endif; ?>
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap" data-label="Kontakt">
-                                <div class="flex items-center gap-2">
-                                    <?php if (!empty($member['email']) && ($canViewPrivate || empty($member['privacy_hide_email']))): ?>
-                                        <a href="mailto:<?php echo htmlspecialchars($member['email']); ?>"
-                                           class="directory-contact-icon"
-                                           title="E-Mail senden">
-                                            <i class="fas fa-envelope"></i>
-                                        </a>
-                                    <?php endif; ?>
-                                    <?php if ($isValidLinkedIn): ?>
-                                        <a href="<?php echo htmlspecialchars($linkedinUrl); ?>"
-                                           target="_blank" rel="noopener noreferrer"
-                                           class="directory-contact-icon"
-                                           title="LinkedIn Profil">
-                                            <i class="fab fa-linkedin-in"></i>
-                                        </a>
-                                    <?php endif; ?>
-                                    <?php if ($isValidXing): ?>
-                                        <a href="<?php echo htmlspecialchars($xingUrl); ?>"
-                                           target="_blank" rel="noopener noreferrer"
-                                           class="directory-contact-icon"
-                                           title="Xing Profil">
-                                            <i class="fab fa-xing"></i>
-                                        </a>
-                                    <?php endif; ?>
-                                </div>
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap" data-label="Aktion">
-                                <a href="view.php?id=<?php echo $member['profile_id']; ?>"
-                                   class="btn btn-sm fw-semibold shadow-sm text-white"
-                                   style="background:linear-gradient(135deg,var(--ibc-green-dark),var(--ibc-green));">
-                                    <i class="fas fa-user me-1"></i>
-                                    Profil ansehen
-                                </a>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
         </div>
     <?php endif; ?>
 </div>
