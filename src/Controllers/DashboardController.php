@@ -31,10 +31,10 @@ class DashboardController extends BaseController
         $userRole = $user['role'] ?? '';
 
         $displayName = 'Benutzer';
-        if (!empty($user['firstname']) && !empty($user['lastname'])) {
-            $displayName = $user['firstname'] . ' ' . $user['lastname'];
-        } elseif (!empty($user['firstname'])) {
-            $displayName = $user['firstname'];
+        if (!empty($user['first_name']) && !empty($user['last_name'])) {
+            $displayName = $user['first_name'] . ' ' . $user['last_name'];
+        } elseif (!empty($user['first_name'])) {
+            $displayName = $user['first_name'];
         } elseif (!empty($user['email']) && strpos($user['email'], '@') !== false) {
             $emailParts  = explode('@', $user['email']);
             $displayName = $emailParts[0];
@@ -145,7 +145,7 @@ class DashboardController extends BaseController
             try {
                 $userDb = \Database::getUserDB();
                 $stmt   = $userDb->prepare(
-                    "SELECT id, firstname, lastname, birthday
+                    "SELECT id, first_name, last_name, birthday
                      FROM users
                      WHERE deleted_at IS NULL AND is_active = 1
                        AND birthday IS NOT NULL

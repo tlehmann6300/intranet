@@ -144,8 +144,10 @@ function formatEntraName($name) {
 /**
  * Escape HTML
  */
-function e($text) {
-    return htmlspecialchars($text ?? '', ENT_QUOTES, 'UTF-8');
+if (!function_exists('e')) {
+    function e($text) {
+        return htmlspecialchars($text ?? '', ENT_QUOTES, 'UTF-8');
+    }
 }
 
 /**

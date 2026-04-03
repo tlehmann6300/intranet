@@ -977,8 +977,14 @@ class Inventory extends Model
     /** @return int|null Always null; categories are managed in EasyVerein. */
     public static function createCategory($name, $description = null, $color = '#3B82F6'): ?int { return null; }
 
+    /** Always returns false; categories are managed in EasyVerein. */
+    public static function deleteCategory(int $id): bool { return false; }
+
     /** @return int|null Always null; locations are managed in EasyVerein. */
     public static function createLocation($name, $description = null, $address = null): ?int { return null; }
+
+    /** Always returns false; locations are managed in EasyVerein. */
+    public static function deleteLocation(int $id): bool { return false; }
 
     /** Import is not supported when EasyVerein is the master data source. */
     public static function importFromJson($data, $userId): array {
