@@ -427,9 +427,277 @@ if (!isset($currentUser)) {
         body.dark-mode footer a:hover {
             color: rgba(255, 255, 255, 0.8) !important;
         }
+
+        /* ══════════════════════════════════════════════════════════
+           BUSINESS CONSULTING REDESIGN
+           Unified top header · User dropdown · Lucide icon support
+           ══════════════════════════════════════════════════════════ */
+
+        /* ── UNIFIED TOP HEADER ──────────────────────────────── */
+        #top-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--topbar-height, 64px);
+            padding: 0 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            backdrop-filter: blur(12px) saturate(1.8);
+            -webkit-backdrop-filter: blur(12px) saturate(1.8);
+            background: rgba(248, 250, 252, 0.88);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+            box-shadow: 0 1px 10px rgba(0, 0, 0, 0.06);
+            z-index: var(--z-topbar, 1060);
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+        @media (min-width: 768px) {
+            #top-header {
+                left: 16rem; /* sidebar w-64 = 256px */
+                padding: 0 1.5rem;
+            }
+        }
+        body.dark-mode #top-header {
+            background: rgba(15, 23, 42, 0.88);
+            border-bottom-color: rgba(255, 255, 255, 0.06);
+            box-shadow: 0 1px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        /* hamburger button inside top header */
+        #mobile-menu-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.75rem;
+            border: none;
+            background: transparent;
+            color: #64748b;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+        #mobile-menu-btn:hover { background: rgba(0,0,0,0.05); color: #334155; }
+        #mobile-menu-btn:focus-visible { outline: 2px solid var(--ibc-blue, #0066b3); outline-offset: 2px; }
+        body.dark-mode #mobile-menu-btn { color: #94a3b8; }
+        body.dark-mode #mobile-menu-btn:hover { background: rgba(255,255,255,0.07); color: #e2e8f0; }
+
+        /* theme-toggle button inside top header */
+        #theme-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: 0.75rem;
+            border: none;
+            background: transparent;
+            color: #64748b;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+        #theme-toggle:hover { background: rgba(0,0,0,0.05); color: #334155; }
+        body.dark-mode #theme-toggle { color: #94a3b8; }
+        body.dark-mode #theme-toggle:hover { background: rgba(255,255,255,0.07); color: #e2e8f0; }
+
+        /* user dropdown trigger button */
+        #user-dropdown-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.5rem 0.25rem 0.25rem;
+            border-radius: 0.75rem;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+        #user-dropdown-btn:hover { background: rgba(0,0,0,0.05); }
+        body.dark-mode #user-dropdown-btn:hover { background: rgba(255,255,255,0.07); }
+        #user-dropdown-btn .header-user-name {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        body.dark-mode #user-dropdown-btn .header-user-name { color: #e2e8f0; }
+
+        /* Lucide chevron in dropdown button */
+        #user-dropdown-btn svg.lucide-chevron-down {
+            width: 0.875rem;
+            height: 0.875rem;
+            color: #94a3b8;
+            flex-shrink: 0;
+        }
+
+        /* ── USER DROPDOWN PANEL ─────────────────────────────── */
+        #user-dropdown {
+            position: fixed;
+            right: 1rem;
+            top: calc(var(--topbar-height, 64px) + 0.375rem);
+            width: 288px;
+            background: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.05);
+            z-index: calc(var(--z-topbar, 1060) + 5);
+            overflow: hidden;
+            transform-origin: top right;
+            transform: scale(0.95) translateY(-6px);
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.15s ease;
+        }
+        #user-dropdown.open {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+        body.dark-mode #user-dropdown {
+            background: #1e293b;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.06);
+        }
+        .user-dropdown-divider {
+            border: none;
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
+            margin: 0;
+        }
+        body.dark-mode .user-dropdown-divider { border-top-color: rgba(255,255,255,0.06); }
+
+        .user-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            width: 100%;
+            padding: 0.625rem 0.75rem;
+            border-radius: 0.625rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            text-decoration: none !important;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: background 0.15s ease, color 0.15s ease;
+            text-align: left;
+            box-sizing: border-box;
+        }
+        .user-dropdown-item:hover {
+            background: #f1f5f9;
+            color: #111827;
+            text-decoration: none !important;
+        }
+        .user-dropdown-item--active {
+            background: #eff6ff;
+            color: var(--ibc-blue, #0066b3);
+            font-weight: 600;
+        }
+        .user-dropdown-item--danger { color: #dc2626; }
+        .user-dropdown-item--danger:hover { background: #fef2f2; color: #b91c1c; }
+
+        body.dark-mode .user-dropdown-item { color: #cbd5e1; }
+        body.dark-mode .user-dropdown-item:hover { background: rgba(255,255,255,0.07); color: #f1f5f9; }
+        body.dark-mode .user-dropdown-item--active { background: rgba(0,102,179,0.2); color: #93c5fd; }
+        body.dark-mode .user-dropdown-item--danger { color: #f87171; }
+        body.dark-mode .user-dropdown-item--danger:hover { background: rgba(239,68,68,0.12); color: #fca5a5; }
+
+        /* Icon sizing inside dropdown items */
+        .user-dropdown-item svg {
+            width: 1rem !important;
+            height: 1rem !important;
+            flex-shrink: 0;
+            stroke: currentColor;
+            fill: none;
+        }
+
+        /* ── LUCIDE SVG SIZING IN SIDEBAR NAV ────────────────── */
+        .sidebar-nav-item .sidebar-nav-icon,
+        .sidebar-nav-item .sidebar-nav-icon svg {
+            width: 1.125rem !important;
+            height: 1.125rem !important;
+            min-width: 1.125rem;
+            flex-shrink: 0;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+        }
+        .sidebar-nav-item .sidebar-nav-icon {
+            margin-right: 0.625rem !important;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ── LUCIDE SVG SIZING IN MOBILE BOTTOM NAV ─────────── */
+        .mobile-bottom-nav-item svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+        }
+
+        /* ── MAIN CONTENT PADDING FOR NEW UNIFIED HEADER ────── */
+        #main-content {
+            padding-top: calc(var(--topbar-height, 64px) + 1.5rem) !important;
+        }
+        @media (max-width: 767px) {
+            #main-content {
+                padding-top: calc(var(--topbar-height, 64px) + 0.75rem) !important;
+                padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px)) !important;
+            }
+        }
+
+        /* ── SIDEBAR: NARROWER CLEAN FOOTER ─────────────────── */
+        .sidebar-clock-area {
+            padding: 0.75rem 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+            text-align: center;
+        }
+
+        /* ── HEADER USER AVATAR ──────────────────────────────── */
+        .header-avatar {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 9999px;
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .header-avatar-initials {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #fff;
+            user-select: none;
+        }
+        .header-avatar-img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .dropdown-avatar {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 9999px;
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+        }
     </style>
 </head>
-<body class="bg-gray-50 text-slate-800 dark:bg-gray-900 dark:text-white overflow-x-hidden" data-user-theme="<?php echo htmlspecialchars($currentUser['theme_preference'] ?? 'auto'); ?>">
+<body class="bg-slate-50 text-slate-800 dark:bg-gray-900 dark:text-white overflow-x-hidden" data-user-theme="<?php echo htmlspecialchars($currentUser['theme_preference'] ?? 'auto'); ?>">
     <script>
         // Apply theme immediately to prevent flash of unstyled content (FOUC)
         (function() {
@@ -456,184 +724,231 @@ if (!isset($currentUser)) {
             }
         })();
     </script>
-    <!-- Mobile Menu Overlay -->
+    <!-- Sidebar Overlay (mobile) -->
     <div id="sidebar-overlay" class="sidebar-overlay"></div>
 
-    <!-- Mobile Header Bar (visible on small screens only) -->
-    <header id="mobile-header" class="mobile-topbar glass-topbar md:hidden flex items-center px-3" aria-label="Mobile-Navigation">
-        <button id="mobile-menu-btn" class="mobile-topbar-btn block md:hidden shrink-0" aria-label="Menü öffnen" aria-expanded="false" aria-controls="mobile-menu">
-            <svg class="w-5 h-5 text-white" id="menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path id="menu-icon-top" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16" class="transition-all duration-300"></path>
+    <?php
+    // ── Pre-compute user data for header dropdown & sidebar ─────────────
+    $currentUser  = Auth::user();
+    $userRole     = $currentUser['role'] ?? '';
+    $firstname    = '';
+    $lastname     = '';
+    $email        = '';
+    $role         = 'User';
+    $displayRoles = [];
+
+    if ($currentUser && isset($currentUser['id'])) {
+        require_once __DIR__ . '/../models/Alumni.php';
+        require_once __DIR__ . '/../models/User.php';
+        $profile = Alumni::getProfileByUserId($currentUser['id']);
+
+        if ($profile && !empty($profile['first_name'])) {
+            $firstname = $profile['first_name'];
+            $lastname  = $profile['last_name'] ?? '';
+        } elseif (!empty($currentUser['first_name'])) {
+            $firstname = $currentUser['first_name'];
+            $lastname  = $currentUser['last_name'] ?? '';
+        }
+
+        $email = $currentUser['email'] ?? '';
+        $role  = $currentUser['role'] ?? 'User';
+
+        // Entra / session / internal roles
+        if (!empty($currentUser['entra_roles'])) {
+            $rolesArray = json_decode($currentUser['entra_roles'], true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($rolesArray)) {
+                foreach ($rolesArray as $r) {
+                    $label = is_array($r) && isset($r['displayName'])
+                        ? $r['displayName']
+                        : translateAzureRole($r);
+                    if (!empty($label)) { $displayRoles[] = $label; }
+                }
+            }
+        } elseif (!empty($_SESSION['entra_roles'])) {
+            if (is_array($_SESSION['entra_roles'])) {
+                $displayRoles = extractGroupDisplayNames($_SESSION['entra_roles']);
+            }
+        } elseif (!empty($_SESSION['azure_roles'])) {
+            if (is_array($_SESSION['azure_roles'])) {
+                $displayRoles = array_filter(array_map('translateAzureRole', $_SESSION['azure_roles']));
+            } else {
+                $sessionRoles = json_decode($_SESSION['azure_roles'], true);
+                if (json_last_error() === JSON_ERROR_NONE && is_array($sessionRoles)) {
+                    $displayRoles = array_filter(array_map('translateAzureRole', $sessionRoles));
+                }
+            }
+        }
+
+        if (empty($displayRoles)) {
+            $displayRoles = [translateRole($role)];
+        }
+    }
+
+    // Initials
+    if (!empty($firstname) && !empty($lastname)) {
+        $initials = strtoupper(substr($firstname, 0, 1) . substr($lastname, 0, 1));
+    } elseif (!empty($firstname)) {
+        $initials = strtoupper(substr($firstname, 0, 1));
+    } elseif (!empty($lastname)) {
+        $initials = strtoupper(substr($lastname, 0, 1));
+    } elseif (!empty($email)) {
+        $initials = strtoupper(substr($email, 0, 1));
+    } else {
+        $initials = 'U';
+    }
+
+    // Role badge colour config
+    $roleBadgeConfig = [
+        'admin'             => ['bg' => '#dc2626', 'text' => '#fff'],
+        'vorstand_intern'   => ['bg' => '#d97706', 'text' => '#fff'],
+        'vorstand_extern'   => ['bg' => '#d97706', 'text' => '#fff'],
+        'vorstand_finanzen' => ['bg' => '#d97706', 'text' => '#fff'],
+        'alumni_vorstand'   => ['bg' => '#2563eb', 'text' => '#fff'],
+        'alumni_finanz'     => ['bg' => '#2563eb', 'text' => '#fff'],
+        'alumni'            => ['bg' => '#0891b2', 'text' => '#fff'],
+        'ressortleiter'     => ['bg' => '#7c3aed', 'text' => '#fff'],
+        'mitglied'          => ['bg' => '#4f46e5', 'text' => '#fff'],
+        'anwaerter'         => ['bg' => '#ea580c', 'text' => '#fff'],
+        'ehrenmitglied'     => ['bg' => '#be185d', 'text' => '#fff'],
+    ];
+    $badgeCfg   = $roleBadgeConfig[$role] ?? ['bg' => '#374151', 'text' => '#fff'];
+    $badgeStyle = 'background:' . htmlspecialchars($badgeCfg['bg']) . '; color:' . htmlspecialchars($badgeCfg['text']) . ';';
+
+    // Avatar sources (Entra ID photo via Graph API or locally stored avatar)
+    $sidebarAvatarColor = getAvatarColor($firstname . ' ' . $lastname);
+    if (!empty($email)) {
+        $headerImgSrc  = asset('fetch-profile-photo.php') . '?email=' . urlencode($email);
+        $sidebarImgSrc = $headerImgSrc;
+    } else {
+        $headerImgSrc  = asset(User::getProfilePictureUrl((int)($currentUser['id'] ?? 0), $currentUser ?? []));
+        $sidebarImgSrc = $headerImgSrc;
+    }
+    ?>
+
+    <!-- ════════════════════════════════════════════════════════════
+         UNIFIED TOP HEADER BAR
+         Desktop: offset left by sidebar width (md:left-64)
+         Mobile:  full-width with hamburger
+         Uses backdrop-blur-md for the frosted glass effect
+         ════════════════════════════════════════════════════════════ -->
+    <header id="top-header" aria-label="Hauptnavigation oben">
+        <!-- Mobile hamburger (hidden on desktop) -->
+        <button id="mobile-menu-btn"
+                class="md:hidden"
+                aria-label="Menü öffnen"
+                aria-expanded="false"
+                aria-controls="sidebar">
+            <svg id="menu-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path id="menu-icon-top"    stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16"  class="transition-all duration-300"></path>
                 <path id="menu-icon-middle" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 12h16" class="transition-all duration-300"></path>
                 <path id="menu-icon-bottom" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 18h16" class="transition-all duration-300"></path>
             </svg>
         </button>
-        <div class="flex-1 flex flex-col items-center justify-center select-none">
-            <span class="text-white font-bold text-sm tracking-wide leading-tight">IBC Intranet</span>
-            <span class="mobile-topbar-page-title text-white/60 text-[11px] font-medium leading-tight"><?php echo htmlspecialchars($title ?? 'Dashboard'); ?></span>
+
+        <!-- Page title -->
+        <div class="flex-1 min-w-0 px-2">
+            <p class="text-sm font-semibold text-slate-700 dark:text-slate-100 truncate leading-snug">
+                <?php echo htmlspecialchars($title ?? 'Dashboard'); ?>
+            </p>
+            <p class="text-[11px] text-slate-400 dark:text-slate-500 hidden sm:block leading-snug">IBC Business Consulting</p>
         </div>
+
+        <!-- Right-side actions -->
         <div class="flex items-center gap-1 shrink-0">
-            <button id="mobile-theme-toggle" class="mobile-topbar-btn" aria-label="Zwischen hellem und dunklem Modus wechseln">
-                <i id="mobile-theme-icon" class="fas fa-moon text-white text-base" aria-hidden="true"></i>
+            <!-- Theme toggle -->
+            <button id="theme-toggle"
+                    aria-label="Zwischen hellem und dunklem Modus wechseln">
+                <i id="theme-icon" data-lucide="moon" class="w-4 h-4" aria-hidden="true"></i>
+            </button>
+
+            <!-- User dropdown trigger: shows Entra ID avatar (via Graph API) -->
+            <button id="user-dropdown-btn"
+                    aria-label="Benutzerprofil öffnen"
+                    aria-expanded="false"
+                    aria-haspopup="true">
+                <div class="header-avatar" style="background-color:<?php echo htmlspecialchars($sidebarAvatarColor); ?>">
+                    <span class="header-avatar-initials" aria-hidden="true"><?php echo htmlspecialchars($initials); ?></span>
+                    <img src="<?php echo htmlspecialchars($headerImgSrc); ?>"
+                         alt=""
+                         class="header-avatar-img"
+                         onerror="this.onerror=null; this.style.display='none';">
+                </div>
+                <span class="header-user-name hidden sm:block">
+                    <?php echo htmlspecialchars(!empty($firstname) ? $firstname : ($email ?? '')); ?>
+                </span>
+                <i data-lucide="chevron-down" class="w-3.5 h-3.5 hidden sm:block" aria-hidden="true"></i>
             </button>
         </div>
     </header>
 
-    <!-- Mobile Slide-Down Nav Menu (block md:hidden, toggled by #mobile-menu-btn) -->
-    <div id="mobile-menu"
-         class="hidden md:hidden fixed left-0 right-0 overflow-y-auto z-50"
-         style="top: calc(var(--topbar-height) + env(safe-area-inset-top, 0px)); max-height: calc(100dvh - var(--topbar-height) - env(safe-area-inset-top, 0px) - 4rem); background-color: var(--bg-card); border-bottom: 1px solid var(--border-color); box-shadow: 0 8px 32px rgba(0,0,0,0.18);"
-         role="navigation"
-         aria-label="Mobile Navigation"
-         aria-hidden="true">
-        <nav class="flex flex-col space-y-4" aria-label="Hauptnavigation">
-            <!-- Dashboard -->
-            <a href="<?php echo asset('pages/dashboard/index.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/dashboard/') ? 'mobile-menu-link--active' : ''; ?>"
-               <?php echo is_nav_active('/dashboard/') ? 'aria-current="page"' : ''; ?>>
-                <i class="fas fa-home w-5 text-center flex-shrink-0" style="color: var(--ibc-blue);" aria-hidden="true"></i>
-                <span>Dashboard</span>
-            </a>
+    <!-- User Dropdown Panel (position: fixed, toggles open/closed via JS) -->
+    <div id="user-dropdown" role="menu" aria-labelledby="user-dropdown-btn" aria-hidden="true">
+        <!-- User info -->
+        <div class="p-4 user-dropdown-divider">
+            <div class="flex items-center gap-3">
+                <div class="dropdown-avatar" style="background-color:<?php echo htmlspecialchars($sidebarAvatarColor); ?>">
+                    <span class="header-avatar-initials" aria-hidden="true"><?php echo htmlspecialchars($initials); ?></span>
+                    <img src="<?php echo htmlspecialchars($headerImgSrc); ?>"
+                         alt=""
+                         class="header-avatar-img"
+                         onerror="this.onerror=null; this.style.display='none';">
+                </div>
+                <div class="min-w-0 flex-1">
+                    <?php if (!empty($firstname) || !empty($lastname)): ?>
+                    <p class="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">
+                        <?php echo htmlspecialchars(trim($firstname . ' ' . $lastname)); ?>
+                    </p>
+                    <?php endif; ?>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 truncate"><?php echo htmlspecialchars($email); ?></p>
+                    <?php if (!empty($displayRoles)): ?>
+                    <span class="role-badge inline-flex items-center gap-1 mt-1 max-w-full"
+                          style="<?php echo $badgeStyle; ?>"
+                          title="<?php echo htmlspecialchars(implode(', ', $displayRoles)); ?>"
+                          aria-label="Rolle: <?php echo htmlspecialchars($displayRoles[0]); ?>">
+                        <i class="fas <?php echo getRoleIcon($role); ?> flex-shrink-0" aria-hidden="true"></i>
+                        <span class="truncate"><?php echo htmlspecialchars($displayRoles[0]); ?></span>
+                    </span>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
 
-            <!-- Kommunikation -->
-            <div class="mobile-menu-section-label">Kommunikation</div>
-            <a href="<?php echo asset('pages/newsletter/index.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/newsletter/') ? 'mobile-menu-link--active' : ''; ?>"
-               <?php echo is_nav_active('/newsletter/') ? 'aria-current="page"' : ''; ?>>
-                <i class="fas fa-envelope-open-text w-5 text-center flex-shrink-0" style="color: var(--ibc-blue);" aria-hidden="true"></i>
-                <span>Newsletter</span>
-            </a>
-            <a href="<?php echo asset('pages/blog/index.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/blog/') ? 'mobile-menu-link--active' : ''; ?>"
-               <?php echo is_nav_active('/blog/') ? 'aria-current="page"' : ''; ?>>
-                <i class="fas fa-newspaper w-5 text-center flex-shrink-0" style="color: var(--ibc-blue);" aria-hidden="true"></i>
-                <span>Blog</span>
-            </a>
-            <a href="<?php echo asset('pages/jobs/index.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/jobs/') ? 'mobile-menu-link--active' : ''; ?>"
-               <?php echo is_nav_active('/jobs/') ? 'aria-current="page"' : ''; ?>>
-                <i class="fas fa-briefcase w-5 text-center flex-shrink-0" style="color: var(--ibc-blue);" aria-hidden="true"></i>
-                <span>Job- &amp; Praktikumsbörse</span>
-            </a>
-
-            <!-- Community -->
-            <div class="mobile-menu-section-label">Community</div>
-            <a href="<?php echo asset('pages/events/index.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/events/') && !is_nav_active('/events/helpers.php') ? 'mobile-menu-link--active' : ''; ?>"
-               <?php echo is_nav_active('/events/') && !is_nav_active('/events/helpers.php') ? 'aria-current="page"' : ''; ?>>
-                <i class="fas fa-calendar w-5 text-center flex-shrink-0" style="color: var(--ibc-blue);" aria-hidden="true"></i>
-                <span>Events</span>
-            </a>
-            <a href="<?php echo asset('pages/events/helpers.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/events/helpers.php') ? 'mobile-menu-link--active' : ''; ?>"
-               <?php echo is_nav_active('/events/helpers.php') ? 'aria-current="page"' : ''; ?>>
-                <i class="fas fa-hands-helping w-5 text-center flex-shrink-0" style="color: var(--ibc-blue);" aria-hidden="true"></i>
-                <span>Helfersystem</span>
-            </a>
-            <a href="<?php echo asset('pages/projects/index.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/projects/') ? 'mobile-menu-link--active' : ''; ?>"
-               <?php echo is_nav_active('/projects/') ? 'aria-current="page"' : ''; ?>>
-                <i class="fas fa-project-diagram w-5 text-center flex-shrink-0" style="color: var(--ibc-blue);" aria-hidden="true"></i>
-                <span>Projekte</span>
-            </a>
-            <?php if (Auth::canAccessPage('ideas')): ?>
-            <a href="<?php echo asset('pages/ideas/index.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/ideas/') ? 'mobile-menu-link--active' : ''; ?>"
-               <?php echo is_nav_active('/ideas/') ? 'aria-current="page"' : ''; ?>>
-                <i class="fas fa-lightbulb w-5 text-center flex-shrink-0" style="color: var(--ibc-blue);" aria-hidden="true"></i>
-                <span>Ideenbox</span>
-            </a>
-            <?php endif; ?>
-
-            <!-- Daten -->
-            <div class="mobile-menu-section-label">Daten</div>
-            <a href="<?php echo asset('pages/alumni/index.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/alumni/') && !is_nav_active('/alumni/requests.php') ? 'mobile-menu-link--active' : ''; ?>"
-               <?php echo is_nav_active('/alumni/') && !is_nav_active('/alumni/requests.php') ? 'aria-current="page"' : ''; ?>>
-                <i class="fas fa-user-graduate w-5 text-center flex-shrink-0" style="color: var(--ibc-blue);" aria-hidden="true"></i>
-                <span>Alumni-Datenbank</span>
-            </a>
-            <?php if (Auth::canAccessPage('members')): ?>
-            <a href="<?php echo asset('pages/members/index.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/members/') ? 'mobile-menu-link--active' : ''; ?>"
-               <?php echo is_nav_active('/members/') ? 'aria-current="page"' : ''; ?>>
-                <i class="fas fa-users w-5 text-center flex-shrink-0" style="color: var(--ibc-blue);" aria-hidden="true"></i>
-                <span>Mitglieder-Datenbank</span>
-            </a>
-            <?php endif; ?>
-
-            <!-- Tools & Services -->
-            <div class="mobile-menu-section-label">Tools &amp; Services</div>
-            <a href="<?php echo asset('pages/inventory/index.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/inventory/') && !is_nav_active('/my_rentals.php') && !is_nav_active('/checkout.php') ? 'mobile-menu-link--active' : ''; ?>"
-               <?php echo is_nav_active('/inventory/') && !is_nav_active('/my_rentals.php') && !is_nav_active('/checkout.php') ? 'aria-current="page"' : ''; ?>>
-                <i class="fas fa-box w-5 text-center flex-shrink-0" style="color: var(--ibc-blue);" aria-hidden="true"></i>
-                <span>Inventar</span>
-            </a>
-            <a href="<?php echo asset('pages/inventory/my_rentals.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/my_rentals.php') ? 'mobile-menu-link--active' : ''; ?>"
-               <?php echo is_nav_active('/my_rentals.php') ? 'aria-current="page"' : ''; ?>>
-                <i class="fas fa-clipboard-list w-5 text-center flex-shrink-0" style="color: var(--ibc-blue);" aria-hidden="true"></i>
-                <span>Ausleihe</span>
-            </a>
-            <?php if (Auth::canAccessPage('invoices')): ?>
-            <a href="<?php echo asset('pages/invoices/index.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/invoices/') ? 'mobile-menu-link--active' : ''; ?>"
-               <?php echo is_nav_active('/invoices/') ? 'aria-current="page"' : ''; ?>>
-                <i class="fas fa-file-invoice-dollar w-5 text-center flex-shrink-0" style="color: var(--ibc-blue);" aria-hidden="true"></i>
-                <span>Rechnungen</span>
-            </a>
-            <?php endif; ?>
-            <?php if (Auth::canAccessPage('polls')): ?>
-            <a href="<?php echo asset('pages/polls/index.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/polls/') ? 'mobile-menu-link--active' : ''; ?>"
-               <?php echo is_nav_active('/polls/') ? 'aria-current="page"' : ''; ?>>
-                <i class="fas fa-poll w-5 text-center flex-shrink-0" style="color: var(--ibc-blue);" aria-hidden="true"></i>
-                <span>Umfragen</span>
-            </a>
-            <?php endif; ?>
-
-            <!-- Administration -->
-            <?php if (Auth::canCreateBasicContent()): ?>
-            <div class="mobile-menu-section-label">Administration</div>
-            <a href="<?php echo asset('pages/admin/vcards.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/admin/vcards.php') ? 'mobile-menu-link--active' : ''; ?>"
-               <?php echo is_nav_active('/admin/vcards.php') ? 'aria-current="page"' : ''; ?>>
-                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--ibc-blue);" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-                </svg>
-                <span>Digitale Visitenkarten</span>
-            </a>
-            <?php endif; ?>
-
-            <!-- Konto -->
-            <div class="mobile-menu-section-label">Konto</div>
+        <!-- Navigation links -->
+        <div class="p-2">
             <a href="<?php echo asset('pages/auth/profile.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/auth/profile.php') ? 'mobile-menu-link--active' : ''; ?>"
+               class="user-dropdown-item <?php echo is_nav_active('/auth/profile.php') ? 'user-dropdown-item--active' : ''; ?>"
+               role="menuitem"
                <?php echo is_nav_active('/auth/profile.php') ? 'aria-current="page"' : ''; ?>>
-                <i class="fas fa-user w-5 text-center flex-shrink-0" style="color: var(--ibc-blue);" aria-hidden="true"></i>
+                <i data-lucide="user" class="w-4 h-4 shrink-0" aria-hidden="true"></i>
                 <span>Mein Profil</span>
             </a>
             <a href="<?php echo asset('pages/auth/settings.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/auth/settings.php') ? 'mobile-menu-link--active' : ''; ?>"
+               class="user-dropdown-item <?php echo is_nav_active('/auth/settings.php') ? 'user-dropdown-item--active' : ''; ?>"
+               role="menuitem"
                <?php echo is_nav_active('/auth/settings.php') ? 'aria-current="page"' : ''; ?>>
-                <i class="fas fa-cog w-5 text-center flex-shrink-0" style="color: var(--ibc-blue);" aria-hidden="true"></i>
+                <i data-lucide="settings" class="w-4 h-4 shrink-0" aria-hidden="true"></i>
                 <span>Einstellungen</span>
             </a>
+            <button id="theme-toggle-dropdown" class="user-dropdown-item" role="menuitem" type="button">
+                <i id="theme-icon-dropdown" data-lucide="moon" class="w-4 h-4 shrink-0" aria-hidden="true"></i>
+                <span id="theme-text-dropdown">Darkmode</span>
+            </button>
+        </div>
+        <hr class="user-dropdown-divider">
+        <div class="p-2">
             <a href="<?php echo asset('pages/auth/logout.php'); ?>"
-               class="mobile-menu-link"
-               style="color: var(--ibc-error);">
-                <i class="fas fa-sign-out-alt w-5 text-center flex-shrink-0" aria-hidden="true"></i>
+               class="user-dropdown-item user-dropdown-item--danger"
+               role="menuitem">
+                <i data-lucide="log-out" class="w-4 h-4 shrink-0" aria-hidden="true"></i>
                 <span>Abmelden</span>
             </a>
-        </nav>
+        </div>
     </div>
 
-    <!-- Sidebar -->
-    <aside id="sidebar" class="sidebar glass-sidebar fixed left-0 top-0 h-screen w-64 md:w-72 transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-40 text-white shadow-2xl flex flex-col backdrop-blur-2xl" aria-label="Seitenleiste">
-        <?php 
-        $currentUser = Auth::user();
-        $userRole = $currentUser['role'] ?? '';
+    <!-- Sidebar (Business Consulting – dark, fixed left, Lucide icons) -->
+    <aside id="sidebar" class="sidebar glass-sidebar fixed left-0 top-0 h-screen w-64 transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-40 text-white shadow-2xl flex flex-col backdrop-blur-2xl" aria-label="Seitenleiste">
+        <?php
+        // $currentUser, $userRole already set by the early PHP block above
         ?>
         <div class="p-5 flex-1 overflow-y-auto sidebar-scroll">
             <!-- IBC Logo in Navbar -->
@@ -646,7 +961,7 @@ if (!isset($currentUser)) {
                 <a href="<?php echo asset('pages/dashboard/index.php'); ?>" 
                    class="sidebar-nav-item <?php echo is_nav_active('/dashboard/') ? 'sidebar-nav-item--active' : ''; ?>"
                    <?php echo is_nav_active('/dashboard/') ? 'aria-current="page"' : ''; ?>>
-                    <i class="fas fa-home sidebar-nav-icon" aria-hidden="true"></i>
+                    <i data-lucide="layout-dashboard" class="sidebar-nav-icon" aria-hidden="true"></i>
                     <span>Dashboard</span>
                 </a>
 
@@ -657,7 +972,7 @@ if (!isset($currentUser)) {
                 <a href="<?php echo asset('pages/newsletter/index.php'); ?>"
                    class="sidebar-nav-item <?php echo is_nav_active('/newsletter/') ? 'sidebar-nav-item--active' : ''; ?>"
                    <?php echo is_nav_active('/newsletter/') ? 'aria-current="page"' : ''; ?>>
-                    <i class="fas fa-envelope-open-text sidebar-nav-icon" aria-hidden="true"></i>
+                    <i data-lucide="mail" class="sidebar-nav-icon" aria-hidden="true"></i>
                     <span>Newsletter</span>
                 </a>
 
@@ -665,7 +980,7 @@ if (!isset($currentUser)) {
                 <a href="<?php echo asset('pages/blog/index.php'); ?>" 
                    class="sidebar-nav-item <?php echo is_nav_active('/blog/') ? 'sidebar-nav-item--active' : ''; ?>"
                    <?php echo is_nav_active('/blog/') ? 'aria-current="page"' : ''; ?>>
-                    <i class="fas fa-newspaper sidebar-nav-icon" aria-hidden="true"></i>
+                    <i data-lucide="newspaper" class="sidebar-nav-icon" aria-hidden="true"></i>
                     <span>Blog</span>
                 </a>
 
@@ -673,7 +988,7 @@ if (!isset($currentUser)) {
                 <a href="<?php echo asset('pages/jobs/index.php'); ?>"
                    class="sidebar-nav-item <?php echo is_nav_active('/jobs/') ? 'sidebar-nav-item--active' : ''; ?>"
                    <?php echo is_nav_active('/jobs/') ? 'aria-current="page"' : ''; ?>>
-                    <i class="fas fa-briefcase sidebar-nav-icon" aria-hidden="true"></i>
+                    <i data-lucide="briefcase" class="sidebar-nav-icon" aria-hidden="true"></i>
                     <span>Job- &amp; Praktikumsbörse</span>
                 </a>
 
@@ -684,7 +999,7 @@ if (!isset($currentUser)) {
                 <a href="<?php echo asset('pages/events/index.php'); ?>" 
                    class="sidebar-nav-item <?php echo is_nav_active('/events/') && !is_nav_active('/events/helpers.php') ? 'sidebar-nav-item--active' : ''; ?>"
                    <?php echo is_nav_active('/events/') && !is_nav_active('/events/helpers.php') ? 'aria-current="page"' : ''; ?>>
-                    <i class="fas fa-calendar sidebar-nav-icon" aria-hidden="true"></i>
+                    <i data-lucide="calendar" class="sidebar-nav-icon" aria-hidden="true"></i>
                     <span>Events</span>
                 </a>
 
@@ -692,7 +1007,7 @@ if (!isset($currentUser)) {
                 <a href="<?php echo asset('pages/events/helpers.php'); ?>" 
                    class="sidebar-nav-item <?php echo is_nav_active('/events/helpers.php') ? 'sidebar-nav-item--active' : ''; ?>"
                    <?php echo is_nav_active('/events/helpers.php') ? 'aria-current="page"' : ''; ?>>
-                    <i class="fas fa-hands-helping sidebar-nav-icon" aria-hidden="true"></i>
+                    <i data-lucide="heart-handshake" class="sidebar-nav-icon" aria-hidden="true"></i>
                     <span>Helfersystem</span>
                 </a>
 
@@ -700,7 +1015,7 @@ if (!isset($currentUser)) {
                 <a href="<?php echo asset('pages/projects/index.php'); ?>" 
                    class="sidebar-nav-item <?php echo is_nav_active('/projects/') ? 'sidebar-nav-item--active' : ''; ?>"
                    <?php echo is_nav_active('/projects/') ? 'aria-current="page"' : ''; ?>>
-                    <i class="fas fa-project-diagram sidebar-nav-icon" aria-hidden="true"></i>
+                    <i data-lucide="git-branch" class="sidebar-nav-icon" aria-hidden="true"></i>
                     <span>Projekte</span>
                 </a>
 
@@ -709,7 +1024,7 @@ if (!isset($currentUser)) {
                 <a href="<?php echo asset('pages/ideas/index.php'); ?>" 
                    class="sidebar-nav-item <?php echo is_nav_active('/ideas/') ? 'sidebar-nav-item--active' : ''; ?>"
                    <?php echo is_nav_active('/ideas/') ? 'aria-current="page"' : ''; ?>>
-                    <i class="fas fa-lightbulb sidebar-nav-icon" aria-hidden="true"></i>
+                    <i data-lucide="lightbulb" class="sidebar-nav-icon" aria-hidden="true"></i>
                     <span>Ideenbox</span>
                 </a>
                 <?php endif; ?>
@@ -721,7 +1036,7 @@ if (!isset($currentUser)) {
                 <a href="<?php echo asset('pages/alumni/index.php'); ?>" 
                    class="sidebar-nav-item <?php echo is_nav_active('/alumni/') && !is_nav_active('/alumni/requests.php') ? 'sidebar-nav-item--active' : ''; ?>"
                    <?php echo is_nav_active('/alumni/') && !is_nav_active('/alumni/requests.php') ? 'aria-current="page"' : ''; ?>>
-                    <i class="fas fa-user-graduate sidebar-nav-icon" aria-hidden="true"></i>
+                    <i data-lucide="graduation-cap" class="sidebar-nav-icon" aria-hidden="true"></i>
                     <span>Alumni-Datenbank</span>
                 </a>
 
@@ -730,7 +1045,7 @@ if (!isset($currentUser)) {
                 <a href="<?php echo asset('pages/members/index.php'); ?>" 
                    class="sidebar-nav-item <?php echo is_nav_active('/members/') ? 'sidebar-nav-item--active' : ''; ?>"
                    <?php echo is_nav_active('/members/') ? 'aria-current="page"' : ''; ?>>
-                    <i class="fas fa-users sidebar-nav-icon" aria-hidden="true"></i>
+                    <i data-lucide="users" class="sidebar-nav-icon" aria-hidden="true"></i>
                     <span>Mitglieder-Datenbank</span>
                 </a>
                 <?php endif; ?>
@@ -742,7 +1057,7 @@ if (!isset($currentUser)) {
                 <a href="<?php echo asset('pages/inventory/index.php'); ?>" 
                    class="sidebar-nav-item <?php echo is_nav_active('/inventory/') && !is_nav_active('/my_rentals.php') && !is_nav_active('/checkout.php') ? 'sidebar-nav-item--active' : ''; ?>"
                    <?php echo is_nav_active('/inventory/') && !is_nav_active('/my_rentals.php') && !is_nav_active('/checkout.php') ? 'aria-current="page"' : ''; ?>>
-                    <i class="fas fa-box sidebar-nav-icon" aria-hidden="true"></i>
+                    <i data-lucide="package" class="sidebar-nav-icon" aria-hidden="true"></i>
                     <span>Inventar</span>
                 </a>
 
@@ -750,7 +1065,7 @@ if (!isset($currentUser)) {
                 <a href="<?php echo asset('pages/inventory/my_rentals.php'); ?>" 
                    class="sidebar-nav-item <?php echo is_nav_active('/my_rentals.php') ? 'sidebar-nav-item--active' : ''; ?>"
                    <?php echo is_nav_active('/my_rentals.php') ? 'aria-current="page"' : ''; ?>>
-                    <i class="fas fa-clipboard-list sidebar-nav-icon" aria-hidden="true"></i>
+                    <i data-lucide="clipboard-list" class="sidebar-nav-icon" aria-hidden="true"></i>
                     <span>Ausleihe</span>
                 </a>
 
@@ -759,7 +1074,7 @@ if (!isset($currentUser)) {
                 <a href="<?php echo asset('pages/invoices/index.php'); ?>" 
                    class="sidebar-nav-item <?php echo is_nav_active('/invoices/') ? 'sidebar-nav-item--active' : ''; ?>"
                    <?php echo is_nav_active('/invoices/') ? 'aria-current="page"' : ''; ?>>
-                    <i class="fas fa-file-invoice-dollar sidebar-nav-icon" aria-hidden="true"></i>
+                    <i data-lucide="receipt" class="sidebar-nav-icon" aria-hidden="true"></i>
                     <span>Rechnungen</span>
                 </a>
                 <?php endif; ?>
@@ -769,7 +1084,7 @@ if (!isset($currentUser)) {
                 <a href="<?php echo asset('pages/alumni/requests.php'); ?>" 
                    class="sidebar-nav-item <?php echo is_nav_active('/alumni/requests.php') ? 'sidebar-nav-item--active' : ''; ?>"
                    <?php echo is_nav_active('/alumni/requests.php') ? 'aria-current="page"' : ''; ?>>
-                    <i class="fas fa-chalkboard-teacher sidebar-nav-icon" aria-hidden="true"></i>
+                    <i data-lucide="book-open" class="sidebar-nav-icon" aria-hidden="true"></i>
                     <span>Schulungsanfrage</span>
                 </a>
                 <?php endif; ?>
@@ -779,7 +1094,7 @@ if (!isset($currentUser)) {
                 <a href="<?php echo asset('pages/links/index.php'); ?>" 
                    class="sidebar-nav-item <?php echo is_nav_active('/links/') ? 'sidebar-nav-item--active' : ''; ?>"
                    <?php echo is_nav_active('/links/') ? 'aria-current="page"' : ''; ?>>
-                    <i class="fas fa-link sidebar-nav-icon" aria-hidden="true"></i>
+                    <i data-lucide="link" class="sidebar-nav-icon" aria-hidden="true"></i>
                     <span>Nützliche Links</span>
                 </a>
                 <?php endif; ?>
@@ -789,7 +1104,7 @@ if (!isset($currentUser)) {
                    target="_blank"
                    rel="noopener noreferrer"
                    class="sidebar-nav-item">
-                    <i class="fas fa-shopping-cart sidebar-nav-icon" aria-hidden="true"></i>
+                    <i data-lucide="shopping-cart" class="sidebar-nav-icon" aria-hidden="true"></i>
                     <span>Shop</span>
                 </a>
 
@@ -798,7 +1113,7 @@ if (!isset($currentUser)) {
                 <a href="<?php echo asset('pages/polls/index.php'); ?>" 
                    class="sidebar-nav-item <?php echo is_nav_active('/polls/') ? 'sidebar-nav-item--active' : ''; ?>"
                    <?php echo is_nav_active('/polls/') ? 'aria-current="page"' : ''; ?>>
-                    <i class="fas fa-poll sidebar-nav-icon" aria-hidden="true"></i>
+                    <i data-lucide="bar-chart-2" class="sidebar-nav-icon" aria-hidden="true"></i>
                     <span>Umfragen</span>
                 </a>
                 <?php endif; ?>
@@ -813,7 +1128,7 @@ if (!isset($currentUser)) {
                 <a href="<?php echo asset('pages/admin/users.php'); ?>" 
                    class="sidebar-nav-item <?php echo is_nav_active('/admin/users.php') ? 'sidebar-nav-item--active' : ''; ?>"
                    <?php echo is_nav_active('/admin/users.php') ? 'aria-current="page"' : ''; ?>>
-                    <i class="fas fa-users-cog sidebar-nav-icon" aria-hidden="true"></i>
+                    <i data-lucide="user-cog" class="sidebar-nav-icon" aria-hidden="true"></i>
                     <span>Benutzerverwaltung</span>
                 </a>
                 <?php endif; ?>
@@ -823,7 +1138,7 @@ if (!isset($currentUser)) {
                 <a href="<?php echo asset('pages/admin/index.php'); ?>" 
                    class="sidebar-nav-item <?php echo is_nav_active('/admin/index.php') ? 'sidebar-nav-item--active' : ''; ?>"
                    <?php echo is_nav_active('/admin/index.php') ? 'aria-current="page"' : ''; ?>>
-                    <i class="fas fa-tachometer-alt sidebar-nav-icon" aria-hidden="true"></i>
+                    <i data-lucide="gauge" class="sidebar-nav-icon" aria-hidden="true"></i>
                     <span>Dashboard</span>
                 </a>
                 <?php endif; ?>
@@ -833,7 +1148,7 @@ if (!isset($currentUser)) {
                 <a href="<?php echo asset('pages/admin/rental_returns.php'); ?>" 
                    class="sidebar-nav-item <?php echo is_nav_active('/admin/rental_returns.php') ? 'sidebar-nav-item--active' : ''; ?>"
                    <?php echo is_nav_active('/admin/rental_returns.php') ? 'aria-current="page"' : ''; ?>>
-                    <i class="fas fa-clipboard-check sidebar-nav-icon" aria-hidden="true"></i>
+                    <i data-lucide="clipboard-check" class="sidebar-nav-icon" aria-hidden="true"></i>
                     <span>Inventarverwaltung</span>
                 </a>
                 <?php endif; ?>
@@ -843,7 +1158,7 @@ if (!isset($currentUser)) {
                 <a href="<?php echo asset('pages/admin/project_applications.php'); ?>"
                    class="sidebar-nav-item <?php echo is_nav_active('/admin/project_applications.php') ? 'sidebar-nav-item--active' : ''; ?>"
                    <?php echo is_nav_active('/admin/project_applications.php') ? 'aria-current="page"' : ''; ?>>
-                    <i class="fas fa-file-alt sidebar-nav-icon" aria-hidden="true"></i>
+                    <i data-lucide="file-text" class="sidebar-nav-icon" aria-hidden="true"></i>
                     <span>Bewerbungsverwaltung</span>
                 </a>
                 <?php endif; ?>
@@ -853,7 +1168,7 @@ if (!isset($currentUser)) {
                 <a href="<?php echo asset('pages/admin/alumni_requests.php'); ?>"
                    class="sidebar-nav-item <?php echo is_nav_active('/admin/alumni_requests.php') ? 'sidebar-nav-item--active' : ''; ?>"
                    <?php echo is_nav_active('/admin/alumni_requests.php') ? 'aria-current="page"' : ''; ?>>
-                    <i class="fas fa-user-graduate sidebar-nav-icon" aria-hidden="true"></i>
+                    <i data-lucide="user-check" class="sidebar-nav-icon" aria-hidden="true"></i>
                     <span>Alumni-Anfragen</span>
                 </a>
                 <?php endif; ?>
@@ -863,20 +1178,17 @@ if (!isset($currentUser)) {
                 <a href="<?php echo asset('pages/admin/neue_alumni_requests.php'); ?>"
                    class="sidebar-nav-item <?php echo is_nav_active('/admin/neue_alumni_requests.php') ? 'sidebar-nav-item--active' : ''; ?>"
                    <?php echo is_nav_active('/admin/neue_alumni_requests.php') ? 'aria-current="page"' : ''; ?>>
-                    <i class="fas fa-user-plus sidebar-nav-icon" aria-hidden="true"></i>
+                    <i data-lucide="user-plus" class="sidebar-nav-icon" aria-hidden="true"></i>
                     <span>Neue Alumni</span>
                 </a>
                 <?php endif; ?>
-
 
                 <!-- Digitale Visitenkarten (Vorstand + Ressortleiter) -->
                 <?php if (Auth::canCreateBasicContent()): ?>
                 <a href="<?php echo asset('pages/admin/vcards.php'); ?>"
                    class="sidebar-nav-item <?php echo is_nav_active('/admin/vcards.php') ? 'sidebar-nav-item--active' : ''; ?>"
                    <?php echo is_nav_active('/admin/vcards.php') ? 'aria-current="page"' : ''; ?>>
-                    <svg class="sidebar-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-                    </svg>
+                    <i data-lucide="credit-card" class="sidebar-nav-icon" aria-hidden="true"></i>
                     <span>Digitale Visitenkarten</span>
                 </a>
                 <?php endif; ?>
@@ -886,7 +1198,7 @@ if (!isset($currentUser)) {
                 <a href="<?php echo asset('pages/admin/settings.php'); ?>" 
                    class="sidebar-nav-item <?php echo is_nav_active('/admin/settings.php') ? 'sidebar-nav-item--active' : ''; ?>"
                    <?php echo is_nav_active('/admin/settings.php') ? 'aria-current="page"' : ''; ?>>
-                    <i class="fas fa-cogs sidebar-nav-icon" aria-hidden="true"></i>
+                    <i data-lucide="settings" class="sidebar-nav-icon" aria-hidden="true"></i>
                     <span>Systemeinstellungen</span>
                 </a>
                 <?php endif; ?>
@@ -901,7 +1213,7 @@ if (!isset($currentUser)) {
                 <a href="<?php echo asset('pages/admin/event_stats.php'); ?>" 
                    class="sidebar-nav-item <?php echo is_nav_active('/admin/event_stats.php') ? 'sidebar-nav-item--active' : ''; ?>"
                    <?php echo is_nav_active('/admin/event_stats.php') ? 'aria-current="page"' : ''; ?>>
-                    <i class="fas fa-chart-bar sidebar-nav-icon" aria-hidden="true"></i>
+                    <i data-lucide="bar-chart" class="sidebar-nav-icon" aria-hidden="true"></i>
                     <span>Event-Statistiken</span>
                 </a>
                 <?php endif; ?>
@@ -911,7 +1223,7 @@ if (!isset($currentUser)) {
                 <a href="<?php echo asset('pages/admin/stats.php'); ?>" 
                    class="sidebar-nav-item <?php echo is_nav_active('/admin/stats.php') ? 'sidebar-nav-item--active' : ''; ?>"
                    <?php echo is_nav_active('/admin/stats.php') ? 'aria-current="page"' : ''; ?>>
-                    <i class="fas fa-chart-pie sidebar-nav-icon" aria-hidden="true"></i>
+                    <i data-lucide="pie-chart" class="sidebar-nav-icon" aria-hidden="true"></i>
                     <span>Statistiken</span>
                 </a>
                 <?php endif; ?>
@@ -921,7 +1233,7 @@ if (!isset($currentUser)) {
                 <a href="<?php echo asset('pages/admin/audit.php'); ?>" 
                    class="sidebar-nav-item <?php echo is_nav_active('/admin/audit.php') ? 'sidebar-nav-item--active' : ''; ?>"
                    <?php echo is_nav_active('/admin/audit.php') ? 'aria-current="page"' : ''; ?>>
-                    <i class="fas fa-clipboard-list sidebar-nav-icon" aria-hidden="true"></i>
+                    <i data-lucide="scroll" class="sidebar-nav-icon" aria-hidden="true"></i>
                     <span>Audit Logs</span>
                 </a>
                 <?php endif; ?>
@@ -931,7 +1243,7 @@ if (!isset($currentUser)) {
                 <a href="<?php echo asset('pages/admin/db_maintenance.php'); ?>" 
                    class="sidebar-nav-item <?php echo is_nav_active('/admin/db_maintenance.php') ? 'sidebar-nav-item--active' : ''; ?>"
                    <?php echo is_nav_active('/admin/db_maintenance.php') ? 'aria-current="page"' : ''; ?>>
-                    <i class="fas fa-database sidebar-nav-icon" aria-hidden="true"></i>
+                    <i data-lucide="database" class="sidebar-nav-icon" aria-hidden="true"></i>
                     <span>System Health</span>
                 </a>
                 <?php endif; ?>
@@ -939,213 +1251,17 @@ if (!isset($currentUser)) {
             </nav>
         </div>
 
-        <!-- User Profile Section -->
-        <div class='sidebar-footer mt-auto pt-2 pb-2 px-3'>
-            <?php 
-            $currentUser = Auth::user();
-            
-            // Initialize default values
-            $firstname = '';
-            $lastname = '';
-            $email = '';
-            $role = 'User';
-            $displayRoles = [];
-            
-            // Only try to get profile if user is logged in
-            if ($currentUser && isset($currentUser['id'])) {
-                // Try to get name from alumni_profiles table first
-                require_once __DIR__ . '/../models/Alumni.php';
-                $profile = Alumni::getProfileByUserId($currentUser['id']);
-                
-                // Entra photo path and custom avatar info are available directly from $currentUser
-                // (Auth::user() fetches these columns via SELECT *).
-                // No extra DB query needed here.
-                
-                // Profile data may be user-edited, so don't transform it
-                if ($profile && !empty($profile['first_name'])) {
-                    $firstname = $profile['first_name'];
-                    $lastname = $profile['last_name'] ?? '';
-                } elseif (!empty($currentUser['first_name'])) {
-                    $firstname = $currentUser['first_name'];
-                    $lastname = $currentUser['last_name'] ?? '';
-                }
-                
-                $email = $currentUser['email'] ?? '';
-                $role = $currentUser['role'] ?? 'User';
-                
-                // Check for Entra roles - priority: entra_roles from user table, then session azure_roles, then fallback to internal role
-                $displayRoles = [];
-                
-                // Debug logging for role determination
-                if (!empty($currentUser['entra_roles'])) {
-                    error_log("main_layout.php: User " . intval($currentUser['id']) . " has entra_roles in database: " . $currentUser['entra_roles']);
-                }
-                if (!empty($_SESSION['azure_roles'])) {
-                    error_log("main_layout.php: Session azure_roles for user " . intval($currentUser['id']) . ": " . (is_array($_SESSION['azure_roles']) ? json_encode($_SESSION['azure_roles']) : $_SESSION['azure_roles']));
-                }
-                if (!empty($_SESSION['entra_roles'])) {
-                    error_log("main_layout.php: Session entra_roles for user " . intval($currentUser['id']) . ": " . (is_array($_SESSION['entra_roles']) ? json_encode($_SESSION['entra_roles']) : $_SESSION['entra_roles']));
-                }
-                
-                if (!empty($currentUser['entra_roles'])) {
-                    // Parse JSON array from database.
-                    // entra_roles stores App Role value strings (e.g. ["mitglied"]).
-                    // Apply translateAzureRole so they are rendered as human-readable German names.
-                    $rolesArray = json_decode($currentUser['entra_roles'], true);
-                    if (json_last_error() === JSON_ERROR_NONE && is_array($rolesArray)) {
-                        foreach ($rolesArray as $r) {
-                            $label = is_array($r) && isset($r['displayName'])
-                                ? $r['displayName']
-                                : translateAzureRole($r);
-                            if (!empty($label)) {
-                                $displayRoles[] = $label;
-                            }
-                        }
-                    } else {
-                        error_log("Failed to decode entra_roles in main_layout for user ID " . intval($currentUser['id']) . ": " . json_last_error_msg());
-                    }
-                } elseif (!empty($_SESSION['entra_roles'])) {
-                    // Prefer entra_roles from session (groups from Microsoft Graph)
-                    if (is_array($_SESSION['entra_roles'])) {
-                        // Extract displayName from each group object (groups now contain both id and displayName)
-                        $displayRoles = extractGroupDisplayNames($_SESSION['entra_roles']);
-                    }
-                } elseif (!empty($_SESSION['azure_roles'])) {
-                    // Check session variable as alternative (App Roles from JWT)
-                    if (is_array($_SESSION['azure_roles'])) {
-                        $displayRoles = array_filter(array_map('translateAzureRole', $_SESSION['azure_roles']));
-                    } else {
-                        // Try to decode if it's JSON string
-                        $sessionRoles = json_decode($_SESSION['azure_roles'], true);
-                        if (json_last_error() === JSON_ERROR_NONE && is_array($sessionRoles)) {
-                            $displayRoles = array_filter(array_map('translateAzureRole', $sessionRoles));
-                        }
-                    }
-                }
-                
-                // If no Entra roles found, use internal role as fallback
-                if (empty($displayRoles)) {
-                    $displayRoles = [translateRole($role)];
-                }
-            }
-            
-            // Generate initials with proper fallbacks
-            if (!empty($firstname) && !empty($lastname)) {
-                $initials = strtoupper(substr($firstname, 0, 1) . substr($lastname, 0, 1));
-            } elseif (!empty($firstname)) {
-                $initials = strtoupper(substr($firstname, 0, 1));
-            } elseif (!empty($lastname)) {
-                $initials = strtoupper(substr($lastname, 0, 1));
-            } elseif (!empty($email)) {
-                $initials = strtoupper(substr($email, 0, 1));
-            } else {
-                $initials = 'U';
-            }
-
-            // Role badge: color-coded by role type for clear visual separation
-            $roleBadgeConfig = [
-                'admin'             => ['bg' => '#dc2626', 'text' => '#fff'],
-                'vorstand_intern'   => ['bg' => '#d97706', 'text' => '#fff'],
-                'vorstand_extern'   => ['bg' => '#d97706', 'text' => '#fff'],
-                'vorstand_finanzen' => ['bg' => '#d97706', 'text' => '#fff'],
-                'alumni_vorstand'   => ['bg' => '#2563eb', 'text' => '#fff'],
-                'alumni_finanz'     => ['bg' => '#2563eb', 'text' => '#fff'],
-                'alumni'            => ['bg' => '#0891b2', 'text' => '#fff'],
-                'ressortleiter'     => ['bg' => '#7c3aed', 'text' => '#fff'],
-                'mitglied'          => ['bg' => '#4f46e5', 'text' => '#fff'],
-                'anwaerter'         => ['bg' => '#ea580c', 'text' => '#fff'],
-                'ehrenmitglied'     => ['bg' => '#be185d', 'text' => '#fff'],
-            ];
-            $badgeCfg = $roleBadgeConfig[$role] ?? ['bg' => '#374151', 'text' => '#fff'];
-            $badgeStyle = 'background:' . htmlspecialchars($badgeCfg['bg']) . '; color:' . htmlspecialchars($badgeCfg['text']) . ';';
-            ?>
-
-            <!-- User Info -->
-            <div class='flex items-start gap-2 mb-2'>
-                <?php
-                // Use fetch-profile-photo.php when email is available to serve the live Entra ID
-                // photo (cached 24 h). Fall back to the locally stored avatar when no email is set.
-                if (!empty($email)) {
-                    $sidebarImgSrc = asset('fetch-profile-photo.php') . '?email=' . urlencode($email);
-                } else {
-                    $sidebarImgSrc = asset(User::getProfilePictureUrl((int)$currentUser['id'], $currentUser));
-                }
-                $sidebarAvatarColor = getAvatarColor($firstname . ' ' . $lastname);
-                ?>
-                <div class="w-9 h-9 shrink-0 rounded-full overflow-hidden relative flex-shrink-0" style="background-color:<?php echo htmlspecialchars($sidebarAvatarColor); ?>">
-                    <span class="absolute inset-0 flex items-center justify-center text-xs font-bold text-white select-none" aria-hidden="true"><?php echo htmlspecialchars($initials); ?></span>
-                    <img src="<?php echo htmlspecialchars($sidebarImgSrc); ?>" alt="Profilbild" class="absolute inset-0 w-full h-full object-cover" onerror="this.onerror=null; this.style.display='none';">
-                </div>
-                <div class='flex-1 min-w-0'>
-                    <?php if (!empty($firstname) || !empty($lastname)): ?>
-                    <p class='text-xs font-semibold text-white truncate leading-snug mb-0.5' title='<?php echo htmlspecialchars($firstname . ' ' . $lastname); ?>'>
-                        <?php echo htmlspecialchars($firstname . ' ' . $lastname); ?>
-                    </p>
-                    <?php endif; ?>
-                    <p class='text-[11px] text-white/70 truncate leading-snug' title='<?php echo htmlspecialchars($email); ?>'>
-                        <?php echo htmlspecialchars($email); ?>
-                    </p>
-                    <?php if (!empty($displayRoles)): ?>
-                    <span class='role-badge inline-flex items-center gap-1 mt-1 max-w-full'
-                          style='<?php echo $badgeStyle; ?>'
-                          title='<?php echo htmlspecialchars(implode(', ', $displayRoles)); ?>'
-                          aria-label='Rolle: <?php echo htmlspecialchars($displayRoles[0]); ?>'>
-                        <i class='fas <?php echo getRoleIcon($role); ?> flex-shrink-0' aria-hidden='true'></i>
-                        <span class='truncate'><?php echo htmlspecialchars($displayRoles[0]); ?></span>
-                    </span>
-                    <?php elseif (!empty($role) && $role !== 'User'): ?>
-                    <span class='role-badge inline-flex items-center gap-1 mt-1 max-w-full'
-                          style='<?php echo $badgeStyle; ?>'
-                          title='<?php echo htmlspecialchars(getFormattedRoleName($role)); ?>'
-                          aria-label='Rolle: <?php echo htmlspecialchars(getFormattedRoleName($role)); ?>'>
-                        <i class='fas <?php echo getRoleIcon($role); ?> flex-shrink-0' aria-hidden='true'></i>
-                        <span class='truncate'><?php echo htmlspecialchars(getFormattedRoleName($role)); ?></span>
-                    </span>
-                    <?php endif; ?>
-                </div>
-            </div>
-            
-            <!-- Profile Navigation -->
-            <a href='<?php echo asset('pages/auth/profile.php'); ?>' 
-               class='sidebar-footer-btn <?php echo is_nav_active('/auth/profile.php') ? 'active-btn' : ''; ?>'
-               <?php echo is_nav_active('/auth/profile.php') ? 'aria-current="page"' : ''; ?>>
-                <i class='fas fa-user' aria-hidden="true"></i>
-                <span>Mein Profil</span>
-            </a>
-
-            <a href='<?php echo asset('pages/auth/settings.php'); ?>' 
-               class='sidebar-footer-btn <?php echo is_nav_active('/auth/settings.php') ? 'active-btn' : ''; ?>'
-               <?php echo is_nav_active('/auth/settings.php') ? 'aria-current="page"' : ''; ?>>
-                <i class='fas fa-cog' aria-hidden="true"></i>
-                <span>Einstellungen</span>
-            </a>
-
-            <!-- Dark/Light Mode Toggle -->
-            <button id="theme-toggle" class='sidebar-footer-btn' aria-label="Zwischen hellem und dunklem Modus wechseln">
-                <i id="theme-icon" class='fas fa-moon' aria-hidden="true"></i>
-                <span id="theme-text">Darkmode</span>
-            </button>
-
-            <!-- Logout -->
-            <a href='<?php echo asset('pages/auth/logout.php'); ?>' 
-               class='sidebar-footer-btn sidebar-logout-btn'>
-                <i class='fas fa-sign-out-alt' aria-hidden="true"></i>
-                <span>Abmelden</span>
-            </a>
-
-            
-            <!-- Live Clock -->
-            <div class='mt-2 pt-2 border-t border-white/20 text-center'>
-                <div id="live-clock" class='text-xs text-white/80 font-mono'>
-                    <!-- JavaScript will update this -->
-                </div>
+        <!-- Sidebar Footer: Live Clock only (user profile/actions are in the header dropdown) -->
+        <div class="sidebar-clock-area">
+            <div id="live-clock" class='text-xs text-white/70 font-mono'>
+                <!-- JavaScript will update this -->
             </div>
         </div>
     </aside>
 
 
     <!-- Main Content -->
-    <main id="main-content" role="main" class="md:ml-64 lg:ml-72 min-h-screen px-4 sm:px-6 lg:px-8 pb-4 pt-[var(--topbar-height)] md:pt-6 lg:pt-8 2xl:pt-10 dark:bg-gray-900 dark:text-white transition-colors duration-300" style="padding-bottom: max(1rem, env(safe-area-inset-bottom, 0))">
+    <main id="main-content" role="main" class="md:ml-64 min-h-screen px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-gray-900 dark:text-white transition-colors duration-300" style="padding-bottom: max(1rem, env(safe-area-inset-bottom, 0))">
         <div class="max-w-7xl mx-auto">
             <?php echo $content ?? ''; ?>
         </div>
@@ -1159,27 +1275,27 @@ if (!isset($currentUser)) {
         </footer>
     </main>
 
-    <!-- Mobile Bottom Navigation Bar (visible on small screens only) -->
+    <!-- Mobile Bottom Navigation Bar (visible on small screens only, sidebar becomes bottom nav) -->
     <nav id="mobile-bottom-nav" class="mobile-bottom-nav glass-bottom-nav md:hidden" role="navigation" aria-label="Schnellnavigation">
         <a href="<?php echo asset('pages/dashboard/index.php'); ?>"
            class="mobile-bottom-nav-item <?php echo is_nav_active('/dashboard/') ? 'active' : ''; ?>"
            aria-label="Dashboard"
            <?php echo is_nav_active('/dashboard/') ? 'aria-current="page"' : ''; ?>>
-            <i class="fas fa-home" aria-hidden="true"></i>
+            <i data-lucide="layout-dashboard" aria-hidden="true"></i>
             <span>Home</span>
         </a>
         <a href="<?php echo asset('pages/events/index.php'); ?>"
            class="mobile-bottom-nav-item <?php echo (is_nav_active('/events/') && !is_nav_active('/events/helpers.php')) ? 'active' : ''; ?>"
            aria-label="Events"
            <?php echo (is_nav_active('/events/') && !is_nav_active('/events/helpers.php')) ? 'aria-current="page"' : ''; ?>>
-            <i class="fas fa-calendar" aria-hidden="true"></i>
+            <i data-lucide="calendar" aria-hidden="true"></i>
             <span>Events</span>
         </a>
         <a href="<?php echo asset('pages/alumni/index.php'); ?>"
            class="mobile-bottom-nav-item <?php echo is_nav_active('/alumni/') ? 'active' : ''; ?>"
            aria-label="Alumni-Datenbank"
            <?php echo is_nav_active('/alumni/') ? 'aria-current="page"' : ''; ?>>
-            <i class="fas fa-user-graduate" aria-hidden="true"></i>
+            <i data-lucide="graduation-cap" aria-hidden="true"></i>
             <span>Alumni</span>
         </a>
         <button id="bottom-nav-more-btn"
@@ -1187,7 +1303,7 @@ if (!isset($currentUser)) {
                 aria-label="Menü öffnen"
                 aria-expanded="false"
                 aria-controls="sidebar">
-            <i class="fas fa-th" aria-hidden="true"></i>
+            <i data-lucide="layout-grid" aria-hidden="true"></i>
             <span>Mehr</span>
         </button>
     </nav>
@@ -1265,7 +1381,13 @@ if (!isset($currentUser)) {
                 }
             }
 
-            // Note: hamburger button toggle for #mobile-menu is handled by navbar-scroll.js
+            // Note: hamburger button in top header now toggles the sidebar on mobile
+            if (btn && sidebar) {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleSidebar();
+                });
+            }
 
             // Bottom nav "More" button toggles sidebar
             const bottomNavMoreBtn = document.getElementById('bottom-nav-more-btn');
@@ -1387,15 +1509,22 @@ if (!isset($currentUser)) {
         // Dark/Light Mode Toggle
         const themeToggle = document.getElementById('theme-toggle');
         const themeIcon = document.getElementById('theme-icon');
-        const themeText = document.getElementById('theme-text');
-        const mobileThemeToggle = document.getElementById('mobile-theme-toggle');
-        const mobileThemeIcon = document.getElementById('mobile-theme-icon');
+        const themeToggleDropdown = document.getElementById('theme-toggle-dropdown');
+        const themeIconDropdown = document.getElementById('theme-icon-dropdown');
+        const themeTextDropdown = document.getElementById('theme-text-dropdown');
         
         // Get user's saved theme preference from database (via data attribute)
         const userThemePreference = document.body.getAttribute('data-user-theme') || 'auto';
         
         // Load theme preference (localStorage overrides database preference)
         let currentTheme = localStorage.getItem('theme') || userThemePreference;
+
+        // Helper: swap a Lucide icon by replacing the data-lucide attribute and re-rendering
+        function setLucideIcon(el, iconName) {
+            if (!el) return;
+            el.setAttribute('data-lucide', iconName);
+            if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [el] });
+        }
         
         // Apply theme based on preference
         function applyTheme(theme) {
@@ -1405,19 +1534,17 @@ if (!isset($currentUser)) {
                 document.documentElement.classList.add('dark-mode', 'dark');
                 document.documentElement.setAttribute('data-theme', 'dark');
                 document.documentElement.style.colorScheme = 'dark';
-                if (themeIcon) { themeIcon.classList.remove('fa-moon'); themeIcon.classList.add('fa-sun'); }
-                if (themeText) themeText.textContent = 'Lightmode';
-                if (mobileThemeIcon) { mobileThemeIcon.classList.remove('fa-moon'); mobileThemeIcon.classList.add('fa-sun'); }
-                if (mobileThemeToggle) mobileThemeToggle.setAttribute('aria-label', 'Zu Lightmode wechseln');
+                setLucideIcon(themeIcon, 'sun');
+                setLucideIcon(themeIconDropdown, 'sun');
+                if (themeTextDropdown) themeTextDropdown.textContent = 'Lightmode';
             } else {
                 document.body.classList.remove('dark-mode', 'dark');
                 document.documentElement.classList.remove('dark-mode', 'dark');
                 document.documentElement.setAttribute('data-theme', 'light');
                 document.documentElement.style.colorScheme = 'light';
-                if (themeIcon) { themeIcon.classList.remove('fa-sun'); themeIcon.classList.add('fa-moon'); }
-                if (themeText) themeText.textContent = 'Darkmode';
-                if (mobileThemeIcon) { mobileThemeIcon.classList.remove('fa-sun'); mobileThemeIcon.classList.add('fa-moon'); }
-                if (mobileThemeToggle) mobileThemeToggle.setAttribute('aria-label', 'Zu Darkmode wechseln');
+                setLucideIcon(themeIcon, 'moon');
+                setLucideIcon(themeIconDropdown, 'moon');
+                if (themeTextDropdown) themeTextDropdown.textContent = 'Darkmode';
             }
         }
         
@@ -1433,27 +1560,63 @@ if (!isset($currentUser)) {
                 document.documentElement.setAttribute('data-theme', 'light');
                 document.documentElement.style.colorScheme = 'light';
                 localStorage.setItem('theme', 'light');
-                if (themeIcon) { themeIcon.classList.remove('fa-sun'); themeIcon.classList.add('fa-moon'); }
-                if (themeText) themeText.textContent = 'Darkmode';
-                if (mobileThemeIcon) { mobileThemeIcon.classList.remove('fa-sun'); mobileThemeIcon.classList.add('fa-moon'); }
-                if (mobileThemeToggle) mobileThemeToggle.setAttribute('aria-label', 'Zu Darkmode wechseln');
+                setLucideIcon(themeIcon, 'moon');
+                setLucideIcon(themeIconDropdown, 'moon');
+                if (themeTextDropdown) themeTextDropdown.textContent = 'Darkmode';
             } else {
                 document.body.classList.add('dark-mode', 'dark');
                 document.documentElement.classList.add('dark-mode', 'dark');
                 document.documentElement.setAttribute('data-theme', 'dark');
                 document.documentElement.style.colorScheme = 'dark';
                 localStorage.setItem('theme', 'dark');
-                if (themeIcon) { themeIcon.classList.remove('fa-moon'); themeIcon.classList.add('fa-sun'); }
-                if (themeText) themeText.textContent = 'Lightmode';
-                if (mobileThemeIcon) { mobileThemeIcon.classList.remove('fa-moon'); mobileThemeIcon.classList.add('fa-sun'); }
-                if (mobileThemeToggle) mobileThemeToggle.setAttribute('aria-label', 'Zu Lightmode wechseln');
+                setLucideIcon(themeIcon, 'sun');
+                setLucideIcon(themeIconDropdown, 'sun');
+                if (themeTextDropdown) themeTextDropdown.textContent = 'Lightmode';
             }
         }
 
         themeToggle?.addEventListener('click', toggleTheme);
+        themeToggleDropdown?.addEventListener('click', toggleTheme);
 
-        // Mobile theme toggle (synced with sidebar toggle)
-        mobileThemeToggle?.addEventListener('click', toggleTheme);
+        // ── User Dropdown Toggle ──────────────────────────────────────────
+        const userDropdownBtn = document.getElementById('user-dropdown-btn');
+        const userDropdown    = document.getElementById('user-dropdown');
+
+        function openUserDropdown() {
+            if (!userDropdown) return;
+            userDropdown.classList.add('open');
+            userDropdown.setAttribute('aria-hidden', 'false');
+            userDropdownBtn?.setAttribute('aria-expanded', 'true');
+        }
+        function closeUserDropdown() {
+            if (!userDropdown) return;
+            userDropdown.classList.remove('open');
+            userDropdown.setAttribute('aria-hidden', 'true');
+            userDropdownBtn?.setAttribute('aria-expanded', 'false');
+        }
+
+        userDropdownBtn?.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (userDropdown?.classList.contains('open')) {
+                closeUserDropdown();
+            } else {
+                openUserDropdown();
+            }
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (userDropdown && !userDropdown.contains(e.target) && !userDropdownBtn?.contains(e.target)) {
+                closeUserDropdown();
+            }
+        });
+        // Close dropdown on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && userDropdown?.classList.contains('open')) {
+                closeUserDropdown();
+                userDropdownBtn?.focus();
+            }
+        });
         
         // Live Clock - Updates every second
         function updateLiveClock() {
@@ -1807,6 +1970,11 @@ if (!isset($currentUser)) {
         unset($_SESSION['show_role_notice']);
     endif;
     ?>
+    <!-- Lucide Icons: replaces data-lucide="..." elements with inline SVGs -->
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.1/dist/umd/lucide.min.js"></script>
+    <script>
+        if (typeof lucide !== 'undefined') { lucide.createIcons(); }
+    </script>
 
 </body>
 </html>

@@ -42,6 +42,8 @@ module.exports = {
     // Sidebar mobile menu toggle classes added via JavaScript
     'translate-x-0',
     '-translate-x-full',
+    // User dropdown toggle class
+    'open',
     // Enterprise glassmorphism / skeleton / card utilities
     'glass-sidebar',
     'glass-topbar',
