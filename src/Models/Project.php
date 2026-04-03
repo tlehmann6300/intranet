@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 
 /**
@@ -12,21 +11,13 @@ use App\Models\User;
  * Manages project data and operations with security controls
  */
 
-class Project extends Model
+class Project
 {
-    protected $connection = 'content';
-    protected $table = 'projects';
-    protected static $unguarded = true;
     protected $timestamps = false;
 
     // ---------------------------------------------------------------------------
     // Relationships
     // ---------------------------------------------------------------------------
-
-    public function creator()
-    {
-        return $this->belongsTo(User::class, 'created_by');
-    }
     
     /**
      * Upload directory for project documentation

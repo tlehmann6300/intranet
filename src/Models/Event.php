@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Models\EventDocumentation;
 use App\Models\EventFinancialStats;
 use App\Utils\SecureImageUpload;
@@ -14,26 +13,14 @@ use App\Utils\SecureImageUpload;
  * Manages events, helper slots, signups, and locking mechanism
  */
 
-class Event extends Model
+class Event
 {
-    protected $connection = 'content';
-    protected $table = 'events';
-    protected static $unguarded = true;
     protected $timestamps = false;
 
     // ---------------------------------------------------------------------------
     // Relationships
     // ---------------------------------------------------------------------------
 
-    public function documentation()
-    {
-        return $this->hasOne(EventDocumentation::class, 'event_id');
-    }
-
-    public function financialStats()
-    {
-        return $this->hasMany(EventFinancialStats::class, 'event_id');
-    }
     
     // Lock timeout in seconds (15 minutes)
     const LOCK_TIMEOUT = 900;

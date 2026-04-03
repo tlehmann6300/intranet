@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Models\Alumni;
 use App\Models\User;
 
@@ -13,20 +12,12 @@ use App\Models\User;
  * Handles the logic for the Active Member Directory
  */
 
-class Member extends Model
+class Member
 {
-    protected $connection = 'user';
-    protected $table = 'alumni_profiles';
-    protected static $unguarded = true;
 
     // ---------------------------------------------------------------------------
     // Relationships
     // ---------------------------------------------------------------------------
-
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'user_id');
-    }
     
     /**
      * Active member roles (excludes 'alumni', 'alumni_vorstand', 'ehrenmitglied')

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 
 /**
  * VCard Model
@@ -14,11 +13,8 @@ use Illuminate\Database\Eloquent\Model;
  * Columns: id, vorname, nachname, rolle, funktion, telefon, email, linkedin, profilbild
  */
 
-class VCard extends Model
+class VCard
 {
-    protected $connection = 'vcard';
-    protected $table = 'vcards_table';
-    protected static $unguarded = true;
     protected $timestamps = false;
 
     /** Table name in the external vCard database */

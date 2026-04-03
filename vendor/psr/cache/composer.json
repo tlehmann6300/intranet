@@ -9,9 +9,6 @@
             "homepage": "https://www.php-fig.org/"
         }
     ],
-    "support": {
-        "source": "https://github.com/php-fig/cache"
-    },
     "require": {
         "php": ">=8.0.0"
     },
@@ -20,12 +17,9 @@
             "Psr\\Cache\\": "src/"
         }
     },
-    "suggest": {
-        "fig/cache-util": "Provides some useful PSR-6 utilities"
-    },
     "extra": {
         "branch-alias": {
-            "dev-master": "3.0.x-dev"
+            "dev-master": "1.0.x-dev"
         }
     }
 }

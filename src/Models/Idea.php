@@ -4,19 +4,14 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 
 /**
  * Idea Model
  * Manages idea submissions and voting
  */
 
-class Idea extends Model
+class Idea
 {
-    protected $connection = 'content';
-    protected $table = 'ideas';
-    protected static $unguarded = true;
-    protected $timestamps = false;
 
     /**
      * Create a new idea

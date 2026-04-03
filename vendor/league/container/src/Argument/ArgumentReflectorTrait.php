@@ -9,7 +9,6 @@ use League\Container\ContainerAwareInterface;
 use League\Container\DefinitionContainerInterface;
 use League\Container\Exception\NotFoundException;
 use League\Container\ReflectionContainer;
-use Override;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use ReflectionAttribute;
@@ -23,13 +22,10 @@ use ReflectionUnionType;
 trait ArgumentReflectorTrait
 {
     /**
-     * @param array<string, mixed> $args
-     * @return array<int, mixed>
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
      */
-    #[Override]
     public function reflectArguments(ReflectionFunctionAbstract $method, array $args = []): array
     {
         $params = $method->getParameters();
@@ -66,7 +62,7 @@ trait ArgumentReflectorTrait
                     $param->getDeclaringClass()?->getName(),
                     $method->getName(),
                     $method instanceof ReflectionMethod ? $method->isClosure() : false,
-                    'Union types are not supported',
+                    'Union types are not supported'
                 );
             }
 
@@ -88,14 +84,13 @@ trait ArgumentReflectorTrait
                 $param->getDeclaringClass()?->getName(),
                 $method->getName(),
                 $method instanceof ReflectionMethod ? $method->isClosure() : false,
-                'No default value available and no type hint to resolve',
+                'No default value available and no type hint to resolve'
             );
         }
 
         return $this->resolveArguments($arguments);
     }
 
-    /** @param ReflectionAttribute<object> $attribute */
     protected function resolveArgumentFromAttribute(ReflectionAttribute $attribute): LiteralArgumentInterface|false
     {
         $attrClass = $attribute->getName();
@@ -129,7 +124,7 @@ trait ArgumentReflectorTrait
                 $param->getDeclaringClass()?->getName(),
                 $param->getDeclaringFunction()->getName(),
                 $param->getDeclaringFunction()->isClosure(),
-                'Mixed types are not supported',
+                'Mixed types are not supported'
             );
         }
 
@@ -146,7 +141,7 @@ trait ArgumentReflectorTrait
         ?string $declaringClass = null,
         ?string $declaringFunction = null,
         bool $isClosure = false,
-        ?string $additionalMessage = null,
+        ?string $additionalMessage = null
     ): void {
         throw new NotFoundException(sprintf(
             'Unable to resolve parameter ($%s) with type (%s) in %s%s%s()%s',
@@ -155,7 +150,7 @@ trait ArgumentReflectorTrait
             $declaringClass ? $declaringClass . '::' : '',
             $declaringFunction ?? '',
             $isClosure ? ' [closure]' : '',
-            $additionalMessage ? ' - ' . $additionalMessage : '',
+            $additionalMessage ? ' - ' . $additionalMessage : ''
         ));
     }
 

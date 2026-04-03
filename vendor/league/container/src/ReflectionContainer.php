@@ -8,9 +8,7 @@ use League\Container\Argument\ArgumentReflectorInterface;
 use League\Container\Argument\ArgumentReflectorTrait;
 use League\Container\Argument\ArgumentResolverInterface;
 use League\Container\Argument\ArgumentResolverTrait;
-use League\Container\Attribute\Shared;
 use League\Container\Exception\NotFoundException;
-use Override;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -25,16 +23,16 @@ class ReflectionContainer implements ArgumentReflectorInterface, ArgumentResolve
     use ArgumentResolverTrait;
     use ContainerAwareTrait;
 
-    public const int AUTO_WIRING = 0x01;
-    public const int ATTRIBUTE_RESOLUTION = 0x02;
+    public const AUTO_WIRING = 0x01;
+    public const ATTRIBUTE_RESOLUTION = 0x02;
 
-    /** @var array<string, mixed> */
     protected array $cache = [];
 
     public function __construct(
         protected bool $cacheResolutions = false,
-        protected int $mode = self::AUTO_WIRING | self::ATTRIBUTE_RESOLUTION,
-    ) {}
+        protected int $mode = self::AUTO_WIRING | self::ATTRIBUTE_RESOLUTION
+    ) {
+    }
 
     public function setMode(int $mode): void
     {
@@ -47,35 +45,28 @@ class ReflectionContainer implements ArgumentReflectorInterface, ArgumentResolve
     }
 
     /**
-     * @param array<string, mixed> $args
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
      */
-    #[Override]
-    public function get(string $id, array $args = []): mixed
+    public function get(string $id, array $args = [])
     {
         if (true === $this->cacheResolutions && array_key_exists($id, $this->cache)) {
             return $this->cache[$id];
         }
 
-        if (array_key_exists($id, $this->cache)) {
-            return $this->cache[$id];
-        }
-
         if (!$this->has($id)) {
             throw new NotFoundException(
-                sprintf('Alias (%s) is not an existing class and therefore cannot be resolved', $id),
+                sprintf('Alias (%s) is not an existing class and therefore cannot be resolved', $id)
             );
         }
 
-        /** @var class-string $id */
         $reflector = new ReflectionClass($id);
         $construct = $reflector->getConstructor();
 
         if ($construct && !$construct->isPublic()) {
             throw new NotFoundException(
-                sprintf('Alias (%s) has a non-public constructor and therefore cannot be instantiated', $id),
+                sprintf('Alias (%s) has a non-public constructor and therefore cannot be instantiated', $id)
             );
         }
 
@@ -84,23 +75,19 @@ class ReflectionContainer implements ArgumentReflectorInterface, ArgumentResolve
             : $reflector->newInstanceArgs($this->reflectArguments($construct, $args))
         ;
 
-        $isSharedByAttribute = $reflector->getAttributes(Shared::class) !== [];
-
-        if ($this->cacheResolutions === true || $isSharedByAttribute) {
+        if ($this->cacheResolutions === true) {
             $this->cache[$id] = $resolution;
         }
 
         return $resolution;
     }
 
-    #[Override]
     public function has(string $id): bool
     {
         return class_exists($id);
     }
 
     /**
-     * @param array<string, mixed> $args
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException

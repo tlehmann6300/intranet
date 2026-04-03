@@ -4,18 +4,14 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 
 /**
  * NewAlumniRequest Model
  * Manages new alumni registration requests (Neue Alumni hinzufügen)
  */
 
-class NewAlumniRequest extends Model
+class NewAlumniRequest
 {
-    protected $connection = 'user';
-    protected $table = 'new_alumni_requests';
-    protected static $unguarded = true;
     protected $timestamps = false;
 
     // ---------------------------------------------------------------------------

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Models\Event;
 
 /**
@@ -13,21 +12,13 @@ use App\Models\Event;
  * Enables historical comparison across years
  */
 
-class EventFinancialStats extends Model
+class EventFinancialStats
 {
-    protected $connection = 'content';
-    protected $table = 'event_financial_stats';
-    protected static $unguarded = true;
     protected $timestamps = false;
 
     // ---------------------------------------------------------------------------
     // Relationships
     // ---------------------------------------------------------------------------
-
-    public function event()
-    {
-        return $this->belongsTo(Event::class, 'event_id');
-    }
     
     /**
      * Get all financial stats for an event

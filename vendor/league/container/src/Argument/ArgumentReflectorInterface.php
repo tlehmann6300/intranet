@@ -9,7 +9,5 @@ use ReflectionFunctionAbstract;
 
 interface ArgumentReflectorInterface extends ContainerAwareInterface
 {
-    /** @param array<string, mixed> $args
-     *  @return array<int, mixed> */
     public function reflectArguments(ReflectionFunctionAbstract $method, array $args = []): array;
 }

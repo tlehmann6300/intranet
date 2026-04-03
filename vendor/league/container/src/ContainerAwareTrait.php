@@ -6,7 +6,6 @@ namespace League\Container;
 
 use BadMethodCallException;
 use League\Container\Exception\ContainerException;
-use Override;
 
 trait ContainerAwareTrait
 {
@@ -15,8 +14,7 @@ trait ContainerAwareTrait
      */
     protected ?DefinitionContainerInterface $container = null;
 
-    #[Override]
-    public function setContainer(DefinitionContainerInterface $container): static
+    public function setContainer(DefinitionContainerInterface $container): ContainerAwareInterface
     {
         $this->container = $container;
 
@@ -27,11 +25,10 @@ trait ContainerAwareTrait
         throw new BadMethodCallException(sprintf(
             'Attempt to use (%s) while not implementing (%s)',
             ContainerAwareTrait::class,
-            ContainerAwareInterface::class,
+            ContainerAwareInterface::class
         ));
     }
 
-    #[Override]
     public function getContainer(): DefinitionContainerInterface
     {
         if ($this->container instanceof DefinitionContainerInterface) {
