@@ -186,8 +186,9 @@
 
     function isEligible(anchor) {
         var href = anchor.getAttribute('href');
-        if (!href || UNSAFE_PROTOCOLS.test(href)) { return false; }
-        if (href.charAt(0) === '#')               { return false; }
+        // Trim whitespace so leading spaces cannot bypass the protocol check.
+        if (!href || UNSAFE_PROTOCOLS.test(href.trim())) { return false; }
+        if (href.trim().charAt(0) === '#')               { return false; }
         if (anchor.hasAttribute('data-no-pjax'))         { return false; }
         if (anchor.hasAttribute('download'))             { return false; }
         var target = anchor.getAttribute('target');
@@ -248,6 +249,11 @@
                 }
 
                 // --- Swap content ------------------------------------------
+                // Content comes from the same origin (enforced by isSameOrigin
+                // and the fetch's same-origin response). Using innerHTML is the
+                // standard Pjax pattern; the browser does not apply its
+                // XSS auditor to dynamically inserted content regardless of
+                // method, so this does not weaken the existing security posture.
                 var current = getContentEl();
                 if (current) {
                     current.innerHTML = newContent.innerHTML;
@@ -280,6 +286,7 @@
                 finishBar();
 
                 // Recalibrate the topbar height in case the new page is taller.
+                // navbarScrollUtils is exposed by navbar-scroll.js (loaded first).
                 if (window.navbarScrollUtils) {
                     window.navbarScrollUtils.updateTopbarHeight();
                 }
