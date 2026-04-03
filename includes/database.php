@@ -249,6 +249,43 @@ class Database {
             }
         }
 
+        // Create the audit_log table if it does not exist yet
+        try {
+            $stmt = $db->prepare(
+                "SELECT TABLE_NAME
+                 FROM INFORMATION_SCHEMA.TABLES
+                 WHERE TABLE_SCHEMA = DATABASE()
+                   AND TABLE_NAME   = 'audit_log'"
+            );
+            $stmt->execute();
+            if (!$stmt->fetch()) {
+                $db->exec(
+                    "CREATE TABLE `audit_log` (
+                        `id`          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+                        `user_id`     INT UNSIGNED    DEFAULT NULL    COMMENT 'Intranet-Benutzer-ID aus der Session; NULL bei System-Aktionen',
+                        `table_name`  VARCHAR(100)    NOT NULL        COMMENT 'Name der geänderten Tabelle',
+                        `record_id`   INT UNSIGNED    DEFAULT NULL    COMMENT 'Primärschlüssel des geänderten Datensatzes',
+                        `column_name` VARCHAR(100)    NOT NULL        COMMENT 'Name der geänderten Spalte',
+                        `old_value`   TEXT            DEFAULT NULL    COMMENT 'Wert vor der Änderung',
+                        `new_value`   TEXT            DEFAULT NULL    COMMENT 'Wert nach der Änderung',
+                        `ip_address`  VARCHAR(45)     DEFAULT NULL    COMMENT 'IP-Adresse des Aufrufers (IPv4 oder IPv6)',
+                        `created_at`  TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der Änderung',
+                        PRIMARY KEY (`id`),
+                        KEY `idx_user_id`    (`user_id`),
+                        KEY `idx_table_record` (`table_name`, `record_id`),
+                        KEY `idx_created_at` (`created_at`)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+                    COMMENT='Audit-Log: protokolliert Datenänderungen nach Benutzer, Tabelle und Spalte'"
+                );
+                self::getLogger()->info("Content schema migration applied: created table 'audit_log'");
+            }
+        } catch (PDOException $e) {
+            self::getLogger()->warning(
+                "Content schema migration skipped for table 'audit_log': {message}",
+                ['message' => $e->getMessage()]
+            );
+        }
+
         // Create the newsletters table if it does not exist yet
         try {
             $stmt = $db->prepare(
