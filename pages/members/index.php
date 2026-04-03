@@ -197,104 +197,86 @@ ob_start();
         }
         ?>
 
-        <!-- Unified Card Grid: 1 col mobile → 2 col sm → 3 col lg → 4 col xl -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <!-- Unified Card Grid: 1 col mobile → 2 col md → 3 col lg → 4 col xl -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             <?php foreach ($members as $idx => $member):
                 extract($memberDisplayData[$idx]);
             ?>
-                <div class="card directory-card directory-card--members d-flex flex-column h-100">
-                    <!-- Card Header: gradient band with avatar -->
-                    <div class="directory-card-header">
-                        <div class="position-absolute top-0 end-0 mt-2 me-2">
-                            <span class="inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold directory-role-badge border <?php echo $badgeClass; ?>">
+                <div class="directory-card bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden flex flex-col hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
+                    <!-- Cover Band -->
+                    <div class="h-24 bg-gradient-to-r from-blue-500 to-indigo-600 relative flex-shrink-0">
+                        <div class="absolute top-2 right-2">
+                            <span class="inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold directory-role-badge border <?php echo $badgeClass; ?>" style="background:rgba(255,255,255,0.92)!important;border-color:rgba(255,255,255,0.5)!important;">
                                 <i class="fas <?php echo getRoleIcon($displayRoleKey); ?>" aria-hidden="true"></i>
                                 <?php echo $displayRole; ?>
                             </span>
                         </div>
-                        <div class="directory-card-avatar-wrap">
-                            <div class="directory-avatar rounded-circle overflow-hidden border border-3 border-white shadow"
-                                 style="background-color:<?php echo htmlspecialchars($avatarColor); ?>;position:relative;color:#fff;font-weight:700;">
-                                <div style="position:absolute;inset:0;" class="d-flex align-items-center justify-content-center">
-                                    <?php echo htmlspecialchars($initials); ?>
-                                </div>
-                                <img
-                                    src="<?php echo htmlspecialchars($imageSrc); ?>"
-                                    alt="<?php echo htmlspecialchars($member['first_name'] . ' ' . $member['last_name']); ?>"
-                                    loading="lazy"
-                                    style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"
-                                    onerror="this.onerror=null; this.style.display='none';"
-                                >
-                            </div>
-                        </div>
                     </div>
 
-                    <!-- Card Body -->
-                    <div class="directory-card-body">
-                        <!-- Name (Bold) -->
-                        <h3 class="fs-6 directory-card-name text-gray-800 dark:text-gray-100 text-center mb-2">
+                    <!-- Avatar: overlaps the cover band via negative margin -->
+                    <div class="flex flex-col items-center -mt-12 px-4 pb-4 flex-1">
+                        <div class="w-24 h-24 rounded-full border-4 border-white shadow-md overflow-hidden relative flex-shrink-0"
+                             style="background-color:<?php echo htmlspecialchars($avatarColor); ?>;color:#fff;font-weight:700;">
+                            <div class="absolute inset-0 flex items-center justify-center text-3xl font-bold select-none">
+                                <?php echo htmlspecialchars($initials); ?>
+                            </div>
+                            <img
+                                src="<?php echo htmlspecialchars($imageSrc); ?>"
+                                alt="<?php echo htmlspecialchars($member['first_name'] . ' ' . $member['last_name']); ?>"
+                                loading="lazy"
+                                class="absolute inset-0 w-full h-full object-cover"
+                                onerror="this.onerror=null; this.style.display='none';"
+                            >
+                        </div>
+
+                        <!-- Name -->
+                        <h3 class="mt-3 text-lg font-bold text-gray-800 dark:text-gray-100 text-center leading-tight">
                             <?php echo htmlspecialchars($member['first_name'] . ' ' . $member['last_name']); ?>
                         </h3>
-                        
-                        <!-- Info Snippet: 'Position' or 'Studium + Degree' -->
-                        <?php if (!empty($infoSnippet)): ?>
-                        <div class="text-center mb-3 flex-grow-1 d-flex align-items-center justify-content-center" style="min-height:3rem;">
-                            <p class="small text-secondary mb-0">
-                                <i class="fas fa-briefcase me-1 text-muted"></i>
-                                <?php echo htmlspecialchars($infoSnippet); ?>
+
+                        <!-- Info Snippet: Position or Studium + Degree -->
+                        <div class="flex-1 flex items-center justify-center mt-1 mb-3" style="min-height:2.5rem;">
+                            <?php if (!empty($infoSnippet)): ?>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 text-center">
+                                <i class="fas fa-briefcase mr-1"></i><?php echo htmlspecialchars($infoSnippet); ?>
                             </p>
+                            <?php endif; ?>
                         </div>
-                        <?php else: ?>
-                        <div class="flex-grow-1" style="min-height:3rem;"></div>
-                        <?php endif; ?>
-                        
-                        <!-- Contact Icons: Round buttons for Mail, LinkedIn and Xing (if set) -->
-                        <div class="d-flex justify-content-center gap-3 mb-3">
-                            <!-- Mail Icon -->
+
+                        <!-- Contact Icons: Mail, LinkedIn, Xing -->
+                        <div class="flex justify-center gap-3 mb-4">
                             <?php if (!empty($member['email']) && ($canViewPrivate || empty($member['privacy_hide_email']))): ?>
-                                <a 
-                                    href="mailto:<?php echo htmlspecialchars($member['email']); ?>" 
-                                    class="directory-contact-icon"
-                                    title="E-Mail senden"
-                                >
+                                <a href="mailto:<?php echo htmlspecialchars($member['email']); ?>"
+                                   class="directory-contact-icon"
+                                   title="E-Mail senden">
                                     <i class="fas fa-envelope"></i>
                                 </a>
                             <?php endif; ?>
-                            
-                            <!-- LinkedIn Icon (if set) -->
+
                             <?php if ($isValidLinkedIn): ?>
-                                <a 
-                                    href="<?php echo htmlspecialchars($linkedinUrl); ?>" 
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    class="directory-contact-icon"
-                                    title="LinkedIn Profil"
-                                >
+                                <a href="<?php echo htmlspecialchars($linkedinUrl); ?>"
+                                   target="_blank" rel="noopener noreferrer"
+                                   class="directory-contact-icon"
+                                   title="LinkedIn Profil">
                                     <i class="fab fa-linkedin-in"></i>
                                 </a>
                             <?php endif; ?>
-                            
-                            <!-- Xing Icon (if set) -->
+
                             <?php if ($isValidXing): ?>
-                                <a 
-                                    href="<?php echo htmlspecialchars($xingUrl); ?>" 
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    class="directory-contact-icon"
-                                    title="Xing Profil"
-                                >
+                                <a href="<?php echo htmlspecialchars($xingUrl); ?>"
+                                   target="_blank" rel="noopener noreferrer"
+                                   class="directory-contact-icon"
+                                   title="Xing Profil">
                                     <i class="fab fa-xing"></i>
                                 </a>
                             <?php endif; ?>
                         </div>
-                        
-                        <!-- Action: 'Profil ansehen' Button -->
-                        <a 
-                            href="view.php?id=<?php echo $member['profile_id']; ?>"
-                            class="btn w-100 fw-semibold shadow-sm text-white"
-                            style="background:linear-gradient(135deg,var(--ibc-green-dark),var(--ibc-green));"
-                        >
-                            <i class="fas fa-user me-2"></i>
-                            Profil ansehen
+
+                        <!-- Action: Profil ansehen -->
+                        <a href="view.php?id=<?php echo $member['profile_id']; ?>"
+                           class="mt-auto w-full inline-flex items-center justify-center px-4 py-2 rounded-lg font-semibold text-white shadow-sm transition-all hover:opacity-90"
+                           style="background:linear-gradient(135deg,var(--ibc-green-dark),var(--ibc-green));">
+                            <i class="fas fa-user mr-2"></i>Profil ansehen
                         </a>
                     </div>
                 </div>
