@@ -290,26 +290,33 @@ ob_start();
 </div>
 
 <!-- Create Modal -->
-<div id="createModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[60] items-center justify-center p-4">
-    <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-lg shadow-2xl flex flex-col overflow-hidden max-h-[90vh]">
-        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100">
-                <i class="fas fa-plus-circle text-green-600 mr-2"></i>
-                Neue vCard anlegen
-            </h2>
-            <button type="button" onclick="closeCreateModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
-                <i class="fas fa-times text-xl"></i>
-            </button>
-        </div>
+<div id="createModal" class="hidden fixed inset-0 z-[60] items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm overflow-y-auto">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 m-auto relative">
 
-        <form id="createForm" class="flex flex-col flex-1 min-h-0" novalidate>
+        <!-- X-Button -->
+        <button
+            type="button"
+            onclick="closeCreateModal()"
+            class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+            aria-label="Schließen"
+        >
+            <i class="fas fa-times text-xl"></i>
+        </button>
+
+        <!-- Title -->
+        <h2 class="text-lg font-bold text-gray-800 mb-6 pr-8">
+            <i class="fas fa-plus-circle text-green-600 mr-2"></i>
+            Neue vCard anlegen
+        </h2>
+
+        <form id="createForm" novalidate>
             <input type="hidden" id="createCsrf" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken); ?>">
 
-            <div class="p-6 overflow-y-auto flex-1 space-y-4">
+            <div class="space-y-5">
                 <!-- Name row -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label for="createVorname" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        <label for="createVorname" class="block text-sm font-medium text-gray-700 mb-1">
                             Vorname <span class="text-red-500">*</span>
                         </label>
                         <input
@@ -317,11 +324,11 @@ ob_start();
                             id="createVorname"
                             name="vorname"
                             required
-                            class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                            class="w-full px-4 py-3 bg-white border border-gray-300 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
                         >
                     </div>
                     <div>
-                        <label for="createNachname" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        <label for="createNachname" class="block text-sm font-medium text-gray-700 mb-1">
                             Nachname <span class="text-red-500">*</span>
                         </label>
                         <input
@@ -329,20 +336,20 @@ ob_start();
                             id="createNachname"
                             name="nachname"
                             required
-                            class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                            class="w-full px-4 py-3 bg-white border border-gray-300 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
                         >
                     </div>
                 </div>
 
                 <!-- Rolle -->
                 <div>
-                    <label for="createRolle" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label for="createRolle" class="block text-sm font-medium text-gray-700 mb-1">
                         Rolle
                     </label>
                     <select
                         id="createRolle"
                         name="rolle"
-                        class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        class="w-full px-4 py-3 bg-white border border-gray-300 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
                     >
                         <option value="">— Keine Rolle —</option>
                         <option value="Vorstand">Vorstand</option>
@@ -352,63 +359,63 @@ ob_start();
 
                 <!-- Funktion -->
                 <div>
-                    <label for="createFunktion" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label for="createFunktion" class="block text-sm font-medium text-gray-700 mb-1">
                         Funktion
                     </label>
                     <input
                         type="text"
                         id="createFunktion"
                         name="funktion"
-                        class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        class="w-full px-4 py-3 bg-white border border-gray-300 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
                         placeholder="z. B. Vorstand"
                     >
                 </div>
 
                 <!-- Email -->
                 <div>
-                    <label for="createEmail" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label for="createEmail" class="block text-sm font-medium text-gray-700 mb-1">
                         E-Mail
                     </label>
                     <input
                         type="email"
                         id="createEmail"
                         name="email"
-                        class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        class="w-full px-4 py-3 bg-white border border-gray-300 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
                         placeholder="name@example.com"
                     >
                 </div>
 
                 <!-- Telefon -->
                 <div>
-                    <label for="createTelefon" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label for="createTelefon" class="block text-sm font-medium text-gray-700 mb-1">
                         Telefon
                     </label>
                     <input
                         type="tel"
                         id="createTelefon"
                         name="telefon"
-                        class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        class="w-full px-4 py-3 bg-white border border-gray-300 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
                         placeholder="+49 123 456789"
                     >
                 </div>
 
                 <!-- LinkedIn -->
                 <div>
-                    <label for="createLinkedin" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label for="createLinkedin" class="block text-sm font-medium text-gray-700 mb-1">
                         LinkedIn-URL
                     </label>
                     <input
                         type="url"
                         id="createLinkedin"
                         name="linkedin"
-                        class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        class="w-full px-4 py-3 bg-white border border-gray-300 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
                         placeholder="https://linkedin.com/in/..."
                     >
                 </div>
 
                 <!-- Profilbild -->
                 <div>
-                    <label for="createProfilbild" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label for="createProfilbild" class="block text-sm font-medium text-gray-700 mb-1">
                         Profilbild
                     </label>
                     <input
@@ -416,23 +423,24 @@ ob_start();
                         id="createProfilbild"
                         name="profilbild"
                         accept="image/jpeg,image/png,image/webp,image/gif"
-                        class="w-full text-sm text-gray-700 dark:text-gray-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-green-50 dark:file:bg-green-900/30 file:text-green-700 dark:file:text-green-300 hover:file:bg-green-100 dark:hover:file:bg-green-900/50 cursor-pointer"
+                        class="w-full text-sm text-gray-700 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
                     >
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">JPG, PNG, WebP oder GIF – max. 5 MB (optional)</p>
+                    <p class="mt-1 text-xs text-gray-500">JPG, PNG, WebP oder GIF – max. 5 MB (optional)</p>
                 </div>
             </div>
 
-            <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex gap-3">
+            <!-- Actions -->
+            <div class="flex gap-3 mt-8">
                 <button
                     type="button"
                     onclick="closeCreateModal()"
-                    class="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors font-medium">
+                    class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium">
                     Abbrechen
                 </button>
                 <button
                     type="submit"
                     id="createSubmitBtn"
-                    class="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2">
+                    class="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2">
                     <i class="fas fa-plus"></i>
                     Anlegen
                 </button>
