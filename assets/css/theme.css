@@ -5957,7 +5957,7 @@ img:not([loading]) {
 }
 
 .directory-card--members .directory-card-avatar-wrap {
-    bottom: -36px; /* half of 72px member avatar */
+    bottom: -48px; /* half of 96px avatar */
 }
 
 /* Card content area below header */
@@ -5969,7 +5969,7 @@ img:not([loading]) {
 }
 
 .directory-card--members .directory-card-body {
-    padding-top: 44px; /* top space = 36px avatar hang + 8px gap */
+    padding-top: 56px; /* top space = 48px avatar hang + 8px gap */
 }
 
 /* Role badge inside gradient header: white background for contrast */
@@ -11557,8 +11557,8 @@ body:not(.dark-mode) .rounded-xl.bg-indigo-100 { background-color: #e0e7ff !impo
     display: flex !important;
     align-items: center !important;
     justify-content: flex-start !important;
-    padding: 0.6rem 1rem !important;
-    margin: 1px 0.5rem !important;
+    padding: 0.6rem 1.25rem !important;
+    margin: 1px 0.375rem !important;
     border-radius: var(--radius-sm) !important;
     color: rgba(255, 255, 255, 0.88) !important;
     text-decoration: none !important;

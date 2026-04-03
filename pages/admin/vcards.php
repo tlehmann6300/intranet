@@ -134,8 +134,8 @@ ob_start();
 <input type="hidden" id="sharedCsrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
 
 <!-- Edit Modal -->
-<div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 items-center justify-center p-4">
-    <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-lg shadow-2xl flex flex-col overflow-hidden">
+<div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[60] items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-lg shadow-2xl flex flex-col overflow-hidden max-h-[90vh]">
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
             <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100">
                 <i class="fas fa-address-card text-blue-600 mr-2"></i>
@@ -290,8 +290,8 @@ ob_start();
 </div>
 
 <!-- Create Modal -->
-<div id="createModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 items-center justify-center p-4">
-    <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-lg shadow-2xl flex flex-col overflow-hidden">
+<div id="createModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[60] items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-lg shadow-2xl flex flex-col overflow-hidden max-h-[90vh]">
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
             <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100">
                 <i class="fas fa-plus-circle text-green-600 mr-2"></i>
