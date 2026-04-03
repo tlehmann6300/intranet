@@ -88,7 +88,7 @@
         ensureBar();
         setBarWidth(BAR_START);
         clearInterval(barTimer);
-        // Inch towards 90 % slowly – never reaching it until the fetch finishes.
+        // Inches towards 90 % slowly – never reaching it until the fetch finishes.
         barTimer = setInterval(function () {
             var gap = 0.9 - barProgress;
             if (gap > 0.01) {
@@ -182,10 +182,12 @@
      *  - open in a new context (target != "" and target != "_self")
      *  - point to a different origin
      */
+    var UNSAFE_PROTOCOLS = /^(javascript|data|vbscript):/i;
+
     function isEligible(anchor) {
         var href = anchor.getAttribute('href');
-        if (!href || href.indexOf('javascript:') === 0) { return false; }
-        if (href.charAt(0) === '#')                      { return false; }
+        if (!href || UNSAFE_PROTOCOLS.test(href)) { return false; }
+        if (href.charAt(0) === '#')               { return false; }
         if (anchor.hasAttribute('data-no-pjax'))         { return false; }
         if (anchor.hasAttribute('download'))             { return false; }
         var target = anchor.getAttribute('target');
@@ -277,7 +279,7 @@
 
                 finishBar();
 
-                // Re-calibrate the topbar height in case the new page is taller.
+                // Recalibrate the topbar height in case the new page is taller.
                 if (window.navbarScrollUtils) {
                     window.navbarScrollUtils.updateTopbarHeight();
                 }
@@ -336,7 +338,7 @@
     }
 
     /* ------------------------------------------------------------------ */
-    /* Initialisation                                                      */
+    /* Initialization                                                      */
     /* ------------------------------------------------------------------ */
 
     function init() {
