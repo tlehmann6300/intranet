@@ -89,10 +89,11 @@ class ApiMiddleware
      */
     private static function extractCsrfToken(): string
     {
-        $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
-        if (stripos($contentType, 'application/json') !== false) {
+        // Extract just the media-type before any "; charset=..." parameters.
+        $contentType = strtolower(trim(explode(';', $_SERVER['CONTENT_TYPE'] ?? '')[0]));
+        if ($contentType === 'application/json') {
             $body = json_decode(file_get_contents('php://input'), true);
-            return $body['csrf_token'] ?? '';
+            return is_array($body) ? ($body['csrf_token'] ?? '') : '';
         }
         return $_POST['csrf_token'] ?? '';
     }

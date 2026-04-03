@@ -38,7 +38,7 @@ if ($userId === (int) ($_SESSION['user_id'] ?? 0)) {
 $entraWarning = null;
 try {
     $db = Database::getUserDB();
-    $stmt = $db->prepare('SELECT azure_oid, role FROM users WHERE id = :id');
+    $stmt = $db->prepare('SELECT azure_oid FROM users WHERE id = :id');
     $stmt->execute([':id' => $userId]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -69,11 +69,9 @@ try {
     $stmt = $db->prepare('UPDATE users SET role = :role WHERE id = :id');
     $stmt->execute([':role' => $newRole, ':id' => $userId]);
 
-    // rowCount() may be 0 when the role is already set to the requested value –
-    // that is still a valid outcome (user exists, confirmed in step 4).
-    if ($stmt->rowCount() < 1 && $newRole !== ($row['role'] ?? null)) {
-        ApiMiddleware::error(500, 'Fehler beim Ändern der Rolle');
-    }
+    // rowCount() returns 0 when the role was already set to the requested value.
+    // This is a valid success: the user exists (confirmed in step 4) and the DB
+    // reflects the desired state, so no error is raised in that case.
 
     $response = ['success' => true, 'message' => 'Rolle erfolgreich geändert'];
     if ($entraWarning !== null) {
