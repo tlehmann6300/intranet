@@ -6,7 +6,7 @@
     --bg-card: #ffffff; /* White */
     --bg-input: #ffffff; /* White for input fields */
     --text-main: #111827; /* Almost Black - Important for readability */
-    --text-muted: #4b5563; /* Dark Gray */
+    --text-muted: #64748b; /* Slate-500 – softer muted text */
     --border-color: #e5e7eb;
     
     /* Light Mode Enhanced Gradients */
@@ -162,6 +162,7 @@ body {
     -webkit-text-size-adjust: 100%;
     -moz-text-size-adjust: 100%;
     text-size-adjust: 100%;
+    line-height: 1.625; /* leading-relaxed – improved readability for body text */
     transition: background-color var(--transition-slow), color var(--transition-slow);
 }
 
@@ -2011,6 +2012,11 @@ body.dark-mode .hover\:bg-gray-400:hover {
 /* Dark Mode: Table Hover States */
 body.dark-mode tr:hover {
     background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Light Mode: Soften hard black text to slate-800 for visual comfort */
+body:not(.dark-mode) .text-black {
+    color: #1e293b !important; /* slate-800 – softer than pure black */
 }
 
 /* Dark Mode: Ensure text readability in all scenarios */
