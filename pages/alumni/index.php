@@ -137,13 +137,13 @@ ob_start();
                 <?php
                 // Determine role badge color
                 $roleBadgeColors = [
-                    'alumni'              => 'bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600',
-                    'alumni_vorstand'     => 'bg-indigo-100 text-indigo-800 border-indigo-300 dark:bg-indigo-900 dark:text-indigo-200 dark:border-indigo-700',
-                    'alumni_finanz'       => 'bg-indigo-100 text-indigo-800 border-indigo-300 dark:bg-indigo-900 dark:text-indigo-200 dark:border-indigo-700',
-                    'ehrenmitglied'       => 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900 dark:text-amber-200 dark:border-amber-700',
+                    'alumni'              => 'bg-gray-100 text-gray-900 border-gray-300 dark:bg-gray-700 dark:text-gray-900 dark:border-gray-600',
+                    'alumni_vorstand'     => 'bg-indigo-100 text-indigo-900 border-indigo-300 dark:bg-indigo-900 dark:text-indigo-900 dark:border-indigo-700',
+                    'alumni_finanz'       => 'bg-indigo-100 text-indigo-900 border-indigo-300 dark:bg-indigo-900 dark:text-indigo-900 dark:border-indigo-700',
+                    'ehrenmitglied'       => 'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-900 dark:text-amber-900 dark:border-amber-700',
                 ];
                 $displayRoleKey = Auth::getPrimaryEntraRoleKey($profile['entra_roles'] ?? null, $profile['role'] ?? '');
-                $badgeClass = $roleBadgeColors[$displayRoleKey] ?? 'bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600';
+                $badgeClass = $roleBadgeColors[$displayRoleKey] ?? 'bg-gray-100 text-gray-900 border-gray-300 dark:bg-gray-700 dark:text-gray-900 dark:border-gray-600';
                 $displayRole = htmlspecialchars($profile['display_role'] ?? Auth::getRoleLabel($profile['role'] ?? ''));
                 ?>
                 <div class="card directory-card directory-card--alumni d-flex flex-column h-100">
@@ -159,9 +159,9 @@ ob_start();
                         // Generate initials for fallback
                         $initials = getMemberInitials($profile['first_name'], $profile['last_name']);
                         $avatarColor = getAvatarColor($profile['first_name'] . ' ' . $profile['last_name']);
-                        // Prefer Entra ID photo via fetch-profile-photo.php when an e-mail address is
-                        // available; fall back to the locally stored avatar / default image otherwise.
-                        $alumniEmail = $profile['email'] ?? '';
+                        // Prefer the Entra login email (users.email) for fetching the Entra profile photo;
+                        // fall back to the alumni-profile email if the login email is not available.
+                        $alumniEmail = $profile['user_email'] ?? $profile['email'] ?? '';
                         if (!empty($alumniEmail)) {
                             $imagePath = asset('fetch-profile-photo.php') . '?email=' . urlencode($alumniEmail);
                         } else {
