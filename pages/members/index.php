@@ -135,25 +135,26 @@ ob_start();
         <?php
         // Pre-compute display data for each member once
         $roleBadgeColors = [
-            'vorstand_finanzen'   => 'bg-purple-100 text-purple-900 border-purple-300 dark:bg-purple-900 dark:text-purple-900 dark:border-purple-700',
-            'vorstand_intern'     => 'bg-purple-100 text-purple-900 border-purple-300 dark:bg-purple-900 dark:text-purple-900 dark:border-purple-700',
-            'vorstand_extern'     => 'bg-purple-100 text-purple-900 border-purple-300 dark:bg-purple-900 dark:text-purple-900 dark:border-purple-700',
-            'ressortleiter'       => 'bg-teal-100 text-teal-900 border-teal-300 dark:bg-teal-900 dark:text-teal-900 dark:border-teal-700',
-            'mitglied'            => 'bg-green-100 text-green-900 border-green-300 dark:bg-green-900 dark:text-green-900 dark:border-green-700',
-            'anwaerter'           => 'bg-yellow-100 text-yellow-900 border-yellow-300 dark:bg-yellow-900 dark:text-yellow-900 dark:border-yellow-700',
-            'alumni'              => 'bg-gray-100 text-gray-900 border-gray-300 dark:bg-gray-700 dark:text-gray-900 dark:border-gray-600',
-            'alumni_vorstand'     => 'bg-indigo-100 text-indigo-900 border-indigo-300 dark:bg-indigo-900 dark:text-indigo-900 dark:border-indigo-700',
-            'alumni_finanz'       => 'bg-indigo-100 text-indigo-900 border-indigo-300 dark:bg-indigo-900 dark:text-indigo-900 dark:border-indigo-700',
-            'ehrenmitglied'       => 'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-900 dark:text-amber-900 dark:border-amber-700',
+            'vorstand_finanzen'   => 'bg-purple-100 text-purple-900 border-purple-300 dark:bg-purple-900 dark:text-purple-100 dark:border-purple-700',
+            'vorstand_intern'     => 'bg-purple-100 text-purple-900 border-purple-300 dark:bg-purple-900 dark:text-purple-100 dark:border-purple-700',
+            'vorstand_extern'     => 'bg-purple-100 text-purple-900 border-purple-300 dark:bg-purple-900 dark:text-purple-100 dark:border-purple-700',
+            'ressortleiter'       => 'bg-teal-100 text-teal-900 border-teal-300 dark:bg-teal-900 dark:text-teal-100 dark:border-teal-700',
+            'mitglied'            => 'bg-green-100 text-green-900 border-green-300 dark:bg-green-900 dark:text-green-100 dark:border-green-700',
+            'anwaerter'           => 'bg-yellow-100 text-yellow-900 border-yellow-300 dark:bg-yellow-900 dark:text-yellow-100 dark:border-yellow-700',
+            'alumni'              => 'bg-gray-100 text-gray-900 border-gray-300 dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600',
+            'alumni_vorstand'     => 'bg-indigo-100 text-indigo-900 border-indigo-300 dark:bg-indigo-900 dark:text-indigo-100 dark:border-indigo-700',
+            'alumni_finanz'       => 'bg-indigo-100 text-indigo-900 border-indigo-300 dark:bg-indigo-900 dark:text-indigo-100 dark:border-indigo-700',
+            'ehrenmitglied'       => 'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-900 dark:text-amber-100 dark:border-amber-700',
         ];
         $memberDisplayData = [];
         foreach ($members as $idx => $member) {
             $displayRoleKey = Auth::getPrimaryEntraRoleKey($member['entra_roles'] ?? null, $member['role']);
-            $badgeClass     = $roleBadgeColors[$displayRoleKey] ?? 'bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600';
+            $badgeClass     = $roleBadgeColors[$displayRoleKey] ?? 'bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600';
             $displayRole    = htmlspecialchars($member['display_role'] ?? Auth::getRoleLabel($member['role']));
             $initials       = getMemberInitials($member['first_name'], $member['last_name']);
             $memberEmail    = $member['email'] ?? '';
-            $imageSrc       = !empty($memberEmail)
+            $isEntraUser    = !empty($member['entra_roles']);
+            $imageSrc       = ($isEntraUser && !empty($memberEmail))
                 ? asset('fetch-profile-photo.php') . '?email=' . urlencode($memberEmail)
                 : asset(getProfileImageUrl($member['avatar_path'] ?? null));
             $avatarColor    = getAvatarColor($member['first_name'] . ' ' . $member['last_name']);
