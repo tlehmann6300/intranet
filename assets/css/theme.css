@@ -2504,6 +2504,16 @@ body:not(.dark-mode) .btn-primary:active::after {
     transition: transform 0.1s ease, filter 0.1s ease, box-shadow 0.1s ease;
 }
 
+.btn-primary:focus {
+    outline: none;
+    /* ring-2 ring-offset-2: 2px ring-offset using card background + 2px blue focus ring */
+    box-shadow: 0 0 0 2px var(--bg-card), 0 0 0 4px var(--ibc-blue);
+}
+
+body.dark-mode .btn-primary:focus {
+    box-shadow: 0 0 0 2px var(--bg-base), 0 0 0 4px var(--ibc-blue-light);
+}
+
 @keyframes gradientShift {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
