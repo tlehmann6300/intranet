@@ -129,6 +129,7 @@ class Member {
                 u.entra_roles,
                 u.entra_photo_path,
                 u.avatar_path,
+                u.use_custom_avatar,
                 u.job_title,
                 u.created_at,
                 u.privacy_hide_email
@@ -143,7 +144,7 @@ class Member {
         } catch (PDOException $e) {
             // SQLSTATE 42S22 = unknown column; fall back if column doesn't exist yet
             if ($e->getCode() === '42S22') {
-                foreach (['u.entra_photo_path,' => 'NULL AS entra_photo_path,', 'u.avatar_path,' => 'NULL AS avatar_path,'] as $col => $fallback) {
+                foreach (['u.entra_photo_path,' => 'NULL AS entra_photo_path,', 'u.avatar_path,' => 'NULL AS avatar_path,', 'u.use_custom_avatar,' => 'NULL AS use_custom_avatar,'] as $col => $fallback) {
                     if (strpos($e->getMessage(), trim($col, 'u.,')) !== false) {
                         $userSql = str_replace($col, $fallback, $userSql);
                     }
@@ -177,6 +178,7 @@ class Member {
                 $profile['entra_roles'] = $user['entra_roles'] ?? null;
                 $profile['entra_photo_path'] = $user['entra_photo_path'] ?? null;
                 $profile['avatar_path'] = $user['avatar_path'] ?? null;
+                $profile['use_custom_avatar'] = $user['use_custom_avatar'] ?? 0;
                 $profile['job_title'] = $user['job_title'] ?? null;
                 $profile['user_created_at'] = $user['created_at'];
                 $profile['privacy_hide_email'] = $user['privacy_hide_email'] ?? 0;
