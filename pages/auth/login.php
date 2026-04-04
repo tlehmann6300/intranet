@@ -1647,7 +1647,7 @@ try {
 
         <!-- Footer -->
         <div class="login-footer">
-            <p>&copy; <?php echo date('Y'); ?> IBC Business Consulting. Alle Rechte vorbehalten.</p>
+            <p>&copy; <?php echo date('Y'); ?> Institut für Business Consulting Furtwangen. Alle Rechte vorbehalten.</p>
         </div>
     </div>
 
