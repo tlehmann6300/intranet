@@ -403,14 +403,12 @@ ob_start();
 
     /* ── Dashboard Event Cards ──────────────────────────── */
     .dash-event-card {
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-        border-radius: 1rem;
+        /* Layout, corners, shadow, and transition (300 ms, consistent with stat cards)
+           handled by Tailwind utilities:
+           flex flex-col | rounded-xl | overflow-hidden | shadow-sm | transition-all duration-300 */
         border: 1.5px solid var(--border-color);
         background-color: var(--bg-card);
         box-shadow: var(--shadow-card);
-        transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
         text-decoration: none !important;
         color: inherit;
     }
@@ -1094,7 +1092,7 @@ function dismissProfileReviewPrompt() {
                 $countdown = $days > 0 ? "Noch {$days} Tag" . ($days != 1 ? 'e' : '') . ", {$hours} Std" : "Noch {$hours} Std";
             }
         ?>
-        <a href="../events/view.php?id=<?php echo (int)$event['id']; ?>" class="dash-event-card dash-event-card--<?php echo htmlspecialchars($eventStatus); ?> w-full">
+        <a href="../events/view.php?id=<?php echo (int)$event['id']; ?>" class="dash-event-card dash-event-card--<?php echo htmlspecialchars($eventStatus); ?> w-full flex flex-col rounded-xl overflow-hidden shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
             <!-- Status accent strip -->
             <div class="dash-event-card-accent"></div>
             <!-- Card header: gradient background with date chip -->
