@@ -432,7 +432,6 @@ if (!isset($currentUser)) {
             backdrop-filter: blur(12px) saturate(1.8);
             -webkit-backdrop-filter: blur(12px) saturate(1.8);
             z-index: var(--z-topbar, 1060);
-            transition: background 0.3s ease, box-shadow 0.3s ease;
         }
 
         /* hamburger button inside top header */
@@ -847,7 +846,7 @@ if (!isset($currentUser)) {
          Mobile:  full-width with hamburger
          Uses backdrop-blur-md for the frosted glass effect
          ════════════════════════════════════════════════════════════ -->
-    <header id="top-header" class="bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm dark:bg-slate-900/80 dark:border-slate-700/50" aria-label="Hauptnavigation oben">
+    <header id="top-header" class="bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm transition-colors duration-300 dark:bg-slate-900/80 dark:border-slate-700/50" aria-label="Hauptnavigation oben">
         <!-- Mobile hamburger hidden: sidebar is always fixed at left-0 -->
         <button id="mobile-menu-btn"
                 class="hidden"
