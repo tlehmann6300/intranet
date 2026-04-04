@@ -387,7 +387,7 @@ class Alumni extends Database {
                 $placeholders = implode(',', array_fill(0, count($userIds), '?'));
                 // Role values are trusted internal constants – hardcoded directly in SQL
                 $alumniRoleList = "'" . implode("', '", self::ALUMNI_ROLES) . "'";
-                $userSql = "SELECT id, role, entra_roles, entra_photo_path, avatar_path, privacy_hide_email FROM users WHERE id IN ($placeholders) AND role IN ($alumniRoleList)";
+                $userSql = "SELECT id, role, email, entra_roles, entra_photo_path, avatar_path, privacy_hide_email FROM users WHERE id IN ($placeholders) AND role IN ($alumniRoleList)";
                 try {
                     $userStmt = $userDb->prepare($userSql);
                     $userStmt->execute($userIds);
@@ -419,6 +419,7 @@ class Alumni extends Database {
                     // Only include profiles where user has role 'alumni', 'alumni_vorstand', 'alumni_finanz', or 'ehrenmitglied'
                     if (in_array($userRole, ['alumni', 'alumni_vorstand', 'alumni_finanz', 'ehrenmitglied'])) {
                         $profile['role'] = $userRole;
+                        $profile['user_email'] = $userData['email'] ?? null;
                         $profile['entra_photo_path'] = $userData['entra_photo_path'] ?? null;
                         $profile['avatar_path'] = $userData['avatar_path'] ?? null;
                         $profile['privacy_hide_email'] = $userData['privacy_hide_email'] ?? 0;
