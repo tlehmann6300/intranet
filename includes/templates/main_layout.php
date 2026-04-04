@@ -271,6 +271,8 @@ if (!isset($currentUser)) {
         @media (max-width: 767px) {
             #main-content {
                 padding-top: var(--mobile-menu-height, calc(var(--topbar-height, 64px) + env(safe-area-inset-top, 0px) + 0.75rem)) !important;
+                padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px)) !important;
+                margin-left: 0 !important;
                 transition: padding-top 0.3s cubic-bezier(0.32, 0.72, 0, 1);
             }
         }
@@ -619,13 +621,6 @@ if (!isset($currentUser)) {
         /* ── MAIN CONTENT PADDING FOR NEW UNIFIED HEADER ────── */
         #main-content {
             padding-top: calc(var(--topbar-height, 64px) + 1.5rem) !important;
-        }
-        @media (max-width: 767px) {
-            #main-content {
-                padding-top: calc(var(--topbar-height, 64px) + env(safe-area-inset-top, 0px) + 0.75rem) !important;
-                padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px)) !important;
-                margin-left: 0 !important;
-            }
         }
 
         /* ── SIDEBAR: NARROWER CLEAN FOOTER ─────────────────── */
