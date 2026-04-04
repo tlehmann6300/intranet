@@ -264,13 +264,13 @@ if (!isset($currentUser)) {
         /* On mobile, padding-top accounts for the fixed topbar height.
            Uses env(safe-area-inset-top) so content is never hidden behind the
            Dynamic Island / notch. The JS in navbar-scroll.js updates
-           --mobile-menu-height from the actual measured height of #mobile-header;
+           --mobile-menu-height from the actual measured height of #top-header;
            the calc() below is the pure-CSS fallback.
            The transition uses the same duration/easing as the sidebar so the
            push-down animation of #main-content stays perfectly in sync. */
         @media (max-width: 767px) {
             #main-content {
-                padding-top: var(--mobile-menu-height, calc(var(--topbar-height) + env(safe-area-inset-top, 0px))) !important;
+                padding-top: var(--mobile-menu-height, calc(var(--topbar-height, 64px) + env(safe-area-inset-top, 0px) + 0.75rem)) !important;
                 transition: padding-top 0.3s cubic-bezier(0.32, 0.72, 0, 1);
             }
         }
@@ -306,10 +306,15 @@ if (!isset($currentUser)) {
         }
 
         /* ── IMPROVED MOBILE TOPBAR SAFE AREA ───────────────────── */
-        /* Ensure topbar correctly accommodates Dynamic Island and notch */
-        #mobile-header {
-            min-height: calc(var(--topbar-height) + env(safe-area-inset-top, 0px));
-            padding-top: env(safe-area-inset-top, 0px);
+        /* Ensure topbar correctly accommodates Dynamic Island and notch.
+           Also resets left offset to 0 so the bar is full-width on mobile
+           (on desktop it is offset by the sidebar width via the base rule). */
+        @media (max-width: 767px) {
+            #top-header {
+                left: 0;
+                min-height: calc(var(--topbar-height, 64px) + env(safe-area-inset-top, 0px));
+                padding-top: env(safe-area-inset-top, 0px);
+            }
         }
 
         /* ── SMOOTH SIDEBAR OVERLAY BLUR ─────────────────────────── */
@@ -436,7 +441,6 @@ if (!isset($currentUser)) {
 
         /* hamburger button inside top header */
         #mobile-menu-btn {
-            display: flex;
             align-items: center;
             justify-content: center;
             width: 2.5rem;
@@ -618,8 +622,9 @@ if (!isset($currentUser)) {
         }
         @media (max-width: 767px) {
             #main-content {
-                padding-top: calc(var(--topbar-height, 64px) + 0.75rem) !important;
+                padding-top: calc(var(--topbar-height, 64px) + env(safe-area-inset-top, 0px) + 0.75rem) !important;
                 padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px)) !important;
+                margin-left: 0 !important;
             }
         }
 
@@ -847,9 +852,9 @@ if (!isset($currentUser)) {
          Uses backdrop-blur-md for the frosted glass effect
          ════════════════════════════════════════════════════════════ -->
     <header id="top-header" class="bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm transition-colors duration-300 dark:bg-slate-900/80 dark:border-slate-700/50" aria-label="Hauptnavigation oben">
-        <!-- Mobile hamburger hidden: sidebar is always fixed at left-0 -->
+        <!-- Mobile hamburger: visible on mobile, hidden on desktop (sidebar is always shown on desktop) -->
         <button id="mobile-menu-btn"
-                class="hidden"
+                class="flex md:hidden"
                 aria-label="Menü öffnen"
                 aria-expanded="false"
                 aria-controls="sidebar">
