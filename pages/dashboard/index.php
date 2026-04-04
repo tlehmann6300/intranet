@@ -326,15 +326,13 @@ ob_start();
     .hero-quick-action--profile:hover   { background: rgba(168,85,247,0.48); }
 
     /* ── Stat Cards ─────────────────────────────────────── */
+    /* Structural/visual properties (rounded, padding, border, shadow, transition)
+       are now handled by Tailwind utility classes on the HTML element.
+       Only pseudo-element theming and anchor resets remain here. */
     .dash-stat-card {
-        border-radius: 1.25rem;
-        padding: 1.5rem;
-        background: var(--bg-card);
-        border: 1.5px solid var(--border-color);
-        box-shadow: var(--shadow-card);
-        transition: all 0.28s cubic-bezier(.22,.61,.36,1);
         position: relative;
         overflow: hidden;
+        background: var(--bg-card);
         text-decoration: none !important;
         display: block;
         color: inherit;
@@ -344,7 +342,7 @@ ob_start();
         position: absolute;
         top: 0; left: 0; right: 0;
         height: 4px;
-        border-radius: 1.25rem 1.25rem 0 0;
+        border-radius: 1rem 1rem 0 0; /* matches rounded-2xl top corners */
         background: var(--dash-stat-color, var(--ibc-blue));
         opacity: 1;
     }
@@ -357,9 +355,9 @@ ob_start();
         border-radius: inherit;
     }
     .dash-stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: var(--shadow-card-hover);
-        border-color: var(--dash-stat-color, var(--ibc-blue));
+        /* !important is required to override Tailwind's static border-slate-100
+           utility with the dynamic per-card accent color on hover. */
+        border-color: var(--dash-stat-color, var(--ibc-blue)) !important;
         text-decoration: none !important;
         color: inherit;
     }
@@ -926,7 +924,7 @@ function dismissProfileReviewPrompt() {
 
         <!-- Rentals Stat Card -->
         <a href="/pages/inventory/my_rentals.php"
-           class="dash-stat-card w-full"
+           class="dash-stat-card w-full rounded-2xl p-6 border border-slate-100 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
            style="--dash-stat-color: #f97316; --dash-stat-bg: rgba(249,115,22,0.09);">
             <div class="flex items-center justify-between mb-4">
                 <div class="dash-stat-icon">
@@ -946,7 +944,7 @@ function dismissProfileReviewPrompt() {
         </a>
 
         <!-- Next Event Stat Card -->
-        <div class="dash-stat-card w-full"
+        <div class="dash-stat-card w-full rounded-2xl p-6 border border-slate-100 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
              style="--dash-stat-color: var(--ibc-blue); --dash-stat-bg: rgba(0,102,179,0.08);">
             <div class="flex items-center justify-between mb-4">
                 <div class="dash-stat-icon">
@@ -977,7 +975,7 @@ function dismissProfileReviewPrompt() {
         <?php if ($canAccessInvoices): ?>
         <!-- Invoices Stat Card -->
         <a href="/pages/invoices/index.php"
-           class="dash-stat-card w-full"
+           class="dash-stat-card w-full rounded-2xl p-6 border border-slate-100 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
            style="--dash-stat-color: var(--ibc-green); --dash-stat-bg: rgba(0,166,81,0.09);">
             <div class="flex items-center justify-between mb-4">
                 <div class="dash-stat-icon">
