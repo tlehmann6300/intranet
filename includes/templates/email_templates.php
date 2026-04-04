@@ -111,7 +111,7 @@ class EmailTemplates {
                                 Diese E-Mail wurde automatisch vom IBC Intranet generiert.
                             </p>
                             <p style="margin: 0; font-size: 14px; color: #666666;">
-                                &copy; ' . date('Y') . ' IBC Business Consulting. Alle Rechte vorbehalten.
+                                &copy; ' . date('Y') . ' Institut für Business Consulting Furtwangen. Alle Rechte vorbehalten.
                             </p>
                         </td>
                     </tr>
