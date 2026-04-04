@@ -753,6 +753,7 @@ ob_start();
             </p>
             
             <form method="POST" enctype="multipart/form-data" class="space-y-6">
+                <?php $_inputClass = 'w-full px-4 py-2 bg-gray-50 focus:bg-white border border-gray-300 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 dark:bg-gray-800 dark:focus:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-transparent rounded-lg'; ?>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">
                     <!-- Common Fields -->
                     <div>
@@ -762,7 +763,7 @@ ob_start();
                             name="first_name" 
                             required 
                             value="<?php echo htmlspecialchars($profile['first_name'] ?? ''); ?>"
-                            class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 rounded-lg"
+                            class="<?= $_inputClass ?>"
                         >
                     </div>
                     
@@ -773,7 +774,7 @@ ob_start();
                             name="last_name" 
                             required 
                             value="<?php echo htmlspecialchars($profile['last_name'] ?? ''); ?>"
-                            class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 rounded-lg"
+                            class="<?= $_inputClass ?>"
                         >
                     </div>
                     
@@ -784,7 +785,7 @@ ob_start();
                             name="profile_email" 
                             required 
                             value="<?php echo htmlspecialchars($profile['email'] ?? $user['email']); ?>"
-                            class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 rounded-lg"
+                            class="<?= $_inputClass ?>"
                         >
                         <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Die erste E-Mail ist immer die von Microsoft Entra</p>
                     </div>
@@ -795,7 +796,7 @@ ob_start();
                             type="email" 
                             name="secondary_email" 
                             value="<?php echo htmlspecialchars($profile['secondary_email'] ?? ''); ?>"
-                            class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 rounded-lg"
+                            class="<?= $_inputClass ?>"
                             placeholder="zusätzliche@email.de"
                         >
                     </div>
@@ -807,7 +808,7 @@ ob_start();
                             name="mobile_phone" 
                             required
                             value="<?php echo htmlspecialchars($profile['mobile_phone'] ?? ''); ?>"
-                            class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 rounded-lg"
+                            class="<?= $_inputClass ?>"
                             placeholder="+49 123 456789"
                         >
                     </div>
@@ -818,7 +819,7 @@ ob_start();
                             type="url" 
                             name="linkedin_url" 
                             value="<?php echo htmlspecialchars($profile['linkedin_url'] ?? ''); ?>"
-                            class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 rounded-lg"
+                            class="<?= $_inputClass ?>"
                             placeholder="https://linkedin.com/in/..."
                         >
                     </div>
@@ -829,7 +830,7 @@ ob_start();
                             type="url" 
                             name="xing_url" 
                             value="<?php echo htmlspecialchars($profile['xing_url'] ?? ''); ?>"
-                            class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 rounded-lg"
+                            class="<?= $_inputClass ?>"
                             placeholder="https://xing.com/profile/..."
                         >
                     </div>
@@ -850,7 +851,7 @@ ob_start();
                             type="text" 
                             name="job_title"
                             value="<?php echo htmlspecialchars($user['job_title'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                            class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 rounded-lg"
+                            class="<?= $_inputClass ?>"
                             placeholder="z.B. Senior Consultant"
                         >
                     </div>
@@ -861,7 +862,7 @@ ob_start();
                             type="text" 
                             name="company" 
                             value="<?php echo htmlspecialchars($user['company'] ?? ''); ?>"
-                            class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 rounded-lg"
+                            class="<?= $_inputClass ?>"
                             placeholder="z.B. Acme Corporation"
                         >
                     </div>
@@ -870,7 +871,7 @@ ob_start();
                         <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Geschlecht</label>
                         <select 
                             name="gender"
-                            class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 rounded-lg"
+                            class="<?= $_inputClass ?>"
                         >
                             <option value="">Bitte wählen</option>
                             <option value="m" <?php echo ($profile['gender'] ?? '') === 'm' ? 'selected' : ''; ?>>Männlich</option>
@@ -887,7 +888,7 @@ ob_start();
                             value="<?php echo htmlspecialchars($profile['birthday'] ?? ''); ?>"
                             max="<?php echo date('Y-m-d', strtotime('-16 years')); ?>"
                             required
-                            class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 rounded-lg"
+                            class="<?= $_inputClass ?>"
                         >
                         <div class="mt-2">
                             <label class="inline-flex items-center cursor-pointer min-h-[44px]">
@@ -956,7 +957,7 @@ ob_start();
                             type="text" 
                             name="bachelor_studiengang" 
                             value="<?php echo htmlspecialchars($profile['study_program'] ?? ''); ?>"
-                            class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 rounded-lg"
+                            class="<?= $_inputClass ?>"
                             placeholder="z.B. Wirtschaftsingenieurwesen"
                         >
                     </div>
@@ -967,7 +968,7 @@ ob_start();
                             type="text" 
                             name="bachelor_semester" 
                             value="<?php echo htmlspecialchars($profile['semester'] ?? ''); ?>"
-                            class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 rounded-lg"
+                            class="<?= $_inputClass ?>"
                             placeholder="z.B. 5"
                         >
                     </div>
@@ -978,7 +979,7 @@ ob_start();
                             type="text" 
                             name="master_studiengang" 
                             value="<?php echo htmlspecialchars($profile['angestrebter_abschluss'] ?? ''); ?>"
-                            class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 rounded-lg"
+                            class="<?= $_inputClass ?>"
                             placeholder="z.B. Management & Engineering"
                         >
                     </div>
@@ -989,7 +990,7 @@ ob_start();
                             type="text" 
                             name="master_semester" 
                             value="<?php echo htmlspecialchars($profile['graduation_year'] ?? ''); ?>"
-                            class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 rounded-lg"
+                            class="<?= $_inputClass ?>"
                             placeholder="z.B. 2"
                         >
                     </div>
@@ -1008,7 +1009,7 @@ ob_start();
                             type="text" 
                             name="bachelor_studiengang" 
                             value="<?php echo htmlspecialchars($profile['study_program'] ?? ''); ?>"
-                            class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 rounded-lg"
+                            class="<?= $_inputClass ?>"
                             placeholder="z.B. Wirtschaftsingenieurwesen"
                         >
                     </div>
@@ -1019,7 +1020,7 @@ ob_start();
                             type="text" 
                             name="bachelor_year" 
                             value="<?php echo htmlspecialchars($profile['semester'] ?? ''); ?>"
-                            class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 rounded-lg"
+                            class="<?= $_inputClass ?>"
                             placeholder="z.B. 2020"
                         >
                     </div>
@@ -1030,7 +1031,7 @@ ob_start();
                             type="text" 
                             name="master_studiengang" 
                             value="<?php echo htmlspecialchars($profile['angestrebter_abschluss'] ?? ''); ?>"
-                            class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 rounded-lg"
+                            class="<?= $_inputClass ?>"
                             placeholder="z.B. Management & Engineering"
                         >
                     </div>
@@ -1041,7 +1042,7 @@ ob_start();
                             type="text" 
                             name="master_year" 
                             value="<?php echo htmlspecialchars($profile['graduation_year'] ?? ''); ?>"
-                            class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 rounded-lg"
+                            class="<?= $_inputClass ?>"
                             placeholder="z.B. 2022"
                         >
                     </div>
@@ -1058,7 +1059,7 @@ ob_start();
                             type="text" 
                             name="company" 
                             value="<?php echo htmlspecialchars($profile['company'] ?? ''); ?>"
-                            class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 rounded-lg"
+                            class="<?= $_inputClass ?>"
                             placeholder="Firmenname"
                         >
                     </div>
@@ -1069,7 +1070,7 @@ ob_start();
                             type="text" 
                             name="industry" 
                             value="<?php echo htmlspecialchars($profile['industry'] ?? ''); ?>"
-                            class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 rounded-lg"
+                            class="<?= $_inputClass ?>"
                             placeholder="z.B. Beratung, IT, Finanzen"
                         >
                     </div>
@@ -1089,7 +1090,7 @@ ob_start();
                         name="about_me" 
                         rows="4"
                         maxlength="400"
-                        class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 rounded-lg"
+                        class="<?= $_inputClass ?>"
                         placeholder="Erzähle etwas über dich..."
                     ><?php echo htmlspecialchars($profile['about_me'] ?? ''); ?></textarea>
                 </div>
@@ -1119,7 +1120,7 @@ ob_start();
                         value="<?php echo htmlspecialchars($profile['skills'] ?? ''); ?>"
                         maxlength="500"
                         placeholder="z.B. PHP, JavaScript, Design"
-                        class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 rounded-lg"
+                        class="<?= $_inputClass ?>"
                     >
                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         <i class="fas fa-info-circle mr-1"></i>Trenne deine Fähigkeiten mit einem Komma. Fähigkeiten sind in der Mitgliedersuche auffindbar.
@@ -1233,7 +1234,7 @@ ob_start();
                 <div>
                     <?php if ($user['tfa_enabled']): ?>
                     <form method="POST" onsubmit="return confirm('Möchtest du 2FA wirklich deaktivieren?');">
-                        <button type="submit" name="disable_2fa" class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+                        <button type="submit" name="disable_2fa" class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
                             <i class="fas fa-times mr-2"></i>2FA deaktivieren
                         </button>
                     </form>
@@ -1277,7 +1278,7 @@ ob_start();
                             required 
                             maxlength="6"
                             pattern="[0-9]{6}"
-                            class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 rounded-lg text-center text-2xl tracking-widest"
+                            class="<?= $_inputClass ?> text-center text-2xl tracking-widest"
                             placeholder="000000"
                             autofocus
                         >
@@ -1314,7 +1315,7 @@ ob_start();
             <select 
                 name="request_type" 
                 required 
-                class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 rounded-lg"
+                class="<?= $_inputClass ?>"
             >
                 <option value="">Bitte wählen...</option>
                 <option value="Rollenänderung">Rollenänderung</option>
@@ -1331,7 +1332,7 @@ ob_start();
                 maxlength="1000"
                 rows="4"
                 placeholder="Bitte geben Sie eine Begründung oder den neuen gewünschten Wert an..."
-                class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 rounded-lg"
+                class="<?= $_inputClass ?>"
             ></textarea>
             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Mindestens 10, maximal 1000 Zeichen</p>
         </div>
@@ -1339,7 +1340,7 @@ ob_start();
         <button 
             type="submit" 
             name="submit_change_request"
-            class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-200"
+            class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
         >
             <i class="fas fa-paper-plane mr-2"></i>
             Beantragen
@@ -1393,7 +1394,7 @@ ob_start();
                 <div>
                     <label for="support-modal-type" class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Art der Anfrage</label>
                     <select id="support-modal-type" name="request_type" required
-                            class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                            class="w-full px-4 py-2 bg-gray-50 focus:bg-white dark:bg-gray-700 dark:focus:bg-gray-600 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:focus:border-transparent transition-colors duration-200">
                         <option value="">Bitte auswählen...</option>
                         <option value="2fa_reset">2FA zurücksetzen</option>
                         <option value="bug">Bug / Fehler</option>
@@ -1404,7 +1405,7 @@ ob_start();
                     <label for="support-modal-description" class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Beschreibung</label>
                     <textarea id="support-modal-description" name="description" rows="4" required
                               placeholder="Beschreibe dein Anliegen..."
-                              class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500"></textarea>
+                              class="w-full px-4 py-2 bg-gray-50 focus:bg-white dark:bg-gray-700 dark:focus:bg-gray-600 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:focus:border-transparent transition-colors duration-200"></textarea>
                 </div>
                 <div id="support-modal-feedback" class="hidden"></div>
                 <div class="flex gap-3 justify-end">
@@ -1431,8 +1432,8 @@ ob_start();
             </div>
         </div>
         <div class="flex justify-end gap-3 px-6 pb-6 pt-2">
-            <button type="button" id="closeCropperBtn" class="px-4 py-2 rounded-xl bg-gray-200 text-gray-800 hover:bg-gray-300">Abbrechen</button>
-            <button type="button" id="saveCropperBtn" class="px-4 py-2 rounded-xl bg-ibc-green text-white hover:bg-green-600">Speichern</button>
+            <button type="button" id="closeCropperBtn" class="px-4 py-2 rounded-xl bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">Abbrechen</button>
+            <button type="button" id="saveCropperBtn" class="px-4 py-2 rounded-xl bg-ibc-green text-white hover:bg-green-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">Speichern</button>
         </div>
     </div>
 </div>
