@@ -12430,3 +12430,215 @@ body.dark-mode .sidebar .sidebar-nav-item--active {
         padding: 1rem;
     }
 }
+
+
+/* =====================================================================
+   MOBILE ANIMATIONS & RESPONSIVE ENHANCEMENTS
+   mobile-animations.js companion styles
+   ===================================================================== */
+
+/* ── Page entrance animation ─────────────────────────────────────────
+   Triggered by mobile-animations.js on every page load / pjax visit.
+   The main content area fades up from a 12 px downward offset.
+────────────────────────────────────────────────────────────────────── */
+#main-content {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+}
+
+#main-content.page-entered {
+    animation: pageEntranceFadeUp 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes pageEntranceFadeUp {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 12px, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #main-content.page-entered {
+        animation: none;
+    }
+}
+
+/* ── Back-to-top button ──────────────────────────────────────────────
+   Fixed bottom-right; slides up when .btt-visible is added by JS.
+   On mobile it sits above the bottom navigation bar.
+────────────────────────────────────────────────────────────────────── */
+#back-to-top {
+    position: fixed;
+    right: 1.25rem;
+    bottom: 1.5rem;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background: var(--ibc-blue, #0066b3);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1035; /* below sidebar overlay (1040) */
+    box-shadow: 0 4px 14px rgba(0, 102, 179, 0.45);
+    opacity: 0;
+    transform: translateY(1rem) scale(0.85);
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+    /* Ensure the SVG circle progress ring sits on top */
+    overflow: visible;
+}
+
+#back-to-top.btt-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+#back-to-top:hover {
+    background: var(--ibc-blue-dark, #004f8c);
+    box-shadow: 0 6px 20px rgba(0, 102, 179, 0.55);
+}
+
+#back-to-top:active {
+    transform: scale(0.94);
+    transition-duration: 0.1s;
+}
+
+/* Progress ring (SVG drawn by the button HTML) */
+#back-to-top svg {
+    position: absolute;
+    inset: -3px;
+    width: calc(100% + 6px);
+    height: calc(100% + 6px);
+    pointer-events: none;
+    transform: rotate(-90deg); /* start progress at 12 o'clock */
+}
+
+#btt-progress-circle {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.55);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.15s linear;
+}
+
+/* Move above the mobile bottom-nav on small screens */
+@media (max-width: 767px) {
+    #back-to-top {
+        /* Bottom nav is approx 4rem; add 0.75rem gap */
+        bottom: calc(4.25rem + env(safe-area-inset-bottom, 0px));
+        right: 0.875rem;
+        width: 2.75rem;
+        height: 2.75rem;
+    }
+}
+
+body.dark-mode #back-to-top {
+    background: var(--ibc-blue-light, #3385c4);
+    box-shadow: 0 4px 14px rgba(51, 133, 196, 0.5);
+}
+
+body.dark-mode #back-to-top:hover {
+    background: var(--ibc-blue, #0066b3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #back-to-top {
+        transition: opacity 0.15s ease;
+        transform: none !important;
+    }
+    #back-to-top.btt-visible {
+        transform: none;
+    }
+}
+
+/* ── Swipe-to-open edge hint (left edge indicator on mobile) ─────────
+   A thin gradient strip on the left side hints that the sidebar can
+   be opened by swiping in from the left.  Visible only when the sidebar
+   is closed on touch devices.
+────────────────────────────────────────────────────────────────────── */
+@media (hover: none) and (pointer: coarse) and (max-width: 767px) {
+    body:not(.sidebar-open) #swipe-hint {
+        position: fixed;
+        left: 0;
+        top: 30%;
+        bottom: 30%;
+        width: 4px;
+        border-radius: 0 4px 4px 0;
+        background: linear-gradient(
+            to bottom,
+            transparent,
+            rgba(0, 102, 179, 0.35) 40%,
+            rgba(0, 102, 179, 0.35) 60%,
+            transparent
+        );
+        z-index: 1039;
+        pointer-events: none;
+        opacity: 0;
+        animation: swipeHintPulse 3s ease-in-out 2s 2 forwards;
+    }
+}
+
+@keyframes swipeHintPulse {
+    0%   { opacity: 0; }
+    30%  { opacity: 1; }
+    70%  { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* ── Enhanced card entrance (scroll-reveal) ──────────────────────────
+   Slightly more pronounced reveal for cards and stat widgets.
+────────────────────────────────────────────────────────────────────── */
+.card.reveal-on-scroll,
+.stat-card.reveal-on-scroll,
+.dash-stat-card.reveal-on-scroll,
+.dash-event-card.reveal-on-scroll,
+.dash-blog-card.reveal-on-scroll,
+.directory-card.reveal-on-scroll {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0) scale(0.98);
+    transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.card.reveal-on-scroll.revealed,
+.stat-card.reveal-on-scroll.revealed,
+.dash-stat-card.reveal-on-scroll.revealed,
+.dash-event-card.reveal-on-scroll.revealed,
+.dash-blog-card.reveal-on-scroll.revealed,
+.directory-card.reveal-on-scroll.revealed {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .card.reveal-on-scroll,
+    .stat-card.reveal-on-scroll,
+    .dash-stat-card.reveal-on-scroll,
+    .dash-event-card.reveal-on-scroll,
+    .dash-blog-card.reveal-on-scroll,
+    .directory-card.reveal-on-scroll {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+}
+
+/* ── Sidebar open active state on bottom-nav "Mehr" button ──────────── */
+#bottom-nav-more-btn.open i,
+#bottom-nav-more-btn.open svg {
+    transform: rotate(45deg);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#bottom-nav-more-btn i,
+#bottom-nav-more-btn svg {
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}

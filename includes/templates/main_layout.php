@@ -1255,6 +1255,18 @@ if (!isset($currentUser)) {
         </footer>
     </main>
 
+    <!-- Back-to-top button with scroll progress ring (shown after 300 px scroll) -->
+    <button id="back-to-top" aria-label="Zurück nach oben" title="Zurück nach oben">
+        <!-- SVG progress ring drawn around the button -->
+        <svg aria-hidden="true" focusable="false">
+            <circle id="btt-progress-circle" cx="50%" cy="50%" r="18"/>
+        </svg>
+        <i data-lucide="chevron-up" class="w-5 h-5" aria-hidden="true"></i>
+    </button>
+
+    <!-- Swipe-to-open hint strip (left edge, touch devices only, styled in theme.css) -->
+    <div id="swipe-hint" aria-hidden="true"></div>
+
     <!-- Mobile Bottom Navigation Bar (visible on small screens only, sidebar becomes bottom nav) -->
     <nav id="mobile-bottom-nav" class="mobile-bottom-nav glass-bottom-nav backdrop-blur-md md:hidden" role="navigation" aria-label="Schnellnavigation">
         <a href="<?php echo asset('pages/dashboard/index.php'); ?>"
@@ -1360,6 +1372,10 @@ if (!isset($currentUser)) {
                     openSidebar();
                 }
             }
+
+            // Expose sidebar helpers for mobile-animations.js swipe gestures
+            window.__sidebarOpen  = openSidebar;
+            window.__sidebarClose = closeSidebar;
 
             // Note: hamburger button in top header now toggles the sidebar on mobile
             if (btn && sidebar) {
@@ -1687,6 +1703,7 @@ if (!isset($currentUser)) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
     <script src="<?php echo asset('js/navbar-scroll.js'); ?>" defer></script>
     <script src="<?php echo asset('js/pjax-navigation.js'); ?>" defer></script>
+    <script src="<?php echo asset('js/mobile-animations.js'); ?>" defer></script>
     <!-- PWA: Service Worker registration & Install-App modal -->
     <script>
     (function () {
