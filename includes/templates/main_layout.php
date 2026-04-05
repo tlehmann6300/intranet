@@ -270,7 +270,7 @@ if (!isset($currentUser)) {
            push-down animation of #main-content stays perfectly in sync. */
         @media (max-width: 767px) {
             #main-content {
-                padding-top: var(--mobile-menu-height, calc(var(--topbar-height, 64px) + env(safe-area-inset-top, 0px) + 0.75rem)) !important;
+                padding-top: var(--mobile-menu-height, calc(var(--topbar-height, 60px) + env(safe-area-inset-top, 0px) + 0.75rem)) !important;
                 padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px)) !important;
                 margin-left: 0 !important;
                 transition: padding-top 0.3s cubic-bezier(0.32, 0.72, 0, 1);
@@ -314,7 +314,7 @@ if (!isset($currentUser)) {
         @media (max-width: 767px) {
             #top-header {
                 left: 0;
-                min-height: calc(var(--topbar-height, 64px) + env(safe-area-inset-top, 0px));
+                min-height: calc(var(--topbar-height, 60px) + env(safe-area-inset-top, 0px));
                 padding-top: env(safe-area-inset-top, 0px);
             }
         }
@@ -426,9 +426,9 @@ if (!isset($currentUser)) {
         #top-header {
             position: fixed;
             top: 0;
-            left: 16rem; /* sidebar w-64 = 256px */
+            left: var(--sidebar-width-md, 16rem); /* matches sidebar w-64; uses CSS variable */
             right: 0;
-            height: var(--topbar-height, 64px);
+            height: var(--topbar-height, 60px);
             padding: 0 1.5rem;
             display: flex;
             align-items: center;
@@ -513,7 +513,7 @@ if (!isset($currentUser)) {
         #user-dropdown {
             position: fixed;
             right: 1rem;
-            top: calc(var(--topbar-height, 64px) + 0.375rem);
+            top: calc(var(--topbar-height, 60px) + 0.375rem);
             width: 288px;
             background: #ffffff;
             border-radius: 1rem;
@@ -599,7 +599,7 @@ if (!isset($currentUser)) {
 
         /* ── MAIN CONTENT PADDING FOR NEW UNIFIED HEADER ────── */
         #main-content {
-            padding-top: calc(var(--topbar-height, 64px) + 1.5rem) !important;
+            padding-top: calc(var(--topbar-height, 60px) + 1.5rem) !important;
         }
 
         /* ── SIDEBAR: NARROWER CLEAN FOOTER ─────────────────── */
@@ -1838,9 +1838,10 @@ if (!isset($currentUser)) {
             transform: translateY(0);
             opacity: 1;
         }
-        @media (max-width: 480px) {
+        @media (max-width: 767px) {
             #pwa-install-modal {
-                bottom: 1rem;
+                /* 60px = bottom nav visible height + ~12px gap; safe-area for home indicator */
+                bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
                 right: 1rem;
                 left: 1rem;
                 width: auto;
