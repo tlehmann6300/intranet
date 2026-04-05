@@ -4885,7 +4885,9 @@ body:not(.dark-mode) .hero-gradient .hero-date {
     border-collapse: collapse;
 }
 
-/* ── Desktop styles (≥ 640 px) ── */
+/* ── Desktop styles (≥ 640 px) ──
+   Below 640 px the .card-table class takes over and stacks rows as cards,
+   so no additional desktop layout is needed at those sizes. */
 @media (min-width: 640px) {
     /* Header */
     .ibc-data-table thead {
@@ -4901,7 +4903,7 @@ body:not(.dark-mode) .hero-gradient .hero-date {
     .ibc-data-table thead th {
         padding: 0.875rem 1.5rem;
         text-align: left;
-        font-size: 0.6875rem;
+        font-size: 0.75rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.06em;
