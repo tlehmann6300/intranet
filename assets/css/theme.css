@@ -11700,7 +11700,6 @@ body:not(.dark-mode) .rounded-xl.bg-indigo-100 { background-color: #e0e7ff !impo
     border-left: 3px solid transparent;
     transform: none !important;
     overflow: hidden;
-    white-space: nowrap;
 }
 
 /* Truncate long nav label text with ellipsis */
