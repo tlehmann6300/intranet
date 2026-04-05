@@ -20,6 +20,11 @@ Options -Indexes
 # Schütze sensible Ordner, erlaube aber explizit assets, pages und api
 RewriteRule ^(private|config|vendor|logs|sql|includes|src)/.*$ - [F,L]
 
+# Erlaube manifest.json explizit (benötigt für PWA)
+<Files "manifest.json">
+    Require all granted
+</Files>
+
 # Schütze Konfigurationsdateien
 <FilesMatch "\.(env|ini|log|sh|bak|sql|json|lock|example)$">
     Require all denied
