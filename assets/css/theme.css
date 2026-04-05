@@ -5357,9 +5357,9 @@ main {
 /* Mobile full-height sidebar fix for iOS – account for topbar offset */
 @media (max-width: 767px) {
     .sidebar {
-        height: calc(100vh - var(--topbar-height, 60px)) !important; /* fallback */
-        height: calc(100dvh - var(--topbar-height, 60px)) !important; /* modern browsers */
-        height: calc(100svh - var(--topbar-height, 60px)) !important; /* iOS Safari small viewport */
+        height: calc(100vh - var(--topbar-height, 60px) - env(safe-area-inset-top, 0px)) !important; /* fallback */
+        height: calc(100dvh - var(--topbar-height, 60px) - env(safe-area-inset-top, 0px)) !important; /* modern browsers */
+        height: calc(100svh - var(--topbar-height, 60px) - env(safe-area-inset-top, 0px)) !important; /* iOS Safari small viewport */
     }
 }
 
