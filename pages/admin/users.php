@@ -419,20 +419,20 @@ ob_start();
                                 || (!empty($user['locked_until']) && ($lockedTs = strtotime($user['locked_until'])) !== false && $lockedTs > time());
                             ?>
                             <?php if ($isLocked): ?>
-                            <span class="inline-flex items-center px-2.5 py-1 text-xs bg-red-600 text-white rounded-lg font-semibold shadow-sm">
+                            <span class="inline-flex items-center px-2.5 py-0.5 text-xs bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 rounded-full font-medium">
                                 <i class="fas fa-ban mr-1.5"></i>Inaktiv
                             </span>
                             <?php elseif (!empty($user['azure_oid'])): ?>
-                            <span class="inline-flex items-center px-2.5 py-1 text-xs bg-green-600 text-white rounded-lg font-semibold shadow-sm">
+                            <span class="inline-flex items-center px-2.5 py-0.5 text-xs bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 rounded-full font-medium">
                                 <i class="fas fa-circle mr-1.5"></i>Aktiv
                             </span>
                             <?php else: ?>
-                            <span class="inline-flex items-center px-2.5 py-1 text-xs bg-gray-500 text-white rounded-lg font-semibold shadow-sm">
+                            <span class="inline-flex items-center px-2.5 py-0.5 text-xs bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-full font-medium">
                                 <i class="fas fa-envelope mr-1.5"></i>Eingeladen
                             </span>
                             <?php endif; ?>
                             <?php if ($user['tfa_enabled']): ?>
-                            <span class="inline-flex items-center px-2.5 py-1 text-xs bg-blue-600 text-white rounded-lg font-semibold shadow-sm">
+                            <span class="inline-flex items-center px-2.5 py-0.5 text-xs bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 rounded-full font-medium">
                                 <i class="fas fa-shield-alt mr-1.5"></i>2FA Aktiv
                             </span>
                             <?php endif; ?>

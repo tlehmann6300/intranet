@@ -221,11 +221,11 @@ ob_start();
             <!-- Availability Badge (top-right) -->
             <div class="absolute top-3 right-3">
                 <?php if ($hasStock): ?>
-                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-full bg-green-500 text-white shadow-lg">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
                     <i class="fas fa-check-circle"></i><?php echo $itemAvailable; ?> verfügbar
                 </span>
                 <?php else: ?>
-                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-full bg-red-500 text-white shadow-lg">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-medium rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
                     <i class="fas fa-times-circle"></i>Vergriffen
                 </span>
                 <?php endif; ?>
