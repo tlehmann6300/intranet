@@ -809,9 +809,9 @@ if (!isset($currentUser)) {
          Uses backdrop-blur-md for the frosted glass effect
          ════════════════════════════════════════════════════════════ -->
     <header id="top-header" class="bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm transition-colors duration-300 dark:bg-slate-900/80 dark:border-slate-700/50" aria-label="Hauptnavigation oben">
-        <!-- Mobile hamburger: visible on mobile, hidden on desktop (sidebar is always shown on desktop) -->
+        <!-- Mobile hamburger: hidden – sidebar access on mobile is via the bottom nav "Mehr" button -->
         <button id="mobile-menu-btn"
-                class="flex md:hidden"
+                class="hidden"
                 aria-label="Menü öffnen"
                 aria-expanded="false"
                 aria-controls="sidebar">
@@ -1666,6 +1666,21 @@ if (!isset($currentUser)) {
         window.addEventListener('resize', setAppHeight);
         window.addEventListener('orientationchange', () => {
             setTimeout(setAppHeight, 200);
+        });
+
+        // ── PJAX: auto-close sidebar and user dropdown on navigation ─────────
+        document.addEventListener('pjax:complete', function () {
+            // Close sidebar on mobile if still open after pjax navigation
+            if (sidebar && sidebar.classList.contains('open')) {
+                closeSidebar();
+                syncBottomNavMoreBtn();
+            }
+            // Close user dropdown if open
+            closeUserDropdown();
+            // Ensure body scroll lock is cleared
+            window.navbarScrollUtils?.ensureScrollUnlocked?.();
+            // Re-render Lucide icons in the new page content
+            if (typeof lucide !== 'undefined') { lucide.createIcons(); }
         });
 
     </script>

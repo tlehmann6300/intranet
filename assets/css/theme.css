@@ -5087,12 +5087,14 @@ body.dark-mode {
 
 /* --- MOBILE RESPONSIVENESS --- */
 @media (max-width: 767px) {
-    /* Mobile navigation: slide-in overlay from the left */
+    /* Mobile navigation: slide-in overlay from the left.
+       Starts below the fixed topbar so the topbar remains visible and
+       the IBC logo inside the sidebar is not hidden behind it. */
     .sidebar {
         position: fixed;
-        top: 0 !important;
+        top: calc(var(--topbar-height, 60px) + env(safe-area-inset-top, 0px)) !important;
         left: 0;
-        height: 100dvh !important;
+        height: calc(100dvh - var(--topbar-height, 60px) - env(safe-area-inset-top, 0px)) !important;
         width: 85% !important;
         max-width: 20rem !important;
         z-index: var(--z-sidebar, 1050) !important; /* Must be above overlay (1040) and bottom-nav (1045) */
@@ -5159,7 +5161,8 @@ body.dark-mode {
 
 /* ===== MAIN CONTENT DESKTOP MARGIN FALLBACKS ===== */
 /* These ensure the main content is offset correctly from the sidebar even
-   when Tailwind CDN fails to load (mirrors md:ml-64 / lg:ml-72 / min-h-screen). */
+   when Tailwind CDN fails to load (mirrors md:ml-64 / min-h-screen).
+   The sidebar is always 16rem (w-64) wide on all desktop sizes. */
 main {
     min-height: 100vh;
     overflow-x: hidden; /* Prevent Bootstrap .row negative-margin horizontal overflow */
@@ -5167,13 +5170,7 @@ main {
 
 @media (min-width: 768px) {
     main {
-        margin-left: var(--sidebar-width-md);
-    }
-}
-
-@media (min-width: 1025px) {
-    main {
-        margin-left: var(--sidebar-width-lg);
+        margin-left: var(--sidebar-width-md); /* 16rem – matches sidebar w-64 and #top-header left offset */
     }
 }
 
@@ -5357,12 +5354,12 @@ main {
     }
 }
 
-/* Mobile full-height sidebar fix for iOS */
+/* Mobile full-height sidebar fix for iOS – account for topbar offset */
 @media (max-width: 767px) {
     .sidebar {
-        height: 100vh !important; /* fallback */
-        height: 100dvh !important; /* modern browsers */
-        height: 100svh !important; /* iOS Safari small viewport */
+        height: calc(100vh - var(--topbar-height, 60px)) !important; /* fallback */
+        height: calc(100dvh - var(--topbar-height, 60px)) !important; /* modern browsers */
+        height: calc(100svh - var(--topbar-height, 60px)) !important; /* iOS Safari small viewport */
     }
 }
 
