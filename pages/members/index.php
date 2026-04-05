@@ -203,7 +203,7 @@ ob_start();
             <?php foreach ($members as $idx => $member):
                 extract($memberDisplayData[$idx]);
             ?>
-                <div class="directory-card bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden flex flex-col hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
+                <div class="directory-card bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden flex flex-col hover:-translate-y-1 hover:shadow-md transition-all duration-300">
                     <!-- Cover Band -->
                     <div class="h-24 bg-gradient-to-r from-blue-500 to-indigo-600 relative flex-shrink-0">
                         <div class="absolute top-2 right-2">

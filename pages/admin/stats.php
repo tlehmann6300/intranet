@@ -248,7 +248,7 @@ ob_start();
     <!-- Metrics Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-6 mb-8">
         <!-- Active Users (7 Days) -->
-        <div class="card p-6 rounded-xl shadow-lg bg-gradient-to-br from-white to-blue-50 dark:from-gray-800 dark:to-blue-900/20 border-l-4 border-blue-500 dark:border-blue-600 hover:shadow-xl transition-shadow duration-300">
+        <div class="card p-6 rounded-xl shadow-sm bg-gradient-to-br from-white to-blue-50 dark:from-gray-800 dark:to-blue-900/20 border-l-4 border-blue-500 dark:border-blue-600 hover:shadow-md transition-shadow duration-300">
             <div class="flex items-center justify-between mb-3">
                 <div>
                     <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-300 uppercase mb-1">Aktive Nutzer</h3>
@@ -275,7 +275,7 @@ ob_start();
         </div>
 
         <!-- Total Users -->
-        <div class="card p-6 rounded-xl shadow-lg bg-gradient-to-br from-white to-purple-50 dark:from-gray-800 dark:to-purple-900/20 border-l-4 border-purple-500 dark:border-purple-600 hover:shadow-xl transition-shadow duration-300">
+        <div class="card p-6 rounded-xl shadow-sm bg-gradient-to-br from-white to-purple-50 dark:from-gray-800 dark:to-purple-900/20 border-l-4 border-purple-500 dark:border-purple-600 hover:shadow-md transition-shadow duration-300">
             <div class="flex items-center justify-between mb-3">
                 <div>
                     <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-300 uppercase mb-1">Gesamtanzahl User</h3>
@@ -304,7 +304,7 @@ ob_start();
     <!-- Quick Actions and Status Overview Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6 mb-8">
         <!-- Quick Actions Card -->
-        <div class="card p-6 rounded-xl shadow-lg dark:bg-gray-800">
+        <div class="card p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 dark:bg-gray-800">
             <h3 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">
                 <i class="fas fa-bolt text-yellow-500 mr-2"></i>
                 Schnellaktionen
@@ -334,7 +334,7 @@ ob_start();
         </div>
         
         <!-- Status Overview Card -->
-        <div class="card p-6 rounded-xl shadow-lg dark:bg-gray-800">
+        <div class="card p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 dark:bg-gray-800">
             <h3 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">
                 <i class="fas fa-info-circle text-blue-500 mr-2"></i>
                 Status-Übersicht
@@ -488,7 +488,7 @@ ob_start();
                 ];
                 $colors = $colorClasses[$db['color']] ?? $colorClasses['blue'];
                 ?>
-                <div class="card p-6 rounded-xl shadow-lg bg-gradient-to-br <?php echo $colors['gradient']; ?> border-l-4 <?php echo $colors['border']; ?>">
+                <div class="card p-6 rounded-xl shadow-sm bg-gradient-to-br <?php echo $colors['gradient']; ?> border-l-4 <?php echo $colors['border']; ?> hover:shadow-md transition-shadow duration-300">
                     <div class="flex items-center justify-between mb-4">
                         <div>
                             <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-300 uppercase mb-1"><?php echo htmlspecialchars($db['label']); ?></h3>
@@ -534,7 +534,7 @@ ob_start();
     <!-- In Stock and In Transit Section -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6 mb-8">
         <!-- Im Lager (In Stock) -->
-        <div class="card p-6 rounded-xl shadow-lg dark:bg-gray-800">
+        <div class="card p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 dark:bg-gray-800">
             <h2 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">
                 <i class="fas fa-warehouse text-green-600 dark:text-green-400 mr-2"></i>
                 Im Lager
@@ -571,7 +571,7 @@ ob_start();
         </div>
 
         <!-- Unterwegs (In Transit / Checked Out) -->
-        <div class="card p-6 rounded-xl shadow-lg dark:bg-gray-800">
+        <div class="card p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 dark:bg-gray-800">
             <h2 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">
                 <i class="fas fa-truck text-orange-600 dark:text-orange-400 mr-2"></i>
                 Unterwegs
