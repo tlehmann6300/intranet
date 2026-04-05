@@ -591,24 +591,6 @@ if (!isset($currentUser)) {
             fill: none;
         }
 
-        /* ── LUCIDE SVG SIZING IN SIDEBAR NAV ────────────────── */
-        .sidebar-nav-item .sidebar-nav-icon,
-        .sidebar-nav-item .sidebar-nav-icon svg {
-            width: 1.125rem !important;
-            height: 1.125rem !important;
-            min-width: 1.125rem;
-            flex-shrink: 0;
-            stroke: currentColor;
-            fill: none;
-            stroke-width: 2;
-        }
-        .sidebar-nav-item .sidebar-nav-icon {
-            margin-right: 0.625rem !important;
-            display: flex !important;
-            align-items: center;
-            justify-content: center;
-        }
-
         /* ── LUCIDE SVG SIZING IN MOBILE BOTTOM NAV ─────────── */
         .mobile-bottom-nav-item svg {
             width: 1.25rem;

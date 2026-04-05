@@ -11716,15 +11716,32 @@ body:not(.dark-mode) .rounded-xl.bg-indigo-100 { background-color: #e0e7ff !impo
     transform: none !important;
 }
 
-/* Icon */
+/* Icon (Lucide replaces <i data-lucide> with <svg class="sidebar-nav-icon">) */
 .sidebar-nav-item .sidebar-nav-icon {
-    width: 1.25rem !important;
-    font-size: 0.875rem !important;
+    width: 1.125rem !important;
+    height: 1.125rem !important;
+    min-width: 1.125rem;
     flex-shrink: 0;
-    margin-right: 0.75rem !important;
+    margin-right: 0.625rem !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
     text-align: center;
+    font-size: 0.875rem !important;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
     opacity: 0.9;
     transition: opacity 0.18s ease;
+}
+
+/* In case a nested <svg> exists inside the icon container */
+.sidebar-nav-item .sidebar-nav-icon svg {
+    width: 1.125rem !important;
+    height: 1.125rem !important;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
 }
 
 .sidebar-nav-item--active .sidebar-nav-icon {
