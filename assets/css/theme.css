@@ -4853,6 +4853,125 @@ body:not(.dark-mode) .hero-gradient .hero-date {
     }
 }
 
+/* ── Universal IBC Data Table ─────────────────────────────────────────────────
+   Modern, accessible table component for all data tables in the intranet.
+   Combine with .card-table for responsive mobile card-stacking behaviour.
+
+   Usage:
+     <div class="table-container">
+       <table class="w-full ibc-data-table card-table">
+         ...
+       </table>
+     </div>
+   ── */
+
+/* Table wrapper: overflow scroll, rounded border, shadow */
+.table-container {
+    overflow-x: auto;
+    width: 100%;
+    border-radius: 0.75rem;   /* rounded-xl */
+    border: 1px solid var(--border-color);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.dark-mode .table-container {
+    border-color: #334155;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.25);
+}
+
+/* Base table (all breakpoints) */
+.ibc-data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* ── Desktop styles (≥ 640 px) ──
+   Below 640 px the .card-table class takes over and stacks rows as cards,
+   so no additional desktop layout is needed at those sizes. */
+@media (min-width: 640px) {
+    /* Header */
+    .ibc-data-table thead {
+        background: linear-gradient(to right, #f8fafc, #f1f5f9);
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .dark-mode .ibc-data-table thead {
+        background: linear-gradient(to right, #1e293b, #1a2744);
+        border-bottom-color: #334155;
+    }
+
+    .ibc-data-table thead th {
+        padding: 0.875rem 1.5rem;
+        text-align: left;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-muted);
+        white-space: nowrap;
+        vertical-align: bottom;
+        line-height: 1.5;
+    }
+
+    .dark-mode .ibc-data-table thead th {
+        color: #94a3b8;
+    }
+
+    /* Alignment modifiers on th */
+    .ibc-data-table thead th.text-center {
+        text-align: center;
+    }
+
+    .ibc-data-table thead th.text-right {
+        text-align: right;
+    }
+
+    /* Body */
+    .ibc-data-table tbody {
+        background: var(--bg-card);
+    }
+
+    .dark-mode .ibc-data-table tbody {
+        background: #1e293b;
+    }
+
+    .ibc-data-table tbody tr {
+        border-bottom: 1px solid var(--border-color);
+        transition: background-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .dark-mode .ibc-data-table tbody tr {
+        border-bottom-color: #2d3f58;
+    }
+
+    .ibc-data-table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    /* Hover: subtle sky tint with a green left accent line */
+    .ibc-data-table tbody tr:hover {
+        background-color: #f0f9ff;
+        box-shadow: inset 3px 0 0 var(--ibc-green);
+    }
+
+    .dark-mode .ibc-data-table tbody tr:hover {
+        background-color: rgba(14, 165, 233, 0.06);
+        box-shadow: inset 3px 0 0 var(--ibc-green);
+    }
+
+    /* Cells */
+    .ibc-data-table tbody td {
+        padding: 0.875rem 1.5rem;
+        font-size: 0.875rem;
+        color: var(--text-main);
+        vertical-align: middle;
+    }
+
+    .dark-mode .ibc-data-table tbody td {
+        color: #e2e8f0;
+    }
+}
+
 /* Responsive iframe container (for embedded content like Microsoft Forms) */
 .iframe-container {
     position: relative;

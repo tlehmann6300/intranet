@@ -376,22 +376,23 @@ ob_start();
                 </div>
 
                 <!-- Desktop Table View (hidden on small screens) -->
-                <div class="hidden md:block overflow-x-auto w-full has-action-dropdown">
-                    <table class="min-w-full">
-                    <thead class="bg-gray-50 dark:bg-gray-800/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700">
+                <div class="hidden md:block has-action-dropdown">
+                    <div class="table-container">
+                    <table class="w-full ibc-data-table card-table">
+                    <thead>
                         <tr>
-                            <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Datum</th>
-                            <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Einreicher</th>
-                            <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Zweck</th>
-                            <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Betrag</th>
-                            <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Beleg</th>
-                            <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                            <th>Datum</th>
+                            <th>Einreicher</th>
+                            <th>Zweck</th>
+                            <th>Betrag</th>
+                            <th>Beleg</th>
+                            <th>Status</th>
                             <?php if ($canEditInvoices): ?>
-                            <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider invoice-actions-col">Aktionen</th>
+                            <th class="invoice-actions-col">Aktionen</th>
                             <?php endif; ?>
                         </tr>
                     </thead>
-                    <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-100 dark:divide-gray-800">
+                    <tbody>
                         <?php foreach ($invoices as $invoice): ?>
                             <?php
                             $submitterEmail = $userInfoMap[$invoice['user_id']] ?? 'Unknown';
@@ -409,7 +410,7 @@ ob_start();
                             }
                             $fileUrl = !empty($invoice['file_path']) ? htmlspecialchars(asset('api/download_invoice_file.php?id=' . (int)$invoice['id']), ENT_QUOTES, 'UTF-8') : '';
                             ?>
-                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/60 transition-colors duration-150 cursor-pointer invoice-row" data-status="<?php echo htmlspecialchars($invoice['status']); ?>"
+                            <tr class="cursor-pointer invoice-row" data-status="<?php echo htmlspecialchars($invoice['status']); ?>"
                                 onclick="openInvoiceDetail({
                                     id: '<?php echo $invoice['id']; ?>',
                                     date: '<?php echo date('d.m.Y', strtotime($invoice['created_at'])); ?>',
@@ -425,26 +426,26 @@ ob_start();
                                     paidBy: '<?php echo htmlspecialchars($paidByName, ENT_QUOTES); ?>',
                                     rejectionReason: <?php echo json_encode($invoice['rejection_reason'] ?? ''); ?>
                                 })">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                                <td class="whitespace-nowrap">
                                     <?php echo date('d.m.Y', strtotime($invoice['created_at'])); ?>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-300 font-semibold mr-3">
                                             <?php echo htmlspecialchars($initials); ?>
                                         </div>
-                                        <div class="text-sm text-gray-900 dark:text-gray-100">
+                                        <div>
                                             <?php echo htmlspecialchars($submitterName); ?>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-100 max-w-xs truncate">
+                                <td class="max-w-xs truncate">
                                     <?php echo htmlspecialchars($invoice['description']); ?>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-base font-extrabold text-gray-900 dark:text-white">
+                                <td class="whitespace-nowrap font-extrabold text-base">
                                     <?php echo number_format($invoice['amount'], 2, ',', '.'); ?> €
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm" onclick="event.stopPropagation()">
+                                <td class="whitespace-nowrap" onclick="event.stopPropagation()">
                                     <?php if (!empty($invoice['file_path'])): ?>
                                         <div class="flex items-center gap-2">
                                             <a href="<?php echo $fileUrl; ?>"
@@ -464,14 +465,14 @@ ob_start();
                                         <span class="text-gray-400 dark:text-gray-500">Kein Beleg</span>
                                     <?php endif; ?>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="whitespace-nowrap">
                                     <span class="inline-flex items-center gap-x-1.5 px-2.5 py-1 text-xs font-medium rounded-full <?php echo $statusClass; ?>">
                                         <span class="w-1.5 h-1.5 rounded-full flex-shrink-0 <?php echo $statusDot; ?>"></span>
                                         <?php echo htmlspecialchars($statusLabel); ?>
                                     </span>
                                 </td>
                                 <?php if ($canEditInvoices): ?>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm invoice-actions-col" onclick="event.stopPropagation()">
+                                <td class="whitespace-nowrap invoice-actions-col" onclick="event.stopPropagation()">
                                     <?php if ($invoice['status'] === 'pending'): ?>
                                         <div class="flex gap-4">
                                             <button
@@ -500,6 +501,7 @@ ob_start();
                         <?php endforeach; ?>
                     </tbody>
                     </table>
+                    </div>
                 </div>
             </div>
         <?php endif; ?>

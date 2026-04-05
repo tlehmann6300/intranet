@@ -311,28 +311,28 @@ ob_start();
             </div>
         </div>
         
-        <div class="overflow-x-auto w-full has-action-dropdown">
-            <table class="w-full card-table" id="usersTable">
-                <thead class="bg-gradient-to-r from-gray-100 to-slate-100 dark:from-gray-700 dark:to-gray-600 border-b-2 border-purple-200 dark:border-purple-900">
+        <div class="table-container has-action-dropdown">
+            <table class="w-full ibc-data-table card-table" id="usersTable">
+                <thead>
                     <tr>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider whitespace-nowrap">Profil</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider whitespace-nowrap">Benutzer</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider whitespace-nowrap hidden lg:table-cell">Entra-Status</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider whitespace-nowrap">Intranet-Rolle</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider whitespace-nowrap">Status</th>
-                        <th class="px-6 py-4 text-center text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider whitespace-nowrap">Aktionen</th>
+                        <th>Profil</th>
+                        <th>Benutzer</th>
+                        <th class="hidden lg:table-cell">Entra-Status</th>
+                        <th>Intranet-Rolle</th>
+                        <th>Status</th>
+                        <th class="text-center">Aktionen</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-100 dark:divide-gray-700">
+                <tbody>
                     <?php
                     // Build reverse lookup once: UUID => role key (e.g. '3ad43a76-...' => 'vorstand_finanzen')
                     $roleIdToKey = array_flip(ROLE_MAPPING);
                     foreach ($users as $user): ?>
-                <tr class="user-row hover:bg-gradient-to-r hover:from-purple-50 hover:to-indigo-50 dark:hover:from-purple-900/20 dark:hover:to-indigo-900/20 transition-all duration-200" 
+                <tr class="user-row"
                     data-email="<?php echo htmlspecialchars(strtolower($user['email'])); ?>"
                     data-role="<?php echo htmlspecialchars($user['role']); ?>"
                     data-id="<?php echo $user['id']; ?>">
-                    <td class="px-6 py-4 whitespace-nowrap" data-label="Profil">
+                    <td class="whitespace-nowrap" data-label="Profil">
                         <?php
                         $defaultImg = defined('DEFAULT_PROFILE_IMAGE') ? DEFAULT_PROFILE_IMAGE : 'assets/img/default_profil.png';
                         $resolvedImg = getProfileImageUrl($user['avatar_path'] ?? null);
@@ -358,7 +358,7 @@ ob_start();
                             <?php endif; ?>
                         </div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap" data-label="Benutzer">
+                    <td class="whitespace-nowrap" data-label="Benutzer">
                         <div class="flex items-center min-w-0">
                             <div class="min-w-0">
                                 <div class="text-sm font-semibold text-gray-900 dark:text-gray-100 flex items-center flex-wrap gap-1 break-all">
@@ -371,7 +371,7 @@ ob_start();
                             </div>
                         </div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap hidden lg:table-cell" data-label="Entra-Status">
+                    <td class="whitespace-nowrap hidden lg:table-cell" data-label="Entra-Status">
                         <?php $userType = strtolower($user['user_type'] ?? 'member'); ?>
                         <?php if ($userType === 'guest'): ?>
                         <span class="inline-flex items-center px-2.5 py-1 text-xs bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/50 dark:to-amber-900/50 text-orange-700 dark:text-orange-300 rounded-lg font-semibold shadow-sm">
@@ -383,7 +383,7 @@ ob_start();
                         </span>
                         <?php endif; ?>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap" data-label="Intranet-Rolle">
+                    <td class="whitespace-nowrap" data-label="Intranet-Rolle">
                         <?php if ($user['id'] != $_SESSION['user_id']): ?>
                         <?php if (!empty($user['azure_oid'])): ?>
                         <div class="flex flex-col gap-1">
@@ -412,7 +412,7 @@ ob_start();
                         </span>
                         <?php endif; ?>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap" data-label="Status">
+                    <td class="whitespace-nowrap" data-label="Status">
                         <div class="flex flex-col space-y-2">
                             <?php
                             $isLocked = !empty($user['is_locked_permanently'])
@@ -457,7 +457,7 @@ ob_start();
                             <?php endif; ?>
                         </div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-center" data-label="Aktionen">
+                    <td class="whitespace-nowrap text-center" data-label="Aktionen">
                         <?php if ($user['id'] != $_SESSION['user_id']): ?>
                         <div class="flex flex-col items-center gap-2">
                         <form method="POST" class="inline" onsubmit="return confirm('Bist Du sicher, dass Du diesen Benutzer löschen möchtest? Das Profil in alumni_profiles wird ebenfalls entfernt.');">
