@@ -11719,6 +11719,15 @@ body:not(.dark-mode) .rounded-xl.bg-indigo-100 { background-color: #e0e7ff !impo
     transform: none !important;
 }
 
+/* Nav label: never wrap, truncate with ellipsis when too long */
+.sidebar-nav-item span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    flex: 1;
+}
+
 /* Icon (Lucide replaces <i data-lucide> with <svg class="sidebar-nav-icon">) */
 .sidebar-nav-item .sidebar-nav-icon {
     width: 1.125rem !important;
@@ -12532,6 +12541,10 @@ body.dark-mode .sidebar .sidebar-nav-item--active {
     stroke: rgba(255, 255, 255, 0.55);
     stroke-width: 2.5;
     stroke-linecap: round;
+    /* Hide the ring until JS sets stroke-dasharray on scroll init.
+       circumference = 2 * π * 18 ≈ 113.1 */
+    stroke-dasharray: 113.1;
+    stroke-dashoffset: 113.1;
     transition: stroke-dashoffset 0.15s linear;
 }
 
