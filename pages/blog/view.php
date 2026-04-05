@@ -222,12 +222,12 @@ ob_start();
             </div>
             
             <!-- Title -->
-            <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 dark:text-gray-100 mb-4 break-words hyphens-auto">
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-slate-800 dark:text-slate-100 mb-4 break-words hyphens-auto">
                 <?php echo htmlspecialchars($post['title']); ?>
             </h1>
             
             <!-- Meta Information -->
-            <div class="flex flex-wrap items-center gap-4 text-gray-600 dark:text-gray-400 mb-6 pb-6 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex flex-wrap items-center gap-4 text-slate-500 dark:text-slate-400 mb-6 pb-6 border-b border-slate-200 dark:border-slate-700">
                 <div class="flex items-center min-w-0">
                     <i class="fas fa-user-circle mr-2 text-blue-600 dark:text-blue-400 flex-shrink-0"></i>
                     <span class="break-all"><?php echo htmlspecialchars($post['author_email']); ?></span>
@@ -245,7 +245,7 @@ ob_start();
             
             <!-- Full Content -->
             <div class="prose max-w-none mb-8">
-                <div class="text-gray-700 dark:text-gray-300 text-base sm:text-lg leading-relaxed whitespace-pre-wrap break-words hyphens-auto">
+                <div class="text-slate-700 dark:text-slate-300 text-base sm:text-lg leading-relaxed whitespace-pre-wrap break-words hyphens-auto">
                     <?php echo htmlspecialchars($post['content']); ?>
                 </div>
             </div>
@@ -278,7 +278,7 @@ ob_start();
 
     <!-- Interaction Section -->
     <div class="card p-4 sm:p-6 md:p-8 mb-8">
-        <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100 mb-6">
             <i class="fas fa-heart mr-2 text-red-500"></i>
             Interaktion
         </h2>
@@ -301,7 +301,7 @@ ob_start();
 
     <!-- Comments Section -->
     <div class="card p-4 sm:p-6 md:p-8">
-        <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100 mb-6">
             <i class="fas fa-comments mr-2 text-blue-500"></i>
             Kommentare (<?php echo count($post['comments']); ?>)
         </h2>
@@ -315,21 +315,21 @@ ob_start();
                     $reactions = $commentReactions[$comment['id']] ?? [];
                     $allowedReactions = ['👍', '❤️', '😄', '😮', '😢', '🎉'];
                 ?>
-                    <div class="bg-gray-50 dark:bg-gray-800 p-4 sm:p-6 rounded-lg border border-gray-200 dark:border-gray-700" id="comment-<?php echo (int)$comment['id']; ?>">
+                    <div class="bg-slate-50 dark:bg-slate-800 p-4 sm:p-6 rounded-lg border border-slate-200 dark:border-slate-700" id="comment-<?php echo (int)$comment['id']; ?>">
                         <div class="flex flex-wrap items-start justify-between gap-3 mb-3">
                             <div class="flex flex-wrap items-center gap-3 min-w-0">
-                                <div class="flex items-center text-gray-700 dark:text-gray-300 min-w-0">
+                                <div class="flex items-center text-slate-700 dark:text-slate-300 min-w-0">
                                     <i class="fas fa-user-circle mr-2 text-blue-600 dark:text-blue-400 text-xl flex-shrink-0"></i>
                                     <span class="font-semibold break-all"><?php echo htmlspecialchars($comment['commenter_email']); ?></span>
                                 </div>
-                                <div class="text-sm text-gray-500 dark:text-gray-400">
+                                <div class="text-sm text-slate-500 dark:text-slate-400">
                                     <i class="fas fa-clock mr-1"></i>
                                     <?php 
                                         $commentDate = new DateTime($comment['created_at']);
                                         echo $commentDate->format('d.m.Y H:i');
                                     ?>
                                     <?php if (!empty($comment['updated_at']) && $comment['updated_at'] !== $comment['created_at']): ?>
-                                        <span class="ml-1 italic text-gray-400 dark:text-gray-500">(bearbeitet)</span>
+                                        <span class="ml-1 italic text-slate-400 dark:text-slate-500">(bearbeitet)</span>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -356,7 +356,7 @@ ob_start();
                         </div>
 
                         <!-- Comment content (view mode) -->
-                        <div class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words hyphens-auto comment-text-<?php echo (int)$comment['id']; ?>">
+                        <div class="text-slate-700 dark:text-slate-300 whitespace-pre-wrap break-words hyphens-auto comment-text-<?php echo (int)$comment['id']; ?>">
                             <?php echo htmlspecialchars($comment['content']); ?>
                         </div>
 
@@ -413,12 +413,12 @@ ob_start();
                 <?php endforeach; ?>
             </div>
         <?php else: ?>
-            <p class="text-gray-500 dark:text-gray-400 mb-8">Noch keine Kommentare. Seien Sie der Erste!</p>
+            <p class="text-slate-500 dark:text-slate-400 mb-8">Noch keine Kommentare. Seien Sie der Erste!</p>
         <?php endif; ?>
         
         <!-- Write Comment Form -->
-        <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
-            <h3 class="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
+        <div class="border-t border-slate-200 dark:border-slate-700 pt-6">
+            <h3 class="text-lg sm:text-xl font-semibold text-slate-800 dark:text-slate-100 mb-4">
                 <i class="fas fa-pen mr-2"></i>
                 Kommentar schreiben
             </h3>
@@ -428,17 +428,17 @@ ob_start();
                 <input type="hidden" name="action" value="add_comment">
                 
                 <div>
-                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Ihr Kommentar</label>
+                    <label class="block w-full text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Ihr Kommentar</label>
                     <textarea 
                         name="comment_content" 
                         required 
                         rows="4"
                         maxlength="2000"
                         placeholder="Schreibe Deinen Kommentar hier..."
-                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-sans dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400"
+                        class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-sans dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400"
                         style="resize: vertical; min-height: 100px;"
                     ></textarea>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">
                         Maximum: 2000 Zeichen
                     </p>
                 </div>
