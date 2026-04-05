@@ -359,32 +359,32 @@ ob_start();
     <?php if (empty($activeRentals)): ?>
     <p class="text-gray-500 dark:text-gray-400 text-center py-8">Keine aktiven Ausleihen vorhanden</p>
     <?php else: ?>
-    <div class="overflow-x-auto w-full rounded-xl border border-green-200 dark:border-green-700 has-action-dropdown">
-        <table class="w-full card-table">
-            <thead class="bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/40 dark:to-emerald-900/40">
+    <div class="table-container has-action-dropdown">
+        <table class="w-full ibc-data-table card-table">
+            <thead>
                 <tr>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-green-700 dark:text-green-300 uppercase tracking-wider">Ausgeliehen</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-green-700 dark:text-green-300 uppercase tracking-wider">Ausgeliehen von</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-green-700 dark:text-green-300 uppercase tracking-wider">Datum letzte Ausleihe (Start)</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-green-700 dark:text-green-300 uppercase tracking-wider">Datum letzte Rückgabe (Ende)</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-green-700 dark:text-green-300 uppercase tracking-wider">Aktionen</th>
+                    <th>Ausgeliehen</th>
+                    <th>Ausgeliehen von</th>
+                    <th>Datum letzte Ausleihe (Start)</th>
+                    <th>Datum letzte Rückgabe (Ende)</th>
+                    <th>Aktionen</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-green-200 dark:divide-green-700 bg-white dark:bg-slate-800">
+            <tbody>
                 <?php foreach ($activeRentals as $rental): ?>
-                <tr class="hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors">
-                    <td class="px-6 py-4 text-sm" data-label="Ausgeliehen">
+                <tr>
+                    <td data-label="Ausgeliehen">
                         <span class="font-bold text-lg text-gray-800 dark:text-gray-100"><?php echo (int)$rental['quantity']; ?></span>
                         <span class="text-gray-500 dark:text-gray-400 ml-1"><?php echo htmlspecialchars($item['unit']); ?></span>
                     </td>
-                    <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 font-medium break-all" data-label="Ausgeliehen von">
+                    <td class="font-medium break-all" data-label="Ausgeliehen von">
                         <?php echo htmlspecialchars($rental['user_email'] ?? ('User #' . $rental['user_id'])); ?>
                     </td>
-                    <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 font-medium" data-label="Ausleihe Start">
+                    <td class="font-medium" data-label="Ausleihe Start">
                         <?php echo !empty($rental['rented_at']) ? date('d.m.Y H:i', strtotime($rental['rented_at'])) : '-'; ?>
                     </td>
-                    <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 font-medium" data-label="Rückgabe Ende">-</td>
-                    <td class="px-6 py-4 text-sm" data-label="Aktionen">
+                    <td class="font-medium" data-label="Rückgabe Ende">-</td>
+                    <td data-label="Aktionen">
                         <?php if ($rental['status'] === 'pending_return'): ?>
                         <span class="px-3 py-1.5 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">
                             Wird vom Vorstand geprüft
@@ -417,30 +417,30 @@ ob_start();
     <?php if (empty($returnedRentals)): ?>
     <p class="text-gray-500 dark:text-gray-400 text-center py-8">Keine abgeschlossenen Ausleihen vorhanden</p>
     <?php else: ?>
-    <div class="overflow-x-auto w-full rounded-xl border border-gray-200 dark:border-slate-700">
-        <table class="w-full card-table">
-            <thead class="bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600">
+    <div class="table-container">
+        <table class="w-full ibc-data-table card-table">
+            <thead>
                 <tr>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Ausgeliehen</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Ausgeliehen von</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Datum letzte Ausleihe (Start)</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Datum letzte Rückgabe (Ende)</th>
+                    <th>Ausgeliehen</th>
+                    <th>Ausgeliehen von</th>
+                    <th>Datum letzte Ausleihe (Start)</th>
+                    <th>Datum letzte Rückgabe (Ende)</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-slate-800">
+            <tbody>
                 <?php foreach ($returnedRentals as $rental): ?>
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                    <td class="px-6 py-4 text-sm" data-label="Ausgeliehen">
+                <tr>
+                    <td data-label="Ausgeliehen">
                         <span class="font-bold text-lg text-gray-800 dark:text-gray-100"><?php echo (int)$rental['quantity']; ?></span>
                         <span class="text-gray-500 dark:text-gray-400 ml-1"><?php echo htmlspecialchars($item['unit']); ?></span>
                     </td>
-                    <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 font-medium break-all" data-label="Ausgeliehen von">
+                    <td class="font-medium break-all" data-label="Ausgeliehen von">
                         <?php echo htmlspecialchars($rental['user_email'] ?? ('User #' . $rental['user_id'])); ?>
                     </td>
-                    <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 font-medium" data-label="Ausleihe Start">
+                    <td class="font-medium" data-label="Ausleihe Start">
                         <?php echo !empty($rental['rented_at']) ? date('d.m.Y H:i', strtotime($rental['rented_at'])) : '-'; ?>
                     </td>
-                    <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 font-medium" data-label="Rückgabe Ende">
+                    <td class="font-medium" data-label="Rückgabe Ende">
                         <?php echo !empty($rental['returned_at']) ? date('d.m.Y H:i', strtotime($rental['returned_at'])) : '-'; ?>
                     </td>
                 </tr>
@@ -494,24 +494,24 @@ if (!empty($logbookNote)):
     <?php if (empty($history)): ?>
     <p class="text-gray-500 dark:text-gray-400 text-center py-8">Keine Verlaufsdaten vorhanden</p>
     <?php else: ?>
-    <div class="overflow-x-auto w-full rounded-xl border border-gray-200 dark:border-slate-700">
-        <table class="w-full card-table">
-            <thead class="bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600">
+    <div class="table-container">
+        <table class="w-full ibc-data-table card-table">
+            <thead>
                 <tr>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Datum</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Typ</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Änderung</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Grund</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Kommentar</th>
+                    <th>Datum</th>
+                    <th>Typ</th>
+                    <th>Änderung</th>
+                    <th>Grund</th>
+                    <th>Kommentar</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-slate-800">
+            <tbody>
                 <?php foreach ($history as $entry): ?>
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                    <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 font-medium" data-label="Datum">
+                <tr>
+                    <td class="font-medium" data-label="Datum">
                         <?php echo date('d.m.Y H:i', strtotime($entry['created_at'])); ?>
                     </td>
-                    <td class="px-6 py-4" data-label="Typ">
+                    <td data-label="Typ">
                         <?php
                         $typeClasses = [
                             'adjustment' => 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
@@ -538,7 +538,7 @@ if (!empty($logbookNote)):
                             <?php echo htmlspecialchars($label, ENT_QUOTES, 'UTF-8'); ?>
                         </span>
                     </td>
-                    <td class="px-6 py-4 text-sm" data-label="Änderung">
+                    <td data-label="Änderung">
                         <?php if ($entry['change_type'] === 'adjustment'): ?>
                         <span class="font-bold text-lg <?php echo $entry['change_amount'] >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'; ?>">
                             <?php echo ($entry['change_amount'] >= 0 ? '+' : '') . $entry['change_amount']; ?>
@@ -547,13 +547,13 @@ if (!empty($logbookNote)):
                             (<?php echo $entry['old_stock']; ?> → <?php echo $entry['new_stock']; ?>)
                         </span>
                         <?php else: ?>
-                        <span class="text-gray-500 dark:text-gray-400">-</span>
+                        <span class="text-gray-400">-</span>
                         <?php endif; ?>
                     </td>
-                    <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 font-medium" data-label="Grund">
+                    <td class="font-medium" data-label="Grund">
                         <?php echo htmlspecialchars($entry['reason'] ?? '-'); ?>
                     </td>
-                    <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300" data-label="Kommentar">
+                    <td data-label="Kommentar">
                         <?php 
                         // Use helper function to format history comment/details
                         $details = $entry['details'] ?? $entry['comment'] ?? '';
