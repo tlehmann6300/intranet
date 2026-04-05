@@ -922,7 +922,7 @@ function dismissProfileReviewPrompt() {
 
         <!-- Rentals Stat Card -->
         <a href="/pages/inventory/my_rentals.php"
-           class="dash-stat-card w-full rounded-2xl p-6 border border-slate-100 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
+           class="dash-stat-card w-full rounded-2xl p-6 border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.09),0_12px_28px_-4px_rgba(0,0,0,0.06)]"
            style="--dash-stat-color: #f97316; --dash-stat-bg: rgba(249,115,22,0.09);">
             <div class="flex items-center justify-between mb-4">
                 <div class="dash-stat-icon">
@@ -942,7 +942,7 @@ function dismissProfileReviewPrompt() {
         </a>
 
         <!-- Next Event Stat Card -->
-        <div class="dash-stat-card w-full rounded-2xl p-6 border border-slate-100 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
+        <div class="dash-stat-card w-full rounded-2xl p-6 border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.09),0_12px_28px_-4px_rgba(0,0,0,0.06)]"
              style="--dash-stat-color: var(--ibc-blue); --dash-stat-bg: rgba(0,102,179,0.08);">
             <div class="flex items-center justify-between mb-4">
                 <div class="dash-stat-icon">
@@ -973,7 +973,7 @@ function dismissProfileReviewPrompt() {
         <?php if ($canAccessInvoices): ?>
         <!-- Invoices Stat Card -->
         <a href="/pages/invoices/index.php"
-           class="dash-stat-card w-full rounded-2xl p-6 border border-slate-100 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
+           class="dash-stat-card w-full rounded-2xl p-6 border border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.09),0_12px_28px_-4px_rgba(0,0,0,0.06)]"
            style="--dash-stat-color: var(--ibc-green); --dash-stat-bg: rgba(0,166,81,0.09);">
             <div class="flex items-center justify-between mb-4">
                 <div class="dash-stat-icon">
