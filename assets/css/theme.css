@@ -8458,7 +8458,7 @@ body {
 }
 
 .dark-mode .mobile-bottom-nav-item {
-    color: var(--ibc-gray-500);
+    color: rgba(255, 255, 255, 0.65); /* glass bg is very dark; match light-mode inactive opacity */
 }
 
 /* Icon */
@@ -8491,13 +8491,13 @@ body {
     transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Active state */
+/* Active state — base color applies to both modes; light-mode override is below */
 .mobile-bottom-nav-item.active {
     color: var(--ibc-blue);
 }
 
 .dark-mode .mobile-bottom-nav-item.active {
-    color: var(--ibc-blue-light);
+    color: #ffffff; /* full white on dark glass (was ibc-blue-light, low contrast on dark navy) */
 }
 
 .mobile-bottom-nav-item.active::before {
@@ -8505,7 +8505,7 @@ body {
 }
 
 .dark-mode .mobile-bottom-nav-item.active::before {
-    background: var(--ibc-blue-light);
+    background: rgba(255, 255, 255, 0.75); /* white pill on dark glass */
 }
 
 .mobile-bottom-nav-item.active i {
@@ -8522,7 +8522,7 @@ body {
 }
 
 .mobile-bottom-nav-item.open::before {
-    background: var(--ibc-green);
+    background: rgba(255, 255, 255, 0.75); /* white pill on dark glass */
     transform: translateX(-50%) scaleX(1);
 }
 
@@ -8757,29 +8757,35 @@ body {
 }
 
 /* ── 2. LIGHT MODE: MOBILE BOTTOM NAV POLISH ───────────────
-   Ensure nav item labels and icons have correct colours in
-   light mode (the global span rule would otherwise override).
+   glass-bottom-nav uses a dark blue background in all modes;
+   item text must therefore be white/light to remain readable
+   regardless of the overall light/dark theme.
    ──────────────────────────────────────────────────────────── */
 
-/* Inactive tab: medium-gray icon + label */
+/* Inactive tab: semi-transparent white on dark glass background */
 body:not(.dark-mode) .mobile-bottom-nav-item,
 body:not(.dark-mode) .mobile-bottom-nav-item i,
 body:not(.dark-mode) .mobile-bottom-nav-item span {
-    color: #6b7280 !important; /* gray-500 – readable but clearly inactive */
+    color: rgba(255, 255, 255, 0.65) !important;
 }
 
-/* Active tab: IBC blue */
+/* Active tab: full white for clear highlight on dark glass */
 body:not(.dark-mode) .mobile-bottom-nav-item.active,
 body:not(.dark-mode) .mobile-bottom-nav-item.active i,
 body:not(.dark-mode) .mobile-bottom-nav-item.active span {
-    color: var(--ibc-blue) !important;
+    color: #ffffff !important;
 }
 
-/* "More" / open state: IBC green */
+/* "More" / open state: IBC green-light (visible on dark glass) */
 body:not(.dark-mode) .mobile-bottom-nav-item.open,
 body:not(.dark-mode) .mobile-bottom-nav-item.open i,
 body:not(.dark-mode) .mobile-bottom-nav-item.open span {
-    color: var(--ibc-green) !important;
+    color: var(--ibc-green-light, #33b872) !important;
+}
+
+/* Active indicator pill: white on dark glass */
+body:not(.dark-mode) .mobile-bottom-nav-item::before {
+    background: rgba(255, 255, 255, 0.75) !important;
 }
 
 /* ── 3. LIGHT MODE: HEADING COLOR HIERARCHY ────────────────
