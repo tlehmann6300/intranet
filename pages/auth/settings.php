@@ -264,7 +264,7 @@ ob_start();
                         <?php if ($user['tfa_enabled']): ?>
                         <form method="POST" onsubmit="return confirm('Möchtest du 2FA wirklich deaktivieren?');">
                             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(CSRFHandler::getToken(), ENT_QUOTES, 'UTF-8'); ?>">
-                            <button type="submit" name="disable_2fa" class="w-full px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+                            <button type="submit" name="disable_2fa" class="w-full px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
                                 <i class="fas fa-times mr-2"></i>2FA deaktivieren
                             </button>
                         </form>
@@ -310,13 +310,13 @@ ob_start();
                                 required 
                                 maxlength="6"
                                 pattern="[0-9]{6}"
-                                class="w-full px-4 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 rounded-lg text-center text-2xl tracking-widest"
+                                class="w-full px-4 py-2 bg-gray-50 focus:bg-white border border-gray-300 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:focus:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-transparent rounded-lg text-center text-2xl tracking-widest transition-colors duration-200"
                                 placeholder="000000"
                                 autofocus
                             >
                         </div>
                         <div class="flex flex-col md:flex-row gap-3">
-                            <a href="settings.php" class="flex-1 text-center px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                            <a href="settings.php" class="flex-1 text-center px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">
                                 Abbrechen
                             </a>
                             <button type="submit" name="confirm_2fa" class="flex-1 btn-primary">
@@ -451,7 +451,7 @@ ob_start();
             </p>
             <form method="POST" action="<?php echo asset('api/export_user_data.php'); ?>">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(CSRFHandler::getToken(), ENT_QUOTES, 'UTF-8'); ?>">
-                <button type="submit" class="w-full inline-flex items-center justify-center px-5 py-3 bg-teal-600 text-white rounded-xl hover:bg-teal-700 transition font-semibold text-sm">
+                <button type="submit" class="w-full inline-flex items-center justify-center px-5 py-3 bg-teal-600 text-white rounded-xl hover:bg-teal-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 font-semibold text-sm">
                     <i class="fas fa-download mr-2"></i>Meine Daten anfordern / exportieren
                 </button>
             </form>
@@ -481,7 +481,7 @@ ob_start();
                 <div>
                     <label for="change-request-type" class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Art der Änderung</label>
                     <select id="change-request-type" name="request_type" required
-                            class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:ring-orange-500 focus:border-orange-500">
+                            class="w-full px-4 py-2 bg-gray-50 focus:bg-white dark:bg-gray-700 dark:focus:bg-gray-600 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:focus:border-transparent transition-colors duration-200">
                         <option value="">Bitte auswählen...</option>
                         <option value="Rollenänderung">Rollenänderung</option>
                         <option value="E-Mail-Adressenänderung">E-Mail-Adressenänderung</option>
@@ -492,11 +492,11 @@ ob_start();
                     <textarea id="change-request-reason" name="request_reason" rows="4" required
                               minlength="10" maxlength="1000"
                               placeholder="Beschreibe dein Anliegen ausführlich (z. B. welche Rolle du haben solltest und warum)..."
-                              class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:ring-orange-500 focus:border-orange-500 resize-none"></textarea>
+                              class="w-full px-4 py-2 bg-gray-50 focus:bg-white dark:bg-gray-700 dark:focus:bg-gray-600 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:focus:border-transparent transition-colors duration-200 resize-none"></textarea>
                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Mindestens 10 Zeichen, maximal 1000 Zeichen.</p>
                 </div>
                 <button type="submit" name="submit_change_request"
-                        class="w-full inline-flex items-center justify-center px-5 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl transition font-semibold text-sm">
+                        class="w-full inline-flex items-center justify-center px-5 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 font-semibold text-sm">
                     <i class="fas fa-paper-plane mr-2"></i>Änderungsantrag senden
                 </button>
             </form>
@@ -520,7 +520,7 @@ ob_start();
             <div class="p-6">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <button type="button" onclick="showSupportModal('2fa_reset')"
-                   class="flex items-center p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-xl hover:bg-yellow-100 dark:hover:bg-yellow-900/40 transition text-left w-full">
+                   class="flex items-center p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-xl hover:bg-yellow-100 dark:hover:bg-yellow-900/40 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 text-left w-full">
                     <i class="fas fa-shield-alt text-yellow-600 dark:text-yellow-400 text-2xl mr-4 shrink-0"></i>
                     <div>
                         <span class="block font-semibold text-gray-800 dark:text-gray-100">2FA zurücksetzen</span>
@@ -528,7 +528,7 @@ ob_start();
                     </div>
                 </button>
                 <button type="button" onclick="showSupportModal('bug')"
-                   class="flex items-center p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/40 transition text-left w-full">
+                   class="flex items-center p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 text-left w-full">
                     <i class="fas fa-bug text-red-600 dark:text-red-400 text-2xl mr-4 shrink-0"></i>
                     <div>
                         <span class="block font-semibold text-gray-800 dark:text-gray-100">Bug melden</span>
@@ -559,7 +559,7 @@ ob_start();
                 <div>
                     <label for="support-modal-type" class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Art der Anfrage</label>
                     <select id="support-modal-type" name="request_type" required
-                            class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                            class="w-full px-4 py-2 bg-gray-50 focus:bg-white dark:bg-gray-700 dark:focus:bg-gray-600 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:focus:border-transparent transition-colors duration-200">
                         <option value="">Bitte auswählen...</option>
                         <option value="2fa_reset">2FA zurücksetzen</option>
                         <option value="bug">Bug / Fehler</option>
@@ -570,12 +570,12 @@ ob_start();
                     <label for="support-modal-description" class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Beschreibung</label>
                     <textarea id="support-modal-description" name="description" rows="4" required
                               placeholder="Beschreibe dein Anliegen..."
-                              class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500"></textarea>
+                              class="w-full px-4 py-2 bg-gray-50 focus:bg-white dark:bg-gray-700 dark:focus:bg-gray-600 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:focus:border-transparent transition-colors duration-200"></textarea>
                 </div>
                 <div id="support-modal-feedback" class="hidden"></div>
                 <div class="flex flex-col md:flex-row gap-3 justify-end">
                     <button type="button" onclick="hideSupportModal()"
-                            class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                            class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">
                         Abbrechen
                     </button>
                     <button type="submit" id="support-modal-submit-btn" class="btn-primary">

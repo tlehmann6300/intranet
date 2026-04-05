@@ -992,6 +992,15 @@ try {
             transform: translateY(-2px) scale(0.98);
         }
 
+        .microsoft-button:focus {
+            outline: none;
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8),
+                0 0 0 2px #ffffff,
+                0 0 0 4px rgba(108, 183, 62, 0.8);
+        }
+
         /* Ripple Effect */
         .ripple {
             position: absolute;
