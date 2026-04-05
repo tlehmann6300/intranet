@@ -227,7 +227,7 @@ ob_start();
             </h1>
             
             <!-- Meta Information -->
-            <div class="flex flex-wrap items-center gap-4 text-slate-500 dark:text-slate-400 mb-6 pb-6 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex flex-wrap items-center gap-4 text-slate-500 dark:text-slate-400 mb-6 pb-6 border-b border-slate-200 dark:border-slate-700">
                 <div class="flex items-center min-w-0">
                     <i class="fas fa-user-circle mr-2 text-blue-600 dark:text-blue-400 flex-shrink-0"></i>
                     <span class="break-all"><?php echo htmlspecialchars($post['author_email']); ?></span>
@@ -315,7 +315,7 @@ ob_start();
                     $reactions = $commentReactions[$comment['id']] ?? [];
                     $allowedReactions = ['👍', '❤️', '😄', '😮', '😢', '🎉'];
                 ?>
-                    <div class="bg-gray-50 dark:bg-gray-800 p-4 sm:p-6 rounded-lg border border-gray-200 dark:border-gray-700" id="comment-<?php echo (int)$comment['id']; ?>">
+                    <div class="bg-slate-50 dark:bg-slate-800 p-4 sm:p-6 rounded-lg border border-slate-200 dark:border-slate-700" id="comment-<?php echo (int)$comment['id']; ?>">
                         <div class="flex flex-wrap items-start justify-between gap-3 mb-3">
                             <div class="flex flex-wrap items-center gap-3 min-w-0">
                                 <div class="flex items-center text-slate-700 dark:text-slate-300 min-w-0">
@@ -417,7 +417,7 @@ ob_start();
         <?php endif; ?>
         
         <!-- Write Comment Form -->
-        <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+        <div class="border-t border-slate-200 dark:border-slate-700 pt-6">
             <h3 class="text-lg sm:text-xl font-semibold text-slate-800 dark:text-slate-100 mb-4">
                 <i class="fas fa-pen mr-2"></i>
                 Kommentar schreiben
@@ -435,7 +435,7 @@ ob_start();
                         rows="4"
                         maxlength="2000"
                         placeholder="Schreibe Deinen Kommentar hier..."
-                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-sans dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400"
+                        class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-sans dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400"
                         style="resize: vertical; min-height: 100px;"
                     ></textarea>
                     <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">
