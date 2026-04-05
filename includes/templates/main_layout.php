@@ -369,8 +369,6 @@ if (!isset($currentUser)) {
             font-size: 10px;
             font-weight: 700;
             letter-spacing: 0.04em;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
             line-height: 1;
             white-space: nowrap;
         }
@@ -793,23 +791,6 @@ if (!isset($currentUser)) {
         $initials = 'U';
     }
 
-    // Role badge colour config
-    $roleBadgeConfig = [
-        'admin'             => ['bg' => '#fef2f2', 'text' => '#b91c1c'],
-        'vorstand_intern'   => ['bg' => '#fffbeb', 'text' => '#b45309'],
-        'vorstand_extern'   => ['bg' => '#fffbeb', 'text' => '#b45309'],
-        'vorstand_finanzen' => ['bg' => '#fffbeb', 'text' => '#b45309'],
-        'alumni_vorstand'   => ['bg' => '#eff6ff', 'text' => '#1d4ed8'],
-        'alumni_finanz'     => ['bg' => '#eff6ff', 'text' => '#1d4ed8'],
-        'alumni'            => ['bg' => '#ecfeff', 'text' => '#0e7490'],
-        'ressortleiter'     => ['bg' => '#f5f3ff', 'text' => '#6d28d9'],
-        'mitglied'          => ['bg' => '#eef2ff', 'text' => '#4338ca'],
-        'anwaerter'         => ['bg' => '#fff7ed', 'text' => '#c2410c'],
-        'ehrenmitglied'     => ['bg' => '#fdf4ff', 'text' => '#86198f'],
-    ];
-    $badgeCfg   = $roleBadgeConfig[$role] ?? ['bg' => '#f1f5f9', 'text' => '#334155'];
-    $badgeStyle = 'background:' . htmlspecialchars($badgeCfg['bg']) . '; color:' . htmlspecialchars($badgeCfg['text']) . ';';
-
     // Avatar sources (Entra ID photo via Graph API or locally stored avatar)
     $sidebarAvatarColor = getAvatarColor($firstname . ' ' . $lastname);
     if (!empty($email)) {
@@ -899,8 +880,7 @@ if (!isset($currentUser)) {
                     <?php endif; ?>
                     <p class="text-xs text-slate-500 dark:text-slate-400 truncate"><?php echo htmlspecialchars($email); ?></p>
                     <?php if (!empty($displayRoles)): ?>
-                    <span class="role-badge inline-flex items-center gap-1 mt-1 max-w-full"
-                          style="<?php echo $badgeStyle; ?>"
+                    <span class="role-badge inline-flex items-center gap-1 mt-1 max-w-full bg-blue-50 text-blue-700 rounded-full px-3 py-1 dark:bg-blue-900/30 dark:text-blue-300"
                           title="<?php echo htmlspecialchars(implode(', ', $displayRoles)); ?>"
                           aria-label="Rolle: <?php echo htmlspecialchars($displayRoles[0]); ?>">
                         <i class="fas <?php echo getRoleIcon($role); ?> flex-shrink-0" aria-hidden="true"></i>
