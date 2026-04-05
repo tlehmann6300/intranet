@@ -369,11 +369,10 @@ if (!isset($currentUser)) {
             font-size: 10px;
             font-weight: 700;
             letter-spacing: 0.04em;
-            padding: 0.25rem 0.6rem;
+            padding: 0.25rem 0.75rem;
             border-radius: 9999px;
             line-height: 1;
             white-space: nowrap;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.30);
         }
         .role-badge i {
             font-size: 9px;
@@ -796,19 +795,19 @@ if (!isset($currentUser)) {
 
     // Role badge colour config
     $roleBadgeConfig = [
-        'admin'             => ['bg' => '#dc2626', 'text' => '#fff'],
-        'vorstand_intern'   => ['bg' => '#d97706', 'text' => '#fff'],
-        'vorstand_extern'   => ['bg' => '#d97706', 'text' => '#fff'],
-        'vorstand_finanzen' => ['bg' => '#d97706', 'text' => '#fff'],
-        'alumni_vorstand'   => ['bg' => '#2563eb', 'text' => '#fff'],
-        'alumni_finanz'     => ['bg' => '#2563eb', 'text' => '#fff'],
-        'alumni'            => ['bg' => '#0891b2', 'text' => '#fff'],
-        'ressortleiter'     => ['bg' => '#7c3aed', 'text' => '#fff'],
-        'mitglied'          => ['bg' => '#4f46e5', 'text' => '#fff'],
-        'anwaerter'         => ['bg' => '#ea580c', 'text' => '#fff'],
-        'ehrenmitglied'     => ['bg' => '#be185d', 'text' => '#fff'],
+        'admin'             => ['bg' => '#fef2f2', 'text' => '#b91c1c'],
+        'vorstand_intern'   => ['bg' => '#fffbeb', 'text' => '#b45309'],
+        'vorstand_extern'   => ['bg' => '#fffbeb', 'text' => '#b45309'],
+        'vorstand_finanzen' => ['bg' => '#fffbeb', 'text' => '#b45309'],
+        'alumni_vorstand'   => ['bg' => '#eff6ff', 'text' => '#1d4ed8'],
+        'alumni_finanz'     => ['bg' => '#eff6ff', 'text' => '#1d4ed8'],
+        'alumni'            => ['bg' => '#ecfeff', 'text' => '#0e7490'],
+        'ressortleiter'     => ['bg' => '#f5f3ff', 'text' => '#6d28d9'],
+        'mitglied'          => ['bg' => '#eef2ff', 'text' => '#4338ca'],
+        'anwaerter'         => ['bg' => '#fff7ed', 'text' => '#c2410c'],
+        'ehrenmitglied'     => ['bg' => '#fdf4ff', 'text' => '#86198f'],
     ];
-    $badgeCfg   = $roleBadgeConfig[$role] ?? ['bg' => '#374151', 'text' => '#fff'];
+    $badgeCfg   = $roleBadgeConfig[$role] ?? ['bg' => '#f1f5f9', 'text' => '#334155'];
     $badgeStyle = 'background:' . htmlspecialchars($badgeCfg['bg']) . '; color:' . htmlspecialchars($badgeCfg['text']) . ';';
 
     // Avatar sources (Entra ID photo via Graph API or locally stored avatar)
