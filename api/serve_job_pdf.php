@@ -41,7 +41,7 @@ if (
 }
 
 header('Content-Type: application/pdf');
-header('Content-Disposition: inline; filename="lebenslauf.pdf"');
+header('Content-Disposition: inline; filename="lebenslauf_' . $id . '.pdf"');
 header('Content-Length: ' . filesize($filePath));
 header('Cache-Control: private, no-store');
 readfile($filePath);

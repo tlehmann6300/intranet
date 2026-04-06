@@ -108,7 +108,7 @@ ob_start();
             <i class="fas fa-archive text-white text-lg"></i>
             <div>
                 <span class="text-2xl font-bold text-white"><?php echo count($newsletters); ?></span>
-                <span class="text-blue-100 text-sm ml-1"><?php echo count($newsletters) === 1 ? 'Newsletter' : 'Newsletter'; ?></span>
+                <span class="text-blue-100 text-sm ml-1"><?php echo count($newsletters) === 1 ? 'Eintrag' : 'Einträge'; ?></span>
             </div>
         </div>
     </div>

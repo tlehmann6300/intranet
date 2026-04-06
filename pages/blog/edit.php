@@ -342,9 +342,21 @@ ob_start();
 (function () {
     var input = document.getElementById('imageInput');
     if (!input) return;
+    var allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    var maxBytes = 5 * 1024 * 1024;
     input.addEventListener('change', function () {
         var file = this.files[0];
         if (!file) return;
+        if (!allowedTypes.includes(file.type)) {
+            alert('Ungültiges Dateiformat. Erlaubt: JPG, PNG, GIF, WebP.');
+            this.value = '';
+            return;
+        }
+        if (file.size > maxBytes) {
+            alert('Die Datei ist zu groß. Maximum: 5 MB.');
+            this.value = '';
+            return;
+        }
         var preview = document.getElementById('imagePreview');
         var wrapper = document.getElementById('imagePreviewWrapper');
         var reader = new FileReader();
