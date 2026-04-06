@@ -436,9 +436,13 @@ if (!isset($currentUser)) {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            backdrop-filter: blur(12px) saturate(1.8);
-            -webkit-backdrop-filter: blur(12px) saturate(1.8);
+            backdrop-filter: blur(16px) saturate(2);
+            -webkit-backdrop-filter: blur(16px) saturate(2);
             z-index: var(--z-topbar, 1060);
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06), 0 4px 24px rgba(0, 0, 0, 0.04);
+        }
+        body.dark-mode #top-header {
+            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05), 0 4px 24px rgba(0, 0, 0, 0.25) !important;
         }
 
         /* Push main content below the fixed topbar on desktop */
@@ -497,15 +501,17 @@ if (!isset($currentUser)) {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            padding: 0.25rem 0.5rem 0.25rem 0.25rem;
-            border-radius: 0.75rem;
-            border: none;
-            background: transparent;
+            padding: 0.25rem 0.625rem 0.25rem 0.25rem;
+            border-radius: 2rem;
+            border: 1px solid rgba(0, 0, 0, 0.07);
+            background: rgba(0, 0, 0, 0.02);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
             cursor: pointer;
-            transition: all 0.3s ease-in-out;
+            transition: all 0.2s ease;
         }
-        #user-dropdown-btn:hover { background: rgba(0,0,0,0.05); }
-        body.dark-mode #user-dropdown-btn:hover { background: rgba(255,255,255,0.07); }
+        #user-dropdown-btn:hover { background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.12); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        body.dark-mode #user-dropdown-btn { border-color: rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+        body.dark-mode #user-dropdown-btn:hover { background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.18); box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
         #user-dropdown-btn .header-user-name {
             font-size: 0.875rem;
             font-weight: 500;
@@ -624,8 +630,12 @@ if (!isset($currentUser)) {
 
         /* ── SIDEBAR: NARROWER CLEAN FOOTER ─────────────────── */
         .sidebar-clock-area {
-            padding: 0.75rem 1rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 0.75rem 1.25rem;
+            border-top: none;
+            background-image: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.16) 25%, rgba(255, 255, 255, 0.16) 75%, transparent 100%);
+            background-repeat: no-repeat;
+            background-size: calc(100% - 1.5rem) 1px;
+            background-position: 0.75rem top;
             text-align: center;
         }
 
@@ -950,7 +960,7 @@ if (!isset($currentUser)) {
         ?>
         <div class="px-5 pt-5 pb-8 flex-1 overflow-y-auto sidebar-scroll">
             <!-- IBC Logo in Navbar -->
-            <div class="mb-6 px-3 pt-2 flex justify-center">
+            <div class="mb-6 px-3 pt-2 flex justify-center sidebar-logo-area">
                 <img src="<?php echo asset('assets/img/ibc_logo_original_navbar.webp'); ?>" alt="IBC Logo" class="w-4/5 h-auto drop-shadow-lg" decoding="async">
             </div>
             

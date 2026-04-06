@@ -209,7 +209,7 @@ body {
 
 /* Sidebar - Permanent IBC Corporate Blue for Light Mode */
 .sidebar {
-    background: var(--sidebar-bg-light) !important;
+    background: linear-gradient(175deg, #0052a3 0%, #00447d 30%, #003468 70%, #002655 100%) !important;
     display: flex;
     flex-direction: column;
     overflow: hidden; /* clip overflow; inner .sidebar-scroll handles vertical scroll */
@@ -307,9 +307,9 @@ body:not(.dark-mode) .sidebar a:hover {
 
 /* Dark Mode: Enhanced Sidebar Styling */
 body.dark-mode .sidebar {
-    background-color: var(--sidebar-bg-dark) !important;
-    border-right: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+    background: linear-gradient(175deg, #1c2140 0%, #141928 50%, #0d1020 100%) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.6);
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.3) rgba(255, 255, 255, 0.05);
 }
@@ -360,7 +360,11 @@ body.dark-mode .sidebar-scroll {
 /* Sidebar Footer - Transparent, glass-effect buttons */
 .sidebar-footer {
     background: transparent;
-    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    border-top: none;
+    background-image: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.18) 25%, rgba(255, 255, 255, 0.18) 75%, transparent 100%);
+    background-repeat: no-repeat;
+    background-size: calc(100% - 1.5rem) 1px;
+    background-position: 0.75rem top;
 }
 
 /* Sidebar Footer Buttons - Glass Effect with subtle outline */
@@ -11727,15 +11731,18 @@ body:not(.dark-mode) .rounded-xl.bg-indigo-100 { background-color: #e0e7ff !impo
     color: #fff !important;
     transform: translate3d(3px, 0, 0) !important;
     text-decoration: none !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+    backdrop-filter: blur(4px) !important;
 }
 
 /* Active state */
 .sidebar nav .sidebar-nav-item--active,
 .sidebar .sidebar-nav-item--active {
-    background: rgba(255, 255, 255, 0.2) !important;
+    background: linear-gradient(90deg, rgba(0, 166, 81, 0.22) 0%, rgba(255, 255, 255, 0.13) 100%) !important;
     color: #fff !important;
     font-weight: 600 !important;
     border-left: 3px solid var(--ibc-green, #00a651) !important;
+    box-shadow: 0 2px 14px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
     transform: none !important;
 }
 
@@ -11809,9 +11816,13 @@ body:not(.dark-mode) .rounded-xl.bg-indigo-100 { background-color: #e0e7ff !impo
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: rgba(255, 255, 255, 0.5);
-    padding: 1rem 1.25rem 0.3rem;
+    padding: 1.1rem 1.25rem 0.3rem;
     margin-top: 0.25rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: none;
+    background-image: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.18) 25%, rgba(255, 255, 255, 0.18) 75%, transparent 100%);
+    background-repeat: no-repeat;
+    background-size: calc(100% - 1.5rem) 1px;
+    background-position: 0.75rem top;
     pointer-events: none;
     user-select: none;
 }
@@ -11828,8 +11839,9 @@ body.dark-mode .sidebar .sidebar-nav-item:hover {
 }
 body.dark-mode .sidebar nav .sidebar-nav-item--active,
 body.dark-mode .sidebar .sidebar-nav-item--active {
-    background: rgba(255, 255, 255, 0.14) !important;
+    background: linear-gradient(90deg, rgba(0, 166, 81, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%) !important;
     border-left-color: var(--ibc-green, #00a651) !important;
+    box-shadow: 0 2px 14px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
 }
 
 /* Mobile: slightly taller touch targets */
@@ -11844,6 +11856,29 @@ body.dark-mode .sidebar .sidebar-nav-item--active {
         font-size: 0.5625rem;
         padding-top: 0.75rem;
     }
+}
+
+/* ── SIDEBAR LOGO AREA SEPARATOR ─────────────────────────────
+   Gradient line below the IBC logo for visual separation.
+   ──────────────────────────────────────────────────────────── */
+.sidebar-logo-area {
+    position: relative;
+    padding-bottom: 0.25rem;
+}
+.sidebar-logo-area::after {
+    content: '';
+    display: block;
+    height: 1px;
+    margin: 0.75rem 1rem 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.22) 30%, rgba(255, 255, 255, 0.22) 70%, transparent 100%);
+}
+
+/* ── DARK MODE: SIDEBAR HOVER WITH GLASS ─────────────────────── */
+body.dark-mode .sidebar nav .sidebar-nav-item:hover,
+body.dark-mode .sidebar .sidebar-nav-item:hover {
+    background: rgba(255, 255, 255, 0.09) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+    backdrop-filter: blur(4px) !important;
 }
 
 /* ── MOBILE TOPBAR CART BADGE ────────────────────────────────
