@@ -278,7 +278,7 @@ if (!isset($currentUser)) {
         /* ── PAGE ENTRANCE ANIMATION ─────────────────────────────── */
         @keyframes pageEntranceFade {
             from { opacity: 0; transform: translateY(10px); }
-            to   { opacity: 1; transform: translateY(0); }
+            to   { opacity: 1; transform: none; }
         }
         @media (prefers-reduced-motion: no-preference) {
             #main-content > *:not(.fixed):not([style*="position: fixed"]):not([style*="position:fixed"]) {
