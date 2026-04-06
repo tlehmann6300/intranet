@@ -133,16 +133,14 @@ if (!isset($currentUser)) {
                 hyphens: auto;
             }
 
-            /* Prevent horizontal overflow on tables */
-            table {
+            /* Prevent horizontal overflow on non-card tables */
+            table:not(.card-table):not(.table-responsive):not(.table-stack-mobile) {
                 display: block;
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
                 border-radius: 8px;
             }
-            table thead { display: table-header-group; }
-            table tbody { display: table-row-group; }
-            th, td { white-space: nowrap; }
+            th, td { white-space: normal; }
 
             /* Better form inputs on mobile (prevents iOS zoom-in) */
             form input, form select, form textarea {
@@ -313,9 +311,14 @@ if (!isset($currentUser)) {
            (on desktop it is offset by the sidebar width via the base rule). */
         @media (max-width: 767px) {
             #top-header {
-                left: 0;
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                width: 100% !important;
                 min-height: calc(var(--topbar-height, 60px) + env(safe-area-inset-top, 0px));
                 padding-top: env(safe-area-inset-top, 0px);
+                z-index: var(--z-topbar, 1060) !important;
             }
         }
 
@@ -451,6 +454,12 @@ if (!isset($currentUser)) {
             cursor: pointer;
             flex-shrink: 0;
             transition: all 0.3s ease-in-out;
+        }
+        /* Show hamburger on mobile despite Tailwind .hidden class */
+        @media (max-width: 767px) {
+            #mobile-menu-btn {
+                display: flex !important;
+            }
         }
         #mobile-menu-btn:hover { background: rgba(0,0,0,0.05); color: #334155; }
         #mobile-menu-btn:focus-visible { outline: 2px solid var(--ibc-blue, #0066b3); outline-offset: 2px; }

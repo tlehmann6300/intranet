@@ -4754,8 +4754,8 @@ body:not(.dark-mode) .hero-gradient .hero-date {
     }
 }
 
-/* Card-based responsive table and .table-responsive: stacked cards below 640 px, normal table on wider screens */
-@media (max-width: 639px) {
+/* Card-based responsive table and .table-responsive: stacked cards on mobile */
+@media (max-width: 767px) {
     .card-table,
     .table-responsive {
         overflow-x: visible;
@@ -6099,6 +6099,7 @@ img:not([loading]) {
 .directory-card-header .directory-role-badge {
     background: rgba(255, 255, 255, 0.92) !important;
     border-color: rgba(255, 255, 255, 0.5) !important;
+    color: #374151 !important; /* Always dark text – badge bg is always white */
 }
 
 /* Dark mode: slightly darken header gradients */
@@ -11701,6 +11702,14 @@ body:not(.dark-mode) .rounded-xl.bg-indigo-100 { background-color: #e0e7ff !impo
     overflow: hidden;
 }
 
+/* Truncate long nav label text with ellipsis */
+.sidebar-nav-item span:not(.sidebar-nav-badge) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+
 .sidebar nav .sidebar-nav-item:hover,
 .sidebar .sidebar-nav-item:hover {
     background: rgba(255, 255, 255, 0.12) !important;
@@ -12536,6 +12545,13 @@ body.dark-mode .sidebar .sidebar-nav-item--active {
     transform: rotate(-90deg); /* start progress at 12 o'clock */
 }
 
+/* Ensure the chevron icon renders above the SVG progress ring */
+#back-to-top i,
+#back-to-top [data-lucide] {
+    position: relative;
+    z-index: 1;
+}
+
 #btt-progress-circle {
     fill: none;
     stroke: rgba(255, 255, 255, 0.55);
@@ -12660,4 +12676,28 @@ body.dark-mode #back-to-top:hover {
 #bottom-nav-more-btn i,
 #bottom-nav-more-btn svg {
     transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Modal z-indexes: Tailwind arbitrary z-[N] classes are not compiled ─────
+   Set explicit z-index so modals appear above the fixed header (z: 1060)
+   and the sidebar overlay (z: 1040). */
+#tfa-nudge-modal {
+    z-index: 1070;
+}
+#role-notice-modal {
+    z-index: 1060;
+}
+
+/* ── 2FA/Role notice modal: ensure backdrop fills viewport even without
+   Tailwind's inset-0 utility (belt-and-suspenders fallback) */
+#tfa-nudge-modal,
+#role-notice-modal {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }

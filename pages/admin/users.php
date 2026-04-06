@@ -1060,7 +1060,7 @@ select:focus {
 }
 
 /* Tablet: reduce table cell padding to help the table fit better */
-@media (min-width: 641px) and (max-width: 1023px) {
+@media (min-width: 768px) and (max-width: 1023px) {
     #usersTable th,
     #usersTable td {
         padding-left: 0.75rem;
@@ -1069,7 +1069,7 @@ select:focus {
 }
 
 /* Responsive table: Mobile-Card layout */
-@media (max-width: 640px) {
+@media (max-width: 767px) {
     #usersTable thead {
         display: none;
     }
