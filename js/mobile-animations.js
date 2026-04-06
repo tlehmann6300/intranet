@@ -172,7 +172,7 @@
 
     var backToTopBtn     = null;
     var scrollProgress   = null;
-    var BTT_SHOW_AT      = 300; // px
+    var BTT_SHOW_AT      = 200; // px
     var ticking          = false;
     var lastScrollY      = 0;
 

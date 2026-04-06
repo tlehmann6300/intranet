@@ -150,13 +150,17 @@ ob_start();
         foreach ($members as $idx => $member) {
             $displayRoleKey = Auth::getPrimaryEntraRoleKey($member['entra_roles'] ?? null, $member['role']);
             $badgeClass     = $roleBadgeColors[$displayRoleKey] ?? 'bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600';
-            $displayRole    = htmlspecialchars($member['display_role'] ?? Auth::getRoleLabel($member['role']));
+            $displayRole    = htmlspecialchars(Auth::getRoleLabel($displayRoleKey));
             $initials       = getMemberInitials($member['first_name'], $member['last_name']);
             $memberEmail    = $member['email'] ?? '';
-            $isEntraUser    = !empty($member['entra_roles']);
-            $imageSrc       = ($isEntraUser && !empty($memberEmail))
-                ? asset('fetch-profile-photo.php') . '?email=' . urlencode($memberEmail)
-                : asset(getProfileImageUrl($member['avatar_path'] ?? null));
+            $isEntraUser    = !empty($member['entra_roles']) || !empty($member['entra_photo_path']);
+            if (!empty($member['entra_photo_path'])) {
+                $imageSrc = asset($member['entra_photo_path']);
+            } elseif ($isEntraUser && !empty($memberEmail)) {
+                $imageSrc = asset('fetch-profile-photo.php') . '?email=' . urlencode($memberEmail);
+            } else {
+                $imageSrc = asset(getProfileImageUrl($member['avatar_path'] ?? null));
+            }
             $avatarColor    = getAvatarColor($member['first_name'] . ' ' . $member['last_name']);
 
             // Info snippet: Show position, or study_program + degree

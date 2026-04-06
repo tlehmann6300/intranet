@@ -420,22 +420,29 @@ ob_start();
                     <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Startzeit <span class="text-red-500">*</span>
                     </label>
-                    <input 
-                        type="text" 
-                        name="start_time"
-                        id="start_time"
-                        value="<?php 
-                            if (!empty($_POST['start_time'])) {
-                                echo htmlspecialchars($_POST['start_time']);
-                            } elseif ($isEdit && !empty($event['start_time'])) {
-                                echo date('Y-m-d H:i', strtotime($event['start_time']));
-                            }
-                        ?>"
-                        required
-                        <?php echo $readOnly ? 'readonly' : ''; ?>
-                        class="flatpickr-input w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ibc-blue <?php echo $readOnly ? 'bg-gray-100' : ''; ?>"
-                        placeholder="Datum und Uhrzeit wählen"
-                    >
+                    <div class="relative flex items-center">
+                        <input 
+                            type="text" 
+                            name="start_time"
+                            id="start_time"
+                            value="<?php 
+                                if (!empty($_POST['start_time'])) {
+                                    echo htmlspecialchars($_POST['start_time']);
+                                } elseif ($isEdit && !empty($event['start_time'])) {
+                                    echo date('Y-m-d H:i', strtotime($event['start_time']));
+                                }
+                            ?>"
+                            required
+                            <?php echo $readOnly ? 'readonly' : ''; ?>
+                            class="flatpickr-input w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ibc-blue pr-10 <?php echo $readOnly ? 'bg-gray-100' : ''; ?>"
+                            placeholder="Datum und Uhrzeit wählen"
+                        >
+                        <?php if (!$readOnly): ?>
+                        <button type="button" id="start_time_btn" tabindex="-1" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-ibc-blue dark:text-gray-500 dark:hover:text-ibc-blue transition-colors" title="Datum und Uhrzeit wählen" aria-label="Startzeit wählen">
+                            <i class="fas fa-calendar-alt"></i>
+                        </button>
+                        <?php endif; ?>
+                    </div>
                 </div>
 
                 <!-- End Time with Flatpickr -->
@@ -443,22 +450,29 @@ ob_start();
                     <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Endzeit <span class="text-red-500">*</span>
                     </label>
-                    <input 
-                        type="text" 
-                        name="end_time"
-                        id="end_time"
-                        value="<?php 
-                            if (!empty($_POST['end_time'])) {
-                                echo htmlspecialchars($_POST['end_time']);
-                            } elseif ($isEdit && !empty($event['end_time'])) {
-                                echo date('Y-m-d H:i', strtotime($event['end_time']));
-                            }
-                        ?>"
-                        required
-                        <?php echo $readOnly ? 'readonly' : ''; ?>
-                        class="flatpickr-input w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ibc-blue <?php echo $readOnly ? 'bg-gray-100' : ''; ?>"
-                        placeholder="Datum und Uhrzeit wählen"
-                    >
+                    <div class="relative flex items-center">
+                        <input 
+                            type="text" 
+                            name="end_time"
+                            id="end_time"
+                            value="<?php 
+                                if (!empty($_POST['end_time'])) {
+                                    echo htmlspecialchars($_POST['end_time']);
+                                } elseif ($isEdit && !empty($event['end_time'])) {
+                                    echo date('Y-m-d H:i', strtotime($event['end_time']));
+                                }
+                            ?>"
+                            required
+                            <?php echo $readOnly ? 'readonly' : ''; ?>
+                            class="flatpickr-input w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ibc-blue pr-10 <?php echo $readOnly ? 'bg-gray-100' : ''; ?>"
+                            placeholder="Datum und Uhrzeit wählen"
+                        >
+                        <?php if (!$readOnly): ?>
+                        <button type="button" id="end_time_btn" tabindex="-1" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-ibc-blue dark:text-gray-500 dark:hover:text-ibc-blue transition-colors" title="Datum und Uhrzeit wählen" aria-label="Endzeit wählen">
+                            <i class="fas fa-calendar-alt"></i>
+                        </button>
+                        <?php endif; ?>
+                    </div>
                 </div>
 
                 <!-- Registration Start Time -->
@@ -467,21 +481,28 @@ ob_start();
                         Anmeldung Start
                         <span class="text-xs text-gray-500 ml-2">(Optional)</span>
                     </label>
-                    <input 
-                        type="text" 
-                        name="registration_start"
-                        id="registration_start"
-                        value="<?php 
-                            if (!empty($_POST['registration_start'])) {
-                                echo htmlspecialchars($_POST['registration_start']);
-                            } elseif ($isEdit && !empty($event['registration_start'])) {
-                                echo date('Y-m-d H:i', strtotime($event['registration_start']));
-                            }
-                        ?>"
-                        <?php echo $readOnly ? 'readonly' : ''; ?>
-                        class="flatpickr-input w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ibc-blue <?php echo $readOnly ? 'bg-gray-100' : ''; ?>"
-                        placeholder="Anmeldebeginn wählen"
-                    >
+                    <div class="relative flex items-center">
+                        <input 
+                            type="text" 
+                            name="registration_start"
+                            id="registration_start"
+                            value="<?php 
+                                if (!empty($_POST['registration_start'])) {
+                                    echo htmlspecialchars($_POST['registration_start']);
+                                } elseif ($isEdit && !empty($event['registration_start'])) {
+                                    echo date('Y-m-d H:i', strtotime($event['registration_start']));
+                                }
+                            ?>"
+                            <?php echo $readOnly ? 'readonly' : ''; ?>
+                            class="flatpickr-input w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ibc-blue pr-10 <?php echo $readOnly ? 'bg-gray-100' : ''; ?>"
+                            placeholder="Anmeldebeginn wählen"
+                        >
+                        <?php if (!$readOnly): ?>
+                        <button type="button" id="registration_start_btn" tabindex="-1" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-ibc-blue dark:text-gray-500 dark:hover:text-ibc-blue transition-colors" title="Anmeldebeginn wählen" aria-label="Anmeldebeginn wählen">
+                            <i class="fas fa-calendar-alt"></i>
+                        </button>
+                        <?php endif; ?>
+                    </div>
                 </div>
 
                 <!-- Registration End Time -->
@@ -490,21 +511,28 @@ ob_start();
                         Anmeldung Ende
                         <span class="text-xs text-gray-500 ml-2">(Optional)</span>
                     </label>
-                    <input 
-                        type="text" 
-                        name="registration_end"
-                        id="registration_end"
-                        value="<?php 
-                            if (!empty($_POST['registration_end'])) {
-                                echo htmlspecialchars($_POST['registration_end']);
-                            } elseif ($isEdit && !empty($event['registration_end'])) {
-                                echo date('Y-m-d H:i', strtotime($event['registration_end']));
-                            }
-                        ?>"
-                        <?php echo $readOnly ? 'readonly' : ''; ?>
-                        class="flatpickr-input w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ibc-blue <?php echo $readOnly ? 'bg-gray-100' : ''; ?>"
-                        placeholder="Anmeldeende wählen"
-                    >
+                    <div class="relative flex items-center">
+                        <input 
+                            type="text" 
+                            name="registration_end"
+                            id="registration_end"
+                            value="<?php 
+                                if (!empty($_POST['registration_end'])) {
+                                    echo htmlspecialchars($_POST['registration_end']);
+                                } elseif ($isEdit && !empty($event['registration_end'])) {
+                                    echo date('Y-m-d H:i', strtotime($event['registration_end']));
+                                }
+                            ?>"
+                            <?php echo $readOnly ? 'readonly' : ''; ?>
+                            class="flatpickr-input w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ibc-blue pr-10 <?php echo $readOnly ? 'bg-gray-100' : ''; ?>"
+                            placeholder="Anmeldeende wählen"
+                        >
+                        <?php if (!$readOnly): ?>
+                        <button type="button" id="registration_end_btn" tabindex="-1" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-ibc-blue dark:text-gray-500 dark:hover:text-ibc-blue transition-colors" title="Anmeldeende wählen" aria-label="Anmeldeende wählen">
+                            <i class="fas fa-calendar-alt"></i>
+                        </button>
+                        <?php endif; ?>
+                    </div>
                 </div>
 
                 <!-- Status Info Badge -->
@@ -644,62 +672,38 @@ ob_start();
                     </label>
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                         <?php 
-                        // Use Microsoft Entra groups if available, otherwise fall back to hardcoded roles
-                        if (!empty($entraGroups)) {
-                            // Display groups from Microsoft Entra
-                            $allowedRoles = $_POST['allowed_roles'] ?? $event['allowed_roles'] ?? [];
-                            foreach ($entraGroups as $groupIndex => $group): 
-                            $groupIdSafe = 'group_' . $groupIndex;
-                            ?>
-                            <label for="<?php echo $groupIdSafe; ?>" class="flex items-center space-x-2 min-h-[44px]">
-                                <input 
-                                    type="checkbox" 
-                                    id="<?php echo $groupIdSafe; ?>"
-                                    name="allowed_roles[]"
-                                    value="<?php echo htmlspecialchars($group['id']); ?>"
-                                    <?php echo in_array($group['id'], $allowedRoles) ? 'checked' : ''; ?>
-                                    <?php echo $readOnly ? 'disabled' : ''; ?>
-                                    class="w-4 h-4 text-purple-600 bg-white border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:focus:ring-blue-500"
-                                >
-                                <span class="text-sm text-gray-700"><?php echo htmlspecialchars($group['displayName']); ?></span>
-                            </label>
-                            <?php 
-                            endforeach;
-                        } else {
-                            // Fallback: Use AuthHandler mapping keys as role options
-                            $roles = [
-                                'Anwaerter' => 'Anwärter',
-                                'Mitglied' => 'Mitglied',
-                                'Ehrenmitglied' => 'Ehrenmitglied',
-                                'Ressortleiter' => 'Ressortleiter',
-                                'Alumni' => 'Alumni',
-                                'Alumni_Vorstand' => 'Alumni-Vorstand',
-                                'Alumni_Finanz' => 'Alumni-Finanzprüfer',
-                                'board_roles' => 'Vorstand'
-                            ];
-                            $allowedRoles = $_POST['allowed_roles'] ?? $event['allowed_roles'] ?? [];
-                            $boardEntraRoles = ['vorstand_finanzen', 'vorstand_intern', 'vorstand_extern'];
-                            foreach ($roles as $roleValue => $roleLabel): 
-                            $roleIdSafe = 'role_' . $roleValue;
-                            $isChecked = ($roleValue === 'board_roles')
-                                ? (!empty(array_intersect($boardEntraRoles, $allowedRoles)) || in_array('board_roles', $allowedRoles))
-                                : in_array($roleValue, $allowedRoles);
-                            ?>
-                            <label for="<?php echo $roleIdSafe; ?>" class="flex items-center space-x-2 min-h-[44px]">
-                                <input 
-                                    type="checkbox" 
-                                    id="<?php echo $roleIdSafe; ?>"
-                                    name="allowed_roles[]"
-                                    value="<?php echo $roleValue; ?>"
-                                    <?php echo $isChecked ? 'checked' : ''; ?>
-                                    <?php echo $readOnly ? 'disabled' : ''; ?>
-                                    class="w-4 h-4 text-purple-600 bg-white border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:focus:ring-blue-500"
-                                >
-                                <span class="text-sm text-gray-700"><?php echo $roleLabel; ?></span>
-                            </label>
-                            <?php 
-                            endforeach;
-                        }
+                        $roles = [
+                            'Anwaerter' => 'Anwärter',
+                            'Mitglied' => 'Mitglied',
+                            'Ehrenmitglied' => 'Ehrenmitglied',
+                            'Ressortleiter' => 'Ressortleiter',
+                            'Alumni' => 'Alumni',
+                            'Alumni_Vorstand' => 'Alumni-Vorstand',
+                            'Alumni_Finanz' => 'Alumni-Finanzprüfer',
+                            'board_roles' => 'Vorstand'
+                        ];
+                        $allowedRoles = $_POST['allowed_roles'] ?? $event['allowed_roles'] ?? [];
+                        $boardEntraRoles = ['vorstand_finanzen', 'vorstand_intern', 'vorstand_extern'];
+                        foreach ($roles as $roleValue => $roleLabel): 
+                        $roleIdSafe = 'role_' . $roleValue;
+                        $isChecked = ($roleValue === 'board_roles')
+                            ? (!empty(array_intersect($boardEntraRoles, $allowedRoles)) || in_array('board_roles', $allowedRoles))
+                            : in_array($roleValue, $allowedRoles);
+                        ?>
+                        <label for="<?php echo $roleIdSafe; ?>" class="flex items-center space-x-2 min-h-[44px]">
+                            <input 
+                                type="checkbox" 
+                                id="<?php echo $roleIdSafe; ?>"
+                                name="allowed_roles[]"
+                                value="<?php echo $roleValue; ?>"
+                                <?php echo $isChecked ? 'checked' : ''; ?>
+                                <?php echo $readOnly ? 'disabled' : ''; ?>
+                                class="w-4 h-4 text-purple-600 bg-white border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:focus:ring-blue-500"
+                            >
+                            <span class="text-sm text-gray-700"><?php echo $roleLabel; ?></span>
+                        </label>
+                        <?php 
+                        endforeach;
                         ?>
                     </div>
                 </div>
@@ -807,6 +811,7 @@ document.addEventListener('DOMContentLoaded', function() {
         dateFormat: "Y-m-d H:i",
         locale: "de",
         minuteIncrement: 15,
+        allowInput: true,
         <?php if ($readOnly): ?>
         clickOpens: false,
         <?php endif; ?>
@@ -844,6 +849,23 @@ document.addEventListener('DOMContentLoaded', function() {
     const registrationEndPicker = flatpickr("#registration_end", {
         ...flatpickrOptions,
         minDate: document.getElementById('registration_start').value || null
+    });
+
+    // Wire up calendar icon buttons
+    const btnMap = [
+        { btnId: 'start_time_btn',        picker: startTimePicker },
+        { btnId: 'end_time_btn',          picker: endTimePicker },
+        { btnId: 'registration_start_btn', picker: registrationStartPicker },
+        { btnId: 'registration_end_btn',  picker: registrationEndPicker },
+    ];
+    btnMap.forEach(function(item) {
+        const btn = document.getElementById(item.btnId);
+        if (btn && item.picker) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                item.picker.open();
+            });
+        }
     });
 });
 
