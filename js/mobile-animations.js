@@ -200,7 +200,7 @@
         if (scrollProgress) {
             var docHeight  = document.documentElement.scrollHeight - window.innerHeight;
             var progress   = docHeight > 0 ? Math.min(lastScrollY / docHeight, 1) : 0;
-            var circumference = 2 * Math.PI * 18; // r=18
+            var circumference = 2 * Math.PI * 12; // r=12
             var dashOffset = circumference * (1 - progress);
             scrollProgress.style.strokeDashoffset = dashOffset;
         }
@@ -211,7 +211,7 @@
         scrollProgress = document.getElementById('btt-progress-circle');
         if (!backToTopBtn) return;
 
-        var circumference = 2 * Math.PI * 18;
+        var circumference = 2 * Math.PI * 12; // r=12 (matches #btt-progress-circle r attribute)
         if (scrollProgress) {
             scrollProgress.style.strokeDasharray  = circumference;
             scrollProgress.style.strokeDashoffset = circumference;

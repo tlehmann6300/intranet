@@ -1117,6 +1117,7 @@ select:focus {
 
     #usersTable td > div,
     #usersTable td > span {
+        flex: 1;
         min-width: 0;
         word-break: break-word;
         overflow-wrap: break-word;
