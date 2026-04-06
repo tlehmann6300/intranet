@@ -210,7 +210,7 @@ ob_start();
         <!-- Image Area -->
         <div class="relative h-48 bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 dark:from-purple-900/30 dark:via-blue-900/30 dark:to-indigo-900/30 flex items-center justify-center overflow-hidden">
             <?php if ($imageSrc): ?>
-            <img src="<?php echo htmlspecialchars($imageSrc); ?>" alt="<?php echo htmlspecialchars($itemName); ?>" class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" loading="lazy">
+            <img src="<?php echo htmlspecialchars($imageSrc); ?>" alt="<?php echo htmlspecialchars($itemName); ?>" class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500">
             <?php else: ?>
             <div class="relative">
                 <div class="absolute inset-0 bg-gradient-to-br from-purple-200/20 to-blue-200/20 dark:from-purple-800/20 dark:to-blue-800/20 rounded-full blur-2xl"></div>
@@ -448,10 +448,10 @@ ob_start();
         if (destEl)    { destEl.value    = ''; }
 
         // Show modal
+        document.body.style.overflow = 'hidden';
         modal.classList.remove('hidden');
         modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-        qtyInput.focus();
+        qtyInput.focus({ preventScroll: true });
     };
 
     window.closeLendModal = function () {
