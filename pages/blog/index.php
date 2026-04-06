@@ -90,6 +90,17 @@ function truncateText($text, $maxLength = 150) {
     return substr($text, 0, $maxLength) . '...';
 }
 
+// Function to get displayable author name from raw email/name field
+function getAuthorDisplay($authorEmail) {
+    if (preg_match('/^(.+?)\s*<[^>]+>$/', $authorEmail, $m)) {
+        return trim($m[1]);
+    }
+    if (strpos($authorEmail, '@') !== false) {
+        return explode('@', $authorEmail)[0];
+    }
+    return $authorEmail;
+}
+
 $title = 'News & Updates - IBC Intranet';
 ob_start();
 ?>
@@ -167,13 +178,7 @@ ob_start();
     <?php else: ?>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6" id="blogGrid">
             <?php foreach ($posts as $post):
-                // Clean up author display: show name part before <email> if present
-                $authorDisplay = $post['author_email'];
-                if (preg_match('/^(.+?)\s*<[^>]+>$/', $authorDisplay, $m)) {
-                    $authorDisplay = trim($m[1]);
-                } elseif (strpos($authorDisplay, '@') !== false) {
-                    $authorDisplay = explode('@', $authorDisplay)[0];
-                }
+                $authorDisplay = getAuthorDisplay($post['author_email']);
             ?>
                 <a href="view.php?id=<?php echo (int)$post['id']; ?>"
                    class="blog-card card w-full dark:bg-gray-800 overflow-hidden flex flex-col hover:shadow-xl hover:scale-[1.02] transition-all duration-200 cursor-pointer group"

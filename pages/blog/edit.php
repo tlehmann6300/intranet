@@ -321,6 +321,9 @@ ob_start();
                 <i class="fas fa-shield-alt text-green-500 mr-1"></i>
                 Erlaubt: JPG, PNG, GIF, WebP &ndash; Max. 5 MB
             </p>
+            <p id="imageError" class="hidden mt-2 text-xs text-red-600 dark:text-red-400">
+                <i class="fas fa-exclamation-circle mr-1"></i><span id="imageErrorText"></span>
+            </p>
         </div>
 
         <!-- Submit Buttons -->
@@ -344,16 +347,28 @@ ob_start();
     if (!input) return;
     var allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     var maxBytes = 5 * 1024 * 1024;
+    var errorEl = document.getElementById('imageError');
+    var errorText = document.getElementById('imageErrorText');
+
+    function showError(msg) {
+        if (errorText) errorText.textContent = msg;
+        if (errorEl) errorEl.classList.remove('hidden');
+    }
+    function clearError() {
+        if (errorEl) errorEl.classList.add('hidden');
+    }
+
     input.addEventListener('change', function () {
+        clearError();
         var file = this.files[0];
         if (!file) return;
         if (!allowedTypes.includes(file.type)) {
-            alert('Ungültiges Dateiformat. Erlaubt: JPG, PNG, GIF, WebP.');
+            showError('Ungültiges Dateiformat. Erlaubt: JPG, PNG, GIF, WebP.');
             this.value = '';
             return;
         }
         if (file.size > maxBytes) {
-            alert('Die Datei ist zu groß. Maximum: 5 MB.');
+            showError('Die Datei ist zu groß. Maximum: 5 MB.');
             this.value = '';
             return;
         }
