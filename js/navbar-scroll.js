@@ -171,7 +171,7 @@
     function init() {
         navbarBtn     = document.getElementById('mobile-menu-btn');
         sidebarEl     = document.getElementById('sidebar');
-        mobileHeaderEl = document.getElementById('mobile-header');
+        mobileHeaderEl = document.getElementById('top-header');
         mobileMenuEl   = document.getElementById('mobile-menu');
 
         // Measure real topbar height immediately and on resize/orientation change
