@@ -441,6 +441,13 @@ if (!isset($currentUser)) {
             z-index: var(--z-topbar, 1060);
         }
 
+        /* Push main content below the fixed topbar on desktop */
+        @media (min-width: 768px) {
+            #main-content {
+                padding-top: calc(var(--topbar-height, 60px) + 1rem);
+            }
+        }
+
         /* hamburger button inside top header */
         #mobile-menu-btn {
             align-items: center;
@@ -1268,7 +1275,7 @@ if (!isset($currentUser)) {
     <button id="back-to-top" aria-label="Zurück nach oben" title="Zurück nach oben">
         <!-- SVG progress ring drawn around the button -->
         <svg aria-hidden="true" focusable="false">
-            <circle id="btt-progress-circle" cx="50%" cy="50%" r="18"/>
+        <circle id="btt-progress-circle" cx="50%" cy="50%" r="12"/>
         </svg>
         <i data-lucide="chevron-up" class="w-5 h-5" aria-hidden="true"></i>
     </button>
@@ -1860,7 +1867,28 @@ if (!isset($currentUser)) {
     </style>
 
     <?php if (isset($_SESSION['show_2fa_nudge']) && $_SESSION['show_2fa_nudge']): ?>
-    <div id="tfa-nudge-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1070] p-4" role="dialog" aria-modal="true" aria-labelledby="tfa-nudge-title">
+    <style>
+    /* Guarantee correct fixed centering for the 2FA nudge modal regardless of
+       whether the compiled Tailwind CSS includes the z-[1070] arbitrary value. */
+    #tfa-nudge-modal {
+        position: fixed !important;
+        inset: 0 !important;
+        z-index: 1075 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 1rem;
+    }
+    #tfa-nudge-modal > div {
+        max-height: 85vh;
+        width: 100%;
+        max-width: 32rem;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+    </style>
+    <div id="tfa-nudge-modal" class="bg-black bg-opacity-50" role="dialog" aria-modal="true" aria-labelledby="tfa-nudge-title">
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden transform transition-all">
             <!-- Modal Header -->
             <div class="bg-gradient-to-r from-blue-600 to-green-600 px-6 py-4">

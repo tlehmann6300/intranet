@@ -207,8 +207,8 @@ ob_start();
                     <!-- Cover Band -->
                     <div class="h-24 bg-gradient-to-r from-blue-500 to-indigo-600 relative flex-shrink-0">
                         <div class="absolute top-2 right-2">
-                            <span class="inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold directory-role-badge border <?php echo $badgeClass; ?>" style="background:rgba(255,255,255,0.92)!important;border-color:rgba(255,255,255,0.5)!important;color:#374151!important;">
-                                <i class="fas <?php echo getRoleIcon($displayRoleKey); ?>" aria-hidden="true"></i>
+                            <span class="inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold directory-role-badge border <?php echo $badgeClass; ?>" style="background:rgba(255,255,255,0.95)!important;border-color:rgba(255,255,255,0.6)!important;color:#111827!important;">
+                                <i class="fas <?php echo getRoleIcon($displayRoleKey); ?>" style="color:#374151!important;" aria-hidden="true"></i>
                                 <?php echo $displayRole; ?>
                             </span>
                         </div>

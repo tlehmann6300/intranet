@@ -4804,6 +4804,12 @@ body:not(.dark-mode) .hero-gradient .hero-date {
         flex-shrink: 0;
         text-align: left;
     }
+    /* Ensure td direct children fill the remaining space next to the label */
+    .card-table td > *,
+    .table-responsive td > * {
+        flex: 1;
+        min-width: 0;
+    }
 }
 
 /* Stacked card layout for tables with more than 3 columns on mobile (class .table-stack-mobile
@@ -4850,6 +4856,11 @@ body:not(.dark-mode) .hero-gradient .hero-date {
         margin-right: 1rem;
         flex-shrink: 0;
         text-align: left;
+    }
+    /* Ensure td direct children fill the remaining space next to the label */
+    .table-stack-mobile td > * {
+        flex: 1;
+        min-width: 0;
     }
 }
 
@@ -6097,9 +6108,14 @@ img:not([loading]) {
 
 /* Role badge inside gradient header: white background for contrast */
 .directory-card-header .directory-role-badge {
-    background: rgba(255, 255, 255, 0.92) !important;
-    border-color: rgba(255, 255, 255, 0.5) !important;
-    color: #374151 !important; /* Always dark text – badge bg is always white */
+    background: rgba(255, 255, 255, 0.95) !important;
+    border-color: rgba(255, 255, 255, 0.6) !important;
+    color: #111827 !important; /* near-black for maximum contrast on white badge */
+}
+
+/* Ensure role badge icon also uses dark color */
+.directory-card-header .directory-role-badge i {
+    color: #374151 !important;
 }
 
 /* Dark mode: slightly darken header gradients */
@@ -11702,11 +11718,16 @@ body:not(.dark-mode) .rounded-xl.bg-indigo-100 { background-color: #e0e7ff !impo
     overflow: hidden;
 }
 
-/* Truncate long nav label text with ellipsis */
+/* Truncate long nav label text with ellipsis.
+   Use !important to beat the global `span { word-break: break-word; overflow-wrap: break-word; }`
+   and `hyphens: auto` rules that otherwise cause mid-word line breaks inside the sidebar. */
 .sidebar-nav-item span:not(.sidebar-nav-badge) {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
     min-width: 0;
 }
 
@@ -11730,7 +11751,10 @@ body:not(.dark-mode) .rounded-xl.bg-indigo-100 { background-color: #e0e7ff !impo
 
 /* Nav label: never wrap, truncate with ellipsis when too long */
 .sidebar-nav-item span {
-    white-space: nowrap;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
     overflow: hidden;
     text-overflow: ellipsis;
     min-width: 0;
@@ -12499,8 +12523,8 @@ body.dark-mode .sidebar .sidebar-nav-item--active {
     position: fixed;
     right: 1.25rem;
     bottom: 1.5rem;
-    width: 3rem;
-    height: 3rem;
+    width: 2.75rem;
+    height: 2.75rem;
     border-radius: 50%;
     background: var(--ibc-blue, #0066b3);
     color: #fff;
@@ -12515,8 +12539,8 @@ body.dark-mode .sidebar .sidebar-nav-item--active {
     transform: translateY(1rem) scale(0.85);
     pointer-events: none;
     transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
-    /* Ensure the SVG circle progress ring sits on top */
-    overflow: visible;
+    /* overflow:hidden keeps the SVG ring clipped to the button circle */
+    overflow: hidden;
 }
 
 #back-to-top.btt-visible {
@@ -12535,14 +12559,17 @@ body.dark-mode .sidebar .sidebar-nav-item--active {
     transition-duration: 0.1s;
 }
 
-/* Progress ring (SVG drawn by the button HTML) */
+/* Progress ring: drawn exactly inside the button boundary.
+   The SVG fills the whole button; the circle (r=12) sits near the
+   inner edge so the ring is a subtle indicator, not an outer halo. */
 #back-to-top svg {
     position: absolute;
-    inset: -3px;
-    width: calc(100% + 6px);
-    height: calc(100% + 6px);
+    inset: 0;
+    width: 100%;
+    height: 100%;
     pointer-events: none;
     transform: rotate(-90deg); /* start progress at 12 o'clock */
+    overflow: visible;
 }
 
 /* Ensure the chevron icon renders above the SVG progress ring */
@@ -12554,13 +12581,12 @@ body.dark-mode .sidebar .sidebar-nav-item--active {
 
 #btt-progress-circle {
     fill: none;
-    stroke: rgba(255, 255, 255, 0.55);
-    stroke-width: 2.5;
+    stroke: rgba(255, 255, 255, 0.45);
+    stroke-width: 2;
     stroke-linecap: round;
-    /* Hide the ring until JS sets stroke-dasharray on scroll init.
-       circumference = 2 * π * 18 ≈ 113.1 */
-    stroke-dasharray: 113.1;
-    stroke-dashoffset: 113.1;
+    /* circumference = 2 * π * 12 ≈ 75.398; JS sets this dynamically on scroll init */
+    stroke-dasharray: 75.398;
+    stroke-dashoffset: 75.398;
     transition: stroke-dashoffset 0.15s linear;
 }
 
@@ -12570,8 +12596,8 @@ body.dark-mode .sidebar .sidebar-nav-item--active {
         /* Bottom nav is approx 4rem; add 0.75rem gap */
         bottom: calc(4.25rem + env(safe-area-inset-bottom, 0px));
         right: 0.875rem;
-        width: 2.75rem;
-        height: 2.75rem;
+        width: 2.5rem;
+        height: 2.5rem;
     }
 }
 
