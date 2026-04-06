@@ -187,7 +187,7 @@ function asset($path) {
 function getFormattedRoleName(string $role): string {
     return match($role) {
         'admin'               => 'Administrator',
-        'vorstand_finanzen'   => 'Vorstand Finanzen und Recht',
+        'vorstand_finanzen'   => 'Vorstand Finanzen',
         'vorstand_intern'     => 'Vorstand Intern',
         'vorstand_extern'     => 'Vorstand Extern',
         'ressortleiter'       => 'Ressortleiter',
@@ -236,7 +236,7 @@ function getRoleIcon(string $role): string {
 function translateRole($role) {
     $roleTranslations = [
         'admin'               => 'Administrator',
-        'vorstand_finanzen'   => 'Vorstand Finanzen und Recht',
+        'vorstand_finanzen'   => 'Vorstand Finanzen',
         'vorstand_intern'     => 'Vorstand Intern',
         'vorstand_extern'     => 'Vorstand Extern',
         'ressortleiter'       => 'Ressortleiter',
@@ -264,7 +264,7 @@ function translateAzureRole($azureRole) {
         'anwaerter'           => 'Anwärter',
         'mitglied'            => 'Mitglied',
         'ressortleiter'       => 'Ressortleiter',
-        'vorstand_finanzen'   => 'Vorstand Finanzen und Recht',
+        'vorstand_finanzen'   => 'Vorstand Finanzen',
         'vorstand_intern'     => 'Vorstand Intern',
         'vorstand_extern'     => 'Vorstand Extern',
         'alumni'              => 'Alumni',

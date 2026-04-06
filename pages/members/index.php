@@ -91,7 +91,7 @@ ob_start();
                     <option value="anwaerter" <?php echo $roleFilter === 'anwaerter' ? 'selected' : ''; ?>>Anwärter</option>
                     <option value="mitglied" <?php echo $roleFilter === 'mitglied' ? 'selected' : ''; ?>>Mitglieder</option>
                     <option value="ressortleiter" <?php echo $roleFilter === 'ressortleiter' ? 'selected' : ''; ?>>Ressortleiter</option>
-                    <option value="vorstand_finanzen" <?php echo $roleFilter === 'vorstand_finanzen' ? 'selected' : ''; ?>>Vorstand Finanzen und Recht</option>
+                    <option value="vorstand_finanzen" <?php echo $roleFilter === 'vorstand_finanzen' ? 'selected' : ''; ?>>Vorstand Finanzen</option>
                     <option value="vorstand_intern" <?php echo $roleFilter === 'vorstand_intern' ? 'selected' : ''; ?>>Vorstand Intern</option>
                     <option value="vorstand_extern" <?php echo $roleFilter === 'vorstand_extern' ? 'selected' : ''; ?>>Vorstand Extern</option>
                 </select>

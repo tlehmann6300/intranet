@@ -705,7 +705,7 @@ class Auth {
             'mitglied'            => 'Mitglied',
             'ressortleiter'       => 'Ressortleiter',
             'ehrenmitglied'       => 'Ehrenmitglied',
-            'vorstand_finanzen'   => 'Vorstand Finanzen und Recht',
+            'vorstand_finanzen'   => 'Vorstand Finanzen',
             'vorstand_extern'     => 'Vorstand Extern',
             'vorstand_intern'     => 'Vorstand Intern'
         ];
