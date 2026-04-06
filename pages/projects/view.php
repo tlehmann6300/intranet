@@ -261,6 +261,13 @@ ob_start();
                     </span>
                     <?php endif; ?>
                 </div>
+                <!-- Project Title -->
+                <h1 class="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg leading-tight mt-2">
+                    <?php echo htmlspecialchars($project['title']); ?>
+                </h1>
+            </div><!-- /title overlay -->
+        </div><!-- /project-detail-hero -->
+
         <!-- Card Body -->
         <div class="p-5 sm:p-8">
         
