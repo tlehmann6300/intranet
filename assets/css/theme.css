@@ -5373,8 +5373,7 @@ main {
 @media (max-width: 767px) {
     .sidebar {
         height: calc(100vh - var(--topbar-height, 60px) - env(safe-area-inset-top, 0px)) !important; /* fallback */
-        height: calc(100dvh - var(--topbar-height, 60px) - env(safe-area-inset-top, 0px)) !important; /* modern browsers */
-        height: calc(100svh - var(--topbar-height, 60px) - env(safe-area-inset-top, 0px)) !important; /* iOS Safari small viewport */
+        height: calc(100dvh - var(--topbar-height, 60px) - env(safe-area-inset-top, 0px)) !important; /* dynamic: adjusts when address bar shows/hides */
     }
 }
 
@@ -5925,7 +5924,9 @@ img:not([loading]) {
     font-weight: 600;
     letter-spacing: 0.01em;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.10);
-    white-space: nowrap;
+    white-space: normal;
+    max-width: calc(100% - 0.5rem);
+    text-align: center;
     line-height: 1.4;
 }
 
