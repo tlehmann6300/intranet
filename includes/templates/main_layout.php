@@ -1503,11 +1503,25 @@ if (!isset($currentUser)) {
             const sidebarScroll = document.querySelector('.sidebar-scroll');
             if (!sidebarScroll) return;
             var savedPos = localStorage.getItem('sidebarScrollPos');
-            if (savedPos !== null) {
-                requestAnimationFrame(function() {
+            requestAnimationFrame(function() {
+                if (savedPos !== null) {
                     sidebarScroll.scrollTop = parseInt(savedPos, 10);
-                });
-            }
+                }
+                // Always ensure the active nav item is visible within the sidebar.
+                // If the saved scroll position hides the active item (or there is
+                // no saved position and the item is below the fold), scroll it
+                // into view without disturbing the overall position more than needed.
+                var activeItem = sidebarScroll.querySelector('.sidebar-nav-item--active');
+                if (activeItem) {
+                    var itemTop    = activeItem.offsetTop;
+                    var itemBottom = itemTop + activeItem.offsetHeight;
+                    var scrollTop    = sidebarScroll.scrollTop;
+                    var scrollBottom = scrollTop + sidebarScroll.clientHeight;
+                    if (itemBottom > scrollBottom || itemTop < scrollTop) {
+                        activeItem.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+                    }
+                }
+            });
             var _scrollSaveTimer = null;
             sidebarScroll.addEventListener('scroll', function() {
                 clearTimeout(_scrollSaveTimer);
@@ -1870,27 +1884,14 @@ if (!isset($currentUser)) {
 
     <?php if (isset($_SESSION['show_2fa_nudge']) && $_SESSION['show_2fa_nudge']): ?>
     <style>
-    /* Guarantee correct fixed centering for the 2FA nudge modal regardless of
-       whether the compiled Tailwind CSS includes the z-[1070] arbitrary value. */
-    #tfa-nudge-modal {
-        position: fixed !important;
-        inset: 0 !important;
-        z-index: 1075 !important;
-        display: flex;
-        align-items: center !important;
-        justify-content: center !important;
-        padding: 1rem;
-    }
-    #tfa-nudge-modal > div {
-        max-height: 85vh;
-        width: 100%;
-        max-width: 32rem;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-    }
+    /* Only z-index is kept here as an !important override because Tailwind's
+       compiled CSS may not include the arbitrary z-[1075] value.
+       All layout/positioning is handled by the Tailwind utility classes on
+       the element itself (fixed inset-0 flex items-center justify-center p-4),
+       matching the pattern used by #role-notice-modal. */
+    #tfa-nudge-modal { z-index: 1075 !important; }
     </style>
-    <div id="tfa-nudge-modal" class="bg-black bg-opacity-50" role="dialog" aria-modal="true" aria-labelledby="tfa-nudge-title">
+    <div id="tfa-nudge-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="tfa-nudge-title">
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden transform transition-all">
             <!-- Modal Header -->
             <div class="bg-gradient-to-r from-blue-600 to-green-600 px-6 py-4">
