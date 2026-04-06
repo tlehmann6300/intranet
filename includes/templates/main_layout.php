@@ -444,7 +444,7 @@ if (!isset($currentUser)) {
         /* Push main content below the fixed topbar on desktop */
         @media (min-width: 768px) {
             #main-content {
-                padding-top: calc(var(--topbar-height, 60px) + 1rem);
+                padding-top: calc(var(--topbar-height, 60px) + 1rem) !important;
             }
         }
 
@@ -614,10 +614,12 @@ if (!isset($currentUser)) {
         }
 
         /* ── MAIN CONTENT PADDING FOR NEW UNIFIED HEADER ────── */
-        /* No !important here: the mobile-specific rule above (line ~270) uses !important
-           and must take precedence on small screens so safe-area-inset-top is respected. */
+        /* Uses !important to override theme.css generic padding rules that
+           don't account for the fixed topbar height (60px). The mobile-specific
+           rule above already uses !important; this base rule ensures desktop/tablet
+           also push content correctly below the fixed navbar. */
         #main-content {
-            padding-top: calc(var(--topbar-height, 60px) + 1.5rem);
+            padding-top: calc(var(--topbar-height, 60px) + 1.5rem) !important;
         }
 
         /* ── SIDEBAR: NARROWER CLEAN FOOTER ─────────────────── */

@@ -3591,7 +3591,7 @@ body.dark-mode .sidebar {
     
     main {
         padding: 1.75rem !important;
-        padding-top: 1.75rem !important;
+        padding-top: calc(var(--topbar-height, 60px) + 1.75rem) !important;
     }
     
     /* Sidebar visible on desktop – uses CSS variable --sidebar-width-md (17rem) */
@@ -3608,6 +3608,7 @@ body.dark-mode .sidebar {
     
     main {
         padding: 2.5rem !important;
+        padding-top: calc(var(--topbar-height, 60px) + 1.5rem) !important;
     }
     
     .container {
@@ -3633,7 +3634,7 @@ body.dark-mode .sidebar {
     }
     
     main {
-        padding-top: 1rem !important;
+        padding-top: calc(var(--topbar-height, 60px) + 0.5rem) !important;
     }
 }
 
@@ -6305,9 +6306,9 @@ html, body {
    ============================================================ */
 
 @media (min-width: 768px) {
-    /* Main content: ensure top padding does not conflict with sidebar */
+    /* Main content: push content below the fixed top header (60px) */
     main {
-        padding-top: 1.5rem !important;
+        padding-top: calc(var(--topbar-height, 60px) + 1.5rem) !important;
     }
 }
 
