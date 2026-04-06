@@ -429,7 +429,7 @@ if (!isset($currentUser)) {
         #top-header {
             position: fixed;
             top: 0;
-            left: var(--sidebar-width-md, 17rem); /* matches sidebar width; uses CSS variable */
+            left: var(--sidebar-width-md, 17rem); /* desktop: matches sidebar width; defined by --sidebar-width-md CSS variable */
             right: 0;
             height: var(--topbar-height, 60px);
             padding: 0 1.5rem;
