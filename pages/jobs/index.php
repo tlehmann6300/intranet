@@ -116,18 +116,17 @@ ob_start();
 
     <!-- Filter Bar -->
     <div class="mb-6 card dark:bg-gray-800 p-4">
-        <div class="flex items-center gap-4 flex-wrap">
-            <span class="text-gray-700 dark:text-gray-300 font-semibold mr-2">
-                <i class="fas fa-filter mr-2"></i>
-                Typ:
+        <div class="flex items-center gap-2 overflow-x-auto flex-nowrap pb-1 -mx-1 px-1 scrollbar-hide">
+            <span class="text-gray-700 dark:text-gray-300 font-semibold mr-1 flex-shrink-0">
+                <i class="fas fa-filter mr-1"></i>
             </span>
             <a href="index.php"
-               class="px-4 py-2 min-h-[44px] inline-flex items-center rounded-lg font-medium transition-all <?php echo $filterType === null ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'; ?>">
+               class="px-4 py-2 min-h-[44px] inline-flex items-center rounded-lg font-medium transition-all flex-shrink-0 whitespace-nowrap <?php echo $filterType === null ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'; ?>">
                 Alle
             </a>
             <?php foreach (JobBoard::SEARCH_TYPES as $type): ?>
             <a href="index.php?type=<?php echo urlencode($type); ?>"
-               class="px-4 py-2 min-h-[44px] inline-flex items-center rounded-lg font-medium transition-all <?php echo $filterType === $type ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'; ?>">
+               class="px-4 py-2 min-h-[44px] inline-flex items-center rounded-lg font-medium transition-all flex-shrink-0 whitespace-nowrap <?php echo $filterType === $type ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'; ?>">
                 <?php echo htmlspecialchars($type, ENT_QUOTES, 'UTF-8'); ?>
             </a>
             <?php endforeach; ?>
@@ -188,7 +187,7 @@ ob_start();
                 <!-- Footer -->
                 <div class="pt-4 border-t border-gray-200 dark:border-gray-700 flex flex-wrap items-center justify-between gap-2">
                     <?php if (!empty($listing['pdf_path'])): ?>
-                    <a href="<?php echo htmlspecialchars(asset($listing['pdf_path']), ENT_QUOTES, 'UTF-8'); ?>"
+                    <a href="<?php echo htmlspecialchars(BASE_URL . '/api/serve_job_pdf.php?id=' . (int)$listing['id'], ENT_QUOTES, 'UTF-8'); ?>"
                        target="_blank" rel="noopener noreferrer"
                        class="inline-flex items-center px-4 py-2 min-h-[44px] bg-red-50 hover:bg-red-100 text-red-700 dark:bg-red-900/30 dark:hover:bg-red-900/50 dark:text-red-300 rounded-lg text-sm font-medium transition-all">
                         <i class="fas fa-file-pdf mr-2"></i>Lebenslauf

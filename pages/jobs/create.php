@@ -189,8 +189,8 @@ ob_start();
 
 <div class="max-w-2xl mx-auto">
     <div class="mb-6">
-        <a href="index.php" class="text-blue-600 hover:text-blue-700 inline-flex items-center mb-4">
-            <i class="fas fa-arrow-left mr-2"></i>Zurück zur Job- &amp; Praktikumsbörse
+        <a href="index.php" class="inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-700 font-medium transition-colors text-sm mb-4">
+            <i class="fas fa-arrow-left text-xs"></i>Zurück zur Job- &amp; Praktikumsbörse
         </a>
     </div>
 
@@ -202,23 +202,24 @@ ob_start();
     </div>
     <?php endif; ?>
 
-    <div class="card p-8">
+    <div class="card p-6 sm:p-8">
         <div class="mb-6">
             <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-100">
                 <i class="fas fa-plus-circle text-blue-600 mr-2"></i>
                 Anzeige erstellen
             </h1>
-            <p class="text-gray-600 dark:text-gray-300 mt-2">
+            <p class="text-gray-500 dark:text-gray-400 mt-1 text-sm">
                 Stelle deine Anzeige ein und lass andere Mitglieder wissen, wonach du suchst.
             </p>
         </div>
 
-        <form method="POST" enctype="multipart/form-data" class="space-y-6">
+        <form method="POST" enctype="multipart/form-data" class="space-y-5">
             <input type="hidden" name="csrf_token" value="<?php echo CSRFHandler::getToken(); ?>">
 
             <!-- Title -->
             <div>
-                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                    <i class="fas fa-heading text-gray-400 mr-1 text-xs"></i>
                     Titel <span class="text-red-500">*</span>
                 </label>
                 <input
@@ -228,19 +229,20 @@ ob_start();
                     maxlength="255"
                     value="<?php echo htmlspecialchars($title, ENT_QUOTES, 'UTF-8'); ?>"
                     placeholder="z.B. Suche Praktikum im Bereich Marketing"
-                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100"
+                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100 text-sm"
                 >
             </div>
 
             <!-- Search Type -->
             <div>
-                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                    <i class="fas fa-tag text-gray-400 mr-1 text-xs"></i>
                     Gesuchter Typ <span class="text-red-500">*</span>
                 </label>
                 <select
                     name="search_type"
                     required
-                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100"
+                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100 text-sm"
                 >
                     <option value="">-- Typ wählen --</option>
                     <?php foreach (JobBoard::SEARCH_TYPES as $type): ?>
@@ -254,7 +256,8 @@ ob_start();
 
             <!-- Description -->
             <div>
-                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                    <i class="fas fa-align-left text-gray-400 mr-1 text-xs"></i>
                     Beschreibung <span class="text-red-500">*</span>
                 </label>
                 <textarea
@@ -262,19 +265,20 @@ ob_start();
                     required
                     rows="6"
                     placeholder="Beschreibe, wonach du suchst, deine Qualifikationen, Verfügbarkeit usw."
-                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100"
+                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100 text-sm"
                     style="resize: vertical; min-height: 120px;"
                 ><?php echo htmlspecialchars($description, ENT_QUOTES, 'UTF-8'); ?></textarea>
             </div>
 
             <!-- PDF Upload -->
-            <div>
+            <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600">
                 <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <i class="fas fa-file-pdf text-red-500 mr-1 text-xs"></i>
                     Lebenslauf (optional)
                 </label>
                 <?php if ($profileCvPath !== null): ?>
                 <div class="mb-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg">
-                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <p class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
                         <i class="fas fa-user-circle text-blue-500 mr-1"></i>
                         Du hast bereits einen Lebenslauf in deinem Profil hinterlegt.
                     </p>
@@ -300,11 +304,12 @@ ob_start();
                         name="cv_pdf"
                         id="cv_pdf_input"
                         accept=".pdf,application/pdf"
-                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100"
+                        class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100 text-sm
+                               file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-red-50 file:text-red-700 hover:file:bg-red-100 file:cursor-pointer"
                     >
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                        <i class="fas fa-shield-alt mr-1 text-green-500"></i>
-                        Ausschließlich <strong>.pdf</strong>-Dateien erlaubt. Maximum: <strong>5 MB</strong>. Alle anderen Formate werden abgelehnt.
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-2">
+                        <i class="fas fa-shield-alt text-green-500 mr-1"></i>
+                        Ausschließlich <strong>.pdf</strong>-Dateien erlaubt &ndash; Max. <strong>5 MB</strong>
                     </p>
                 </div>
                 <?php if ($profileCvPath !== null): ?>
@@ -328,13 +333,13 @@ ob_start();
             </div>
 
             <!-- Submit -->
-            <div class="flex flex-col md:flex-row justify-end gap-2 pt-4">
+            <div class="flex flex-col sm:flex-row justify-end gap-3 pt-2">
                 <a href="index.php"
-                   class="w-full sm:w-auto text-center px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                   class="w-full sm:w-auto text-center px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition font-medium">
                     Abbrechen
                 </a>
                 <button type="submit"
-                        class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-xl">
+                        class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-xl">
                     <i class="fas fa-paper-plane mr-2"></i>Anzeige erstellen
                 </button>
             </div>

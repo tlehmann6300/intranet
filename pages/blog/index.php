@@ -134,22 +134,25 @@ ob_start();
 
     <!-- Filter Bar -->
     <div class="mb-6 card dark:bg-gray-800 p-4">
-        <div class="flex items-center gap-4 flex-wrap">
-            <span class="text-gray-700 dark:text-gray-300 font-semibold mr-2">
-                <i class="fas fa-filter mr-2"></i>
-                Kategorie:
-            </span>
-            <a href="index.php" 
-               class="px-4 py-2 min-h-[44px] inline-flex items-center rounded-lg font-medium transition-all <?php echo $filterCategory === null ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'; ?>">
-                Alle
+        <div class="overflow-x-auto flex flex-nowrap gap-2 pb-2 scrollbar-hide -mx-1 px-1">
+            <a href="index.php"
+               class="px-4 py-2 min-h-[44px] inline-flex items-center rounded-lg font-medium transition-all flex-shrink-0 whitespace-nowrap <?php echo $filterCategory === null ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'; ?>">
+                <i class="fas fa-th mr-2"></i>Alle
             </a>
             <?php foreach ($categories as $cat => $color): ?>
-                <a href="index.php?category=<?php echo urlencode($cat); ?>" 
-                   class="px-4 py-2 min-h-[44px] inline-flex items-center rounded-lg font-medium transition-all <?php echo $filterCategory === $cat ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'; ?>">
+                <a href="index.php?category=<?php echo urlencode($cat); ?>"
+                   class="px-4 py-2 min-h-[44px] inline-flex items-center rounded-lg font-medium transition-all flex-shrink-0 whitespace-nowrap <?php echo $filterCategory === $cat ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'; ?>">
                     <?php echo htmlspecialchars($cat); ?>
                 </a>
             <?php endforeach; ?>
         </div>
+    </div>
+
+    <!-- Live Search -->
+    <div class="mb-6 relative">
+        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+        <input type="search" id="blogSearch" placeholder="Beiträge durchsuchen…"
+               class="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 shadow-sm transition">
     </div>
 
     <!-- News Grid -->
@@ -162,60 +165,63 @@ ob_start();
             <?php endif; ?>
         </div>
     <?php else: ?>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
-            <?php foreach ($posts as $post): ?>
-                <a href="view.php?id=<?php echo (int)$post['id']; ?>" 
-                   class="card w-full dark:bg-gray-800 overflow-hidden flex flex-col hover:shadow-xl transition-shadow cursor-pointer group"
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6" id="blogGrid">
+            <?php foreach ($posts as $post):
+                // Clean up author display: show name part before <email> if present
+                $authorDisplay = $post['author_email'];
+                if (preg_match('/^(.+?)\s*<[^>]+>$/', $authorDisplay, $m)) {
+                    $authorDisplay = trim($m[1]);
+                } elseif (strpos($authorDisplay, '@') !== false) {
+                    $authorDisplay = explode('@', $authorDisplay)[0];
+                }
+            ?>
+                <a href="view.php?id=<?php echo (int)$post['id']; ?>"
+                   class="blog-card card w-full dark:bg-gray-800 overflow-hidden flex flex-col hover:shadow-xl hover:scale-[1.02] transition-all duration-200 cursor-pointer group"
+                   data-title="<?php echo htmlspecialchars(strtolower($post['title']), ENT_QUOTES, 'UTF-8'); ?>"
+                   data-category="<?php echo htmlspecialchars(strtolower($post['category']), ENT_QUOTES, 'UTF-8'); ?>"
                    aria-label="Beitrag lesen: <?php echo htmlspecialchars($post['title']); ?>">
                     <!-- Image -->
                     <div class="w-full h-48 bg-gray-200 dark:bg-gray-700 rounded-t-2xl overflow-hidden">
                         <?php if (!empty($post['image_path'])): ?>
-                            <img src="/<?php echo htmlspecialchars($post['image_path']); ?>" 
+                            <img src="/<?php echo htmlspecialchars($post['image_path']); ?>"
                                  alt="<?php echo htmlspecialchars($post['title']); ?>"
                                  loading="lazy"
                                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                         <?php else: ?>
-                            <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900">
-                                <i class="fas fa-newspaper text-6xl text-gray-400 dark:text-gray-600"></i>
+                            <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700">
+                                <i class="fas fa-newspaper text-5xl text-white/40"></i>
                             </div>
                         <?php endif; ?>
                     </div>
-                    
+
                     <!-- Content -->
-                    <div class="p-6 flex-1 flex flex-col">
+                    <div class="p-5 flex-1 flex flex-col">
                         <!-- Category Badge -->
                         <div class="mb-3">
                             <span class="px-3 py-1 text-xs font-semibold rounded-full <?php echo getCategoryColor($post['category']); ?>">
                                 <?php echo htmlspecialchars($post['category']); ?>
                             </span>
                         </div>
-                        
+
                         <!-- Title -->
-                        <h3 class="text-base sm:text-xl font-bold text-gray-800 dark:text-gray-100 mb-2 break-words hyphens-auto leading-snug">
+                        <h3 class="text-base sm:text-lg font-bold text-gray-800 dark:text-gray-100 mb-2 break-words hyphens-auto leading-snug group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                             <?php echo htmlspecialchars($post['title']); ?>
                         </h3>
-                        
-                        <!-- Date -->
-                        <div class="text-sm text-gray-500 dark:text-gray-400 mb-3">
-                            <i class="fas fa-calendar-alt mr-1"></i>
-                            <?php 
-                                $date = new DateTime($post['created_at']);
-                                echo $date->format('d.m.Y');
-                            ?>
+
+                        <!-- Date & Author -->
+                        <div class="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400 mb-3 flex-wrap">
+                            <span><i class="fas fa-calendar-alt mr-1"></i><?php $date = new DateTime($post['created_at']); echo $date->format('d.m.Y'); ?></span>
+                            <span class="flex items-center min-w-0"><i class="fas fa-user-circle mr-1 text-blue-500 flex-shrink-0"></i><span class="truncate"><?php echo htmlspecialchars($authorDisplay); ?></span></span>
                         </div>
-                        
+
                         <!-- Excerpt -->
-                        <p class="text-gray-600 dark:text-gray-300 text-sm mb-4 flex-1 break-words hyphens-auto">
+                        <p class="text-gray-600 dark:text-gray-300 text-sm mb-4 flex-1 break-words hyphens-auto leading-relaxed">
                             <?php echo htmlspecialchars(truncateText($post['content'])); ?>
                         </p>
-                        
+
                         <!-- Footer -->
-                        <div class="pt-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between text-sm text-gray-600 dark:text-gray-300 gap-2">
-                            <div class="flex items-center min-w-0">
-                                <i class="fas fa-user-circle mr-2 text-blue-600 flex-shrink-0"></i>
-                                <span class="break-all"><?php echo htmlspecialchars($post['author_email']); ?></span>
-                            </div>
-                            <div class="flex items-center gap-4">
+                        <div class="pt-3 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
                                 <span class="flex items-center">
                                     <i class="fas fa-heart mr-1 <?php echo $post['user_has_liked'] ? 'text-red-500' : 'text-gray-400 dark:text-gray-500'; ?>"></i>
                                     <?php echo $post['like_count']; ?>
@@ -225,38 +231,64 @@ ob_start();
                                     <?php echo $post['comment_count']; ?>
                                 </span>
                             </div>
+                            <span class="inline-flex items-center gap-1 text-xs font-medium text-blue-600 dark:text-blue-400 group-hover:underline">
+                                Lesen <i class="fas fa-arrow-right text-[10px]"></i>
+                            </span>
                         </div>
                     </div>
                 </a>
             <?php endforeach; ?>
         </div>
+
+        <!-- No search results -->
+        <div id="blogEmpty" class="hidden text-center py-12 text-gray-400 dark:text-gray-500">
+            <i class="fas fa-search text-3xl mb-3"></i>
+            <p class="text-sm">Keine Beiträge gefunden.</p>
+        </div>
     <?php endif; ?>
 
     <!-- Pagination -->
     <?php if ($page > 1 || $hasNextPage): ?>
-        <div class="mt-8 flex justify-center gap-4">
+        <div class="mt-8 flex justify-center items-center gap-2">
             <?php if ($page > 1): ?>
-                <a href="?page=<?php echo $page - 1; ?><?php echo $filterCategory ? '&category=' . urlencode($filterCategory) : ''; ?>" 
-                   class="px-6 py-3 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-all shadow-md">
-                    <i class="fas fa-chevron-left mr-2"></i>
-                    Zurück
+                <a href="?page=<?php echo $page - 1; ?><?php echo $filterCategory ? '&category=' . urlencode($filterCategory) : ''; ?>"
+                   class="px-4 py-2.5 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-all shadow-sm border border-gray-200 dark:border-gray-700">
+                    <i class="fas fa-chevron-left mr-1 sm:mr-2"></i><span class="hidden sm:inline">Zurück</span>
                 </a>
             <?php endif; ?>
-            
-            <div class="px-6 py-3 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300 rounded-lg font-semibold">
-                Seite <?php echo $page; ?>
+
+            <div class="px-4 py-2.5 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300 rounded-lg font-semibold text-sm">
+                <?php echo $page; ?>
             </div>
-            
+
             <?php if ($hasNextPage): ?>
-                <a href="?page=<?php echo $page + 1; ?><?php echo $filterCategory ? '&category=' . urlencode($filterCategory) : ''; ?>" 
-                   class="px-6 py-3 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-all shadow-md">
-                    Weiter
-                    <i class="fas fa-chevron-right ml-2"></i>
+                <a href="?page=<?php echo $page + 1; ?><?php echo $filterCategory ? '&category=' . urlencode($filterCategory) : ''; ?>"
+                   class="px-4 py-2.5 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-all shadow-sm border border-gray-200 dark:border-gray-700">
+                    <span class="hidden sm:inline">Weiter</span><i class="fas fa-chevron-right ml-1 sm:ml-2"></i>
                 </a>
             <?php endif; ?>
         </div>
     <?php endif; ?>
 </div>
+
+<script>
+(function () {
+    var input = document.getElementById('blogSearch');
+    if (!input) return;
+    var cards = document.querySelectorAll('.blog-card');
+    var emptyMsg = document.getElementById('blogEmpty');
+    input.addEventListener('input', function () {
+        var q = this.value.toLowerCase().trim();
+        var visible = 0;
+        cards.forEach(function (card) {
+            var match = !q || card.dataset.title.includes(q) || card.dataset.category.includes(q);
+            card.style.display = match ? '' : 'none';
+            if (match) visible++;
+        });
+        if (emptyMsg) emptyMsg.classList.toggle('hidden', visible > 0);
+    });
+})();
+</script>
 
 <?php
 $content = ob_get_clean();
