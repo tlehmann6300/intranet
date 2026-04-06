@@ -155,7 +155,7 @@ ob_start();
         </a>
 
         <?php if ($canManage && $linkDbId !== null): ?>
-        <div class="link-actions hidden px-5 pb-4 pt-0 flex justify-end gap-4">
+        <div class="link-actions hidden px-5 pb-4 pt-0 justify-end gap-4">
             <a href="edit.php?id=<?php echo (int)$linkDbId; ?>"
                class="inline-flex items-center gap-1.5 px-3 py-2 min-h-[44px] text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition font-medium">
                 <i class="fas fa-edit"></i>Bearbeiten
@@ -205,6 +205,7 @@ if (toggleBtn) {
         toggleBtn.classList.toggle('dark:text-gray-300', !isActive);
         document.querySelectorAll('.link-actions').forEach(function(el) {
             el.classList.toggle('hidden', !isActive);
+            el.classList.toggle('flex', isActive);
         });
     });
 }
