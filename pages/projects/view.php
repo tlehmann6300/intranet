@@ -163,13 +163,13 @@ ob_start();
 
 <div class="max-w-4xl mx-auto">
     <!-- Back Button -->
-    <div class="mb-6 flex flex-wrap items-center gap-2">
-        <a href="index.php" class="inline-flex items-center text-purple-600 hover:text-purple-700 transition">
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-2">
+        <a href="index.php" class="inline-flex items-center text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition font-medium">
             <i class="fas fa-arrow-left mr-2"></i>
             Zurück zur Übersicht
         </a>
         <?php if ($user['id'] === ($project['created_by'] ?? null) || Auth::isBoard() || Auth::hasPermission('manage_projects')): ?>
-        <a href="manage.php?edit=<?= (int)$project['id'] ?>" class="inline-flex items-center px-4 py-2 min-h-[44px] bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+        <a href="manage.php?edit=<?= (int)$project['id'] ?>" class="inline-flex items-center px-4 py-2 min-h-[44px] bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition font-semibold text-sm shadow-soft">
             <i class="fas fa-edit mr-2"></i>
             Projekt bearbeiten
         </a>
@@ -178,37 +178,91 @@ ob_start();
     
     <!-- Draft Warning -->
     <?php if ($project['status'] === 'draft' && Auth::hasPermission('manage_projects')): ?>
-    <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4">
-        Status: ENTWURF - Für Mitglieder noch nicht sichtbar.
+    <div class="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500 text-yellow-700 dark:text-yellow-300 p-4 mb-4 rounded-r-xl">
+        <i class="fas fa-exclamation-triangle mr-2"></i>Status: ENTWURF – Für Mitglieder noch nicht sichtbar.
     </div>
     <?php endif; ?>
     
     <?php if ($message): ?>
-    <div class="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
-        <i class="fas fa-check-circle mr-2"></i><?php echo htmlspecialchars($message); ?>
+    <div class="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-400 dark:border-green-700 text-green-700 dark:text-green-300 rounded-xl flex items-center gap-2">
+        <i class="fas fa-check-circle flex-shrink-0"></i><?php echo htmlspecialchars($message); ?>
     </div>
     <?php endif; ?>
     
     <?php if ($error): ?>
-    <div class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-        <i class="fas fa-exclamation-circle mr-2"></i><?php echo htmlspecialchars($error); ?>
+    <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-300 rounded-xl flex items-center gap-2">
+        <i class="fas fa-exclamation-circle flex-shrink-0"></i><?php echo htmlspecialchars($error); ?>
     </div>
     <?php endif; ?>
 
     <!-- Project Card with Enhanced Design -->
-    <div class="project-detail-card card p-8 relative overflow-hidden">
-        <!-- Decorative gradient background -->
-        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-600 via-blue-600 to-green-600" aria-hidden="true"></div>
-        
-        <!-- Image with Hero Effect -->
-        <?php if (!empty($project['image_path'])): ?>
-        <div class="mb-8 rounded-xl overflow-hidden shadow-2xl relative group">
-            <img src="/<?php echo htmlspecialchars($project['image_path']); ?>" 
-                 alt="<?php echo htmlspecialchars($project['title']); ?>"
-                 class="w-full h-48 sm:h-64 md:h-96 object-cover transform group-hover:scale-105 transition-transform duration-700">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-        </div>
-        <?php endif; ?>
+    <div class="project-detail-card card relative overflow-hidden">
+        <!-- Top accent gradient bar -->
+        <div class="h-1.5 bg-gradient-to-r from-purple-600 via-blue-600 to-green-500" aria-hidden="true"></div>
+
+        <!-- Hero: Image or gradient banner -->
+        <?php
+        $heroImageValid = false;
+        if (!empty($project['image_path'])) {
+            $baseDirPath = __DIR__ . '/../../';
+            $baseDir = realpath($baseDirPath);
+            $imgRealPath = realpath($baseDirPath . $project['image_path']);
+            $heroImageValid = $imgRealPath && $baseDir && strpos($imgRealPath, $baseDir) === 0 && file_exists($imgRealPath);
+        }
+        ?>
+        <div class="project-detail-hero relative overflow-hidden">
+            <?php if ($heroImageValid): ?>
+                <img src="/<?php echo htmlspecialchars($project['image_path']); ?>"
+                     alt="<?php echo htmlspecialchars($project['title']); ?>"
+                     class="w-full h-full object-cover">
+            <?php else: ?>
+                <div class="w-full h-full project-detail-hero-placeholder flex items-center justify-center">
+                    <i class="fas fa-briefcase text-white/15 text-8xl sm:text-9xl"></i>
+                </div>
+            <?php endif; ?>
+            <!-- Overlay -->
+            <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent"></div>
+            <!-- Title overlay -->
+            <div class="absolute bottom-0 left-0 right-0 p-5 sm:p-8">
+                <!-- Badges -->
+                <div class="flex flex-wrap items-center gap-2 mb-3">
+                    <?php
+                    $sBadge = '';
+                    $sIcon  = 'fa-circle';
+                    switch($project['status']) {
+                        case 'draft':     $sBadge = 'bg-gray-500/80';   $sIcon = 'fa-pencil-alt';     $sLabel = 'Entwurf'; break;
+                        case 'open':      $sBadge = 'bg-blue-600/80';   $sIcon = 'fa-door-open';      $sLabel = 'Offen'; break;
+                        case 'applying':  $sBadge = 'bg-amber-500/80';  $sIcon = 'fa-hourglass-half'; $sLabel = 'Bewerbungsphase'; break;
+                        case 'assigned':  $sBadge = 'bg-green-600/80';  $sIcon = 'fa-user-check';     $sLabel = 'Vergeben'; break;
+                        case 'running':   $sBadge = 'bg-purple-700/80'; $sIcon = 'fa-play';           $sLabel = 'Laufend'; break;
+                        case 'completed': $sBadge = 'bg-teal-600/80';   $sIcon = 'fa-flag-checkered'; $sLabel = 'Abgeschlossen'; break;
+                        case 'archived':  $sBadge = 'bg-gray-600/70';   $sIcon = 'fa-archive';        $sLabel = 'Archiviert'; break;
+                        default:          $sBadge = 'bg-gray-500/80';   $sLabel = ucfirst($project['status']); break;
+                    }
+                    ?>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 <?php echo $sBadge; ?> backdrop-blur-sm text-white text-xs font-semibold rounded-full border border-white/20">
+                        <i class="fas <?php echo $sIcon; ?> text-[10px]"></i><?php echo $sLabel; ?>
+                    </span>
+                    <?php $pType = $project['type'] ?? 'internal'; ?>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 <?php echo $pType === 'internal' ? 'bg-indigo-600/80' : 'bg-green-600/80'; ?> backdrop-blur-sm text-white text-xs font-semibold rounded-full border border-white/20">
+                        <i class="fas <?php echo $pType === 'internal' ? 'fa-building' : 'fa-users'; ?> text-[10px]"></i><?php echo $pType === 'internal' ? 'Intern' : 'Extern'; ?>
+                    </span>
+                    <?php if (!empty($project['priority'])): ?>
+                    <?php
+                    switch($project['priority']) {
+                        case 'low':    $priB = 'bg-blue-400/80';    $priI = 'fa-arrow-down'; $priL = 'Niedrig'; break;
+                        case 'medium': $priB = 'bg-yellow-500/80';  $priI = 'fa-minus';      $priL = 'Mittel';  break;
+                        case 'high':   $priB = 'bg-red-600/80';     $priI = 'fa-arrow-up';   $priL = 'Hoch';    break;
+                        default:       $priB = 'bg-gray-500/80';    $priI = 'fa-circle';     $priL = ucfirst($project['priority']); break;
+                    }
+                    ?>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 <?php echo $priB; ?> backdrop-blur-sm text-white text-xs font-semibold rounded-full border border-white/20">
+                        <i class="fas <?php echo $priI; ?> text-[10px]"></i><?php echo $priL; ?>
+                    </span>
+                    <?php endif; ?>
+                </div>
+        <!-- Card Body -->
+        <div class="p-5 sm:p-8">
         
         <!-- PDF Download Button -->
         <?php 
@@ -225,79 +279,15 @@ ob_start();
         }
         if ($showPdfButton): 
         ?>
-        <div class="mb-8">
+        <div class="mb-6">
             <a href="/<?php echo htmlspecialchars($project['file_path']); ?>" 
-               class="inline-flex items-center px-6 py-4 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-xl font-bold hover:from-red-700 hover:to-rose-700 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300"
+               class="inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-xl font-semibold hover:from-red-700 hover:to-rose-700 shadow-soft hover:shadow-md transition-all"
                download>
-                <i class="fas fa-file-pdf mr-3 text-xl"></i>
+                <i class="fas fa-file-pdf text-lg flex-shrink-0"></i>
                 <span>Projekt-Datei herunterladen (PDF)</span>
             </a>
         </div>
         <?php endif; ?>
-        
-        <!-- Status and Priority with Modern Badges -->
-        <div class="flex items-center gap-3 mb-8 flex-wrap">
-            <span class="status-detail-badge px-5 py-2.5 text-sm font-bold rounded-full shadow-md
-                <?php 
-                switch($project['status']) {
-                    case 'draft': echo 'bg-gradient-to-r from-gray-400 to-gray-500 text-white'; break;
-                    case 'open': echo 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'; break;
-                    case 'applying': echo 'bg-gradient-to-r from-yellow-500 to-amber-600 text-white'; break;
-                    case 'assigned': echo 'bg-gradient-to-r from-green-500 to-emerald-600 text-white'; break;
-                    case 'running': echo 'bg-gradient-to-r from-purple-500 to-purple-600 text-white'; break;
-                    case 'completed': echo 'bg-gradient-to-r from-teal-500 to-cyan-600 text-white'; break;
-                    case 'archived': echo 'bg-gray-200 text-gray-600'; break;
-                    default: echo 'bg-gray-100 text-gray-800'; break;
-                }
-                ?>">
-                <i class="fas fa-circle text-[10px] mr-2 animate-pulse"></i>
-                <?php 
-                switch($project['status']) {
-                    case 'draft': echo 'Entwurf'; break;
-                    case 'open': echo 'Offen'; break;
-                    case 'applying': echo 'Bewerbungsphase'; break;
-                    case 'assigned': echo 'Vergeben'; break;
-                    case 'running': echo 'Laufend'; break;
-                    case 'completed': echo 'Abgeschlossen'; break;
-                    case 'archived': echo 'Archiviert'; break;
-                    default: echo htmlspecialchars(ucfirst($project['status']), ENT_QUOTES, 'UTF-8'); break;
-                }
-                ?>
-            </span>
-            
-            <span class="priority-detail-badge px-4 py-2.5 text-sm font-bold rounded-full shadow-md
-                <?php 
-                switch($project['priority']) {
-                    case 'low': echo 'bg-gradient-to-r from-blue-400 to-blue-500 text-white'; break;
-                    case 'medium': echo 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white'; break;
-                    case 'high': echo 'bg-gradient-to-r from-red-500 to-rose-600 text-white'; break;
-                    default: echo 'bg-gray-100 text-gray-800'; break;
-                }
-                ?>">
-                <?php 
-                switch($project['priority']) {
-                    case 'low': echo '<i class="fas fa-arrow-down mr-1"></i> Niedrig'; break;
-                    case 'medium': echo '<i class="fas fa-minus mr-1"></i> Mittel'; break;
-                    case 'high': echo '<i class="fas fa-arrow-up mr-1"></i> Hoch'; break;
-                    default: echo htmlspecialchars(ucfirst($project['priority']), ENT_QUOTES, 'UTF-8'); break;
-                }
-                ?>
-            </span>
-            
-            <span class="type-detail-badge px-4 py-2.5 text-sm font-bold rounded-full shadow-md
-                <?php 
-                $projectType = $project['type'] ?? 'internal';
-                echo $projectType === 'internal' ? 'bg-gradient-to-r from-indigo-500 to-blue-600 text-white' : 'bg-gradient-to-r from-green-500 to-emerald-600 text-white';
-                ?>">
-                <i class="fas fa-tag mr-2"></i>
-                <?php echo $projectType === 'internal' ? 'Intern' : 'Extern'; ?>
-            </span>
-        </div>
-        
-        <!-- Title with Gradient Effect -->
-        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold mb-8 bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 bg-clip-text text-transparent break-words hyphens-auto">
-            <?php echo htmlspecialchars($project['title']); ?>
-        </h1>
         
         <!-- Project Information with Modern Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-8">
@@ -324,35 +314,35 @@ ob_start();
         </div>
         
         <!-- Team Progress Bar -->
-        <div class="mb-8 p-6 bg-purple-50 rounded-2xl border border-purple-200">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-base sm:text-xl font-bold text-gray-800 flex items-center">
-                    <div class="w-10 h-10 rounded-xl bg-purple-600 flex items-center justify-center mr-3">
-                        <i class="fas fa-users text-white"></i>
+        <div class="mb-8 p-5 sm:p-6 bg-purple-50 dark:bg-purple-900/20 rounded-2xl border border-purple-200 dark:border-purple-800/50">
+            <div class="flex items-center justify-between mb-4 gap-3">
+                <h3 class="text-base sm:text-lg font-bold text-gray-800 dark:text-gray-100 flex items-center">
+                    <div class="w-9 h-9 rounded-xl bg-purple-600 flex items-center justify-center mr-3 flex-shrink-0">
+                        <i class="fas fa-users text-white text-sm"></i>
                     </div>
                     Team Status
                 </h3>
-                <span class="text-lg sm:text-xl md:text-2xl font-bold text-purple-600">
+                <span class="text-lg sm:text-xl font-bold text-purple-600 dark:text-purple-400 whitespace-nowrap">
                     <?php echo $teamSize; ?> / <?php echo $maxConsultants; ?>
                 </span>
             </div>
-            <div class="relative w-full bg-gray-200 rounded-full h-5 overflow-hidden">
-                <div class="bg-purple-600 h-5 rounded-full transition-all duration-500 flex items-center justify-end pr-3"
+            <div class="relative w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 overflow-hidden">
+                <div class="h-4 rounded-full transition-all duration-500 flex items-center justify-end pr-3 bg-purple-600"
                      style="width: <?php echo $teamPercentage; ?>%;">
                     <?php if ($teamSize > 0): ?>
-                    <span class="text-xs font-bold text-white">
+                    <span class="text-xs font-bold text-white leading-none">
                         <?php echo $teamPercentage; ?>%
                     </span>
                     <?php endif; ?>
                 </div>
             </div>
-            <div class="mt-3 text-sm text-gray-600 font-medium">
+            <div class="mt-3 text-sm text-gray-600 dark:text-gray-400 font-medium">
                 <?php if ($teamPercentage >= 100): ?>
                     <i class="fas fa-check-circle text-green-500 mr-1"></i> Team vollständig besetzt
                 <?php elseif ($teamPercentage >= 75): ?>
-                    <i class="fas fa-info-circle text-purple-500 mr-1"></i> Nur noch wenige Plätze verfügbar
+                    <i class="fas fa-info-circle text-purple-500 dark:text-purple-400 mr-1"></i> Nur noch wenige Plätze verfügbar
                 <?php else: ?>
-                    <i class="fas fa-users text-purple-500 mr-1"></i> Weitere Teammitglieder gesucht
+                    <i class="fas fa-users text-purple-500 dark:text-purple-400 mr-1"></i> Weitere Teammitglieder gesucht
                 <?php endif; ?>
             </div>
         </div>
@@ -360,8 +350,8 @@ ob_start();
         <!-- Description -->
         <?php if (!empty($project['description'])): ?>
         <div class="mb-6">
-            <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-3">Beschreibung</h2>
-            <div class="text-gray-700 leading-relaxed whitespace-pre-line break-words hyphens-auto">
+            <h2 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-100 mb-3">Beschreibung</h2>
+            <div class="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line break-words hyphens-auto">
                 <?php echo htmlspecialchars($project['description']); ?>
             </div>
         </div>
@@ -369,12 +359,14 @@ ob_start();
         
         <!-- Project Documentation (Only for completed projects) -->
         <?php if ($project['status'] === 'completed' && !empty($project['documentation'])): ?>
-        <div class="mb-6 p-6 bg-gradient-to-r from-green-50 to-teal-50 rounded-lg border border-green-200">
-            <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4">
-                <i class="fas fa-file-alt text-green-600 mr-2"></i>
+        <div class="mb-6 p-5 sm:p-6 bg-gradient-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 rounded-2xl border border-green-200 dark:border-green-800/50">
+            <h2 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+                <span class="w-8 h-8 rounded-lg bg-green-600/10 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-file-alt text-green-600 text-sm"></i>
+                </span>
                 Projekt-Dokumentation
             </h2>
-            <div class="text-gray-700 leading-relaxed whitespace-pre-line bg-white p-4 rounded-lg shadow-sm break-words hyphens-auto">
+            <div class="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line bg-white dark:bg-gray-800/50 p-4 rounded-xl shadow-sm break-words hyphens-auto border border-gray-100 dark:border-gray-700">
                 <?php echo htmlspecialchars($project['documentation']); ?>
             </div>
         </div>
@@ -385,42 +377,44 @@ ob_start();
         <div class="mb-6">
             <?php if (isset($_GET['action']) && $_GET['action'] === 'complete'): ?>
                 <!-- Show Completion Form -->
-                <div class="bg-gradient-to-r from-green-50 to-teal-50 border border-green-200 rounded-xl p-8">
-                    <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">
-                        <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                <div class="bg-gradient-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 border border-green-200 dark:border-green-800/50 rounded-2xl p-5 sm:p-8">
+                    <h2 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-100 mb-5 flex items-center gap-2">
+                        <span class="w-8 h-8 rounded-lg bg-green-600/10 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-check-circle text-green-600 text-sm"></i>
+                        </span>
                         Projekt abschließen
                     </h2>
                     
-                    <p class="text-gray-600 mb-6">
-                        Bitte geben Sie einen Abschlussbericht für das Projekt ein. Dieser wird nach dem Abschluss für alle Teammitglieder sichtbar sein.
+                    <p class="text-gray-600 dark:text-gray-400 mb-5 text-sm leading-relaxed">
+                        Bitte gib einen Abschlussbericht für das Projekt ein. Dieser wird nach dem Abschluss für alle Teammitglieder sichtbar sein.
                     </p>
                     
-                    <form method="POST" class="space-y-6">
+                    <form method="POST" class="space-y-5">
                         <input type="hidden" name="csrf_token" value="<?php echo CSRFHandler::getToken(); ?>">
                         <input type="hidden" name="complete_project" value="1">
                         
                         <div>
-                            <label class="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            <label class="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                 <i class="fas fa-file-alt text-green-600 mr-2"></i>
                                 Abschlussbericht / Dokumentation <span class="text-red-500 ml-1">*</span>
                             </label>
                             <textarea 
                                 name="documentation" 
-                                rows="8"
+                                rows="7"
                                 required
-                                class="w-full bg-white border-gray-300 text-gray-900 rounded-lg p-4 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 transition duration-200"
-                                placeholder="Beschreiben Sie die Ergebnisse des Projekts, wichtige Erkenntnisse und weitere relevante Informationen..."
+                                class="w-full rounded-xl p-4"
+                                placeholder="Beschreibe die Ergebnisse des Projekts, wichtige Erkenntnisse und weitere relevante Informationen..."
                             ></textarea>
                         </div>
                         
-                        <div class="flex flex-col md:flex-row gap-4">
+                        <div class="flex flex-col sm:flex-row gap-3">
                             <button type="submit" 
-                                    class="flex-1 bg-gradient-to-r from-green-600 to-teal-600 text-white font-bold py-4 rounded-lg shadow-md hover:shadow-xl transform hover:-translate-y-1 transition duration-200">
-                                <i class="fas fa-check-circle mr-2"></i>
+                                    class="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-teal-600 text-white font-bold py-3.5 rounded-xl shadow-soft hover:shadow-md transition">
+                                <i class="fas fa-check-circle"></i>
                                 Projekt abschließen
                             </button>
                             <a href="view.php?id=<?php echo (int)$project['id']; ?>" 
-                               class="flex-1 text-center px-6 py-4 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-bold">
+                               class="flex-1 text-center px-6 py-3.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition font-semibold">
                                 Abbrechen
                             </a>
                         </div>
@@ -429,8 +423,8 @@ ob_start();
             <?php else: ?>
                 <!-- Show Complete Button -->
                 <a href="view.php?id=<?php echo (int)$project['id']; ?>&action=complete" 
-                   class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-lg font-semibold hover:from-green-700 hover:to-teal-700 shadow-md hover:shadow-lg transform hover:-translate-y-1 transition duration-200">
-                    <i class="fas fa-check-circle mr-2"></i>
+                   class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-xl font-semibold hover:from-green-700 hover:to-teal-700 shadow-soft hover:shadow-md transition">
+                    <i class="fas fa-check-circle"></i>
                     Projekt abschließen
                 </a>
             <?php endif; ?>
@@ -439,13 +433,13 @@ ob_start();
         
         <!-- Application / Participation Section -->
         <?php if (($project['status'] === 'open' || $project['status'] === 'applying' || $project['status'] === 'running') && $userRole !== 'alumni'): ?>
-        <div class="border-t border-gray-200 pt-6 mt-6">
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
 
             <?php if ($isInternalProject && !$requiresApplication): ?>
                 <!-- Internal project with no application required: direct join/leave button -->
                 <?php if ($isParticipant): ?>
                 <div class="flex flex-wrap items-center gap-2">
-                    <div class="flex items-center text-green-700 bg-green-50 border border-green-200 rounded-lg px-4 py-3">
+                    <div class="flex items-center text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl px-4 py-3">
                         <i class="fas fa-check-circle mr-2"></i>
                         Du nimmst an diesem Projekt teil
                     </div>
@@ -467,7 +461,7 @@ ob_start();
             <?php elseif (!$requiresApplication): ?>
                 <!-- External project with no application required: direct join button -->
                 <?php if ($userApplication): ?>
-                <div class="flex items-center text-green-700 bg-green-50 border border-green-200 rounded-lg px-4 py-3">
+                <div class="flex items-center text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl px-4 py-3">
                     <i class="fas fa-check-circle mr-2"></i>
                     Du hast Dich für dieses Projekt registriert
                 </div>
@@ -492,9 +486,11 @@ ob_start();
                 <?php if ($project['status'] === 'open' || $project['status'] === 'applying'): ?>
                 <?php if ($userApplication): ?>
                     <!-- Show Application Status -->
-                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                        <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">
-                            <i class="fas fa-check-circle text-blue-600 mr-2"></i>
+                    <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/50 rounded-2xl p-5 sm:p-6">
+                        <h2 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+                            <span class="w-8 h-8 rounded-lg bg-blue-600/10 flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-check-circle text-blue-600 text-sm"></i>
+                            </span>
                             Deine Bewerbung
                         </h2>
                         
@@ -540,23 +536,24 @@ ob_start();
                     </div>
                 <?php elseif (isset($_GET['action']) && $_GET['action'] === 'apply'): ?>
                     <!-- Show Application Form -->
-                    <div class="bg-white shadow-lg rounded-xl p-8 border border-gray-100">
-                        <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">
-                            <i class="fas fa-paper-plane text-blue-600 mr-2" aria-hidden="true"></i>
+                    <div class="card dark:bg-gray-800 rounded-2xl p-5 sm:p-8 border border-gray-100 dark:border-gray-700 shadow-soft">
+                        <h2 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-100 mb-5 flex items-center gap-2">
+                            <span class="w-8 h-8 rounded-lg bg-blue-600/10 flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-paper-plane text-blue-600 text-sm" aria-hidden="true"></i>
+                            </span>
                             Jetzt bewerben
                         </h2>
                         
-                        <!-- Motivational Text -->
-                        <p class="text-gray-600 mb-6">
+                        <p class="text-gray-600 dark:text-gray-400 mb-5 text-sm leading-relaxed">
                             Möchtest du Teil dieses Projekts sein? Bewirb dich jetzt in wenigen Schritten.
                         </p>
                         
-                        <form method="POST" action="view.php?id=<?php echo (int)$project['id']; ?>" class="space-y-6">
+                        <form method="POST" action="view.php?id=<?php echo (int)$project['id']; ?>" class="space-y-5">
                             <input type="hidden" name="csrf_token" value="<?php echo CSRFHandler::getToken(); ?>">
                             <input type="hidden" name="apply" value="1">
                             
                             <div>
-                                <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                <label class="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                     <i class="fas fa-comment-dots text-blue-600 mr-2" aria-hidden="true"></i>
                                     Motivation <span class="text-red-500 ml-1">*</span>
                                 </label>
@@ -564,13 +561,13 @@ ob_start();
                                     name="motivation" 
                                     rows="5"
                                     required
-                                    class="w-full bg-gray-50 border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
-                                    placeholder="Warum möchten Sie an diesem Projekt teilnehmen?"
+                                    class="w-full rounded-xl p-3"
+                                    placeholder="Warum möchtest du an diesem Projekt teilnehmen?"
                                 ></textarea>
                             </div>
                             
                             <div>
-                                <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                <label class="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                     <i class="fas fa-briefcase text-blue-600 mr-2" aria-hidden="true"></i>
                                     Anzahl bisheriger Projekterfahrungen
                                 </label>
@@ -579,48 +576,48 @@ ob_start();
                                     name="experience_count" 
                                     min="0"
                                     value="0"
-                                    class="w-full bg-gray-50 border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                                    class="w-full rounded-xl p-3"
                                 >
                             </div>
                             
                             <!-- Experience Confirmation Checkbox -->
-                            <div class="flex items-start min-h-[44px]">
+                            <div class="flex items-start gap-3 min-h-[44px]">
                                 <input 
                                     type="checkbox" 
                                     id="experience_confirmed" 
                                     name="experience_confirmed" 
                                     value="1"
                                     required
-                                    class="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                    class="mt-1 h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 flex-shrink-0"
                                 >
-                                <label for="experience_confirmed" class="ml-3 text-sm text-gray-700">
+                                <label for="experience_confirmed" class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
                                     Ich bestätige, dass ich die Anzahl bisheriger Projekte korrekt angegeben habe <span class="text-red-500">*</span>
                                 </label>
                             </div>
                             
                             <!-- GDPR Consent Checkbox -->
-                            <div class="flex items-start min-h-[44px]">
+                            <div class="flex items-start gap-3 min-h-[44px]">
                                 <input 
                                     type="checkbox" 
                                     id="gdpr_consent" 
                                     name="gdpr_consent" 
                                     value="1"
                                     required
-                                    class="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                    class="mt-1 h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 flex-shrink-0"
                                 >
-                                <label for="gdpr_consent" class="ml-3 text-sm text-gray-700">
+                                <label for="gdpr_consent" class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
                                     Ich willige in die Verarbeitung meiner Daten zwecks Projektvergabe ein (DSGVO) <span class="text-red-500">*</span>
                                 </label>
                             </div>
                             
-                            <div class="flex flex-col space-y-4 pt-4">
+                            <div class="flex flex-col sm:flex-row gap-3 pt-2">
                                 <button type="submit" 
-                                        class="w-full bg-gradient-to-r from-blue-600 to-blue-800 text-white font-bold py-4 rounded-lg shadow-md hover:shadow-xl transform hover:-translate-y-1 focus:scale-105 focus:ring-4 focus:ring-blue-300 transition duration-200">
-                                    <i class="fas fa-paper-plane mr-2" aria-hidden="true"></i>
+                                        class="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-800 text-white font-bold py-3.5 rounded-xl shadow-soft hover:shadow-md transition">
+                                    <i class="fas fa-paper-plane" aria-hidden="true"></i>
                                     Bewerbung absenden
                                 </button>
                                 <a href="view.php?id=<?php echo (int)$project['id']; ?>" 
-                                   class="w-full text-center px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 focus:ring-2 focus:ring-gray-400 focus:outline-none transition font-medium">
+                                   class="flex-1 text-center px-6 py-3.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition font-semibold">
                                     Abbrechen
                                 </a>
                             </div>
@@ -629,8 +626,8 @@ ob_start();
                 <?php else: ?>
                     <!-- Show "Apply Now" button when user hasn't applied yet -->
                     <a href="view.php?id=<?php echo (int)$project['id']; ?>&action=apply" 
-                       class="inline-block px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition">
-                        <i class="fas fa-paper-plane mr-2"></i>
+                       class="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition shadow-soft">
+                        <i class="fas fa-paper-plane"></i>
                         Jetzt bewerben
                     </a>
                 <?php endif; ?>
@@ -686,7 +683,7 @@ ob_start();
             </div>
         </div>
         <?php elseif ($canBecomeFeedbackContact): ?>
-        <div class="border-t border-gray-200 pt-6 mt-6">
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <button id="becomeFeedbackContactBtn"
                     class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl font-semibold hover:from-purple-700 hover:to-indigo-700 transition shadow-md text-sm">
                 <i class="fas fa-comment-dots mr-2"></i>
@@ -697,7 +694,7 @@ ob_start();
 
         <!-- Participant List -->
         <?php if (!empty($participants)): ?>
-        <div class="border-t border-gray-200 pt-6 mt-6">
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <h2 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">
                 <i class="fas fa-users text-purple-600 mr-2"></i>
                 Teilnehmer (<?php echo count($participants); ?>)
@@ -722,115 +719,62 @@ ob_start();
         </div>
         <?php endif; ?>
 
-    </div>
-</div>
+    </div><!-- /card body -->
+    </div><!-- /project-detail-card -->
+</div><!-- /max-w-4xl -->
 
 <style>
     /* Enhanced project detail card */
     .project-detail-card {
-        background: linear-gradient(135deg, #ffffff 0%, #f9fafb 50%, #ffffff 100%);
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
+        transition: box-shadow 0.3s ease;
         animation: fadeIn 0.5s ease-out;
-    }
-    
-    .project-detail-card:hover {
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-    }
-    
-    /* Status badge hover effects */
-    .status-detail-badge, .priority-detail-badge, .type-detail-badge {
-        transition: all 0.3s ease;
-        position: relative;
         overflow: hidden;
     }
-    
-    .status-detail-badge:hover, .priority-detail-badge:hover, .type-detail-badge:hover {
-        transform: translateY(-2px) scale(1.05);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-    }
-    
-    /* Info card hover effects */
-    .info-card {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* ── Hero Section ───────────────────────────────── */
+    .project-detail-hero {
+        height: 280px;
         position: relative;
-        overflow: hidden;
+        background: #1f2937;
     }
-    
-    .info-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
+    @media (min-width: 640px) {
+        .project-detail-hero { height: 340px; }
+    }
+    @media (min-width: 768px) {
+        .project-detail-hero { height: 420px; }
+    }
+    @media (max-width: 360px) {
+        .project-detail-hero { height: 220px; }
+    }
+    .project-detail-hero img {
         width: 100%;
         height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-        transition: left 0.5s ease;
+        object-fit: cover;
+        display: block;
     }
-    
-    .info-card:hover::before {
-        left: 100%;
+    .project-detail-hero-placeholder {
+        background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 55%, #1e1b4b 100%);
+        width: 100%;
+        height: 100%;
     }
-    
-    .info-card:hover {
-        transform: translateY(-3px);
-    }
-    
+
     /* Animated gradient for progress bar */
     @keyframes gradient {
-        0% {
-            background-position: 0% 50%;
-        }
-        50% {
-            background-position: 100% 50%;
-        }
-        100% {
-            background-position: 0% 50%;
-        }
+        0%   { background-position: 0% 50%; }
+        50%  { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
     }
-    
-    .animate-gradient {
-        animation: gradient 3s ease infinite;
-    }
-    
+
     /* Fade in animation */
     @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(10px); }
+        to   { opacity: 1; transform: translateY(0); }
     }
-    
+
     /* Respect user motion preferences */
     @media (prefers-reduced-motion: reduce) {
-        .project-detail-card {
-            animation: none;
-        }
-        
-        .animate-gradient {
-            animation: none;
-        }
-        
-        .status-detail-badge .animate-pulse,
-        .priority-detail-badge .animate-pulse,
-        .type-detail-badge .animate-pulse,
-        .status-detail-badge .fas,
-        .priority-detail-badge .fas,
-        .type-detail-badge .fas {
-            animation: none !important;
-        }
-        
-        .info-card,
-        .status-detail-badge,
-        .priority-detail-badge,
-        .type-detail-badge {
-            transition: none;
-            transform: none !important;
-        }
+        .project-detail-card { animation: none; }
     }
 </style>
 

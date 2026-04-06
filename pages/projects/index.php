@@ -120,22 +120,26 @@ ob_start();
     </div>
 
     <!-- Filter & Search Bar -->
-    <div class="mb-6 flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-        <div class="flex gap-4 flex-wrap">
-            <a href="index.php?type=all<?php echo !empty($_GET['q']) ? '&q='.urlencode($_GET['q']) : ''; ?>"
-               class="projects-filter-tab <?php echo $typeFilter === 'all' ? 'projects-filter-tab--active text-white' : ''; ?>">
-                <i class="fas fa-list mr-2"></i>Alle
-            </a>
-            <a href="index.php?type=internal<?php echo !empty($_GET['q']) ? '&q='.urlencode($_GET['q']) : ''; ?>"
-               class="projects-filter-tab <?php echo $typeFilter === 'internal' ? 'projects-filter-tab--active text-white' : ''; ?>">
-                <i class="fas fa-building mr-2"></i>Intern
-            </a>
-            <a href="index.php?type=external<?php echo !empty($_GET['q']) ? '&q='.urlencode($_GET['q']) : ''; ?>"
-               class="projects-filter-tab <?php echo $typeFilter === 'external' ? 'projects-filter-tab--active text-white' : ''; ?>">
-                <i class="fas fa-users mr-2"></i>Extern
-            </a>
+    <div class="mb-6 flex flex-col gap-3">
+        <!-- Filter tabs – horizontal scroll on mobile -->
+        <div class="-mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto scrollbar-hide">
+            <div class="flex gap-2 flex-nowrap pb-1">
+                <a href="index.php?type=all<?php echo !empty($_GET['q']) ? '&q='.urlencode($_GET['q']) : ''; ?>"
+                   class="projects-filter-tab flex-shrink-0 <?php echo $typeFilter === 'all' ? 'projects-filter-tab--active text-white' : ''; ?>">
+                    <i class="fas fa-list mr-2"></i>Alle
+                </a>
+                <a href="index.php?type=internal<?php echo !empty($_GET['q']) ? '&q='.urlencode($_GET['q']) : ''; ?>"
+                   class="projects-filter-tab flex-shrink-0 <?php echo $typeFilter === 'internal' ? 'projects-filter-tab--active text-white' : ''; ?>">
+                    <i class="fas fa-building mr-2"></i>Intern
+                </a>
+                <a href="index.php?type=external<?php echo !empty($_GET['q']) ? '&q='.urlencode($_GET['q']) : ''; ?>"
+                   class="projects-filter-tab flex-shrink-0 <?php echo $typeFilter === 'external' ? 'projects-filter-tab--active text-white' : ''; ?>">
+                    <i class="fas fa-users mr-2"></i>Extern
+                </a>
+            </div>
         </div>
-        <form method="get" action="index.php" class="flex-1 min-w-[200px]">
+        <!-- Search -->
+        <form method="get" action="index.php" class="w-full">
             <input type="hidden" name="type" value="<?php echo htmlspecialchars($typeFilter); ?>">
             <div class="relative">
                 <span class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
@@ -306,6 +310,13 @@ ob_start();
 </div>
 
 <style>
+    /* ── Scrollbar hide ─────────────────────────────── */
+    .scrollbar-hide {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+
     /* ── Filter Tabs ────────────────────────────────── */
     .projects-filter-tab {
         display: inline-flex;
@@ -320,6 +331,7 @@ ob_start();
         color: var(--text-muted);
         border: 1.5px solid var(--border-color);
         text-decoration: none !important;
+        white-space: nowrap;
     }
     .projects-filter-tab:hover {
         border-color: #8b5cf6;
@@ -367,6 +379,9 @@ ob_start();
         height: 200px;
         background: #e5e7eb;
         flex-shrink: 0;
+    }
+    @media (max-width: 480px) {
+        .project-card-image { height: 170px; }
     }
     .project-card-image::after {
         content: '';

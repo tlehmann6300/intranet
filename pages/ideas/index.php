@@ -60,8 +60,23 @@ ob_start();
 #ideaModal.show {
     animation: fadeIn 0.18s ease;
 }
-#ideaModal.show > div {
-    animation: slideUp 0.22s cubic-bezier(0.34,1.56,0.64,1);
+#ideaModal.show > .idea-modal-inner {
+    animation: slideUp 0.25s cubic-bezier(0.34,1.56,0.64,1);
+}
+@media (max-width: 639px) {
+    /* Bottom-sheet slide up on mobile */
+    .idea-modal-inner {
+        border-radius: 1.25rem 1.25rem 0 0;
+        max-height: 92dvh;
+        max-height: 92vh;
+    }
+    #ideaModal.show > .idea-modal-inner {
+        animation: slideUpSheet 0.28s cubic-bezier(0.34,1.1,0.64,1);
+    }
+    @keyframes slideUpSheet {
+        from { opacity: 0; transform: translateY(100%); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
 }
 @keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.97); } to { opacity: 1; transform: none; } }
@@ -201,13 +216,13 @@ ob_start();
 
 </div>
 
-<!-- New Idea Modal -->
-<div id="ideaModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4" style="display:none">
-    <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+<!-- New Idea Modal – full screen on mobile, sheet on larger screens -->
+<div id="ideaModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-end sm:items-center justify-center sm:p-4" style="display:none">
+    <div class="idea-modal-inner bg-white dark:bg-gray-900 w-full sm:max-w-lg sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col">
         <!-- Modal Header -->
-        <div class="px-6 py-5 flex items-center justify-between border-b border-gray-100 dark:border-gray-700">
+        <div class="px-5 py-4 flex items-center justify-between border-b border-gray-100 dark:border-gray-700 flex-shrink-0">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
+                <div class="w-10 h-10 rounded-xl bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center flex-shrink-0">
                     <i class="fas fa-lightbulb text-yellow-500 dark:text-yellow-400 text-base"></i>
                 </div>
                 <div>
@@ -220,8 +235,8 @@ ob_start();
             </button>
         </div>
 
-        <!-- Modal Body -->
-        <div class="p-6 space-y-4">
+        <!-- Modal Body – scrollable on small screens -->
+        <div class="p-5 space-y-4 overflow-y-auto">
             <div id="ideaFormError" class="hidden p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-sm text-red-700 dark:text-red-300 flex items-start gap-2">
                 <i class="fas fa-exclamation-circle mt-0.5 flex-shrink-0"></i>
                 <span id="ideaFormErrorText"></span>
@@ -240,7 +255,7 @@ ob_start();
                     maxlength="200"
                     required
                     placeholder="Kurzer, aussagekräftiger Titel…"
-                    class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400 dark:focus:border-yellow-500 transition-colors text-sm outline-none"
+                    class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400 dark:focus:border-yellow-500 transition-colors text-sm outline-none"
                 >
             </div>
 
@@ -250,10 +265,10 @@ ob_start();
                 </label>
                 <textarea
                     id="ideaDescription"
-                    rows="5"
+                    rows="4"
                     required
                     placeholder="Beschreibe Deine Idee so detailliert wie möglich…"
-                    class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400 dark:focus:border-yellow-500 transition-colors text-sm resize-none outline-none"
+                    class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400 dark:focus:border-yellow-500 transition-colors text-sm resize-none outline-none"
                 ></textarea>
             </div>
 
@@ -267,11 +282,11 @@ ob_start();
         </div>
 
         <!-- Modal Footer -->
-        <div class="px-6 pb-6 flex flex-col md:flex-row gap-3">
+        <div class="px-5 pb-5 pt-3 flex gap-3 border-t border-gray-100 dark:border-gray-700 flex-shrink-0">
             <button
                 id="submitIdeaBtn"
                 type="button"
-                class="flex-1 flex items-center justify-center gap-2 px-5 py-3 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold rounded-xl shadow-sm hover:shadow-md transition-all text-sm"
+                class="flex-1 flex items-center justify-center gap-2 px-5 py-3.5 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold rounded-xl shadow-sm hover:shadow-md transition-all text-sm min-h-[48px]"
             >
                 <i class="fas fa-paper-plane"></i>
                 Einreichen
@@ -279,7 +294,7 @@ ob_start();
             <button
                 id="cancelIdeaBtn"
                 type="button"
-                class="px-5 py-3 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 font-semibold rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-all text-sm"
+                class="px-5 py-3.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 font-semibold rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-all text-sm min-h-[48px]"
             >
                 Abbrechen
             </button>
