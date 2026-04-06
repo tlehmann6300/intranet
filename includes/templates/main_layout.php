@@ -948,7 +948,7 @@ if (!isset($currentUser)) {
         <?php
         // $currentUser, $userRole already set by the early PHP block above
         ?>
-        <div class="p-5 flex-1 overflow-y-auto sidebar-scroll">
+        <div class="px-5 pt-5 pb-8 flex-1 overflow-y-auto sidebar-scroll">
             <!-- IBC Logo in Navbar -->
             <div class="mb-6 px-3 pt-2 flex justify-center">
                 <img src="<?php echo asset('assets/img/ibc_logo_original_navbar.webp'); ?>" alt="IBC Logo" class="w-4/5 h-auto drop-shadow-lg" decoding="async">
@@ -1202,7 +1202,7 @@ if (!isset($currentUser)) {
                 <?php endif; ?>
 
                 <!-- Statistiken Section Divider -->
-                <?php if (Auth::isAdmin() || Auth::hasRole(['vorstand_finanzen', 'vorstand_intern', 'vorstand_extern', 'ressortleiter'])): ?>
+                <?php if (Auth::isAdmin()): ?>
                 <div class="sidebar-section-label">Statistiken</div>
                 <?php endif; ?>
 
