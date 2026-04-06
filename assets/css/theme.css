@@ -12584,9 +12584,9 @@ body.dark-mode .sidebar .sidebar-nav-item--active {
     stroke: rgba(255, 255, 255, 0.45);
     stroke-width: 2;
     stroke-linecap: round;
-    /* circumference = 2 * π * 12 ≈ 75.4 (r=12 for a 2.75rem/44px button) */
-    stroke-dasharray: 75.4;
-    stroke-dashoffset: 75.4;
+    /* circumference = 2 * π * 12 ≈ 75.398; JS sets this dynamically on scroll init */
+    stroke-dasharray: 75.398;
+    stroke-dashoffset: 75.398;
     transition: stroke-dashoffset 0.15s linear;
 }
 
