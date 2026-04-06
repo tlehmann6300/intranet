@@ -12576,7 +12576,7 @@ body.dark-mode .sidebar .sidebar-nav-item--active {
     z-index: 1;
     width: 1.25rem;
     height: 1.25rem;
-    transform: none !important;
+    transform: none;
 }
 
 #btt-progress-circle {

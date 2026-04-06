@@ -614,6 +614,8 @@ if (!isset($currentUser)) {
         }
 
         /* ── MAIN CONTENT PADDING FOR NEW UNIFIED HEADER ────── */
+        /* No !important here: the mobile-specific rule above (line ~270) uses !important
+           and must take precedence on small screens so safe-area-inset-top is respected. */
         #main-content {
             padding-top: calc(var(--topbar-height, 60px) + 1.5rem);
         }
