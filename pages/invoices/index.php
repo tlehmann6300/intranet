@@ -837,7 +837,7 @@ function openInvoiceDetail(data) {
     docPreview.innerHTML = '';
     if (data.filePath) {
         const ext = (data.fileExt || '').toLowerCase();
-        if (['jpg', 'jpeg', 'png', 'heic', 'webp'].includes(ext)) {
+        if (['jpg', 'jpeg', 'png', 'webp'].includes(ext)) {
             const img = document.createElement('img');
             img.src = data.filePath;
             img.alt = 'Beleg';
