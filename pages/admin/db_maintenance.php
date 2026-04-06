@@ -570,10 +570,10 @@ $secCard = $securityStatusCardMap[$secStatus] ?? $securityStatusCardMap['healthy
                     Löscht alte Log-Einträge zur Freigabe von Speicherplatz:
                 </p>
                 <ul class="space-y-1 text-sm text-gray-600 dark:text-gray-400">
-                    <li class="flex items-center gap-2"><i class="fas fa-circle text-gray-300 dark:text-gray-600" style="font-size:6px"></i>User Sessions älter als 30 Tage</li>
-                    <li class="flex items-center gap-2"><i class="fas fa-circle text-gray-300 dark:text-gray-600" style="font-size:6px"></i>System Logs älter als 1 Jahr</li>
-                    <li class="flex items-center gap-2"><i class="fas fa-circle text-gray-300 dark:text-gray-600" style="font-size:6px"></i>Inventory History älter als 1 Jahr</li>
-                    <li class="flex items-center gap-2"><i class="fas fa-circle text-gray-300 dark:text-gray-600" style="font-size:6px"></i>Event History älter als 1 Jahr</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600 flex-shrink-0"></span>User Sessions älter als 30 Tage</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600 flex-shrink-0"></span>System Logs älter als 1 Jahr</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600 flex-shrink-0"></span>Inventory History älter als 1 Jahr</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600 flex-shrink-0"></span>Event History älter als 1 Jahr</li>
                 </ul>
             </div>
             <form method="POST" onsubmit="return confirm('Möchtest Du wirklich alte Logs löschen? Diese Aktion kann nicht rückgängig gemacht werden.');">
@@ -595,9 +595,9 @@ $secCard = $securityStatusCardMap[$secStatus] ?? $securityStatusCardMap['healthy
                     Löscht temporäre Cache-Dateien:
                 </p>
                 <ul class="space-y-1 text-sm text-gray-600 dark:text-gray-400">
-                    <li class="flex items-center gap-2"><i class="fas fa-circle text-gray-300 dark:text-gray-600" style="font-size:6px"></i>Alle Dateien im cache/ Ordner</li>
-                    <li class="flex items-center gap-2"><i class="fas fa-circle text-gray-300 dark:text-gray-600" style="font-size:6px"></i>Gibt Speicherplatz frei</li>
-                    <li class="flex items-center gap-2"><i class="fas fa-circle text-gray-300 dark:text-gray-600" style="font-size:6px"></i>Beeinflusst keine Datenbanken</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600 flex-shrink-0"></span>Alle Dateien im cache/ Ordner</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600 flex-shrink-0"></span>Gibt Speicherplatz frei</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600 flex-shrink-0"></span>Beeinflusst keine Datenbanken</li>
                 </ul>
             </div>
             <form method="POST" onsubmit="return confirm('Möchtest Du wirklich den Cache leeren?');">

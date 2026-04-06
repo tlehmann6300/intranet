@@ -122,8 +122,8 @@ ob_start();
                         <a href="view.php?id=<?php echo $doc['event_id']; ?>"
                            class="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all text-sm font-medium flex-shrink-0">
                             <i class="fas fa-eye"></i>
-                            <span class="hidden xs:inline">Event ansehen</span>
-                            <span class="xs:hidden">Ansehen</span>
+                            <span class="hidden sm:inline">Event ansehen</span>
+                            <span class="sm:hidden">Ansehen</span>
                         </a>
                     </div>
 
