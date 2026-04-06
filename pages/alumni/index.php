@@ -144,7 +144,7 @@ ob_start();
                 ];
                 $displayRoleKey = Auth::getPrimaryEntraRoleKey($profile['entra_roles'] ?? null, $profile['role'] ?? '');
                 $badgeClass = $roleBadgeColors[$displayRoleKey] ?? 'bg-gray-100 text-gray-900 border-gray-300 dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600';
-                $displayRole = htmlspecialchars($profile['display_role'] ?? Auth::getRoleLabel($profile['role'] ?? ''));
+                $displayRole = htmlspecialchars(Auth::getRoleLabel($displayRoleKey));
                 ?>
                 <div class="card directory-card directory-card--alumni d-flex flex-column h-100">
                     <!-- Card Header: gradient band with avatar -->
@@ -159,11 +159,11 @@ ob_start();
                         // Generate initials for fallback
                         $initials = getMemberInitials($profile['first_name'], $profile['last_name']);
                         $avatarColor = getAvatarColor($profile['first_name'] . ' ' . $profile['last_name']);
-                        // Prefer the Entra login email (users.email) for fetching the Entra profile photo;
-                        // only use fetch-profile-photo.php for users that are actually Entra users.
                         $alumniEmail = $profile['user_email'] ?? '';
-                        $isEntraUser = !empty($profile['entra_roles']);
-                        if ($isEntraUser && !empty($alumniEmail)) {
+                        $isEntraUser = !empty($profile['entra_roles']) || !empty($profile['entra_photo_path']);
+                        if (!empty($profile['entra_photo_path'])) {
+                            $imagePath = asset($profile['entra_photo_path']);
+                        } elseif ($isEntraUser && !empty($alumniEmail)) {
                             $imagePath = asset('fetch-profile-photo.php') . '?email=' . urlencode($alumniEmail);
                         } else {
                             $imagePath = asset(getProfileImageUrl($profile['avatar_path'] ?? null));

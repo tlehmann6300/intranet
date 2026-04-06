@@ -49,6 +49,11 @@ if ($filter === 'my_registrations') {
     }
 }
 
+// Hide internal project events from the public events listing
+$events = array_filter($events, function($event) {
+    return empty($event['is_internal_project']);
+});
+
 // Get user's signups for display
 $userSignups = Event::getUserSignups($user['id']);
 $myEventIds = array_column($userSignups, 'event_id');
