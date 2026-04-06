@@ -142,7 +142,7 @@ ob_start();
 </div>
 <?php endif; ?>
 
-<div class="card p-8">
+<div class="card p-5 sm:p-8">
     <div class="flex items-center justify-between mb-6">
         <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-100">
             <i class="fas fa-edit text-purple-600 mr-2"></i>
@@ -167,7 +167,7 @@ ob_start();
                     required 
                     value="<?php echo htmlspecialchars($item['name']); ?>"
                     <?php if ($isSyncedItem): ?>readonly<?php endif; ?>
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500<?php if ($isSyncedItem): ?> bg-gray-100 cursor-not-allowed<?php endif; ?>"
+                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500<?php if ($isSyncedItem): ?> bg-gray-100 dark:bg-gray-600 cursor-not-allowed<?php endif; ?>"
                 >
             </div>
 
@@ -176,7 +176,7 @@ ob_start();
                 <select 
                     name="category_id" 
                     <?php if ($isSyncedItem): ?>disabled<?php endif; ?>
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500<?php if ($isSyncedItem): ?> bg-gray-100 cursor-not-allowed<?php endif; ?>"
+                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500<?php if ($isSyncedItem): ?> bg-gray-100 dark:bg-gray-600 cursor-not-allowed<?php endif; ?>"
                 >
                     <option value="">Keine Kategorie</option>
                     <?php foreach ($categories as $category): ?>
@@ -208,7 +208,7 @@ ob_start();
                     name="description" 
                     rows="4"
                     <?php if ($isSyncedItem): ?>readonly<?php endif; ?>
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500<?php if ($isSyncedItem): ?> bg-gray-100 cursor-not-allowed<?php endif; ?>"
+                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500<?php if ($isSyncedItem): ?> bg-gray-100 dark:bg-gray-600 cursor-not-allowed<?php endif; ?>"
                 ><?php echo htmlspecialchars($item['description']); ?></textarea>
             </div>
         </div>
@@ -306,8 +306,8 @@ ob_start();
         </div>
 
         <!-- Actions -->
-        <div class="flex flex-col md:flex-row justify-end gap-4 pt-6 border-t">
-            <a href="view.php?id=<?php echo $item['id']; ?>" class="w-full sm:w-auto px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-center">
+        <div class="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <a href="view.php?id=<?php echo $item['id']; ?>" class="w-full sm:w-auto px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition text-center">
                 Abbrechen
             </a>
             <button type="submit" class="btn-primary w-full sm:w-auto">

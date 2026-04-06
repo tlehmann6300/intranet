@@ -183,7 +183,7 @@ ob_start();
     <?php endif; ?>
 
     <!-- Poll Content -->
-    <div class="card p-8">
+    <div class="card p-5 sm:p-8">
         <?php if ($hasMicrosoftFormsUrl): ?>
         <!-- Microsoft Forms Iframe -->
         <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">
@@ -200,13 +200,13 @@ ob_start();
             </div>
         </div>
         
-        <div class="w-full" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+        <div class="w-full" style="position: relative; padding-bottom: 75%; min-height: 480px; overflow: hidden;">
             <iframe 
                 src="<?php echo htmlspecialchars($poll['microsoft_forms_url']); ?>" 
                 frameborder="0" 
                 marginwidth="0" 
                 marginheight="0" 
-                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; min-height: 600px;"
+                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
                 allowfullscreen
                 webkitallowfullscreen
                 mozallowfullscreen

@@ -126,7 +126,7 @@ ob_start();
 </div>
 <?php endif; ?>
 
-<div class="card p-8">
+<div class="card p-5 sm:p-8">
     <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">
         <i class="fas fa-plus text-purple-600 mr-2"></i>
         Neuer Artikel
@@ -147,8 +147,8 @@ ob_start();
         <?php $readonlyClass = !$isAdmin ? 'bg-gray-100 cursor-not-allowed' : ''; ?>
         
         <!-- Basisdaten Section -->
-        <div class="bg-gray-50 rounded-lg p-6 <?php echo $readonlyClass; ?>">
-            <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-4 flex items-center">
+        <div class="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 sm:p-6 <?php echo $readonlyClass; ?>">
+            <h2 class="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4 flex items-center">
                 <i class="fas fa-info-circle text-blue-600 mr-2"></i>
                 Basisdaten
             </h2>
@@ -162,7 +162,7 @@ ob_start();
                         name="name" 
                         required 
                         value="<?php echo htmlspecialchars($_POST['name'] ?? ''); ?>"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 <?php echo $readonlyClass; ?>"
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 <?php echo $readonlyClass; ?>"
                         placeholder="Artikelname"
                         <?php echo $disabledAttr; ?>
                     >
@@ -173,7 +173,7 @@ ob_start();
                     <textarea 
                         name="description" 
                         rows="3"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 <?php echo $readonlyClass; ?>"
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 <?php echo $readonlyClass; ?>"
                         placeholder="Beschreibung des Artikels..."
                         <?php echo $disabledAttr; ?>
                     ><?php echo htmlspecialchars($_POST['description'] ?? ''); ?></textarea>
@@ -183,7 +183,7 @@ ob_start();
                     <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Kategorie</label>
                     <select 
                         name="category_id" 
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 <?php echo $readonlyClass; ?>"
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 <?php echo $readonlyClass; ?>"
                         <?php echo $disabledAttr; ?>
                     >
                         <option value="">Keine Kategorie</option>
@@ -201,7 +201,7 @@ ob_start();
                         type="text" 
                         name="unit" 
                         value="<?php echo htmlspecialchars($_POST['unit'] ?? 'Stück'); ?>"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 <?php echo $readonlyClass; ?>"
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 <?php echo $readonlyClass; ?>"
                         placeholder="z.B. Stück, Karton, Liter"
                         <?php echo $disabledAttr; ?>
                     >
@@ -210,8 +210,8 @@ ob_start();
         </div>
 
         <!-- Bestandsinformationen Section -->
-        <div class="bg-gray-50 rounded-lg p-6">
-            <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-4 flex items-center">
+        <div class="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 sm:p-6">
+            <h2 class="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4 flex items-center">
                 <i class="fas fa-boxes text-green-600 mr-2"></i>
                 Bestandsinformationen
             </h2>
@@ -223,7 +223,7 @@ ob_start();
                         name="current_stock" 
                         min="0"
                         value="<?php echo htmlspecialchars($_POST['current_stock'] ?? '0'); ?>"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 <?php echo $readonlyClass; ?>"
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 <?php echo $readonlyClass; ?>"
                         <?php echo $disabledAttr; ?>
                     >
                 </div>
@@ -235,7 +235,7 @@ ob_start();
                         name="min_stock" 
                         min="0"
                         value="<?php echo htmlspecialchars($_POST['min_stock'] ?? '0'); ?>"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 <?php echo $readonlyClass; ?>"
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 <?php echo $readonlyClass; ?>"
                         <?php echo $disabledAttr; ?>
                     >
                 </div>
@@ -248,7 +248,7 @@ ob_start();
                         min="0" 
                         step="0.01"
                         value="<?php echo htmlspecialchars($_POST['unit_price'] ?? '0'); ?>"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 <?php echo $readonlyClass; ?>"
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 <?php echo $readonlyClass; ?>"
                         <?php echo $disabledAttr; ?>
                     >
                 </div>
@@ -256,8 +256,8 @@ ob_start();
         </div>
 
         <!-- Lagerort Section -->
-        <div class="bg-gray-50 rounded-lg p-6">
-            <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-4 flex items-center">
+        <div class="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 sm:p-6">
+            <h2 class="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4 flex items-center">
                 <i class="fas fa-map-marker-alt text-red-600 mr-2"></i>
                 Lagerort
             </h2>
@@ -266,7 +266,7 @@ ob_start();
                     <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Standort</label>
                     <select 
                         name="location_id" 
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 <?php echo $readonlyClass; ?>"
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 <?php echo $readonlyClass; ?>"
                         <?php echo $disabledAttr; ?>
                     >
                         <option value="">Kein Standort</option>
@@ -283,7 +283,7 @@ ob_start();
                     <textarea 
                         name="notes" 
                         rows="2"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 <?php echo $readonlyClass; ?>"
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 <?php echo $readonlyClass; ?>"
                         placeholder="Zusätzliche Notizen zum Lagerort..."
                         <?php echo $disabledAttr; ?>
                     ><?php echo htmlspecialchars($_POST['notes'] ?? ''); ?></textarea>
@@ -292,8 +292,8 @@ ob_start();
         </div>
 
         <!-- Bild Section -->
-        <div class="bg-gray-50 rounded-lg p-6">
-            <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-4 flex items-center">
+        <div class="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 sm:p-6">
+            <h2 class="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4 flex items-center">
                 <i class="fas fa-image text-purple-600 mr-2"></i>
                 Bild
             </h2>
@@ -303,10 +303,10 @@ ob_start();
                     type="file" 
                     name="image" 
                     accept="image/jpeg,image/png,image/gif,image/webp"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 <?php echo $readonlyClass; ?>"
+                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 <?php echo $readonlyClass; ?>"
                     <?php echo $disabledAttr; ?>
                 >
-                <p class="text-sm text-gray-500 mt-2">
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
                     <i class="fas fa-info-circle mr-1"></i>
                     Erlaubt: JPG, PNG, GIF, WebP. Maximum: 5MB
                 </p>
@@ -314,8 +314,8 @@ ob_start();
         </div>
 
         <!-- Actions -->
-        <div class="flex flex-col md:flex-row justify-end gap-3 pt-4 border-t">
-            <a href="index.php" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-center">
+        <div class="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <a href="index.php" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition text-center">
                 <i class="fas fa-times mr-2"></i>Abbrechen
             </a>
             <button type="submit" class="btn-primary px-6 py-3 <?php echo !$isAdmin ? 'opacity-50 cursor-not-allowed' : ''; ?>" <?php echo $disabledAttr; ?>>

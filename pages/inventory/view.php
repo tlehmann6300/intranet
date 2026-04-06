@@ -160,14 +160,14 @@ ob_start();
 </div>
 
 <?php if ($message): ?>
-<div class="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
-    <i class="fas fa-check-circle mr-2"></i><?php echo htmlspecialchars($message); ?>
+<div class="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-300 dark:border-green-700 text-green-700 dark:text-green-300 rounded-xl flex items-center gap-3">
+    <i class="fas fa-check-circle flex-shrink-0"></i><span><?php echo htmlspecialchars($message); ?></span>
 </div>
 <?php endif; ?>
 
 <?php if ($error): ?>
-<div class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-    <i class="fas fa-exclamation-circle mr-2"></i><?php echo htmlspecialchars($error); ?>
+<div class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-xl flex items-center gap-3">
+    <i class="fas fa-exclamation-circle flex-shrink-0"></i><span><?php echo htmlspecialchars($error); ?></span>
 </div>
 <?php endif; ?>
 
@@ -200,7 +200,7 @@ ob_start();
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
     <!-- Item Details -->
     <div class="lg:col-span-2">
-        <div class="card p-8 shadow-xl border border-gray-200 dark:border-slate-700">
+        <div class="card p-5 sm:p-8 shadow-xl border border-gray-200 dark:border-slate-700">
             <div class="flex flex-wrap items-start justify-between mb-6 gap-3">
                 <div>
                     <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-3 break-words hyphens-auto"><?php echo htmlspecialchars($item['name']); ?></h1>
@@ -351,7 +351,7 @@ ob_start();
 </div>
 
 <!-- Aktive Ausleihen -->
-<div class="card p-8 mt-8 shadow-xl border border-green-200 dark:border-green-700 bg-gradient-to-br from-white to-green-50 dark:from-slate-800 dark:to-green-900/10">
+<div class="card p-5 sm:p-8 mt-8 shadow-xl border border-green-200 dark:border-green-700 bg-gradient-to-br from-white to-green-50 dark:from-slate-800 dark:to-green-900/10">
     <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6 flex items-center">
         <i class="fas fa-clipboard-list text-green-600 mr-3"></i>
         Aktive Ausleihen
@@ -409,7 +409,7 @@ ob_start();
 </div>
 
 <!-- Verlauf (Abgeschlossen) -->
-<div class="card p-8 mt-8 shadow-xl border border-gray-200 dark:border-slate-700 bg-gradient-to-br from-white to-gray-50 dark:from-slate-800 dark:to-slate-700/10">
+<div class="card p-5 sm:p-8 mt-8 shadow-xl border border-gray-200 dark:border-slate-700 bg-gradient-to-br from-white to-gray-50 dark:from-slate-800 dark:to-slate-700/10">
     <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6 flex items-center">
         <i class="fas fa-history text-gray-600 mr-3"></i>
         Verlauf (Abgeschlossen)
@@ -460,7 +460,7 @@ if (!empty($logbookNote)):
         fn($l) => $l !== ''
     ));
 ?>
-<div class="card p-8 mt-8 shadow-xl border border-blue-200 dark:border-blue-700 bg-gradient-to-br from-white to-blue-50 dark:from-slate-800 dark:to-blue-900/10">
+<div class="card p-5 sm:p-8 mt-8 shadow-xl border border-blue-200 dark:border-blue-700 bg-gradient-to-br from-white to-blue-50 dark:from-slate-800 dark:to-blue-900/10">
     <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6 flex items-center">
         <i class="fas fa-book text-blue-600 mr-3"></i>
         Logbuch / Historie
@@ -486,7 +486,7 @@ if (!empty($logbookNote)):
 <?php endif; ?>
 
 <!-- History -->
-<div class="card p-8 mt-8 shadow-xl border border-gray-200 dark:border-slate-700">
+<div class="card p-5 sm:p-8 mt-8 shadow-xl border border-gray-200 dark:border-slate-700">
     <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6 flex items-center">
         <i class="fas fa-history text-blue-600 mr-3"></i>
         Verlauf

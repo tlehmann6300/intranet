@@ -62,8 +62,8 @@ ob_start();
 </div>
 
 <?php if ($error): ?>
-<div class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-    <i class="fas fa-exclamation-circle mr-2"></i><?php echo htmlspecialchars($error); ?>
+<div class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-xl flex items-center gap-3">
+    <i class="fas fa-exclamation-circle flex-shrink-0"></i><span><?php echo htmlspecialchars($error); ?></span>
 </div>
 <?php endif; ?>
 
@@ -75,8 +75,8 @@ ob_start();
         </h1>
 
         <!-- Checkout Info -->
-        <div class="bg-gray-50 p-4 rounded-lg mb-6">
-            <h2 class="font-bold text-lg text-gray-800 mb-3"><?php echo htmlspecialchars($checkout['item_name']); ?></h2>
+        <div class="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl mb-6 border border-gray-200 dark:border-gray-700">
+            <h2 class="font-bold text-lg text-gray-800 dark:text-gray-100 mb-3"><?php echo htmlspecialchars($checkout['item_name']); ?></h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                 <div>
                     <p class="text-gray-500">Ausgeliehen am:</p>
@@ -124,40 +124,40 @@ ob_start();
                     Ist alles in Ordnung? <span class="text-red-500">*</span>
                 </label>
                 <div class="space-y-3">
-                    <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                    <label class="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                         <input 
                             type="radio" 
                             name="is_defective" 
                             value="no" 
                             checked 
-                            class="mr-3"
+                            class="mr-3 w-4 h-4 text-green-600"
                             onchange="toggleDefectiveFields()"
                         >
                         <div>
-                            <p class="font-semibold text-gray-800">Ja, alles in Ordnung</p>
-                            <p class="text-xs text-gray-500">Alle Artikel sind unbeschädigt</p>
+                            <p class="font-semibold text-gray-800 dark:text-gray-100">Ja, alles in Ordnung</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Alle Artikel sind unbeschädigt</p>
                         </div>
                     </label>
                     
-                    <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                    <label class="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                         <input 
                             type="radio" 
                             name="is_defective" 
                             value="yes" 
-                            class="mr-3"
+                            class="mr-3 w-4 h-4 text-red-600"
                             onchange="toggleDefectiveFields()"
                         >
                         <div>
-                            <p class="font-semibold text-gray-800">Nein, es gibt Probleme</p>
-                            <p class="text-xs text-gray-500">Einige Artikel sind beschädigt oder verloren</p>
+                            <p class="font-semibold text-gray-800 dark:text-gray-100">Nein, es gibt Probleme</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Einige Artikel sind beschädigt oder verloren</p>
                         </div>
                     </label>
                 </div>
             </div>
 
             <!-- Defective Items Section (hidden by default) -->
-            <div id="defectiveSection" class="hidden space-y-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <h3 class="font-semibold text-red-800">
+            <div id="defectiveSection" class="hidden space-y-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+                <h3 class="font-semibold text-red-800 dark:text-red-300">
                     <i class="fas fa-exclamation-triangle mr-2"></i>
                     Details zu beschädigten/verlorenen Artikeln
                 </h3>
@@ -172,7 +172,7 @@ ob_start();
                         id="defective_quantity"
                         min="1" 
                         max="<?php echo $checkout['amount']; ?>"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
                     >
                 </div>
 
@@ -184,28 +184,28 @@ ob_start();
                         name="defective_reason" 
                         id="defective_reason"
                         rows="4"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
                         placeholder="Bitte beschreiben Sie, was mit den Artikeln passiert ist..."
                     ></textarea>
                 </div>
 
-                <div class="bg-white p-3 rounded border border-red-300">
-                    <p class="text-sm text-red-800">
+                <div class="bg-white dark:bg-gray-800 p-3 rounded-lg border border-red-300 dark:border-red-700">
+                    <p class="text-sm text-red-800 dark:text-red-300">
                         <i class="fas fa-info-circle mr-1"></i>
                         <strong>Hinweis:</strong> Beschädigte oder verlorene Artikel werden vom Bestand abgezogen und als "Ausschuss" dokumentiert.
                     </p>
                 </div>
             </div>
 
-            <div class="bg-blue-50 border-l-4 border-blue-400 p-4">
-                <p class="text-sm text-blue-700">
+            <div class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 dark:border-blue-600 p-4 rounded-r-lg">
+                <p class="text-sm text-blue-700 dark:text-blue-300">
                     <i class="fas fa-info-circle mr-2"></i>
                     Nach der Rückgabe wird der Bestand im Lager entsprechend erhöht.
                 </p>
             </div>
 
-            <div class="flex flex-col md:flex-row gap-4">
-                <a href="my_checkouts.php" class="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-center">
+            <div class="flex flex-col sm:flex-row gap-3">
+                <a href="my_checkouts.php" class="flex-1 px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition text-center font-semibold">
                     Abbrechen
                 </a>
                 <button type="submit" class="flex-1 btn-primary bg-green-600 hover:bg-green-700">
