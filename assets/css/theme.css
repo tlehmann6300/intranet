@@ -6056,13 +6056,6 @@ img:not([loading]) {
     display: none;
 }
 
-/* Small avatar variant for denser grids */
-.directory-avatar--sm {
-    width: 72px;
-    height: 72px;
-    font-size: 1.5rem;
-}
-
 /* ============================================================
    DIRECTORY CARD - Gradient header band + floating avatar
    ============================================================ */
@@ -6093,20 +6086,12 @@ img:not([loading]) {
     z-index: 2;
 }
 
-.directory-card--members .directory-card-avatar-wrap {
-    bottom: -48px; /* half of 96px avatar */
-}
-
 /* Card content area below header */
 .directory-card-body {
     padding: 56px 1rem 1rem; /* top space = 48px avatar hang + 8px gap */
     flex: 1;
     display: flex;
     flex-direction: column;
-}
-
-.directory-card--members .directory-card-body {
-    padding-top: 56px; /* top space = 48px avatar hang + 8px gap */
 }
 
 /* Role badge inside gradient header: white background for contrast */
@@ -12260,19 +12245,22 @@ body.dark-mode .sidebar .sidebar-nav-item--active {
         height: 68px;
     }
 
-    /* Smaller floating avatar on mobile */
-    .directory-avatar--sm {
+    /* Smaller floating avatar on mobile – applies to both alumni and members cards */
+    .directory-card--alumni .directory-avatar,
+    .directory-card--members .directory-avatar {
         width: 60px;
         height: 60px;
         font-size: 1.2rem;
     }
 
     /* Reposition avatar hang for the smaller size (half of 60px = 30px) */
+    .directory-card--alumni .directory-card-avatar-wrap,
     .directory-card--members .directory-card-avatar-wrap {
         bottom: -30px;
     }
 
     /* Compact body top padding matches new avatar hang */
+    .directory-card--alumni .directory-card-body,
     .directory-card--members .directory-card-body {
         padding-top: 38px;
     }
