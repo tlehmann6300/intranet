@@ -61,7 +61,7 @@ if (!isset($currentUser)) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="de" class="overflow-x-hidden dark:bg-gray-900">
+<html lang="de" class="dark:bg-gray-900">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -615,7 +615,7 @@ if (!isset($currentUser)) {
 
         /* ── MAIN CONTENT PADDING FOR NEW UNIFIED HEADER ────── */
         #main-content {
-            padding-top: calc(var(--topbar-height, 60px) + 1.5rem) !important;
+            padding-top: calc(var(--topbar-height, 60px) + 1.5rem);
         }
 
         /* ── SIDEBAR: NARROWER CLEAN FOOTER ─────────────────── */
@@ -1274,7 +1274,7 @@ if (!isset($currentUser)) {
     <!-- Back-to-top button with scroll progress ring (shown after 300 px scroll) -->
     <button id="back-to-top" aria-label="Zurück nach oben" title="Zurück nach oben">
         <!-- SVG progress ring drawn around the button -->
-        <svg aria-hidden="true" focusable="false">
+        <svg class="btt-ring" aria-hidden="true" focusable="false">
         <circle id="btt-progress-circle" cx="50%" cy="50%" r="12"/>
         </svg>
         <i data-lucide="chevron-up" class="w-5 h-5" aria-hidden="true"></i>
@@ -1874,7 +1874,7 @@ if (!isset($currentUser)) {
         position: fixed !important;
         inset: 0 !important;
         z-index: 1075 !important;
-        display: flex !important;
+        display: flex;
         align-items: center !important;
         justify-content: center !important;
         padding: 1rem;
