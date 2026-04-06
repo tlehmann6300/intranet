@@ -200,13 +200,13 @@ ob_start();
             </div>
         </div>
         
-        <div class="w-full" style="position: relative; padding-bottom: 75%; min-height: 480px; overflow: hidden;">
+        <div class="w-full overflow-hidden" style="position: relative; height: max(480px, 70vh);">
             <iframe 
                 src="<?php echo htmlspecialchars($poll['microsoft_forms_url']); ?>" 
                 frameborder="0" 
                 marginwidth="0" 
                 marginheight="0" 
-                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+                style="position: absolute; inset: 0; width: 100%; height: 100%; border: none;"
                 allowfullscreen
                 webkitallowfullscreen
                 mozallowfullscreen

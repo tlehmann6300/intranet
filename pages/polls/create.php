@@ -168,7 +168,7 @@ ob_start();
             </div>
 
             <!-- Zielgruppen / Sichtbarkeit -->
-            <div class="border border-gray-200 dark:border-gray-700 rounded-xl p-4 sm:p-6">
+            <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 sm:p-6">
                 <label class="block w-full text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">
                     Zielgruppen / Sichtbarkeit <span class="text-red-500 dark:text-red-400">*</span>
                 </label>
