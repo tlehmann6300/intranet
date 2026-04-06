@@ -429,7 +429,7 @@ if (!isset($currentUser)) {
         #top-header {
             position: fixed;
             top: 0;
-            left: var(--sidebar-width-md, 16rem); /* matches sidebar w-64; uses CSS variable */
+            left: var(--sidebar-width-md, 17rem); /* desktop: matches sidebar width; defined by --sidebar-width-md CSS variable */
             right: 0;
             height: var(--topbar-height, 60px);
             padding: 0 1.5rem;
@@ -1998,8 +1998,8 @@ if (!isset($currentUser)) {
         unset($_SESSION['show_role_notice']);
     endif;
     ?>
-    <!-- Lucide Icons: replaces data-lucide="..." elements with inline SVGs -->
-    <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.1/dist/umd/lucide.min.js"></script>
+    <!-- Lucide Icons: replaces data-lucide="..." elements with inline SVGs (self-hosted) -->
+    <script src="<?php echo asset('assets/js/lucide.min.js') . '?v=1'; ?>"></script>
     <script>
         if (typeof lucide !== 'undefined') { lucide.createIcons(); }
     </script>
