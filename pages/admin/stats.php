@@ -230,17 +230,19 @@ ob_start();
     <div class="mb-8">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 dark:text-gray-100 mb-2">
-                    <i class="fas fa-chart-bar mr-3 text-purple-600 dark:text-purple-400"></i>
-                    Statistiken
-                </h1>
-                <p class="text-gray-600 dark:text-gray-300">Übersicht über wichtige Kennzahlen und Aktivitäten</p>
+                <div class="flex items-center gap-3 mb-1">
+                    <div class="w-11 h-11 rounded-2xl bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center shadow-sm">
+                        <i class="fas fa-chart-bar text-purple-600 dark:text-purple-400 text-xl"></i>
+                    </div>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-50 tracking-tight">Statistiken</h1>
+                </div>
+                <p class="text-gray-500 dark:text-gray-400 text-sm ml-14">Übersicht über wichtige Kennzahlen und Aktivitäten</p>
             </div>
-            <button 
-                id="exportStats" 
-                class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-lg hover:from-green-700 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl font-medium"
+            <button
+                id="exportStats"
+                class="inline-flex items-center gap-2 px-5 py-2.5 min-h-[44px] bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-xl hover:from-green-700 hover:to-blue-700 transition-all shadow-sm hover:shadow-md font-medium text-sm flex-shrink-0"
             >
-                <i class="fas fa-download mr-2"></i>Export Report
+                <i class="fas fa-download"></i>Export Report
             </button>
         </div>
     </div>
@@ -369,8 +371,8 @@ ob_start();
     <!-- Recent User Activity Section -->
     <?php if (!empty($recentActivity)): ?>
     <div class="mb-8">
-        <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">
-            <i class="fas fa-history mr-2 text-orange-600 dark:text-orange-400"></i>
+        <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+            <i class="fas fa-history text-orange-500 dark:text-orange-400"></i>
             Letzte Benutzeraktivitäten
         </h2>
         <div class="card overflow-hidden">
@@ -450,8 +452,8 @@ ob_start();
     <!-- Database Storage Usage Section -->
     <?php if (!empty($databaseStats)): ?>
     <div class="mb-8">
-        <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">
-            <i class="fas fa-database mr-2 text-indigo-600 dark:text-indigo-400"></i>
+        <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+            <i class="fas fa-database text-indigo-500 dark:text-indigo-400"></i>
             Datenbank Speicherverbrauch
         </h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">

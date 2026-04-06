@@ -275,23 +275,117 @@ $systemHealth = getSystemHealth();
 
 $title = 'System Health & Wartung - IBC Intranet';
 ob_start();
+
+/*
+ * Static CSS class maps for health status indicators.
+ * All class strings are defined statically so Tailwind's content scanner
+ * can detect them at build time. Do NOT concatenate color names dynamically.
+ */
+$overallBorderMap = [
+    'healthy' => 'border-l-4 border-green-500',
+    'warning' => 'border-l-4 border-yellow-500',
+    'error'   => 'border-l-4 border-red-500',
+];
+$overallIconMap = [
+    'healthy' => 'text-green-600 dark:text-green-400',
+    'warning' => 'text-yellow-600 dark:text-yellow-400',
+    'error'   => 'text-red-600 dark:text-red-400',
+];
+$overallBadgeMap = [
+    'healthy' => 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300',
+    'warning' => 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300',
+    'error'   => 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300',
+];
+$overallLabelMap = [
+    'healthy' => '✓ Systemgesund',
+    'warning' => '⚠ Warnung',
+    'error'   => '✗ Fehler',
+];
+
+// Card CSS maps for each individual status value
+$dbStatusCardMap = [
+    'healthy' => [
+        'bg'     => 'bg-green-50 dark:bg-green-900/20',
+        'border' => 'border border-green-200 dark:border-green-800',
+        'icon'   => 'text-green-600 dark:text-green-400',
+        'text'   => 'text-green-700 dark:text-green-400',
+        'check'  => 'fa-check-circle',
+        'label'  => 'Verbunden',
+    ],
+    'error' => [
+        'bg'     => 'bg-red-50 dark:bg-red-900/20',
+        'border' => 'border border-red-200 dark:border-red-800',
+        'icon'   => 'text-red-600 dark:text-red-400',
+        'text'   => 'text-red-700 dark:text-red-400',
+        'check'  => 'fa-times-circle',
+        'label'  => 'Fehler',
+    ],
+];
+$errorStatusCardMap = [
+    'healthy' => [
+        'bg'     => 'bg-blue-50 dark:bg-blue-900/20',
+        'border' => 'border border-blue-200 dark:border-blue-800',
+        'icon'   => 'text-blue-600 dark:text-blue-400',
+        'text'   => 'text-blue-700 dark:text-blue-400',
+        'check'  => 'fa-check-circle',
+        'detail' => 'Alles OK',
+    ],
+    'warning' => [
+        'bg'     => 'bg-yellow-50 dark:bg-yellow-900/20',
+        'border' => 'border border-yellow-200 dark:border-yellow-800',
+        'icon'   => 'text-yellow-600 dark:text-yellow-400',
+        'text'   => 'text-yellow-700 dark:text-yellow-400',
+        'check'  => 'fa-exclamation-circle',
+        'detail' => 'Erhöhte Fehlerrate',
+    ],
+];
+$securityStatusCardMap = [
+    'healthy' => [
+        'bg'     => 'bg-purple-50 dark:bg-purple-900/20',
+        'border' => 'border border-purple-200 dark:border-purple-800',
+        'icon'   => 'text-purple-600 dark:text-purple-400',
+        'text'   => 'text-purple-700 dark:text-purple-400',
+        'check'  => 'fa-check-circle',
+    ],
+    'warning' => [
+        'bg'     => 'bg-orange-50 dark:bg-orange-900/20',
+        'border' => 'border border-orange-200 dark:border-orange-800',
+        'icon'   => 'text-orange-600 dark:text-orange-400',
+        'text'   => 'text-orange-700 dark:text-orange-400',
+        'check'  => 'fa-exclamation-circle',
+    ],
+];
+
+$overallStatus   = $systemHealth['overall_status'] ?? 'error';
+$dbStatus        = $systemHealth['database_status'] ?? 'error';
+$errStatus       = $systemHealth['error_status'] ?? 'healthy';
+$secStatus       = $systemHealth['security_status'] ?? 'healthy';
+
+$dbCard  = $dbStatusCardMap[$dbStatus]    ?? $dbStatusCardMap['error'];
+$errCard = $errorStatusCardMap[$errStatus] ?? $errorStatusCardMap['healthy'];
+$secCard = $securityStatusCardMap[$secStatus] ?? $securityStatusCardMap['healthy'];
 ?>
 
-<div class="mb-8">
-    <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">
-        <i class="fas fa-heartbeat text-blue-600 mr-2"></i>
-        System Health & Wartung
-    </h1>
-    <p class="text-gray-600 dark:text-gray-300">Systemüberwachung, Datenbankverwaltung und Wartungsaktionen</p>
+<div class="max-w-7xl mx-auto">
+
+<!-- Page Header -->
+<div class="mb-8 flex items-start gap-3">
+    <div class="w-11 h-11 rounded-2xl bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center shadow-sm flex-shrink-0 mt-0.5">
+        <i class="fas fa-heartbeat text-blue-600 dark:text-blue-400 text-xl"></i>
+    </div>
+    <div>
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-50 tracking-tight">System Health & Wartung</h1>
+        <p class="text-gray-500 dark:text-gray-400 text-sm mt-0.5">Systemüberwachung, Datenbankverwaltung und Wartungsaktionen</p>
+    </div>
 </div>
 
 <?php if (!empty($actionResult)): ?>
-<div class="mb-6 p-4 rounded-lg border <?php echo $actionResult['type'] === 'success' ? 'bg-green-50 border-green-400 text-green-700' : 'bg-red-50 border-red-400 text-red-700'; ?>">
-    <h3 class="font-semibold mb-2">
-        <i class="fas fa-<?php echo $actionResult['type'] === 'success' ? 'check' : 'exclamation'; ?>-circle mr-2"></i>
+<div class="mb-6 p-4 rounded-xl border <?php echo $actionResult['type'] === 'success' ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700 text-green-700 dark:text-green-300' : 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-700 text-red-700 dark:text-red-300'; ?>">
+    <h3 class="font-semibold mb-2 flex items-center gap-2">
+        <i class="fas fa-<?php echo $actionResult['type'] === 'success' ? 'check' : 'exclamation'; ?>-circle"></i>
         <?php echo htmlspecialchars($actionResult['title']); ?>
     </h3>
-    <ul class="list-disc list-inside ml-4">
+    <ul class="list-disc list-inside ml-4 space-y-0.5 text-sm">
         <?php foreach ($actionResult['details'] as $detail): ?>
         <li><?php echo htmlspecialchars($detail); ?></li>
         <?php endforeach; ?>
@@ -300,180 +394,154 @@ ob_start();
 <?php endif; ?>
 
 <!-- System Health Status -->
-<div class="card p-6 mb-6 <?php 
-    $statusColor = $systemHealth['overall_status'] === 'healthy' ? 'border-l-4 border-green-500' : 
-                   ($systemHealth['overall_status'] === 'warning' ? 'border-l-4 border-yellow-500' : 'border-l-4 border-red-500'); 
-    echo $statusColor;
-?>">
+<div class="card rounded-xl shadow-sm p-6 mb-6 <?php echo $overallBorderMap[$overallStatus] ?? 'border-l-4 border-red-500'; ?>">
     <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
-        <h2 class="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100">
-            <i class="fas fa-heartbeat text-<?php echo $systemHealth['overall_status'] === 'healthy' ? 'green' : ($systemHealth['overall_status'] === 'warning' ? 'yellow' : 'red'); ?>-600 mr-2"></i>
+        <h2 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+            <i class="fas fa-heartbeat <?php echo $overallIconMap[$overallStatus] ?? 'text-red-600'; ?>"></i>
             System Health Status
         </h2>
-        <div class="flex items-center space-x-2">
-            <span class="px-4 py-2 rounded-full text-sm font-semibold <?php 
-                echo $systemHealth['overall_status'] === 'healthy' ? 'bg-green-100 text-green-800' : 
-                     ($systemHealth['overall_status'] === 'warning' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800');
-            ?>">
-                <?php 
-                    echo $systemHealth['overall_status'] === 'healthy' ? '✓ Systemgesund' : 
-                         ($systemHealth['overall_status'] === 'warning' ? '⚠ Warnung' : '✗ Fehler');
-                ?>
-            </span>
-        </div>
+        <span class="px-4 py-2 rounded-full text-sm font-semibold <?php echo $overallBadgeMap[$overallStatus] ?? 'bg-red-100 text-red-800'; ?>">
+            <?php echo $overallLabelMap[$overallStatus] ?? '✗ Fehler'; ?>
+        </span>
     </div>
-    
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
         <!-- Database Status -->
-        <div class="bg-<?php echo $systemHealth['database_status'] === 'healthy' ? 'green' : 'red'; ?>-50 dark:bg-<?php echo $systemHealth['database_status'] === 'healthy' ? 'green' : 'red'; ?>-900/20 p-4 rounded-lg border border-<?php echo $systemHealth['database_status'] === 'healthy' ? 'green' : 'red'; ?>-200 dark:border-<?php echo $systemHealth['database_status'] === 'healthy' ? 'green' : 'red'; ?>-800">
-            <div class="flex items-center justify-between mb-2">
-                <i class="fas fa-database text-2xl text-<?php echo $systemHealth['database_status'] === 'healthy' ? 'green' : 'red'; ?>-600"></i>
-                <i class="fas fa-<?php echo $systemHealth['database_status'] === 'healthy' ? 'check-circle' : 'times-circle'; ?> text-<?php echo $systemHealth['database_status'] === 'healthy' ? 'green' : 'red'; ?>-600"></i>
+        <div class="<?php echo $dbCard['bg']; ?> <?php echo $dbCard['border']; ?> p-4 rounded-xl">
+            <div class="flex items-center justify-between mb-3">
+                <i class="fas fa-database text-2xl <?php echo $dbCard['icon']; ?>"></i>
+                <i class="fas <?php echo $dbCard['check']; ?> <?php echo $dbCard['icon']; ?>"></i>
             </div>
-            <p class="text-sm text-gray-600 dark:text-gray-300 mb-1">Datenbank</p>
-            <p class="text-lg font-bold text-<?php echo $systemHealth['database_status'] === 'healthy' ? 'green' : 'red'; ?>-700 dark:text-<?php echo $systemHealth['database_status'] === 'healthy' ? 'green' : 'red'; ?>-400">
-                <?php echo $systemHealth['database_status'] === 'healthy' ? 'Verbunden' : 'Fehler'; ?>
-            </p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                <?php echo htmlspecialchars($systemHealth['database_message']); ?>
+            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Datenbank</p>
+            <p class="text-lg font-bold <?php echo $dbCard['text']; ?>"><?php echo $dbCard['label']; ?></p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 break-words">
+                <?php echo htmlspecialchars($systemHealth['database_message'] ?? ''); ?>
             </p>
         </div>
-        
+
         <!-- Error Count -->
-        <div class="bg-<?php echo $systemHealth['error_status'] === 'healthy' ? 'blue' : 'yellow'; ?>-50 dark:bg-<?php echo $systemHealth['error_status'] === 'healthy' ? 'blue' : 'yellow'; ?>-900/20 p-4 rounded-lg border border-<?php echo $systemHealth['error_status'] === 'healthy' ? 'blue' : 'yellow'; ?>-200 dark:border-<?php echo $systemHealth['error_status'] === 'healthy' ? 'blue' : 'yellow'; ?>-800">
-            <div class="flex items-center justify-between mb-2">
-                <i class="fas fa-exclamation-triangle text-2xl text-<?php echo $systemHealth['error_status'] === 'healthy' ? 'blue' : 'yellow'; ?>-600"></i>
-                <i class="fas fa-<?php echo $systemHealth['error_status'] === 'healthy' ? 'check-circle' : 'exclamation-circle'; ?> text-<?php echo $systemHealth['error_status'] === 'healthy' ? 'blue' : 'yellow'; ?>-600"></i>
+        <div class="<?php echo $errCard['bg']; ?> <?php echo $errCard['border']; ?> p-4 rounded-xl">
+            <div class="flex items-center justify-between mb-3">
+                <i class="fas fa-exclamation-triangle text-2xl <?php echo $errCard['icon']; ?>"></i>
+                <i class="fas <?php echo $errCard['check']; ?> <?php echo $errCard['icon']; ?>"></i>
             </div>
-            <p class="text-sm text-gray-600 dark:text-gray-300 mb-1">Fehler (24h)</p>
-            <p class="text-lg font-bold text-<?php echo $systemHealth['error_status'] === 'healthy' ? 'blue' : 'yellow'; ?>-700 dark:text-<?php echo $systemHealth['error_status'] === 'healthy' ? 'blue' : 'yellow'; ?>-400">
-                <?php echo number_format($systemHealth['error_count_24h'] ?? 0); ?>
-            </p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                <?php echo $systemHealth['error_status'] === 'healthy' ? 'Alles OK' : 'Erhöhte Fehlerrate'; ?>
-            </p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Fehler (24h)</p>
+            <p class="text-lg font-bold <?php echo $errCard['text']; ?>"><?php echo number_format($systemHealth['error_count_24h'] ?? 0); ?></p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1"><?php echo $errCard['detail']; ?></p>
         </div>
-        
+
         <!-- Security Status -->
-        <div class="bg-<?php echo $systemHealth['security_status'] === 'healthy' ? 'purple' : 'orange'; ?>-50 dark:bg-<?php echo $systemHealth['security_status'] === 'healthy' ? 'purple' : 'orange'; ?>-900/20 p-4 rounded-lg border border-<?php echo $systemHealth['security_status'] === 'healthy' ? 'purple' : 'orange'; ?>-200 dark:border-<?php echo $systemHealth['security_status'] === 'healthy' ? 'purple' : 'orange'; ?>-800">
-            <div class="flex items-center justify-between mb-2">
-                <i class="fas fa-shield-alt text-2xl text-<?php echo $systemHealth['security_status'] === 'healthy' ? 'purple' : 'orange'; ?>-600"></i>
-                <i class="fas fa-<?php echo $systemHealth['security_status'] === 'healthy' ? 'check-circle' : 'exclamation-circle'; ?> text-<?php echo $systemHealth['security_status'] === 'healthy' ? 'purple' : 'orange'; ?>-600"></i>
+        <div class="<?php echo $secCard['bg']; ?> <?php echo $secCard['border']; ?> p-4 rounded-xl">
+            <div class="flex items-center justify-between mb-3">
+                <i class="fas fa-shield-alt text-2xl <?php echo $secCard['icon']; ?>"></i>
+                <i class="fas <?php echo $secCard['check']; ?> <?php echo $secCard['icon']; ?>"></i>
             </div>
-            <p class="text-sm text-gray-600 dark:text-gray-300 mb-1">Sicherheit</p>
-            <p class="text-lg font-bold text-<?php echo $systemHealth['security_status'] === 'healthy' ? 'purple' : 'orange'; ?>-700 dark:text-<?php echo $systemHealth['security_status'] === 'healthy' ? 'purple' : 'orange'; ?>-400">
-                <?php echo number_format($systemHealth['failed_logins'] ?? 0); ?> Fehlversuche
-            </p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Letzte Stunde
-            </p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Sicherheit</p>
+            <p class="text-lg font-bold <?php echo $secCard['text']; ?>"><?php echo number_format($systemHealth['failed_logins'] ?? 0); ?> Fehlversuche</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Letzte Stunde</p>
         </div>
-        
+
         <!-- System Activity -->
-        <div class="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-lg border border-indigo-200 dark:border-indigo-800">
-            <div class="flex items-center justify-between mb-2">
-                <i class="fas fa-chart-line text-2xl text-indigo-600"></i>
-                <i class="fas fa-info-circle text-indigo-600"></i>
+        <div class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 p-4 rounded-xl">
+            <div class="flex items-center justify-between mb-3">
+                <i class="fas fa-chart-line text-2xl text-indigo-600 dark:text-indigo-400"></i>
+                <i class="fas fa-info-circle text-indigo-600 dark:text-indigo-400"></i>
             </div>
-            <p class="text-sm text-gray-600 dark:text-gray-300 mb-1">Aktivität</p>
-            <p class="text-lg font-bold text-indigo-700 dark:text-indigo-400">
-                <?php echo number_format($systemHealth['recent_logins'] ?? 0); ?> Logins
-            </p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Letzte Stunde
-            </p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Aktivität</p>
+            <p class="text-lg font-bold text-indigo-700 dark:text-indigo-400"><?php echo number_format($systemHealth['recent_logins'] ?? 0); ?> Logins</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Letzte Stunde</p>
         </div>
     </div>
-    
+
     <!-- Additional Metrics -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mt-4">
-        <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-            <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Aktive Sessions (24h)</p>
-            <p class="text-base sm:text-xl font-semibold text-gray-700 dark:text-gray-200">
-                <i class="fas fa-users text-gray-400 mr-2"></i><?php echo number_format($systemHealth['active_sessions'] ?? 0); ?>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="bg-gray-50 dark:bg-gray-800/60 p-4 rounded-xl">
+            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Aktive Sessions (24h)</p>
+            <p class="text-xl font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                <i class="fas fa-users text-gray-400 text-base"></i><?php echo number_format($systemHealth['active_sessions'] ?? 0); ?>
             </p>
         </div>
-        <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-            <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Datenbank-Größe</p>
-            <p class="text-base sm:text-xl font-semibold text-gray-700 dark:text-gray-200">
-                <i class="fas fa-hdd text-gray-400 mr-2"></i><?php echo number_format($systemHealth['disk_usage_mb'] ?? 0, 2); ?> MB
+        <div class="bg-gray-50 dark:bg-gray-800/60 p-4 rounded-xl">
+            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Datenbank-Größe</p>
+            <p class="text-xl font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                <i class="fas fa-hdd text-gray-400 text-base"></i><?php echo number_format($systemHealth['disk_usage_mb'] ?? 0, 2); ?> MB
             </p>
         </div>
-        <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-            <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Betriebszeit (geschätzt)</p>
-            <p class="text-base sm:text-xl font-semibold text-gray-700 dark:text-gray-200">
-                <i class="fas fa-clock text-gray-400 mr-2"></i><?php echo number_format($systemHealth['uptime_days'] ?? 0); ?> Tage
+        <div class="bg-gray-50 dark:bg-gray-800/60 p-4 rounded-xl">
+            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Betriebszeit (geschätzt)</p>
+            <p class="text-xl font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                <i class="fas fa-clock text-gray-400 text-base"></i><?php echo number_format($systemHealth['uptime_days'] ?? 0); ?> Tage
             </p>
         </div>
     </div>
 </div>
 
 <!-- Database Overview -->
-<div class="card p-6 mb-6">
-    <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-4">
-        <i class="fas fa-chart-pie text-purple-600 mr-2"></i>
+<div class="card rounded-xl shadow-sm p-6 mb-6">
+    <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-5 flex items-center gap-2">
+        <i class="fas fa-chart-pie text-purple-500 dark:text-purple-400"></i>
         Datenbank-Übersicht
     </h2>
-    
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mb-6">
-        <div class="bg-blue-50 p-4 rounded-lg">
-            <p class="text-blue-800 font-semibold text-sm">User Database</p>
-            <p class="text-2xl font-bold text-blue-600"><?php echo number_format($userDbTotal, 2); ?> MB</p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 p-4 rounded-xl">
+            <p class="text-xs font-semibold text-blue-700 dark:text-blue-300 uppercase tracking-wide mb-1">User Database</p>
+            <p class="text-2xl font-bold text-blue-600 dark:text-blue-400"><?php echo number_format($userDbTotal, 2); ?> MB</p>
         </div>
-        <div class="bg-green-50 p-4 rounded-lg">
-            <p class="text-green-800 font-semibold text-sm">Content Database</p>
-            <p class="text-2xl font-bold text-green-600"><?php echo number_format($contentDbTotal, 2); ?> MB</p>
+        <div class="bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800 p-4 rounded-xl">
+            <p class="text-xs font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide mb-1">Content Database</p>
+            <p class="text-2xl font-bold text-green-600 dark:text-green-400"><?php echo number_format($contentDbTotal, 2); ?> MB</p>
         </div>
-        <div class="bg-purple-50 p-4 rounded-lg">
-            <p class="text-purple-800 font-semibold text-sm">Gesamt</p>
-            <p class="text-2xl font-bold text-purple-600"><?php echo number_format($totalSize, 2); ?> MB</p>
+        <div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800 p-4 rounded-xl">
+            <p class="text-xs font-semibold text-purple-700 dark:text-purple-300 uppercase tracking-wide mb-1">Gesamt</p>
+            <p class="text-2xl font-bold text-purple-600 dark:text-purple-400"><?php echo number_format($totalSize, 2); ?> MB</p>
         </div>
     </div>
-    
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <!-- User Database Tables -->
         <div>
-            <h3 class="text-lg font-semibold text-gray-700 mb-3">User Database Tabellen</h3>
-            <div class="overflow-x-auto w-full">
-                <table class="min-w-full divide-y divide-gray-200 card-table">
-                    <thead class="bg-gray-50">
+            <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-3">User Database Tabellen</h3>
+            <div class="overflow-x-auto rounded-xl border border-gray-100 dark:border-gray-700">
+                <table class="w-full divide-y divide-gray-100 dark:divide-gray-700 card-table text-sm">
+                    <thead class="bg-gray-50 dark:bg-gray-800">
                         <tr>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tabelle</th>
-                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Zeilen</th>
-                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Größe</th>
+                            <th class="px-4 py-2.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Tabelle</th>
+                            <th class="px-4 py-2.5 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Zeilen</th>
+                            <th class="px-4 py-2.5 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Größe</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody class="divide-y divide-gray-50 dark:divide-gray-700/50">
                         <?php foreach ($tableSizes['user'] as $table): ?>
-                        <tr>
-                            <td class="px-4 py-2 text-sm text-gray-900" data-label="Tabelle"><?php echo htmlspecialchars($table['table']); ?></td>
-                            <td class="px-4 py-2 text-sm text-gray-600 text-right" data-label="Zeilen"><?php echo number_format($table['rows']); ?></td>
-                            <td class="px-4 py-2 text-sm text-gray-600 text-right" data-label="Größe"><?php echo number_format($table['size_mb'], 2); ?> MB</td>
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors">
+                            <td class="px-4 py-2.5 text-gray-800 dark:text-gray-200 font-medium" data-label="Tabelle"><?php echo htmlspecialchars($table['table']); ?></td>
+                            <td class="px-4 py-2.5 text-gray-600 dark:text-gray-400 text-right tabular-nums" data-label="Zeilen"><?php echo number_format($table['rows']); ?></td>
+                            <td class="px-4 py-2.5 text-gray-600 dark:text-gray-400 text-right tabular-nums" data-label="Größe"><?php echo number_format($table['size_mb'], 2); ?> MB</td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
         </div>
-        
+
         <!-- Content Database Tables -->
         <div>
-            <h3 class="text-lg font-semibold text-gray-700 mb-3">Content Database Tabellen</h3>
-            <div class="overflow-x-auto w-full">
-                <table class="min-w-full divide-y divide-gray-200 card-table">
-                    <thead class="bg-gray-50">
+            <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-3">Content Database Tabellen</h3>
+            <div class="overflow-x-auto rounded-xl border border-gray-100 dark:border-gray-700">
+                <table class="w-full divide-y divide-gray-100 dark:divide-gray-700 card-table text-sm">
+                    <thead class="bg-gray-50 dark:bg-gray-800">
                         <tr>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tabelle</th>
-                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Zeilen</th>
-                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Größe</th>
+                            <th class="px-4 py-2.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Tabelle</th>
+                            <th class="px-4 py-2.5 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Zeilen</th>
+                            <th class="px-4 py-2.5 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Größe</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody class="divide-y divide-gray-50 dark:divide-gray-700/50">
                         <?php foreach ($tableSizes['content'] as $table): ?>
-                        <tr>
-                            <td class="px-4 py-2 text-sm text-gray-900" data-label="Tabelle"><?php echo htmlspecialchars($table['table']); ?></td>
-                            <td class="px-4 py-2 text-sm text-gray-600 text-right" data-label="Zeilen"><?php echo number_format($table['rows']); ?></td>
-                            <td class="px-4 py-2 text-sm text-gray-600 text-right" data-label="Größe"><?php echo number_format($table['size_mb'], 2); ?> MB</td>
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors">
+                            <td class="px-4 py-2.5 text-gray-800 dark:text-gray-200 font-medium" data-label="Tabelle"><?php echo htmlspecialchars($table['table']); ?></td>
+                            <td class="px-4 py-2.5 text-gray-600 dark:text-gray-400 text-right tabular-nums" data-label="Zeilen"><?php echo number_format($table['rows']); ?></td>
+                            <td class="px-4 py-2.5 text-gray-600 dark:text-gray-400 text-right tabular-nums" data-label="Größe"><?php echo number_format($table['size_mb'], 2); ?> MB</td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -484,57 +552,57 @@ ob_start();
 </div>
 
 <!-- Maintenance Actions -->
-<div class="card p-6">
-    <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-4">
-        <i class="fas fa-tools text-orange-600 mr-2"></i>
+<div class="card rounded-xl shadow-sm p-6 mb-6">
+    <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-5 flex items-center gap-2">
+        <i class="fas fa-tools text-orange-500 dark:text-orange-400"></i>
         Wartungsaktionen
     </h2>
-    
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <!-- Clean Logs -->
-        <div class="border border-gray-200 rounded-lg p-4">
-            <div class="mb-4">
-                <h3 class="text-lg font-semibold text-gray-800 mb-2">
-                    <i class="fas fa-broom text-yellow-600 mr-2"></i>
+        <div class="border border-gray-200 dark:border-gray-700 rounded-xl p-5 bg-gray-50 dark:bg-gray-800/40">
+            <div class="mb-5">
+                <h3 class="text-base font-semibold text-gray-800 dark:text-gray-100 mb-1 flex items-center gap-2">
+                    <i class="fas fa-broom text-yellow-500"></i>
                     Logs bereinigen
                 </h3>
-                <p class="text-sm text-gray-600 mb-3">
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
                     Löscht alte Log-Einträge zur Freigabe von Speicherplatz:
                 </p>
-                <ul class="list-disc list-inside text-sm text-gray-600 space-y-1 ml-4">
-                    <li>User Sessions älter als 30 Tage</li>
-                    <li>System Logs älter als 1 Jahr</li>
-                    <li>Inventory History älter als 1 Jahr</li>
-                    <li>Event History älter als 1 Jahr</li>
+                <ul class="space-y-1 text-sm text-gray-600 dark:text-gray-400">
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600 flex-shrink-0"></span>User Sessions älter als 30 Tage</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600 flex-shrink-0"></span>System Logs älter als 1 Jahr</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600 flex-shrink-0"></span>Inventory History älter als 1 Jahr</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600 flex-shrink-0"></span>Event History älter als 1 Jahr</li>
                 </ul>
             </div>
             <form method="POST" onsubmit="return confirm('Möchtest Du wirklich alte Logs löschen? Diese Aktion kann nicht rückgängig gemacht werden.');">
-                <button type="submit" name="clean_logs" class="w-full btn-primary flex items-center justify-center">
-                    <i class="fas fa-trash-alt mr-2"></i>
+                <button type="submit" name="clean_logs" class="w-full btn-primary min-h-[44px] flex items-center justify-center gap-2">
+                    <i class="fas fa-trash-alt"></i>
                     Logs bereinigen
                 </button>
             </form>
         </div>
-        
+
         <!-- Clear Cache -->
-        <div class="border border-gray-200 rounded-lg p-4">
-            <div class="mb-4">
-                <h3 class="text-lg font-semibold text-gray-800 mb-2">
-                    <i class="fas fa-sync-alt text-blue-600 mr-2"></i>
+        <div class="border border-gray-200 dark:border-gray-700 rounded-xl p-5 bg-gray-50 dark:bg-gray-800/40">
+            <div class="mb-5">
+                <h3 class="text-base font-semibold text-gray-800 dark:text-gray-100 mb-1 flex items-center gap-2">
+                    <i class="fas fa-sync-alt text-blue-500"></i>
                     Cache leeren
                 </h3>
-                <p class="text-sm text-gray-600 mb-3">
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
                     Löscht temporäre Cache-Dateien:
                 </p>
-                <ul class="list-disc list-inside text-sm text-gray-600 space-y-1 ml-4">
-                    <li>Alle Dateien im cache/ Ordner</li>
-                    <li>Gibt Speicherplatz frei</li>
-                    <li>Beeinflusst keine Datenbanken</li>
+                <ul class="space-y-1 text-sm text-gray-600 dark:text-gray-400">
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600 flex-shrink-0"></span>Alle Dateien im cache/ Ordner</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600 flex-shrink-0"></span>Gibt Speicherplatz frei</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600 flex-shrink-0"></span>Beeinflusst keine Datenbanken</li>
                 </ul>
             </div>
             <form method="POST" onsubmit="return confirm('Möchtest Du wirklich den Cache leeren?');">
-                <button type="submit" name="clear_cache" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition flex items-center justify-center">
-                    <i class="fas fa-eraser mr-2"></i>
+                <button type="submit" name="clear_cache" class="w-full min-h-[44px] bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white font-semibold rounded-xl transition flex items-center justify-center gap-2">
+                    <i class="fas fa-eraser"></i>
                     Cache leeren
                 </button>
             </form>
@@ -543,11 +611,13 @@ ob_start();
 </div>
 
 <!-- Warning Notice -->
-<div class="mt-6 bg-yellow-400 border-4 border-yellow-600 rounded-lg p-4">
-    <p class="text-gray-900 font-bold text-sm">
-        <i class="fas fa-exclamation-triangle mr-2"></i>
-        <strong>Hinweis:</strong> Wartungsaktionen können nicht rückgängig gemacht werden. Stelle sicher, dass Du vor dem Bereinigen wichtiger Daten ein Backup erstellt hast.
+<div class="rounded-xl p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700">
+    <p class="text-amber-800 dark:text-amber-300 font-medium text-sm flex items-start gap-2">
+        <i class="fas fa-exclamation-triangle mt-0.5 flex-shrink-0"></i>
+        <span><strong>Hinweis:</strong> Wartungsaktionen können nicht rückgängig gemacht werden. Stelle sicher, dass Du vor dem Bereinigen wichtiger Daten ein Backup erstellt hast.</span>
     </p>
+</div>
+
 </div>
 
 <?php
