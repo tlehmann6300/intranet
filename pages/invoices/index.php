@@ -280,7 +280,7 @@ ob_start();
                 ?>
 
                 <!-- Mobile Card View (visible on small screens only) -->
-                <div class="md:hidden flex flex-col gap-4 p-4">
+                <div class="lg:hidden flex flex-col gap-4 p-4">
                     <?php foreach ($invoices as $invoice): ?>
                         <?php
                         $submitterEmail = $userInfoMap[$invoice['user_id']] ?? 'Unknown';
@@ -297,6 +297,7 @@ ob_start();
                             $paidByName = explode('@', $userInfoMap[$invoice['paid_by_user_id']])[0];
                         }
                         $fileUrl         = !empty($invoice['file_path']) ? htmlspecialchars(asset('api/download_invoice_file.php?id=' . (int)$invoice['id']), ENT_QUOTES, 'UTF-8') : '';
+                        $fileExt         = !empty($invoice['file_path']) ? strtolower(pathinfo($invoice['file_path'], PATHINFO_EXTENSION)) : '';
                         $rejectionReason = !empty($invoice['rejection_reason']) ? htmlspecialchars($invoice['rejection_reason'], ENT_QUOTES) : '';
                         ?>
                         <div class="p-5 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer invoice-row relative overflow-hidden" data-status="<?php echo htmlspecialchars($invoice['status']); ?>"
@@ -311,6 +312,7 @@ ob_start();
                                  displayStatus: '<?php echo htmlspecialchars($displayStatus, ENT_QUOTES); ?>',
                                  statusLabel: '<?php echo htmlspecialchars($statusLabel, ENT_QUOTES); ?>',
                                  filePath: '<?php echo $fileUrl; ?>',
+                                 fileExt: '<?php echo htmlspecialchars($fileExt, ENT_QUOTES); ?>',
                                  paidAt: '<?php echo $paidAt; ?>',
                                  paidBy: '<?php echo htmlspecialchars($paidByName, ENT_QUOTES); ?>',
                                  rejectionReason: <?php echo json_encode($invoice['rejection_reason'] ?? ''); ?>
@@ -376,7 +378,7 @@ ob_start();
                 </div>
 
                 <!-- Desktop Table View (hidden on small screens) -->
-                <div class="hidden md:block has-action-dropdown">
+                <div class="hidden lg:block has-action-dropdown">
                     <div class="table-container">
                     <table class="w-full ibc-data-table card-table">
                     <thead>
@@ -409,6 +411,7 @@ ob_start();
                                 $paidByName = explode('@', $userInfoMap[$invoice['paid_by_user_id']])[0];
                             }
                             $fileUrl = !empty($invoice['file_path']) ? htmlspecialchars(asset('api/download_invoice_file.php?id=' . (int)$invoice['id']), ENT_QUOTES, 'UTF-8') : '';
+                            $fileExt = !empty($invoice['file_path']) ? strtolower(pathinfo($invoice['file_path'], PATHINFO_EXTENSION)) : '';
                             ?>
                             <tr class="cursor-pointer invoice-row" data-status="<?php echo htmlspecialchars($invoice['status']); ?>"
                                 onclick="openInvoiceDetail({
@@ -422,6 +425,7 @@ ob_start();
                                     displayStatus: '<?php echo htmlspecialchars($displayStatus, ENT_QUOTES); ?>',
                                     statusLabel: '<?php echo htmlspecialchars($statusLabel, ENT_QUOTES); ?>',
                                     filePath: '<?php echo $fileUrl; ?>',
+                                    fileExt: '<?php echo htmlspecialchars($fileExt, ENT_QUOTES); ?>',
                                     paidAt: '<?php echo $paidAt; ?>',
                                     paidBy: '<?php echo htmlspecialchars($paidByName, ENT_QUOTES); ?>',
                                     rejectionReason: <?php echo json_encode($invoice['rejection_reason'] ?? ''); ?>
@@ -511,7 +515,7 @@ ob_start();
 
 <?php if ($canViewTable): ?>
 <!-- Invoice Detail Modal -->
-<div id="invoiceDetailModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+<div id="invoiceDetailModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[85vh] flex flex-col overflow-hidden">
         <!-- Header -->
         <div class="p-5 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
@@ -580,7 +584,7 @@ ob_start();
         <div class="px-5 pb-5 space-y-3">
             <?php if ($canEditInvoices): ?>
             <!-- Board action buttons (shown/hidden dynamically by JS) -->
-            <div id="detail-actions-pending" class="hidden flex flex-col md:flex-row gap-4">
+            <div id="detail-actions-pending" class="hidden flex-col md:flex-row gap-4">
                 <button onclick="updateInvoiceStatusFromDetail('approved')"
                     class="flex-1 inline-flex items-center justify-center px-4 py-3 bg-green-600 dark:bg-green-700 text-white rounded-lg font-semibold hover:bg-green-700 dark:hover:bg-green-600 transition-all shadow-sm">
                     <i class="fas fa-check mr-2"></i>Genehmigen
@@ -608,7 +612,7 @@ ob_start();
 </div>
 
 <!-- Rejection Reason Modal -->
-<div id="rejectModal" class="fixed inset-0 bg-black bg-opacity-50 z-[60] hidden flex items-center justify-center p-4">
+<div id="rejectModal" class="fixed inset-0 bg-black bg-opacity-50 z-[60] hidden items-center justify-center p-4">
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden">
         <div class="p-5 border-b border-gray-200 dark:border-gray-700">
             <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100">
@@ -626,7 +630,7 @@ ob_start();
                 class="flex-1 px-4 py-3 bg-red-600 dark:bg-red-700 text-white rounded-lg font-semibold hover:bg-red-700 dark:hover:bg-red-600 transition-all">
                 <i class="fas fa-times mr-2"></i>Ablehnen
             </button>
-            <button onclick="document.getElementById('rejectModal').classList.add('hidden')"
+            <button onclick="(function(m){m.classList.add('hidden');m.classList.remove('flex');})(document.getElementById('rejectModal'))"
                 class="flex-1 px-4 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-all">
                 Abbrechen
             </button>
@@ -637,7 +641,7 @@ ob_start();
 
 <?php if ($canSubmitInvoice): ?>
 <!-- Submission Modal -->
-<div id="submissionModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+<div id="submissionModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
     <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] flex flex-col overflow-hidden">
         <!-- Header -->
         <div class="px-6 py-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between flex-shrink-0">
@@ -657,7 +661,7 @@ ob_start();
             <div class="p-6 overflow-y-auto flex-1 space-y-4">
 
                 <!-- Inline error banner (hidden by default) -->
-                <div id="submissionError" class="hidden p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 text-red-700 dark:text-red-300 rounded-xl text-sm font-medium flex items-center gap-2">
+                <div id="submissionError" class="hidden p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 text-red-700 dark:text-red-300 rounded-xl text-sm font-medium items-center gap-2">
                     <i class="fas fa-exclamation-circle text-red-500 flex-shrink-0"></i>
                     <span id="submissionErrorText"></span>
                 </div>
@@ -832,8 +836,8 @@ function openInvoiceDetail(data) {
     const noDoc         = document.getElementById('detail-no-document');
     docPreview.innerHTML = '';
     if (data.filePath) {
-        const ext = data.filePath.split('.').pop().toLowerCase();
-        if (['jpg', 'jpeg', 'png', 'heic'].includes(ext)) {
+        const ext = (data.fileExt || '').toLowerCase();
+        if (['jpg', 'jpeg', 'png', 'webp'].includes(ext)) {
             const img = document.createElement('img');
             img.src = data.filePath;
             img.alt = 'Beleg';
@@ -843,7 +847,7 @@ function openInvoiceDetail(data) {
             const iframe = document.createElement('iframe');
             iframe.src = data.filePath;
             iframe.className = 'w-full rounded-lg border border-gray-200 dark:border-gray-700';
-            iframe.style.height = '320px';
+            iframe.style.height = '300px';
             iframe.setAttribute('frameborder', '0');
             docPreview.appendChild(iframe);
         }
@@ -858,20 +862,30 @@ function openInvoiceDetail(data) {
     // Board action buttons
     const pendingActions  = document.getElementById('detail-actions-pending');
     const approvedActions = document.getElementById('detail-actions-approved');
-    if (pendingActions)  pendingActions.classList.toggle('hidden',  data.status !== 'pending');
+    if (pendingActions) {
+        const isPending = data.status === 'pending';
+        pendingActions.classList.toggle('hidden', !isPending);
+        pendingActions.classList.toggle('flex', isPending);
+    }
     if (approvedActions) approvedActions.classList.toggle('hidden', data.status !== 'approved');
 
     detailModal.classList.remove('hidden');
+    detailModal.classList.add('flex');
 }
 
 document.getElementById('closeDetailModal').addEventListener('click', () => {
     detailModal.classList.add('hidden');
+    detailModal.classList.remove('flex');
 });
 document.getElementById('closeDetailModalBtn').addEventListener('click', () => {
     detailModal.classList.add('hidden');
+    detailModal.classList.remove('flex');
 });
 detailModal.addEventListener('click', (e) => {
-    if (e.target === detailModal) detailModal.classList.add('hidden');
+    if (e.target === detailModal) {
+        detailModal.classList.add('hidden');
+        detailModal.classList.remove('flex');
+    }
 });
 
 // Actions from detail modal
@@ -887,12 +901,16 @@ function markInvoiceAsPaidFromDetail() {
 // ── Rejection reason modal ──────────────────────────────────────────────────
 function openRejectModal() {
     document.getElementById('rejectReasonInput').value = '';
-    document.getElementById('rejectModal').classList.remove('hidden');
+    const rejectModal = document.getElementById('rejectModal');
+    rejectModal.classList.remove('hidden');
+    rejectModal.classList.add('flex');
 }
 
 function confirmReject() {
     const reason = document.getElementById('rejectReasonInput').value.trim();
-    document.getElementById('rejectModal').classList.add('hidden');
+    const rejectModal = document.getElementById('rejectModal');
+    rejectModal.classList.add('hidden');
+    rejectModal.classList.remove('flex');
     const invoiceId = currentDetailInvoiceId !== null ? currentDetailInvoiceId : pendingRejectInvoiceId;
     _doUpdateStatus(invoiceId, 'rejected', reason);
 }
@@ -907,20 +925,24 @@ const cancelBtn = document.getElementById('cancelSubmission');
 
 openBtn.addEventListener('click', () => {
     modal.classList.remove('hidden');
+    modal.classList.add('flex');
 });
 
 closeBtn.addEventListener('click', () => {
     modal.classList.add('hidden');
+    modal.classList.remove('flex');
 });
 
 cancelBtn.addEventListener('click', () => {
     modal.classList.add('hidden');
+    modal.classList.remove('flex');
 });
 
 // Close modal when clicking outside
 modal.addEventListener('click', (e) => {
     if (e.target === modal) {
         modal.classList.add('hidden');
+        modal.classList.remove('flex');
     }
 });
 
@@ -986,6 +1008,7 @@ submissionForm.addEventListener('submit', (e) => {
 
     // Hide previous errors
     submissionError.classList.add('hidden');
+    submissionError.classList.remove('flex');
 
     // Loading state
     submitBtn.disabled = true;
@@ -1003,6 +1026,7 @@ submissionForm.addEventListener('submit', (e) => {
         } else {
             submissionErrText.textContent = data.message || 'Unbekannter Fehler';
             submissionError.classList.remove('hidden');
+            submissionError.classList.add('flex');
             submitBtn.disabled = false;
             submitIcon.className = 'fas fa-paper-plane';
             submitLabel.textContent = 'Einreichen';
@@ -1011,6 +1035,7 @@ submissionForm.addEventListener('submit', (e) => {
     .catch(() => {
         submissionErrText.textContent = 'Netzwerkfehler – bitte erneut versuchen.';
         submissionError.classList.remove('hidden');
+        submissionError.classList.add('flex');
         submitBtn.disabled = false;
         submitIcon.className = 'fas fa-paper-plane';
         submitLabel.textContent = 'Einreichen';
