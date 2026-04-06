@@ -334,7 +334,7 @@ ob_start();
                 <i class="fas fa-check-circle text-green-600 dark:text-green-400"></i>
                 Bewerbung akzeptieren
             </h3>
-            <button type="button" id="closeAcceptModalBtn" class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+            <button type="button" id="closeAcceptModalBtn" class="w-11 h-11 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                 <i class="fas fa-times"></i>
             </button>
         </div>
@@ -381,7 +381,7 @@ ob_start();
                 <i class="fas fa-exclamation-triangle text-red-600 dark:text-red-400"></i>
                 Bewerbung ablehnen
             </h3>
-            <button type="button" id="closeRejectModalBtn" class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+            <button type="button" id="closeRejectModalBtn" class="w-11 h-11 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                 <i class="fas fa-times"></i>
             </button>
         </div>

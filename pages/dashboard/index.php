@@ -637,7 +637,7 @@ ob_start();
     /* ── Mobile Responsive Tweaks ───────────────────────── */
     @media (max-width: 479px) {
         .hero-gradient { min-height: 10rem !important; }
-        .hero-quick-action { font-size: 0.75rem; padding: 0.5rem 0.85rem; }
+        .hero-quick-action { font-size: 0.75rem; padding: 0.5rem 0.85rem; min-height: 40px; }
         .dash-stat-card { padding: 1.1rem !important; }
     }
     /* 2-column stat grid on medium phones (480–639 px) */

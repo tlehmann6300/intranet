@@ -147,7 +147,7 @@ ob_start();
                 <i class="fas fa-address-card text-blue-600 mr-2"></i>
                 vCard bearbeiten
             </h2>
-            <button type="button" onclick="closeEditModal()" class="w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+            <button type="button" onclick="closeEditModal()" class="w-11 h-11 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                 <i class="fas fa-times text-lg"></i>
             </button>
         </div>
@@ -307,7 +307,7 @@ ob_start();
                 <i class="fas fa-plus-circle text-green-600 mr-2"></i>
                 Neue vCard anlegen
             </h2>
-            <button type="button" onclick="closeCreateModal()" class="w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+            <button type="button" onclick="closeCreateModal()" class="w-11 h-11 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                 <i class="fas fa-times text-lg"></i>
             </button>
         </div>
