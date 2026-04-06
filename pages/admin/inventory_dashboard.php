@@ -71,21 +71,21 @@ ob_start();
 ?>
 
 <div class="mb-8">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
             <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">
                 <i class="fas fa-boxes text-purple-600 mr-2"></i>
                 Inventar-Dashboard
             </h1>
-            <p class="text-gray-600">Übersicht aller aktiven Ausleihen</p>
+            <p class="text-gray-600 dark:text-gray-400">Übersicht aller aktiven Ausleihen</p>
         </div>
-        <div class="mt-4 md:mt-0 flex gap-3">
-            <a href="?export=csv&filter=<?php echo urlencode($filter); ?>" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium">
-                <i class="fas fa-file-csv mr-2"></i>
+        <div class="flex flex-wrap gap-3">
+            <a href="?export=csv&filter=<?php echo urlencode($filter); ?>" class="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] bg-green-600 hover:bg-green-700 text-white rounded-xl font-medium transition-colors text-sm">
+                <i class="fas fa-file-csv"></i>
                 CSV Export
             </a>
-            <a href="../inventory/index.php" class="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium">
-                <i class="fas fa-arrow-left mr-2"></i>
+            <a href="../inventory/index.php" class="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 font-medium transition-colors text-sm">
+                <i class="fas fa-arrow-left"></i>
                 Zum Inventar
             </a>
         </div>
@@ -112,69 +112,69 @@ document.addEventListener('DOMContentLoaded', function () {
 <!-- Filter Bar -->
 <div class="card p-4 mb-6">
     <form method="GET" action="" class="flex flex-wrap items-center gap-3">
-        <label for="filter" class="text-sm font-medium text-gray-700">
-            <i class="fas fa-filter text-purple-600 mr-1"></i>Filter:
+        <label for="filter" class="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1">
+            <i class="fas fa-filter text-purple-600"></i>Filter:
         </label>
         <select id="filter" name="filter" onchange="this.form.submit()"
-                class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                class="flex-1 sm:flex-none px-3 py-2.5 min-h-[44px] border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
             <option value="all"<?php echo $filter === 'all' ? ' selected' : ''; ?>>Alle anzeigen</option>
             <option value="rented"<?php echo $filter === 'rented' ? ' selected' : ''; ?>>Aktiv verliehen</option>
         </select>
         <?php if ($filter !== 'all'): ?>
-            <a href="?" class="text-sm text-gray-500 hover:text-gray-700">
-                <i class="fas fa-times mr-1"></i>Filter zurücksetzen
+            <a href="?" class="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 min-h-[44px] px-2">
+                <i class="fas fa-times"></i>Filter zurücksetzen
             </a>
         <?php endif; ?>
     </form>
 </div>
 
 <!-- Summary Cards -->
-<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-8">
-    <div class="card p-6">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-8 grid-no-stack">
+    <div class="card p-4 sm:p-6">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm font-medium text-gray-500 mb-1">Aktive Ausleihen</p>
+                <p class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Aktive Ausleihen</p>
                 <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-100"><?php echo count($activeRentals); ?></p>
             </div>
-            <div class="p-3 bg-purple-100 rounded-full">
-                <i class="fas fa-hand-holding-box text-purple-600 text-2xl"></i>
+            <div class="p-2.5 sm:p-3 bg-purple-100 dark:bg-purple-900/40 rounded-full">
+                <i class="fas fa-hand-holding-box text-purple-600 dark:text-purple-400 text-lg sm:text-2xl"></i>
             </div>
         </div>
     </div>
-    <div class="card p-6">
+    <div class="card p-4 sm:p-6">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm font-medium text-gray-500 mb-1">Ausgeliehene Artikel gesamt</p>
+                <p class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Ausgeliehen gesamt</p>
                 <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-100"><?php echo $checkedOutStats['total_items_out']; ?></p>
             </div>
-            <div class="p-3 bg-blue-100 rounded-full">
-                <i class="fas fa-cubes text-blue-600 text-2xl"></i>
+            <div class="p-2.5 sm:p-3 bg-blue-100 dark:bg-blue-900/40 rounded-full">
+                <i class="fas fa-cubes text-blue-600 dark:text-blue-400 text-lg sm:text-2xl"></i>
             </div>
         </div>
     </div>
-    <div class="card p-6">
+    <div class="card p-4 sm:p-6">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm font-medium text-gray-500 mb-1">Ausstehende Anfragen</p>
-                <p class="text-2xl sm:text-3xl font-bold <?php echo count($pendingRequests) > 0 ? 'text-yellow-600' : 'text-gray-800 dark:text-gray-100'; ?>">
+                <p class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Ausstehende Anfragen</p>
+                <p class="text-2xl sm:text-3xl font-bold <?php echo count($pendingRequests) > 0 ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-800 dark:text-gray-100'; ?>">
                     <?php echo count($pendingRequests); ?>
                 </p>
             </div>
-            <div class="p-3 <?php echo count($pendingRequests) > 0 ? 'bg-yellow-100' : 'bg-gray-100'; ?> rounded-full">
-                <i class="fas fa-clock <?php echo count($pendingRequests) > 0 ? 'text-yellow-600' : 'text-gray-400'; ?> text-2xl"></i>
+            <div class="p-2.5 sm:p-3 <?php echo count($pendingRequests) > 0 ? 'bg-yellow-100 dark:bg-yellow-900/40' : 'bg-gray-100 dark:bg-gray-700'; ?> rounded-full">
+                <i class="fas fa-clock <?php echo count($pendingRequests) > 0 ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-400'; ?> text-lg sm:text-2xl"></i>
             </div>
         </div>
     </div>
-    <div class="card p-6">
+    <div class="card p-4 sm:p-6">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm font-medium text-gray-500 mb-1">Überfällig</p>
-                <p class="text-2xl sm:text-3xl font-bold <?php echo $checkedOutStats['overdue'] > 0 ? 'text-red-600' : 'text-gray-800 dark:text-gray-100'; ?>">
+                <p class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Überfällig</p>
+                <p class="text-2xl sm:text-3xl font-bold <?php echo $checkedOutStats['overdue'] > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-800 dark:text-gray-100'; ?>">
                     <?php echo $checkedOutStats['overdue']; ?>
                 </p>
             </div>
-            <div class="p-3 <?php echo $checkedOutStats['overdue'] > 0 ? 'bg-red-100' : 'bg-gray-100'; ?> rounded-full">
-                <i class="fas fa-exclamation-triangle <?php echo $checkedOutStats['overdue'] > 0 ? 'text-red-600' : 'text-gray-400'; ?> text-2xl"></i>
+            <div class="p-2.5 sm:p-3 <?php echo $checkedOutStats['overdue'] > 0 ? 'bg-red-100 dark:bg-red-900/40' : 'bg-gray-100 dark:bg-gray-700'; ?> rounded-full">
+                <i class="fas fa-exclamation-triangle <?php echo $checkedOutStats['overdue'] > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-400'; ?> text-lg sm:text-2xl"></i>
             </div>
         </div>
     </div>
@@ -182,36 +182,36 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <!-- Ausstehende Anfragen -->
 <div class="card p-6 mb-8">
-    <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4">
+    <h2 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">
         <i class="fas fa-clock text-yellow-500 mr-2"></i>
         Ausstehende Anfragen
         <?php if (count($pendingRequests) > 0): ?>
-            <span class="ml-2 px-2 py-0.5 text-sm bg-yellow-100 text-yellow-700 rounded-full font-semibold pending-count-badge"><?php echo count($pendingRequests); ?></span>
+            <span class="ml-2 px-2 py-0.5 text-sm bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300 rounded-full font-semibold pending-count-badge"><?php echo count($pendingRequests); ?></span>
         <?php endif; ?>
     </h2>
 
     <?php if (empty($pendingRequests)): ?>
     <div class="text-center py-10">
-        <i class="fas fa-check-circle text-5xl text-green-300 mb-3"></i>
-        <p class="text-gray-500">Keine ausstehenden Anfragen</p>
+        <i class="fas fa-check-circle text-5xl text-green-300 dark:text-green-700 mb-3"></i>
+        <p class="text-gray-500 dark:text-gray-400">Keine ausstehenden Anfragen</p>
     </div>
     <?php else: ?>
     <div class="overflow-x-auto w-full">
         <table class="w-full card-table" id="pending-requests-table">
-            <thead class="bg-yellow-50">
+            <thead class="bg-yellow-50 dark:bg-yellow-900/20">
                 <tr>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Antragsteller</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Artikel</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Menge</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Zeitraum</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Zweck</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aktionen</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Antragsteller</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Artikel</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Menge</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Zeitraum</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden lg:table-cell">Zweck</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Aktionen</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200">
+            <tbody class="divide-y divide-gray-200 dark:divide-slate-700">
                 <?php foreach ($pendingRequests as $req): ?>
-                <tr id="pending-row-<?php echo (int)$req['id']; ?>" class="hover:bg-yellow-50">
+                <tr id="pending-row-<?php echo (int)$req['id']; ?>" class="hover:bg-yellow-50 dark:hover:bg-yellow-900/10">
                     <td class="px-4 py-3 text-sm text-gray-800" data-label="Antragsteller">
                         <i class="fas fa-user text-gray-400 mr-1"></i>
                         <?php echo htmlspecialchars($req['user_name'] ?? $req['user_email'] ?? 'Unbekannt'); ?>
@@ -239,18 +239,18 @@ document.addEventListener('DOMContentLoaded', function () {
                         </span>
                     </td>
                     <td class="px-4 py-3 text-sm" data-label="Aktionen">
-                        <div class="flex gap-2">
+                        <div class="flex flex-wrap gap-2">
                             <button
                                 onclick="handleRequest(<?php echo (int)$req['id']; ?>, 'approve')"
-                                class="inline-flex items-center gap-1 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded-lg transition"
+                                class="inline-flex items-center gap-1.5 px-3 py-2 min-h-[44px] bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded-lg transition"
                                 title="Anfrage genehmigen">
-                                <i class="fas fa-check"></i>Genehmigen
+                                <i class="fas fa-check"></i><span>Genehmigen</span>
                             </button>
                             <button
                                 onclick="handleRequest(<?php echo (int)$req['id']; ?>, 'reject')"
-                                class="inline-flex items-center gap-1 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg transition"
+                                class="inline-flex items-center gap-1.5 px-3 py-2 min-h-[44px] bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg transition"
                                 title="Anfrage ablehnen">
-                                <i class="fas fa-times"></i>Ablehnen
+                                <i class="fas fa-times"></i><span>Ablehnen</span>
                             </button>
                         </div>
                     </td>
@@ -264,35 +264,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <!-- Active Rentals Table -->
 <div class="card p-6">
-    <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4">
+    <h2 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">
         <i class="fas fa-clipboard-list text-blue-600 mr-2"></i>
         Aktive Ausleihen
     </h2>
 
     <?php if (empty($activeRentals)): ?>
     <div class="text-center py-12">
-        <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
-        <p class="text-gray-500 text-lg">Keine aktiven Ausleihen vorhanden</p>
+        <i class="fas fa-inbox text-6xl text-gray-300 dark:text-gray-600 mb-4"></i>
+        <p class="text-gray-500 dark:text-gray-400 text-lg">Keine aktiven Ausleihen vorhanden</p>
     </div>
     <?php else: ?>
     <div class="overflow-x-auto w-full">
         <table class="w-full card-table">
-            <thead class="bg-gray-50">
+            <thead class="bg-gray-50 dark:bg-slate-800">
                 <tr>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Benutzer</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Artikel</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Menge</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Ausgeliehen am</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rückgabe bis</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Benutzer</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Artikel</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Menge</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden lg:table-cell">Ausgeliehen am</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Rückgabe bis</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200">
+            <tbody class="divide-y divide-gray-200 dark:divide-slate-700">
                 <?php foreach ($activeRentals as $rental): ?>
                 <?php
                 $isOverdue = !empty($rental['expected_return']) && strtotime($rental['expected_return']) < time();
                 ?>
-                <tr class="hover:bg-gray-50 <?php echo $isOverdue ? 'bg-red-50' : ''; ?>">
+                <tr class="hover:bg-gray-50 dark:hover:bg-slate-800/60 <?php echo $isOverdue ? 'bg-red-50 dark:bg-red-900/10' : ''; ?>">
                     <td class="px-4 py-3 text-sm text-gray-800" data-label="Benutzer">
                         <i class="fas fa-user text-gray-400 mr-1"></i>
                         <?php echo htmlspecialchars($rental['borrower_name'] ?? $rental['borrower_email'] ?? 'Unbekannt'); ?>
@@ -340,31 +340,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <!-- Bestandsliste -->
 <div class="card p-6 mt-8">
-    <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4">
+    <h2 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">
         <i class="fas fa-warehouse text-green-600 mr-2"></i>
         Bestandsliste
     </h2>
     <?php if (empty($inventoryItems)): ?>
     <div class="text-center py-12">
-        <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
-        <p class="text-gray-500 text-lg">Keine Artikel im Inventar vorhanden</p>
+        <i class="fas fa-inbox text-6xl text-gray-300 dark:text-gray-600 mb-4"></i>
+        <p class="text-gray-500 dark:text-gray-400 text-lg">Keine Artikel im Inventar vorhanden</p>
     </div>
     <?php else: ?>
     <div class="overflow-x-auto w-full">
         <table class="w-full card-table">
-            <thead class="bg-gray-50">
+            <thead class="bg-gray-50 dark:bg-slate-800">
                 <tr>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Artikel</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategorie</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gesamtbestand</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Verliehen</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Verfügbar</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Artikel</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Kategorie</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Gesamtbestand</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Verliehen</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Verfügbar</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200">
+            <tbody class="divide-y divide-gray-200 dark:divide-slate-700">
                 <?php foreach ($inventoryItems as $item): ?>
                 <?php $available = (int)$item['available_quantity']; ?>
-                <tr class="hover:bg-gray-50">
+                <tr class="hover:bg-gray-50 dark:hover:bg-slate-800/60">
                     <td class="px-4 py-3 text-sm" data-label="Artikel">
                         <a href="../inventory/view.php?id=<?php echo $item['id']; ?>" class="font-semibold text-purple-600 hover:text-purple-800">
                             <?php echo htmlspecialchars($item['name']); ?>

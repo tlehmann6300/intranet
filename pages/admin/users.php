@@ -161,22 +161,24 @@ ob_start();
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
         <nav class="flex" aria-label="Tabs">
             <button 
-                class="tab-button active flex-1 py-3 sm:py-4 px-3 sm:px-6 text-center font-semibold transition-all duration-200 relative overflow-hidden bg-gradient-to-r from-purple-600 to-indigo-600 text-white"
+                class="tab-button active flex-1 py-3 sm:py-4 px-3 sm:px-6 min-h-[44px] text-center font-semibold transition-all duration-200 relative overflow-hidden bg-gradient-to-r from-purple-600 to-indigo-600 text-white"
                 data-tab="users"
             >
-                <span class="relative z-10 flex items-center justify-center">
-                    <i class="fas fa-users mr-2"></i>
-                    <span>Benutzerliste</span>
+                <span class="relative z-10 flex items-center justify-center gap-2">
+                    <i class="fas fa-users"></i>
+                    <span class="hidden xs:inline sm:inline">Benutzerliste</span>
+                    <span class="xs:hidden sm:hidden">Benutzer</span>
                 </span>
             </button>
             <?php if (Auth::canManageUsers()): ?>
             <button 
-                class="tab-button flex-1 py-3 sm:py-4 px-3 sm:px-6 text-center font-semibold transition-all duration-200 relative overflow-hidden bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
+                class="tab-button flex-1 py-3 sm:py-4 px-3 sm:px-6 min-h-[44px] text-center font-semibold transition-all duration-200 relative overflow-hidden bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
                 data-tab="entra-search"
             >
-                <span class="relative z-10 flex items-center justify-center">
-                    <i class="fab fa-microsoft mr-2"></i>
-                    <span>Entra-Benutzer</span>
+                <span class="relative z-10 flex items-center justify-center gap-2">
+                    <i class="fab fa-microsoft"></i>
+                    <span class="hidden sm:inline">Entra-Benutzer</span>
+                    <span class="sm:hidden">Entra</span>
                 </span>
             </button>
             <?php endif; ?>

@@ -46,23 +46,38 @@ ob_start();
 
     <!-- Summary cards -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 mt-4">
-        <div class="card p-5 border-l-4 border-yellow-400">
-            <p class="text-sm text-gray-500 dark:text-gray-400">Ausstehend</p>
-            <p class="text-2xl sm:text-3xl font-bold text-yellow-600 dark:text-yellow-400"><?php echo $counts['pending']; ?></p>
+        <div class="card p-5 border-l-4 border-yellow-400 flex items-center gap-4">
+            <div class="w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-900/40 flex items-center justify-center shrink-0">
+                <i class="fas fa-clock text-yellow-600 dark:text-yellow-400"></i>
+            </div>
+            <div>
+                <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Ausstehend</p>
+                <p class="text-2xl sm:text-3xl font-bold text-yellow-600 dark:text-yellow-400"><?php echo $counts['pending']; ?></p>
+            </div>
         </div>
-        <div class="card p-5 border-l-4 border-green-500">
-            <p class="text-sm text-gray-500 dark:text-gray-400">Akzeptiert</p>
-            <p class="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400"><?php echo $counts['approved']; ?></p>
+        <div class="card p-5 border-l-4 border-green-500 flex items-center gap-4">
+            <div class="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center shrink-0">
+                <i class="fas fa-check text-green-600 dark:text-green-400"></i>
+            </div>
+            <div>
+                <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Akzeptiert</p>
+                <p class="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400"><?php echo $counts['approved']; ?></p>
+            </div>
         </div>
-        <div class="card p-5 border-l-4 border-red-500">
-            <p class="text-sm text-gray-500 dark:text-gray-400">Abgelehnt</p>
-            <p class="text-2xl sm:text-3xl font-bold text-red-600 dark:text-red-400"><?php echo $counts['rejected']; ?></p>
+        <div class="card p-5 border-l-4 border-red-500 flex items-center gap-4">
+            <div class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center shrink-0">
+                <i class="fas fa-times text-red-600 dark:text-red-400"></i>
+            </div>
+            <div>
+                <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Abgelehnt</p>
+                <p class="text-2xl sm:text-3xl font-bold text-red-600 dark:text-red-400"><?php echo $counts['rejected']; ?></p>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- Toast notification -->
-<div id="toast" class="hidden fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3 rounded-xl shadow-xl text-white text-sm font-medium transition-all duration-300">
+<div id="toast" class="hidden fixed bottom-24 sm:bottom-6 right-4 sm:right-6 z-50 flex items-center gap-3 px-5 py-3 rounded-xl shadow-xl text-white text-sm font-medium transition-all duration-300">
     <i id="toast-icon" class="fas fa-check-circle text-lg"></i>
     <span id="toast-msg"></span>
 </div>
