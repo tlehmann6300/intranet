@@ -258,6 +258,11 @@
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    /* No transform here: with animation-fill-mode:both the final keyframe is
+       retained permanently. Specifying transform:translateY(0) would keep a
+       non-none transform on <body> forever, which makes <body> the containing
+       block for position:fixed descendants – breaking viewport-centred modals.
+       Leaving transform out lets the browser interpolate to translateY(0)
+       visually while reverting to transform:none after the animation ends. */
   }
 }
