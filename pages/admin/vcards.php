@@ -33,11 +33,11 @@ ob_start();
             </h1>
             <p class="text-gray-600 dark:text-gray-400"><?php echo count($vcards); ?> Kontakte</p>
         </div>
-        <div class="mt-4 md:mt-0">
+        <div class="mt-3 md:mt-0">
             <button
                 type="button"
                 onclick="openCreateModal()"
-                class="inline-flex items-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl shadow-md transition-colors text-sm">
+                class="inline-flex items-center gap-2 px-5 py-2.5 min-h-[44px] bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl shadow-md transition-colors text-sm w-full sm:w-auto justify-center">
                 <i class="fas fa-plus-circle text-base"></i>
                 Neue vCard anlegen
             </button>
@@ -98,7 +98,8 @@ ob_start();
                         data-vcard-id="<?php echo (int)$card['id']; ?>" data-col="telefon">
                         <?php echo htmlspecialchars($card['telefon'] ?? '—'); ?>
                     </td>
-                    <td class="px-4 py-3 text-right whitespace-nowrap">
+                    <td class="px-4 py-3 text-right" data-label="Aktionen">
+                        <div class="flex items-center justify-end gap-2">
                         <button
                             type="button"
                             onclick="openEditModal(<?php echo (int)$card['id']; ?>,
@@ -110,17 +111,18 @@ ob_start();
                                 <?php echo json_encode($card['telefon'] ?? ''); ?>,
                                 <?php echo json_encode($card['linkedin'] ?? ''); ?>,
                                 <?php echo json_encode($card['profilbild'] ?? ''); ?>)"
-                            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+                            class="inline-flex items-center gap-1.5 px-3 py-2 min-h-[44px] text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
                             <i class="fas fa-pen"></i>
-                            <span>Bearbeiten</span>
+                            <span class="hidden sm:inline">Bearbeiten</span>
                         </button>
                         <button
                             type="button"
                             onclick="deleteVCard(<?php echo (int)$card['id']; ?>, this.closest('tr'))"
-                            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors ml-2">
+                            class="inline-flex items-center gap-1.5 px-3 py-2 min-h-[44px] text-xs font-semibold bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors">
                             <i class="fas fa-trash"></i>
-                            <span>Löschen</span>
+                            <span class="hidden sm:inline">Löschen</span>
                         </button>
+                        </div>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -134,15 +136,19 @@ ob_start();
 <input type="hidden" id="sharedCsrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
 
 <!-- Edit Modal -->
-<div id="editModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] items-center justify-center p-4">
-    <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-lg shadow-2xl flex flex-col overflow-hidden max-h-[90vh]">
+<div id="editModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-t-2xl sm:rounded-xl w-full sm:max-w-lg shadow-2xl flex flex-col overflow-hidden max-h-[92vh] sm:max-h-[90vh]">
+        <!-- Drag handle (mobile only) -->
+        <div class="sm:hidden flex justify-center pt-3 pb-1">
+            <div class="w-10 h-1 rounded-full bg-gray-300 dark:bg-gray-600"></div>
+        </div>
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
             <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100">
                 <i class="fas fa-address-card text-blue-600 mr-2"></i>
                 vCard bearbeiten
             </h2>
-            <button type="button" onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
-                <i class="fas fa-times text-xl"></i>
+            <button type="button" onclick="closeEditModal()" class="w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                <i class="fas fa-times text-lg"></i>
             </button>
         </div>
 
@@ -274,13 +280,13 @@ ob_start();
                 <button
                     type="button"
                     onclick="closeEditModal()"
-                    class="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors font-medium">
+                    class="flex-1 min-h-[44px] px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors font-medium">
                     Abbrechen
                 </button>
                 <button
                     type="submit"
                     id="editSubmitBtn"
-                    class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2">
+                    class="flex-1 min-h-[44px] px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors font-medium flex items-center justify-center gap-2">
                     <i class="fas fa-save"></i>
                     Speichern
                 </button>
@@ -290,15 +296,19 @@ ob_start();
 </div>
 
 <!-- Create Modal -->
-<div id="createModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] items-center justify-center p-4">
-    <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-lg shadow-2xl flex flex-col overflow-hidden max-h-[90vh]">
+<div id="createModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-t-2xl sm:rounded-xl w-full sm:max-w-lg shadow-2xl flex flex-col overflow-hidden max-h-[92vh] sm:max-h-[90vh]">
+        <!-- Drag handle (mobile only) -->
+        <div class="sm:hidden flex justify-center pt-3 pb-1">
+            <div class="w-10 h-1 rounded-full bg-gray-300 dark:bg-gray-600"></div>
+        </div>
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
             <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100">
                 <i class="fas fa-plus-circle text-green-600 mr-2"></i>
                 Neue vCard anlegen
             </h2>
-            <button type="button" onclick="closeCreateModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
-                <i class="fas fa-times text-xl"></i>
+            <button type="button" onclick="closeCreateModal()" class="w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                <i class="fas fa-times text-lg"></i>
             </button>
         </div>
 
@@ -426,13 +436,13 @@ ob_start();
                 <button
                     type="button"
                     onclick="closeCreateModal()"
-                    class="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors font-medium">
+                    class="flex-1 min-h-[44px] px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors font-medium">
                     Abbrechen
                 </button>
                 <button
                     type="submit"
                     id="createSubmitBtn"
-                    class="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2">
+                    class="flex-1 min-h-[44px] px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl transition-colors font-medium flex items-center justify-center gap-2">
                     <i class="fas fa-plus"></i>
                     Anlegen
                 </button>

@@ -290,7 +290,8 @@ ob_start();
         display: inline-flex;
         align-items: center;
         gap: 0.45rem;
-        padding: 0.55rem 1.1rem;
+        padding: 0.6rem 1.1rem;
+        min-height: 40px;
         border-radius: 9999px;
         font-size: 0.8125rem;
         font-weight: 700;
@@ -632,6 +633,20 @@ ob_start();
             animation: hero-fadein 0.55s cubic-bezier(.22,.61,.36,1) both;
         }
     }
+
+    /* ── Mobile Responsive Tweaks ───────────────────────── */
+    @media (max-width: 479px) {
+        .hero-gradient { min-height: 10rem !important; }
+        .hero-quick-action { font-size: 0.75rem; padding: 0.5rem 0.85rem; }
+        .dash-stat-card { padding: 1.1rem !important; }
+    }
+    /* 2-column stat grid on medium phones (480–639 px) */
+    @media (min-width: 480px) and (max-width: 639px) {
+        .dash-stats-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 0.75rem !important;
+        }
+    }
 </style>
 
 <?php if (!empty($user['prompt_profile_review']) && $user['prompt_profile_review'] == 1): ?>
@@ -918,7 +933,7 @@ function dismissProfileReviewPrompt() {
             </div>
         </div>
     </div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-4 md:gap-6">
+    <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-4 md:gap-6 grid-no-stack dash-stats-grid">
 
         <!-- Rentals Stat Card -->
         <a href="/pages/inventory/my_rentals.php"
@@ -1043,9 +1058,9 @@ function dismissProfileReviewPrompt() {
                         Du bist zu&nbsp;<strong style="color: #a855f7"><?php echo $profileCompletenessPercent; ?>%</strong>&nbsp;fertig!</span>
                     </p>
                     <a href="../auth/profile.php"
-                       class="inline-flex items-center px-4 py-2.5 text-white rounded-xl font-semibold text-sm transition-all duration-300 shadow-md hover:opacity-90 hover:-translate-y-0.5"
+                       class="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] text-white rounded-xl font-semibold text-sm transition-all duration-300 shadow-md hover:opacity-90 hover:-translate-y-0.5"
                        style="background: linear-gradient(135deg, #a855f7, #ec4899)">
-                        <i class="fas fa-user-edit mr-2"></i>Profil vervollständigen
+                        <i class="fas fa-user-edit"></i>Profil vervollständigen
                     </a>
                 </div>
             </div>
