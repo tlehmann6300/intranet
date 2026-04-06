@@ -452,6 +452,29 @@ $statusInfo = $statusLabels[$currentStatus] ?? ['label' => $currentStatus, 'icon
         </div><!-- /sidebar -->
     </div><!-- /grid -->
 
+    <!-- Mobile-only sticky CTA bar -->
+    <?php if ($currentStatus === 'open' && !$event['is_external']): ?>
+    <div class="lg:hidden fixed bottom-[4.5rem] left-0 right-0 z-30 px-4 pb-2 pointer-events-none" id="mobileCTABar">
+        <div class="pointer-events-auto">
+        <?php if (!$isRegistered && !$userSlotId): ?>
+            <button onclick="signupForEvent(<?php echo intval($eventId); ?>)"
+                    class="w-full flex items-center justify-center gap-2 px-5 py-4 bg-ibc-green text-white rounded-2xl font-bold text-base shadow-2xl hover:bg-ibc-green-dark ease-premium">
+                <i class="fas fa-user-plus"></i>Jetzt anmelden
+            </button>
+        <?php elseif ($canCancel && $userSignupId && !$userSlotId): ?>
+            <button onclick="cancelSignup(<?php echo $userSignupId; ?>)"
+                    class="w-full flex items-center justify-center gap-2 px-5 py-4 bg-red-600 text-white rounded-2xl font-bold text-base shadow-2xl hover:bg-red-700 ease-premium">
+                <i class="fas fa-user-times"></i>Abmelden
+            </button>
+        <?php elseif ($isRegistered): ?>
+            <div class="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-ibc-green text-white font-bold text-base shadow-2xl">
+                <i class="fas fa-check-circle"></i>Du bist angemeldet
+            </div>
+        <?php endif; ?>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <!-- Helper Slots Section (Only for non-alumni and if event needs helpers) -->
     <?php if ($event['needs_helpers'] && $userRole !== 'alumni' && !empty($helperTypes)): ?>
         <div class="card rounded-2xl p-6 border border-gray-200 dark:border-gray-700 shadow-soft">
@@ -707,8 +730,13 @@ $statusInfo = $statusLabels[$currentStatus] ?? ['label' => $currentStatus, 'icon
     /* ── Quick Stats Row ────────────────────────────── */
     .event-quickstats {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        grid-template-columns: repeat(2, 1fr);
         gap: 0.75rem;
+    }
+    @media (min-width: 640px) {
+        .event-quickstats {
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        }
     }
 
     /* Stat cards with colored left border accents */
@@ -825,6 +853,19 @@ $statusInfo = $statusLabels[$currentStatus] ?? ['label' => $currentStatus, 'icon
             top: 1.5rem;
             align-self: flex-start;
         }
+    }
+
+    /* ── Mobile bottom padding when sticky CTA visible ── */
+    @media (max-width: 1023px) {
+        #mobileCTABar + * {
+            margin-bottom: 6rem;
+        }
+    }
+
+    /* ── Reduce hero height on very small screens ── */
+    @media (max-width: 360px) {
+        .event-hero-image { height: 220px; }
+        .event-hero-content { padding: 0.875rem 1rem; }
     }
 </style>
 <div id="message-container" class="fixed top-4 right-4 z-50 hidden">

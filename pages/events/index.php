@@ -86,18 +86,20 @@ ob_start();
         </div>
     </div>
 
-    <!-- Filter Tabs -->
-    <div class="mb-6 flex gap-2 flex-wrap">
-        <a href="?filter=current" 
-           class="events-filter-tab <?php echo $filter === 'current' ? 'events-filter-tab--active text-white' : ''; ?>">
-            <i class="fas fa-calendar-day mr-2"></i>
-            Aktuell
-        </a>
-        <a href="?filter=my_registrations" 
-           class="events-filter-tab <?php echo $filter === 'my_registrations' ? 'events-filter-tab--active text-white' : ''; ?>">
-            <i class="fas fa-user-check mr-2"></i>
-            Meine Anmeldungen
-        </a>
+    <!-- Filter Tabs – horizontal scroll on mobile -->
+    <div class="mb-6 -mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto scrollbar-hide">
+        <div class="flex gap-2 flex-nowrap pb-1">
+            <a href="?filter=current" 
+               class="events-filter-tab flex-shrink-0 <?php echo $filter === 'current' ? 'events-filter-tab--active text-white' : ''; ?>">
+                <i class="fas fa-calendar-day mr-2"></i>
+                Aktuell
+            </a>
+            <a href="?filter=my_registrations" 
+               class="events-filter-tab flex-shrink-0 <?php echo $filter === 'my_registrations' ? 'events-filter-tab--active text-white' : ''; ?>">
+                <i class="fas fa-user-check mr-2"></i>
+                Meine Anmeldungen
+            </a>
+        </div>
     </div>
 
     <!-- Events Grid -->
@@ -285,6 +287,12 @@ ob_start();
 
 <style>
     /* ── Filter Tabs ────────────────────────────────── */
+    .scrollbar-hide {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+
     .events-filter-tab {
         display: inline-flex;
         align-items: center;
@@ -297,6 +305,7 @@ ob_start();
         color: var(--text-muted);
         border: 1.5px solid var(--border-color);
         text-decoration: none !important;
+        white-space: nowrap;
     }
     .events-filter-tab:hover {
         border-color: var(--ibc-blue);
@@ -339,6 +348,9 @@ ob_start();
         height: 220px;
         background: #e5e7eb;
         flex-shrink: 0;
+    }
+    @media (max-width: 480px) {
+        .event-card-image { height: 180px; }
     }
 
     /* Image overlay so text badges stay readable */

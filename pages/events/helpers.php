@@ -235,7 +235,7 @@ ob_start();
                                             $isFull = $slot['signups_count'] >= $slot['quantity_needed'];
                                             $isUserSignedUp = in_array($slot['id'], $mySlotIds);
                                             ?>
-                                            <div class="px-4 py-3 flex items-center justify-between gap-4 flex-wrap bg-white dark:bg-gray-900">
+                                             <div class="px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 bg-white dark:bg-gray-900">
                                                 <!-- Time + type -->
                                                 <div class="flex items-center gap-2 flex-wrap min-w-0">
                                                     <i class="fas fa-clock text-ibc-blue text-sm flex-shrink-0"></i>
@@ -251,20 +251,20 @@ ob_start();
                                                     <?php endif; ?>
                                                 </div>
                                                 <!-- Capacity + Status -->
-                                                <div class="flex items-center gap-3 flex-shrink-0">
-                                                    <span class="text-xs text-gray-500 dark:text-gray-400">
+                                                <div class="flex items-center gap-3 flex-shrink-0 sm:ml-auto">
+                                                    <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">
                                                         <?php echo $slot['signups_count']; ?>/<?php echo $slot['quantity_needed']; ?>
                                                     </span>
                                                     <?php if ($isUserSignedUp): ?>
-                                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-ibc-blue/10 text-ibc-blue border border-ibc-blue/20">
+                                                        <span class="inline-flex items-center gap-1 px-2.5 py-1.5 min-h-[36px] rounded-full text-xs font-semibold bg-ibc-blue/10 text-ibc-blue border border-ibc-blue/20">
                                                             <i class="fas fa-check text-[10px]"></i>Angemeldet
                                                         </span>
                                                     <?php elseif ($isFull): ?>
-                                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800">
+                                                        <span class="inline-flex items-center gap-1 px-2.5 py-1.5 min-h-[36px] rounded-full text-xs font-semibold bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800">
                                                             <i class="fas fa-times text-[10px]"></i>Voll
                                                         </span>
                                                     <?php else: ?>
-                                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-green-50 dark:bg-green-900/30 text-ibc-green border border-green-200 dark:border-green-800">
+                                                        <span class="inline-flex items-center gap-1 px-2.5 py-1.5 min-h-[36px] rounded-full text-xs font-semibold bg-green-50 dark:bg-green-900/30 text-ibc-green border border-green-200 dark:border-green-800">
                                                             <i class="fas fa-check-circle text-[10px]"></i>Verfügbar
                                                         </span>
                                                     <?php endif; ?>
@@ -280,9 +280,9 @@ ob_start();
                     <!-- Action Button -->
                     <div class="px-6 pb-6 flex justify-end">
                         <a href="view.php?id=<?php echo $event['id']; ?>" 
-                           class="inline-flex items-center gap-2 px-5 py-2.5 bg-ibc-green hover:bg-ibc-green-dark text-white rounded-xl font-semibold text-sm transition-all shadow-sm hover:shadow-md">
+                           class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-5 py-3 bg-ibc-green hover:bg-ibc-green-dark text-white rounded-xl font-semibold text-sm transition-all shadow-sm hover:shadow-md">
                             <i class="fas fa-eye"></i>
-                            Event ansehen & anmelden
+                            Event ansehen &amp; anmelden
                         </a>
                     </div>
                 </div>
