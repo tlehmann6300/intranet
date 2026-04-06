@@ -172,11 +172,15 @@ ob_start();
 ?>
 
 <div class="max-w-6xl mx-auto">
-    <!-- Back Button -->
+    <!-- Back Button (breadcrumb style) -->
     <div class="mb-6">
-        <a href="index.php" class="text-blue-600 hover:text-blue-700 inline-flex items-center">
-            <i class="fas fa-arrow-left mr-2"></i>Zurück zu News & Updates
-        </a>
+        <nav class="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
+            <a href="index.php" class="inline-flex items-center gap-1.5 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors">
+                <i class="fas fa-arrow-left text-xs"></i>News &amp; Updates
+            </a>
+            <i class="fas fa-chevron-right text-xs opacity-50 mx-1"></i>
+            <span class="truncate max-w-[200px] sm:max-w-xs text-gray-600 dark:text-gray-300"><?php echo htmlspecialchars($post['title']); ?></span>
+        </nav>
     </div>
 
     <!-- Success Message -->
@@ -227,20 +231,15 @@ ob_start();
             </h1>
             
             <!-- Meta Information -->
-            <div class="flex flex-wrap items-center gap-4 text-slate-500 dark:text-slate-400 mb-6 pb-6 border-b border-slate-200 dark:border-slate-700">
-                <div class="flex items-center min-w-0">
-                    <i class="fas fa-user-circle mr-2 text-blue-600 dark:text-blue-400 flex-shrink-0"></i>
-                    <span class="break-all"><?php echo htmlspecialchars($post['author_email']); ?></span>
-                </div>
-                <div class="flex items-center">
-                    <i class="fas fa-calendar-alt mr-2 text-blue-600 dark:text-blue-400 flex-shrink-0"></i>
-                    <span>
-                        <?php 
-                            $date = new DateTime($post['created_at']);
-                            echo $date->format('d.m.Y H:i');
-                        ?>
-                    </span>
-                </div>
+            <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-slate-500 dark:text-slate-400 text-sm mb-6 pb-6 border-b border-slate-200 dark:border-slate-700">
+                <span class="inline-flex items-center gap-1.5 min-w-0">
+                    <i class="fas fa-user-circle text-blue-600 dark:text-blue-400 flex-shrink-0"></i>
+                    <span class="truncate max-w-[160px] sm:max-w-none"><?php echo htmlspecialchars($post['author_email']); ?></span>
+                </span>
+                <span class="inline-flex items-center gap-1.5 flex-shrink-0">
+                    <i class="fas fa-calendar-alt text-blue-600 dark:text-blue-400"></i>
+                    <?php $date = new DateTime($post['created_at']); echo $date->format('d.m.Y H:i'); ?>
+                </span>
             </div>
             
             <!-- Full Content -->
@@ -277,22 +276,17 @@ ob_start();
     </div>
 
     <!-- Interaction Section -->
-    <div class="card p-4 sm:p-6 md:p-8 mb-8">
-        <h2 class="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100 mb-6">
-            <i class="fas fa-heart mr-2 text-red-500"></i>
-            Interaktion
-        </h2>
-        
+    <div class="card p-4 sm:p-6 mb-6">
         <!-- Like Button -->
-        <form method="POST" class="mb-6">
+        <form method="POST">
             <input type="hidden" name="csrf_token" value="<?php echo CSRFHandler::getToken(); ?>">
             <input type="hidden" name="action" value="toggle_like">
-            
-            <button type="submit" 
-                    class="inline-flex items-center px-6 py-3 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg <?php echo $userHasLiked ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'; ?>">
-                <i class="fas fa-heart mr-2"></i>
+
+            <button type="submit"
+                    class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all shadow-sm hover:shadow-md <?php echo $userHasLiked ? 'bg-red-500 text-white hover:bg-red-600' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600'; ?>">
+                <i class="fas fa-heart <?php echo $userHasLiked ? '' : 'text-gray-400 dark:text-gray-400'; ?>"></i>
                 <?php echo $userHasLiked ? 'Geliked' : 'Liken'; ?>
-                <span class="ml-2 px-2 py-1 bg-white bg-opacity-20 rounded-full text-sm">
+                <span class="ml-1 px-2 py-0.5 rounded-full text-xs font-bold <?php echo $userHasLiked ? 'bg-white/25' : 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300'; ?>">
                     <?php echo (int)$post['like_count']; ?>
                 </span>
             </button>
@@ -300,10 +294,11 @@ ob_start();
     </div>
 
     <!-- Comments Section -->
-    <div class="card p-4 sm:p-6 md:p-8">
-        <h2 class="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100 mb-6">
-            <i class="fas fa-comments mr-2 text-blue-500"></i>
-            Kommentare (<?php echo count($post['comments']); ?>)
+    <div class="card p-4 sm:p-6">
+        <h2 class="text-lg sm:text-xl font-bold text-slate-800 dark:text-slate-100 mb-5 flex items-center gap-2">
+            <i class="fas fa-comments text-blue-500"></i>
+            Kommentare
+            <span class="ml-1 text-sm font-normal text-slate-500 dark:text-slate-400">(<?php echo count($post['comments']); ?>)</span>
         </h2>
         
         <!-- Existing Comments -->
@@ -417,37 +412,31 @@ ob_start();
         <?php endif; ?>
         
         <!-- Write Comment Form -->
-        <div class="border-t border-slate-200 dark:border-slate-700 pt-6">
-            <h3 class="text-lg sm:text-xl font-semibold text-slate-800 dark:text-slate-100 mb-4">
-                <i class="fas fa-pen mr-2"></i>
+        <div class="border-t border-slate-200 dark:border-slate-700 pt-5 mt-2">
+            <h3 class="text-base font-semibold text-slate-800 dark:text-slate-100 mb-3 flex items-center gap-2">
+                <i class="fas fa-pen text-blue-500"></i>
                 Kommentar schreiben
             </h3>
-            
-            <form method="POST" class="space-y-4">
+
+            <form method="POST" class="space-y-3">
                 <input type="hidden" name="csrf_token" value="<?php echo CSRFHandler::getToken(); ?>">
                 <input type="hidden" name="action" value="add_comment">
-                
-                <div>
-                    <label class="block w-full text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Ihr Kommentar</label>
-                    <textarea 
-                        name="comment_content" 
-                        required 
-                        rows="4"
-                        maxlength="2000"
-                        placeholder="Schreibe Deinen Kommentar hier..."
-                        class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-sans dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400"
-                        style="resize: vertical; min-height: 100px;"
-                    ></textarea>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">
-                        Maximum: 2000 Zeichen
-                    </p>
-                </div>
-                
-                <div>
-                    <button type="submit" 
-                            class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-xl">
-                        <i class="fas fa-paper-plane mr-2"></i>
-                        Kommentar absenden
+
+                <textarea
+                    name="comment_content"
+                    required
+                    rows="3"
+                    maxlength="2000"
+                    placeholder="Schreibe Deinen Kommentar hier…"
+                    class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-sans dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 text-sm"
+                    style="resize: vertical; min-height: 90px;"
+                ></textarea>
+                <div class="flex items-center justify-between">
+                    <p class="text-xs text-slate-400 dark:text-slate-500">Max. 2000 Zeichen</p>
+                    <button type="submit"
+                            class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg text-sm">
+                        <i class="fas fa-paper-plane"></i>
+                        Absenden
                     </button>
                 </div>
             </form>

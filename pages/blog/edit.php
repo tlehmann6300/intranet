@@ -199,8 +199,8 @@ ob_start();
 
 <div class="max-w-4xl mx-auto">
     <div class="mb-6">
-        <a href="index.php" class="text-blue-600 hover:text-blue-700 inline-flex items-center mb-4">
-            <i class="fas fa-arrow-left mr-2"></i>Zurück zu News & Updates
+        <a href="index.php" class="inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-700 font-medium transition-colors text-sm">
+            <i class="fas fa-arrow-left text-xs"></i>Zurück zu News &amp; Updates
         </a>
     </div>
 
@@ -291,38 +291,100 @@ ob_start();
                 </p>
             </div>
 
-            <!-- Image Upload -->
-            <div class="pb-6 border-b border-gray-200 dark:border-gray-700">
-                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Bild (optional)</label>
-                <?php if ($imagePath): ?>
-                <div class="mb-4">
-                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">Aktuelles Bild:</p>
-                    <img src="/<?php echo htmlspecialchars($imagePath); ?>" alt="Aktuelles Bild" class="w-64 h-48 object-cover rounded-lg shadow-md">
-                </div>
-                <?php endif; ?>
-                <input 
-                    type="file" 
-                    name="image" 
-                    accept="image/jpeg,image/png,image/gif,image/webp"
-                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-300"
-                >
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                    Erlaubt: JPG, PNG, GIF, WebP. Maximum: 5MB. Das Bild wird sicher verarbeitet und validiert.
-                </p>
+        <!-- Image Upload -->
+        <div class="pb-6 border-b border-gray-200 dark:border-gray-700">
+            <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <i class="fas fa-image text-gray-400 mr-1"></i>Bild (optional)
+            </label>
+            <?php if ($imagePath): ?>
+            <div class="mb-3">
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Aktuelles Bild:</p>
+                <img src="/<?php echo htmlspecialchars($imagePath); ?>" alt="Aktuelles Bild"
+                     id="imagePreview"
+                     class="w-full max-w-xs h-40 object-cover rounded-xl shadow-md">
             </div>
+            <?php else: ?>
+            <div id="imagePreviewWrapper" class="hidden mb-3">
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Vorschau:</p>
+                <img id="imagePreview" alt="Vorschau" class="w-full max-w-xs h-40 object-cover rounded-xl shadow-md">
+            </div>
+            <?php endif; ?>
+            <input
+                type="file"
+                name="image"
+                id="imageInput"
+                accept="image/jpeg,image/png,image/gif,image/webp"
+                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-300 text-sm
+                       file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 file:cursor-pointer"
+            >
+            <p class="text-xs text-gray-400 dark:text-gray-500 mt-2">
+                <i class="fas fa-shield-alt text-green-500 mr-1"></i>
+                Erlaubt: JPG, PNG, GIF, WebP &ndash; Max. 5 MB
+            </p>
+            <p id="imageError" class="hidden mt-2 text-xs text-red-600 dark:text-red-400">
+                <i class="fas fa-exclamation-circle mr-1"></i><span id="imageErrorText"></span>
+            </p>
+        </div>
 
-            <!-- Submit Buttons -->
-            <div class="flex flex-col md:flex-row justify-end gap-4 pt-6">
-                <a href="index.php" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition text-center">
-                    Abbrechen
-                </a>
-                <button type="submit" class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-xl">
-                    <i class="fas fa-save mr-2"></i><?php echo $isEdit ? 'Änderungen speichern' : 'Beitrag erstellen'; ?>
-                </button>
-            </div>
-        </form>
-    </div>
+        <!-- Submit Buttons -->
+        <div class="flex flex-col sm:flex-row justify-end gap-3 pt-2">
+            <a href="index.php"
+               class="w-full sm:w-auto text-center px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition font-medium">
+                Abbrechen
+            </a>
+            <button type="submit"
+                    class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-xl">
+                <i class="fas fa-save mr-2"></i><?php echo $isEdit ? 'Änderungen speichern' : 'Beitrag erstellen'; ?>
+            </button>
+        </div>
+    </form>
 </div>
+</div>
+
+<script>
+(function () {
+    var input = document.getElementById('imageInput');
+    if (!input) return;
+    var allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    var maxBytes = 5 * 1024 * 1024;
+    var errorEl = document.getElementById('imageError');
+    var errorText = document.getElementById('imageErrorText');
+
+    function showError(msg) {
+        if (errorText) errorText.textContent = msg;
+        if (errorEl) errorEl.classList.remove('hidden');
+    }
+    function clearError() {
+        if (errorEl) errorEl.classList.add('hidden');
+    }
+
+    input.addEventListener('change', function () {
+        clearError();
+        var file = this.files[0];
+        if (!file) return;
+        if (!allowedTypes.includes(file.type)) {
+            showError('Ungültiges Dateiformat. Erlaubt: JPG, PNG, GIF, WebP.');
+            this.value = '';
+            return;
+        }
+        if (file.size > maxBytes) {
+            showError('Die Datei ist zu groß. Maximum: 5 MB.');
+            this.value = '';
+            return;
+        }
+        var preview = document.getElementById('imagePreview');
+        var wrapper = document.getElementById('imagePreviewWrapper');
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            if (preview) {
+                preview.src = e.target.result;
+                if (wrapper) wrapper.classList.remove('hidden');
+            }
+        };
+        reader.readAsDataURL(file);
+    });
+})();
+</script>
 
 <?php
 $content = ob_get_clean();
