@@ -110,7 +110,7 @@ ob_start();
     <?php endif; ?>
 
     <!-- Create Poll Form -->
-    <div class="card p-8">
+    <div class="card p-5 sm:p-8">
         <form method="POST" class="space-y-6" id="pollForm">
             <!-- Title -->
             <div>
@@ -124,7 +124,7 @@ ob_start();
                     required
                     maxlength="255"
                     value="<?php echo htmlspecialchars($_POST['title'] ?? ''); ?>"
-                    class="w-full px-4 py-3 bg-white border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                    class="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:placeholder-gray-400"
                     placeholder="Z.B. Wahl des Veranstaltungsortes"
                 >
             </div>
@@ -138,7 +138,7 @@ ob_start();
                     id="description" 
                     name="description" 
                     rows="4"
-                    class="w-full px-4 py-3 bg-white border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                    class="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:placeholder-gray-400"
                     placeholder="Zusätzliche Informationen zur Umfrage..."
                 ><?php echo htmlspecialchars($_POST['description'] ?? ''); ?></textarea>
             </div>
@@ -154,7 +154,7 @@ ob_start();
                     name="microsoft_forms_url" 
                     required
                     value="<?php echo htmlspecialchars($_POST['microsoft_forms_url'] ?? ''); ?>"
-                    class="w-full px-4 py-3 bg-white border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                    class="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:placeholder-gray-400"
                     placeholder="https://forms.office.com/Pages/ResponsePage.aspx?id=..."
                 >
                 <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
@@ -168,7 +168,7 @@ ob_start();
             </div>
 
             <!-- Zielgruppen / Sichtbarkeit -->
-            <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+            <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 sm:p-6">
                 <label class="block w-full text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">
                     Zielgruppen / Sichtbarkeit <span class="text-red-500 dark:text-red-400">*</span>
                 </label>
@@ -253,21 +253,21 @@ ob_start();
             </div>
 
             <!-- Submit Buttons -->
-            <div class="flex flex-col md:flex-row justify-end gap-4">
+            <div class="flex flex-col sm:flex-row justify-end gap-3">
+                <a 
+                    href="<?php echo asset('pages/polls/index.php'); ?>"
+                    class="flex-1 sm:flex-none px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-all text-center"
+                >
+                    Abbrechen
+                </a>
                 <button 
                     type="submit"
                     name="create_poll"
-                    class="flex-1 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg"
+                    class="flex-1 sm:flex-none px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-semibold hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg"
                 >
                     <i class="fas fa-check mr-2"></i>
                     Umfrage erstellen
                 </button>
-                <a 
-                    href="<?php echo asset('pages/polls/index.php'); ?>"
-                    class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-all text-center"
-                >
-                    Abbrechen
-                </a>
             </div>
         </form>
     </div>

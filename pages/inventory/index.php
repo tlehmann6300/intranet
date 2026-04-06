@@ -135,7 +135,7 @@ ob_start();
 
 <!-- Search Bar -->
 <div class="card p-5 mb-8 shadow-lg border border-gray-200 dark:border-slate-700">
-    <form method="GET" class="flex gap-3">
+    <form method="GET" class="flex flex-col sm:flex-row gap-3">
         <div class="flex-1">
             <label class="block text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2 flex items-center">
                 <i class="fas fa-search mr-2 text-purple-600"></i>Suche
@@ -148,12 +148,12 @@ ob_start();
                 class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 transition-all"
             >
         </div>
-        <div class="flex items-end gap-2">
-            <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-lg transition-all transform hover:scale-105 shadow-md font-semibold">
+        <div class="flex sm:items-end gap-2">
+            <button type="submit" class="flex-1 sm:flex-none px-5 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-lg transition-all transform hover:scale-105 shadow-md font-semibold">
                 <i class="fas fa-search mr-2"></i>Suchen
             </button>
             <?php if ($search !== ''): ?>
-            <a href="index.php" class="px-4 py-2.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-all">
+            <a href="index.php" class="px-4 py-2.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-all flex items-center justify-center">
                 <i class="fas fa-times"></i>
             </a>
             <?php endif; ?>
