@@ -1656,7 +1656,7 @@ try {
 
         <!-- Footer -->
         <div class="login-footer">
-            <p>&copy; <?php echo date('Y'); ?> Institut für Business Consulting Furtwangen. Alle Rechte vorbehalten.</p>
+            <p class="text-white">&copy; <?php echo date('Y'); ?> Institut für Business Consulting Furtwangen. Alle Rechte vorbehalten.</p>
         </div>
     </div>
 
