@@ -99,7 +99,10 @@ function networkFirst(request) {
     return fetch(request)
         .then((response) => {
             if (response && response.status === 200 && request.mode === 'navigate') {
-                caches.open(PAGE_CACHE).then((cache) => cache.put(request, response.clone()));
+                // Clone synchronously before returning, so the body is not
+                // consumed by the caller before caches.open() resolves.
+                const responseClone = response.clone();
+                caches.open(PAGE_CACHE).then((cache) => cache.put(request, responseClone));
             }
             return response;
         })

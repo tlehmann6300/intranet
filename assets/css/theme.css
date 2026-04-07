@@ -9350,45 +9350,6 @@ textarea:focus:not(:focus-visible) {
     border-radius: var(--radius-sm);
 }
 
-/* ── MOBILE BACK-TO-TOP BUTTON ───────────────────────────────
-   Floating back-to-top button styles for mobile.
-   ──────────────────────────────────────────────────────────── */
-.back-to-top {
-    position: fixed;
-    bottom: calc(75px + env(safe-area-inset-bottom, 0));
-    right: 1rem;
-    width: 44px;
-    height: 44px;
-    background: var(--ibc-blue);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 16px rgba(0, 102, 179, 0.4);
-    opacity: 0;
-    transform: translate3d(0, 12px, 0);
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    pointer-events: none;
-    z-index: calc(var(--z-bottom-nav) - 1);
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-}
-
-.back-to-top.visible {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-    pointer-events: auto;
-}
-
-@media (min-width: 768px) {
-    .back-to-top {
-        bottom: 1.5rem;
-        right: 1.5rem;
-    }
-}
-
 /* ── MOBILE TOPBAR TITLE ANIMATION ──────────────────────────
    Adds a subtle fade when page title changes.
    ──────────────────────────────────────────────────────────── */
@@ -10415,7 +10376,6 @@ a:focus-visible,
     .sidebar-overlay,
     #mobile-menu-btn,
     #bottom-nav-more-btn,
-    .back-to-top,
     .hero-quick-action {
         display: none !important;
     }
@@ -12174,7 +12134,6 @@ body.dark-mode .sidebar .sidebar-nav-item:hover {
     .mobile-bottom-nav,
     .mobile-topbar,
     #sidebar-overlay,
-    .back-to-top,
     .no-print {
         display: none !important;
     }
@@ -12540,120 +12499,6 @@ body.dark-mode .sidebar .sidebar-nav-item:hover {
 @media (prefers-reduced-motion: reduce) {
     #main-content.page-entered {
         animation: none;
-    }
-}
-
-/* ── Back-to-top button ──────────────────────────────────────────────
-   Fixed bottom-right; slides up when .btt-visible is added by JS.
-   On mobile it sits above the bottom navigation bar.
-────────────────────────────────────────────────────────────────────── */
-#back-to-top {
-    position: fixed;
-    right: 1.25rem;
-    bottom: 1.5rem;
-    width: 2.75rem;
-    height: 2.75rem;
-    border-radius: 50%;
-    background: var(--ibc-blue, #0066b3);
-    color: #fff;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1035; /* below sidebar overlay (1040) */
-    box-shadow: 0 4px 14px rgba(0, 102, 179, 0.45);
-    opacity: 0;
-    transform: translateY(1rem) scale(0.85);
-    pointer-events: none;
-    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
-    /* overflow:hidden keeps the SVG ring clipped to the button circle */
-    overflow: hidden;
-}
-
-#back-to-top.btt-visible {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    pointer-events: auto;
-}
-
-#back-to-top:hover {
-    background: var(--ibc-blue-dark, #004f8c);
-    box-shadow: 0 6px 20px rgba(0, 102, 179, 0.55);
-}
-
-#back-to-top:active {
-    transform: scale(0.94);
-    transition-duration: 0.1s;
-}
-
-/* Progress ring: drawn exactly inside the button boundary.
-   The SVG fills the whole button; the circle (r=12) sits near the
-   inner edge so the ring is a subtle indicator, not an outer halo. */
-#back-to-top .btt-ring {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    transform: rotate(-90deg); /* start progress at 12 o'clock */
-    overflow: visible;
-}
-
-/* Ensure the chevron icon renders above the SVG progress ring */
-#back-to-top i,
-#back-to-top [data-lucide] {
-    position: relative;
-    z-index: 1;
-}
-
-/* Lucide-replaced SVG icon: keep upright, sized correctly, above ring */
-#back-to-top svg.lucide {
-    position: relative;
-    z-index: 1;
-    width: 1.25rem;
-    height: 1.25rem;
-    transform: none;
-}
-
-#btt-progress-circle {
-    fill: none;
-    stroke: rgba(255, 255, 255, 0.45);
-    stroke-width: 2;
-    stroke-linecap: round;
-    /* circumference = 2 * π * 12 ≈ 75.398; JS sets this dynamically on scroll init */
-    stroke-dasharray: 75.398;
-    stroke-dashoffset: 75.398;
-    transition: stroke-dashoffset 0.15s linear;
-}
-
-/* Move above the mobile bottom-nav on small screens */
-@media (max-width: 767px) {
-    #back-to-top {
-        /* Bottom nav is approx 4rem; add 0.75rem gap */
-        bottom: calc(4.25rem + env(safe-area-inset-bottom, 0px));
-        right: 0.875rem;
-        width: 2.5rem;
-        height: 2.5rem;
-    }
-}
-
-body.dark-mode #back-to-top {
-    background: var(--ibc-blue-light, #3385c4);
-    box-shadow: 0 4px 14px rgba(51, 133, 196, 0.5);
-}
-
-body.dark-mode #back-to-top:hover {
-    background: var(--ibc-blue, #0066b3);
-}
-
-@media (prefers-reduced-motion: reduce) {
-    #back-to-top {
-        transition: opacity 0.15s ease;
-        transform: none !important;
-    }
-    #back-to-top.btt-visible {
-        transform: none;
     }
 }
 

@@ -101,14 +101,14 @@ ob_start();
             </div>
             <div>
                 <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">Newsletter</h1>
-                <p class="text-blue-100 text-sm mt-0.5">Archiv aller versendeten Newsletter</p>
+                <p class="text-white text-sm mt-0.5">Archiv aller versendeten Newsletter</p>
             </div>
         </div>
         <div class="flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-xl px-5 py-3 self-start sm:self-auto">
             <i class="fas fa-archive text-white text-lg"></i>
             <div>
                 <span class="text-2xl font-bold text-white"><?php echo count($newsletters); ?></span>
-                <span class="text-blue-100 text-sm ml-1"><?php echo count($newsletters) === 1 ? 'Eintrag' : 'Einträge'; ?></span>
+                <span class="text-white text-sm ml-1"><?php echo count($newsletters) === 1 ? 'Eintrag' : 'Einträge'; ?></span>
             </div>
         </div>
     </div>

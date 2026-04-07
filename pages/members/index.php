@@ -210,12 +210,6 @@ ob_start();
                 <div class="card directory-card directory-card--members d-flex flex-column h-100">
                     <!-- Card Header: green gradient band with floating avatar -->
                     <div class="directory-card-header">
-                        <div class="position-absolute top-0 end-0 mt-2 me-2">
-                            <span class="inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold directory-role-badge border <?php echo $badgeClass; ?>" style="background:rgba(255,255,255,0.95)!important;border-color:rgba(255,255,255,0.6)!important;color:#111827!important;">
-                                <i class="fas <?php echo getRoleIcon($displayRoleKey); ?>" style="color:#374151!important;" aria-hidden="true"></i>
-                                <?php echo $displayRole; ?>
-                            </span>
-                        </div>
                         <div class="directory-card-avatar-wrap">
                             <div class="directory-avatar rounded-circle overflow-hidden border border-3 border-white shadow"
                                  style="background-color:<?php echo htmlspecialchars($avatarColor); ?>;position:relative;color:#fff;font-weight:700;">

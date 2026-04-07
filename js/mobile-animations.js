@@ -163,68 +163,7 @@
         }, { passive: true });
     }
 
-    /* ─── 4. Back-to-top button ───────────────────────────────────────────
-       A circular button fixed to the bottom-right corner appears once the user
-       has scrolled 300 px.  Clicking / tapping it smoothly scrolls back to the
-       top.  On mobile the button sits above the bottom navigation bar
-       (bottom: calc(bottom-nav-height + 1rem)).
-    ────────────────────────────────────────────────────────────────────────── */
-
-    var backToTopBtn     = null;
-    var scrollProgress   = null;
-    var BTT_SHOW_AT      = 200; // px
-    var ticking          = false;
-    var lastScrollY      = 0;
-
-    function onScrollBTT() {
-        lastScrollY = window.scrollY;
-        if (!ticking) {
-            requestAnimationFrame(updateBTT);
-            ticking = true;
-        }
-    }
-
-    function updateBTT() {
-        ticking = false;
-
-        // Show / hide button
-        if (backToTopBtn) {
-            if (lastScrollY > BTT_SHOW_AT) {
-                backToTopBtn.classList.add('btt-visible');
-            } else {
-                backToTopBtn.classList.remove('btt-visible');
-            }
-        }
-
-        // Update SVG circle progress indicator
-        if (scrollProgress) {
-            var docHeight  = document.documentElement.scrollHeight - window.innerHeight;
-            var progress   = docHeight > 0 ? Math.min(lastScrollY / docHeight, 1) : 0;
-            var circumference = 2 * Math.PI * 12; // r=12
-            var dashOffset = circumference * (1 - progress);
-            scrollProgress.style.strokeDashoffset = dashOffset;
-        }
-    }
-
-    function initBackToTop() {
-        backToTopBtn   = document.getElementById('back-to-top');
-        scrollProgress = document.getElementById('btt-progress-circle');
-        if (!backToTopBtn) return;
-
-        var circumference = 2 * Math.PI * 12; // r=12 (matches #btt-progress-circle r attribute)
-        if (scrollProgress) {
-            scrollProgress.style.strokeDasharray  = circumference;
-            scrollProgress.style.strokeDashoffset = circumference;
-        }
-
-        window.addEventListener('scroll', onScrollBTT, { passive: true });
-
-        backToTopBtn.addEventListener('click', function () {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-    }
-
-    /* ─── 5. Page entrance animation ─────────────────────────────────────
+    /* ─── 4. Page entrance animation ─────────────────────────────────────
        After each PJAX navigation (or on initial load) the main content area
        fades in from a slight downward offset, giving a clean page-transition
        feel.
@@ -262,7 +201,6 @@
         initRevealObserver();
         autoStagger();
         initSwipeGestures();
-        initBackToTop();
         triggerPageEntrance();
 
         // Re-init after pjax navigations

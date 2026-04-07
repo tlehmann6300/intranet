@@ -218,18 +218,6 @@ ob_start();
             </div>
             <?php endif; ?>
 
-            <!-- Availability Badge (top-right) -->
-            <div class="absolute top-3 right-3">
-                <?php if ($hasStock): ?>
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
-                    <i class="fas fa-check-circle"></i><?php echo $itemAvailable; ?> verfügbar
-                </span>
-                <?php else: ?>
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-medium rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
-                    <i class="fas fa-times-circle"></i>Vergriffen
-                </span>
-                <?php endif; ?>
-            </div>
         </div>
 
         <!-- Card Content -->
@@ -237,12 +225,6 @@ ob_start();
             <h3 class="font-bold text-slate-900 dark:text-white text-lg mb-1 line-clamp-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors" title="<?php echo htmlspecialchars($itemName); ?>">
                 <?php echo htmlspecialchars($itemName); ?>
             </h3>
-
-            <?php if (!empty($item['category_name'])): ?>
-            <span class="inline-block self-start px-2 py-0.5 text-xs rounded-full mb-3 font-semibold" style="background-color: <?php echo htmlspecialchars($item['category_color'] ?? '#8b5cf6'); ?>20; color: <?php echo htmlspecialchars($item['category_color'] ?? '#8b5cf6'); ?>">
-                <?php echo htmlspecialchars($item['category_name']); ?>
-            </span>
-            <?php endif; ?>
 
             <?php if ($itemDesc !== ''): ?>
             <p class="text-sm text-slate-500 dark:text-slate-400 mb-4 line-clamp-2 flex-1" title="<?php echo htmlspecialchars($itemDesc); ?>">
