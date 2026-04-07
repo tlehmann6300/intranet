@@ -857,7 +857,7 @@ body.dark-mode a:not(.btn-primary) {
 }
 
 /* Light Mode Links - Keep visible on white backgrounds, use appropriate color */
-body:not(.dark-mode) a:not(.btn-primary):not(.btn):not(.text-white):not(.no-underline):not(.sidebar a) {
+body:not(.dark-mode) a:not(.btn-primary):not(.btn):not(.text-white):not(.no-underline):not(.sidebar a):not(.hero-quick-action) {
     color: var(--text-main) !important; /* Dark text for visibility on white backgrounds */
     text-decoration: none;
     transition: color var(--transition-normal);
@@ -1544,20 +1544,21 @@ body.dark-mode .flatpickr-time input:focus {
 
 /* LIGHT MODE: Force dark text for better readability */
 /* Exclude sidebar elements to keep them white on blue background */
+/* Exclude .text-white elements so they keep their explicit white color on dark/gradient backgrounds */
 /* Note: spans are excluded from this rule to allow colored utility classes (text-red, text-green etc.) */
-body:not(.dark-mode) h1:not(.sidebar *),
-body:not(.dark-mode) h2:not(.sidebar *),
-body:not(.dark-mode) h3:not(.sidebar *),
-body:not(.dark-mode) h4:not(.sidebar *),
-body:not(.dark-mode) h5:not(.sidebar *),
-body:not(.dark-mode) h6:not(.sidebar *),
-body:not(.dark-mode) p:not(.sidebar *),
-body:not(.dark-mode) li:not(.sidebar *),
-body:not(.dark-mode) label:not(.sidebar *),
-body:not(.dark-mode) input:not(.sidebar *),
-body:not(.dark-mode) select:not(.sidebar *),
-body:not(.dark-mode) textarea:not(.sidebar *),
-body:not(.dark-mode) td:not(.sidebar *) {
+body:not(.dark-mode) h1:not(.sidebar *):not(.text-white),
+body:not(.dark-mode) h2:not(.sidebar *):not(.text-white),
+body:not(.dark-mode) h3:not(.sidebar *):not(.text-white),
+body:not(.dark-mode) h4:not(.sidebar *):not(.text-white),
+body:not(.dark-mode) h5:not(.sidebar *):not(.text-white),
+body:not(.dark-mode) h6:not(.sidebar *):not(.text-white),
+body:not(.dark-mode) p:not(.sidebar *):not(.text-white),
+body:not(.dark-mode) li:not(.sidebar *):not(.text-white),
+body:not(.dark-mode) label:not(.sidebar *):not(.text-white),
+body:not(.dark-mode) input:not(.sidebar *):not(.text-white),
+body:not(.dark-mode) select:not(.sidebar *):not(.text-white),
+body:not(.dark-mode) textarea:not(.sidebar *):not(.text-white),
+body:not(.dark-mode) td:not(.sidebar *):not(.text-white) {
     color: #0f172a !important; /* slate-900 - Almost black for max readability */
 }
 
@@ -8126,7 +8127,7 @@ body:not(.dark-mode) .pagination .page-item.active .page-link {
 /* ── Light Mode: Link appearance on hover ────────────────────── */
 /* Excludes .text-white links (on dark/colored backgrounds), .active nav items,
    and BEM --active elements (custom filter tabs) to prevent poor-contrast hover */
-body:not(.dark-mode) a:not(.btn):not(.no-hover):not(.sidebar a):not([class~="text-white"]):not(.active):not([class*="--active"]):hover {
+body:not(.dark-mode) a:not(.btn):not(.no-hover):not(.sidebar a):not([class~="text-white"]):not(.active):not([class*="--active"]):not(.hero-quick-action):hover {
     color: var(--ibc-blue) !important;
 }
 
@@ -8804,12 +8805,12 @@ body:not(.dark-mode) .mobile-bottom-nav-item::before {
    and that heading weights establish a clear visual hierarchy.
    ──────────────────────────────────────────────────────────── */
 
-body:not(.dark-mode) h1:not(.sidebar *) { color: #0c1a2e !important; font-weight: 800; }
-body:not(.dark-mode) h2:not(.sidebar *) { color: #0f2040 !important; font-weight: 700; }
-body:not(.dark-mode) h3:not(.sidebar *) { color: #1a2f4a !important; font-weight: 700; }
-body:not(.dark-mode) h4:not(.sidebar *) { color: #1e3a5f !important; font-weight: 600; }
-body:not(.dark-mode) h5:not(.sidebar *) { color: #243d5c !important; font-weight: 600; }
-body:not(.dark-mode) h6:not(.sidebar *) { color: #2d4a6b !important; font-weight: 600; }
+body:not(.dark-mode) h1:not(.sidebar *):not(.text-white) { color: #0c1a2e !important; font-weight: 800; }
+body:not(.dark-mode) h2:not(.sidebar *):not(.text-white) { color: #0f2040 !important; font-weight: 700; }
+body:not(.dark-mode) h3:not(.sidebar *):not(.text-white) { color: #1a2f4a !important; font-weight: 700; }
+body:not(.dark-mode) h4:not(.sidebar *):not(.text-white) { color: #1e3a5f !important; font-weight: 600; }
+body:not(.dark-mode) h5:not(.sidebar *):not(.text-white) { color: #243d5c !important; font-weight: 600; }
+body:not(.dark-mode) h6:not(.sidebar *):not(.text-white) { color: #2d4a6b !important; font-weight: 600; }
 
 /* ── 4. LIGHT MODE: MUTED / SECONDARY TEXT ─────────────────
    Refine --text-muted so secondary labels are clearly readable
