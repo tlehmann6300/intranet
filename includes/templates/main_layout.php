@@ -1285,15 +1285,6 @@ if (!isset($currentUser)) {
         </footer>
     </main>
 
-    <!-- Back-to-top button with scroll progress ring (shown after 300 px scroll) -->
-    <button id="back-to-top" aria-label="Zurück nach oben" title="Zurück nach oben">
-        <!-- SVG progress ring drawn around the button -->
-        <svg class="btt-ring" aria-hidden="true" focusable="false">
-        <circle id="btt-progress-circle" cx="50%" cy="50%" r="12"/>
-        </svg>
-        <i data-lucide="chevron-up" class="w-5 h-5" aria-hidden="true"></i>
-    </button>
-
     <!-- Swipe-to-open hint strip (left edge, touch devices only, styled in theme.css) -->
     <div id="swipe-hint" aria-hidden="true"></div>
 

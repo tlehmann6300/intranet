@@ -129,6 +129,9 @@
     /**
      * Re-creates every <script> element inside container so that the browser
      * actually executes the code. innerHTML / DOMParser never runs scripts.
+     * Inline scripts are wrapped in an IIFE so that const/let declarations
+     * inside page scripts do not collide with each other on repeated PJAX
+     * navigations to the same page.
      */
     function runScripts(container) {
         var scripts = container.querySelectorAll('script');
@@ -142,7 +145,10 @@
                 );
             }
             if (!old.src) {
-                fresh.textContent = old.textContent;
+                // Wrap in an IIFE to scope const/let declarations so that
+                // re-navigating to the same page via PJAX does not throw
+                // "Identifier X has already been declared".
+                fresh.textContent = '(function(){\n' + old.textContent + '\n})();';
             }
             old.parentNode.replaceChild(fresh, old);
         }
