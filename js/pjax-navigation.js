@@ -132,25 +132,54 @@
      * Inline scripts are wrapped in an IIFE so that const/let declarations
      * inside page scripts do not collide with each other on repeated PJAX
      * navigations to the same page.
+     *
+     * Because DOMContentLoaded has already fired by the time PJAX loads new
+     * content, any page scripts that register document.addEventListener(
+     * 'DOMContentLoaded', fn) would otherwise never have their callbacks
+     * invoked. We temporarily patch Document.prototype.addEventListener so
+     * that those callbacks are called immediately, then restore the original.
      */
     function runScripts(container) {
-        var scripts = container.querySelectorAll('script');
-        for (var i = 0; i < scripts.length; i++) {
-            var old   = scripts[i];
-            var fresh = document.createElement('script');
-            for (var j = 0; j < old.attributes.length; j++) {
-                fresh.setAttribute(
-                    old.attributes[j].name,
-                    old.attributes[j].value
-                );
+        // Patch document.addEventListener to fire DOMContentLoaded callbacks
+        // immediately when the event has already been dispatched.
+        var origAddEventListener = Document.prototype.addEventListener;
+        if (document.readyState !== 'loading') {
+            Document.prototype.addEventListener = function pjaxDCLPatch(type, handler, options) {
+                if (type === 'DOMContentLoaded') {
+                    try {
+                        handler.call(document, new Event('DOMContentLoaded'));
+                    } catch (e) {
+                        // eslint-disable-next-line no-console
+                        console.error('[pjax] DOMContentLoaded callback error:', e);
+                    }
+                    return;
+                }
+                return origAddEventListener.call(this, type, handler, options);
+            };
+        }
+
+        try {
+            var scripts = container.querySelectorAll('script');
+            for (var i = 0; i < scripts.length; i++) {
+                var old   = scripts[i];
+                var fresh = document.createElement('script');
+                for (var j = 0; j < old.attributes.length; j++) {
+                    fresh.setAttribute(
+                        old.attributes[j].name,
+                        old.attributes[j].value
+                    );
+                }
+                if (!old.src) {
+                    // Wrap in an IIFE to scope const/let declarations so that
+                    // re-navigating to the same page via PJAX does not throw
+                    // "Identifier X has already been declared".
+                    fresh.textContent = '(function(){\n' + old.textContent + '\n})();';
+                }
+                old.parentNode.replaceChild(fresh, old);
             }
-            if (!old.src) {
-                // Wrap in an IIFE to scope const/let declarations so that
-                // re-navigating to the same page via PJAX does not throw
-                // "Identifier X has already been declared".
-                fresh.textContent = '(function(){\n' + old.textContent + '\n})();';
-            }
-            old.parentNode.replaceChild(fresh, old);
+        } finally {
+            // Always restore the original addEventListener.
+            Document.prototype.addEventListener = origAddEventListener;
         }
     }
 

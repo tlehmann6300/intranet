@@ -33,44 +33,36 @@ $csrfToken = CSRFHandler::getToken();
 ob_start();
 ?>
 
-<div class="mb-8">
-    <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 gap-4">
-        <div>
-            <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">
-                <i class="fas fa-user-graduate text-blue-600 mr-2"></i>
-                Alumni-Anfragen
-            </h1>
-            <p class="text-gray-600 dark:text-gray-400">Verwaltung der eingehenden Alumni-Zugangsanfragen</p>
-        </div>
-    </div>
-
-    <!-- Summary cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 mt-4">
-        <div class="card p-5 border-l-4 border-yellow-400 flex items-center gap-4">
-            <div class="w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-900/40 flex items-center justify-center shrink-0">
-                <i class="fas fa-clock text-yellow-600 dark:text-yellow-400"></i>
+<!-- Hero Header -->
+<div class="mb-8 relative overflow-hidden rounded-2xl shadow-lg">
+    <div class="absolute inset-0 bg-gradient-to-br from-blue-600 via-indigo-600 to-teal-600 opacity-95"></div>
+    <div class="absolute inset-0 opacity-10" style="background-image:radial-gradient(circle at 20% 50%,rgba(255,255,255,.3) 0,transparent 50%),radial-gradient(circle at 80% 20%,rgba(255,255,255,.2) 0,transparent 40%)"></div>
+    <div class="relative px-6 py-8 md:px-8 md:py-10">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 bg-white bg-opacity-20 rounded-xl flex items-center justify-center backdrop-blur-sm shrink-0">
+                    <i class="fas fa-user-graduate text-white text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-1">
+                        Alumni-Anfragen
+                    </h1>
+                    <p class="text-white opacity-90">Verwaltung der eingehenden Alumni-Zugangsanfragen</p>
+                </div>
             </div>
-            <div>
-                <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Ausstehend</p>
-                <p class="text-2xl sm:text-3xl font-bold text-yellow-600 dark:text-yellow-400"><?php echo $counts['pending']; ?></p>
-            </div>
-        </div>
-        <div class="card p-5 border-l-4 border-green-500 flex items-center gap-4">
-            <div class="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center shrink-0">
-                <i class="fas fa-check text-green-600 dark:text-green-400"></i>
-            </div>
-            <div>
-                <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Akzeptiert</p>
-                <p class="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400"><?php echo $counts['approved']; ?></p>
-            </div>
-        </div>
-        <div class="card p-5 border-l-4 border-red-500 flex items-center gap-4">
-            <div class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center shrink-0">
-                <i class="fas fa-times text-red-600 dark:text-red-400"></i>
-            </div>
-            <div>
-                <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Abgelehnt</p>
-                <p class="text-2xl sm:text-3xl font-bold text-red-600 dark:text-red-400"><?php echo $counts['rejected']; ?></p>
+            <div class="flex gap-3 shrink-0">
+                <div class="bg-white bg-opacity-15 backdrop-blur-sm rounded-xl px-4 py-3 text-center w-20">
+                    <p class="text-2xl font-bold text-white"><?php echo $counts['pending']; ?></p>
+                    <p class="text-xs text-white opacity-80 uppercase tracking-wide">Ausstehend</p>
+                </div>
+                <div class="bg-white bg-opacity-15 backdrop-blur-sm rounded-xl px-4 py-3 text-center w-20">
+                    <p class="text-2xl font-bold text-white"><?php echo $counts['approved']; ?></p>
+                    <p class="text-xs text-white opacity-80 uppercase tracking-wide">Akzeptiert</p>
+                </div>
+                <div class="bg-white bg-opacity-15 backdrop-blur-sm rounded-xl px-4 py-3 text-center w-20">
+                    <p class="text-2xl font-bold text-white"><?php echo $counts['rejected']; ?></p>
+                    <p class="text-xs text-white opacity-80 uppercase tracking-wide">Abgelehnt</p>
+                </div>
             </div>
         </div>
     </div>
