@@ -5493,10 +5493,6 @@ textarea {
 
 /* GPU acceleration for animated elements - use will-change instead of transform hack
    to avoid overriding sidebar translateX positioning on mobile */
-.sidebar,
-.modal {
-    will-change: transform;
-}
 
 /* Hint browser about animated properties - only on hover for efficiency */
 .card:hover {

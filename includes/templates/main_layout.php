@@ -1886,15 +1886,7 @@ if (!isset($currentUser)) {
     </style>
 
     <?php if (isset($_SESSION['show_2fa_nudge']) && $_SESSION['show_2fa_nudge']): ?>
-    <style>
-    /* Only z-index is kept here as an !important override because Tailwind's
-       compiled CSS may not include the arbitrary z-[1075] value.
-       All layout/positioning is handled by the Tailwind utility classes on
-       the element itself (fixed inset-0 flex items-center justify-center p-4),
-       matching the pattern used by #role-notice-modal. */
-    #tfa-nudge-modal { z-index: 1075 !important; }
-    </style>
-    <div id="tfa-nudge-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="tfa-nudge-title">
+    <div id="tfa-nudge-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" role="dialog" aria-modal="true" aria-labelledby="tfa-nudge-title">
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden transform transition-all">
             <!-- Modal Header -->
             <div class="bg-gradient-to-r from-blue-600 to-green-600 px-6 py-4">
@@ -1951,7 +1943,7 @@ if (!isset($currentUser)) {
 
     <?php if (isset($_SESSION['show_role_notice']) && $_SESSION['show_role_notice']): ?>
     <!-- Role Notice Modal -->
-    <div id="role-notice-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1060] p-4" role="dialog" aria-modal="true" aria-labelledby="role-notice-title" aria-describedby="role-notice-description">
+    <div id="role-notice-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" role="dialog" aria-modal="true" aria-labelledby="role-notice-title" aria-describedby="role-notice-description">
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden transform transition-all">
             <!-- Modal Header -->
             <div class="bg-gradient-to-r from-orange-500 to-yellow-500 px-6 py-4">
