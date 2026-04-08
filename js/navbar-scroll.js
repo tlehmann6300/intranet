@@ -27,7 +27,6 @@
     var navbarBtn = null;
     var sidebarEl = null;
     var mobileMenuEl = null;
-    var mobileTopbarEl = null;
 
     /* ------------------------------------------------------------------ */
     /* Dynamic topbar height: measure the real rendered height and update  */
@@ -71,11 +70,11 @@
             }
         }
         // Also add/remove 'scrolled' class on the mobile topbar for shadow enhancement
-        if (mobileTopbarEl) {
+        if (mobileHeaderEl) {
             if (lastScrollY >= SCROLL_THRESHOLD) {
-                mobileTopbarEl.classList.add('scrolled');
+                mobileHeaderEl.classList.add('scrolled');
             } else {
-                mobileTopbarEl.classList.remove('scrolled');
+                mobileHeaderEl.classList.remove('scrolled');
             }
         }
         ticking = false;
@@ -185,7 +184,6 @@
         sidebarEl     = document.getElementById('sidebar');
         mobileHeaderEl = document.getElementById('mobile-header');
         mobileMenuEl   = document.getElementById('mobile-menu');
-        mobileTopbarEl = document.getElementById('mobile-header');
 
         // Measure real topbar height immediately and on resize/orientation change
         updateTopbarHeight();
