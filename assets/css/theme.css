@@ -13111,16 +13111,19 @@ body.dark-mode .sidebar .sidebar-nav-item--active {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-    #main-content > *:not(.fixed):not([style*="position: fixed"]):not([style*="position:fixed"]) {
-        animation: ibcFadeSlideUp 0.4s var(--animation-spring) both;
-        animation-fill-mode: both;
+    /* Page entrance: applies to ALL direct children of main content.
+       Uses ibc-fade-up (no filter:blur for broad GPU compatibility).
+       This overrides the older, more specific ibc-fade-up block above. */
+    #main-content > *:not(.fixed):not([role="dialog"]):not([style*="position: fixed"]):not([style*="position:fixed"]) {
+        animation: ibc-fade-up 0.42s cubic-bezier(0.22, 0.61, 0.36, 1) both;
     }
 
+    #main-content > *:nth-child(1) { animation-delay: 0.00s; }
     #main-content > *:nth-child(2) { animation-delay: 0.06s; }
     #main-content > *:nth-child(3) { animation-delay: 0.12s; }
     #main-content > *:nth-child(4) { animation-delay: 0.18s; }
-    #main-content > *:nth-child(5) { animation-delay: 0.24s; }
-    #main-content > *:nth-child(6) { animation-delay: 0.28s; }
+    #main-content > *:nth-child(5) { animation-delay: 0.23s; }
+    #main-content > *:nth-child(n+6) { animation-delay: 0.28s; }
 }
 
 /* ── 7. PREMIUM CARD ANIMATIONS ─────────────────────────────────────────── */
@@ -13610,3 +13613,925 @@ textarea:focus {
 }
 
 /* ══ END OF RESPONSIVE DESIGN & MOBILE REDESIGN 2026 ════════════════════ */
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   IBC INTRANET – COMPREHENSIVE ALL-SCREENS ALL-MODULES DESIGN SYSTEM 2026
+   Covers all pages, all modules, all breakpoints, all animations.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ══ A. UNIVERSAL MODULE CARD HOVER ANIMATIONS ═══════════════════════════ */
+/* Covers: event-card, project-card, poll-card, blog-card, job-card,
+   link-card, member-card, inventory-card, idea-card, alumni-card, etc.   */
+
+@media (hover: hover) and (pointer: fine) {
+    .event-card,
+    .project-card,
+    .poll-card,
+    .blog-card,
+    .job-card,
+    .link-card,
+    .member-card,
+    .idea-card,
+    .alumni-card,
+    .inventory-card,
+    .newsletter-card,
+    .invoice-card {
+        transition:
+            transform 0.28s var(--animation-spring),
+            box-shadow 0.28s var(--animation-smooth),
+            border-color 0.2s ease !important;
+        will-change: transform;
+    }
+
+    .event-card:hover,
+    .project-card:hover,
+    .poll-card:hover,
+    .blog-card:hover,
+    .job-card:hover,
+    .link-card:hover,
+    .member-card:hover,
+    .idea-card:hover,
+    .alumni-card:hover,
+    .inventory-card:hover,
+    .newsletter-card:hover,
+    .invoice-card:hover {
+        transform: translateY(-6px) scale(1.006) !important;
+        box-shadow:
+            0 14px 32px rgba(0, 0, 0, 0.10),
+            0 4px 12px rgba(0, 102, 179, 0.10) !important;
+    }
+
+    /* Dark mode variant */
+    .dark-mode .event-card:hover,
+    .dark-mode .project-card:hover,
+    .dark-mode .poll-card:hover,
+    .dark-mode .blog-card:hover,
+    .dark-mode .job-card:hover,
+    .dark-mode .link-card:hover,
+    .dark-mode .member-card:hover,
+    .dark-mode .idea-card:hover,
+    .dark-mode .alumni-card:hover,
+    .dark-mode .inventory-card:hover {
+        box-shadow:
+            0 16px 48px rgba(0, 0, 0, 0.5),
+            0 4px 16px rgba(51, 133, 196, 0.18) !important;
+    }
+}
+
+/* Touch/mobile: spring press for all module cards */
+@media (hover: none) and (pointer: coarse) {
+    .event-card,
+    .project-card,
+    .poll-card,
+    .blog-card,
+    .job-card,
+    .link-card,
+    .member-card,
+    .idea-card,
+    .alumni-card,
+    .inventory-card,
+    .newsletter-card,
+    .invoice-card {
+        transform: none !important;
+        transition: transform 0.12s var(--animation-spring), box-shadow 0.12s ease !important;
+    }
+
+    .event-card:active,
+    .project-card:active,
+    .poll-card:active,
+    .blog-card:active,
+    .job-card:active,
+    .link-card:active,
+    .member-card:active,
+    .idea-card:active,
+    .alumni-card:active,
+    .inventory-card:active {
+        transform: scale(0.97) !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+        transition: transform 0.07s ease, box-shadow 0.07s ease !important;
+    }
+}
+
+/* ══ B. RESPONSIVE CARD IMAGE HEIGHTS (all modules) ═════════════════════ */
+/* event-card-image: 220px on desktop, smaller on mobile              */
+.event-card-image,
+.project-card-image {
+    height: 220px;
+    overflow: hidden;
+    position: relative;
+}
+
+@media (max-width: 639px) {
+    .event-card-image,
+    .project-card-image {
+        height: 180px;
+    }
+}
+
+@media (max-width: 400px) {
+    .event-card-image,
+    .project-card-image {
+        height: 150px;
+    }
+}
+
+/* poll-card-header: 140px on desktop */
+.poll-card-header,
+.blog-card-image {
+    position: relative;
+    overflow: hidden;
+}
+
+@media (max-width: 639px) {
+    .poll-card-header {
+        height: 110px;
+    }
+
+    .dash-blog-img {
+        height: 130px !important;
+    }
+}
+
+/* Image zoom on hover (desktop only) */
+@media (hover: hover) and (pointer: fine) {
+    .event-card:hover .event-card-image img,
+    .project-card:hover .project-card-image img,
+    .blog-card:hover .blog-card-img img,
+    .dash-blog-card:hover .dash-blog-img img {
+        transform: scale(1.06) !important;
+        transition: transform 0.5s var(--animation-smooth) !important;
+    }
+}
+
+/* ══ C. FILTER TABS – HORIZONTAL SCROLL ON MOBILE (all modules) ════════ */
+/* Applies to events, projects, polls, blog, inventory, members, jobs   */
+.filter-tabs-row,
+.events-filter-row,
+.projects-filter-row,
+.polls-filter-row,
+.jobs-filter-row,
+.inventory-filter-row,
+.blog-filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+@media (max-width: 639px) {
+    /* All flex filter rows become horizontally scrollable on mobile */
+    .filter-tabs-row,
+    .events-filter-row,
+    .projects-filter-row,
+    .polls-filter-row,
+    .jobs-filter-row,
+    .inventory-filter-row,
+    .blog-filter-row {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 0.5rem;
+        gap: 0.5rem;
+        /* Hide scrollbar */
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .filter-tabs-row::-webkit-scrollbar,
+    .events-filter-row::-webkit-scrollbar,
+    .projects-filter-row::-webkit-scrollbar,
+    .polls-filter-row::-webkit-scrollbar,
+    .jobs-filter-row::-webkit-scrollbar,
+    .inventory-filter-row::-webkit-scrollbar,
+    .blog-filter-row::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Filter tab buttons within scrollable row */
+    .events-filter-tab,
+    .projects-filter-tab,
+    .polls-filter-tab,
+    .jobs-filter-tab,
+    .inventory-filter-tab,
+    .blog-filter-tab {
+        flex-shrink: 0;
+        scroll-snap-align: start;
+        /* Slightly smaller on very small screens */
+        padding: 0.5rem 1rem !important;
+        font-size: 0.8125rem !important;
+        min-height: 40px;
+    }
+}
+
+/* ══ D. UNIVERSAL TABLE RESPONSIVE IMPROVEMENTS ════════════════════════ */
+/* All tables in the app get overflow-x scroll + mobile stacking CSS.   */
+/* Stacking is applied via JS (table-stack-mobile) for tables with >3   */
+/* columns, but we add touch-scroll to ALL tables.                      */
+
+/* Wrap all tables in overflow-x when screen is narrow */
+@media (max-width: 767px) {
+    .overflow-x-auto {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        max-width: 100%;
+    }
+
+    /* admin/audit.php, admin/stats.php and similar tables */
+    .card table,
+    .card-table {
+        min-width: 600px;
+    }
+
+    /* table-stack-mobile: universal mobile stacking for ANY table */
+    .table-stack-mobile thead {
+        display: none !important;
+    }
+
+    .table-stack-mobile,
+    .table-stack-mobile tbody,
+    .table-stack-mobile tr,
+    .table-stack-mobile td {
+        display: block !important;
+        width: 100% !important;
+    }
+
+    .table-stack-mobile tr {
+        margin-bottom: 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: var(--shadow-soft);
+        background: var(--bg-card);
+    }
+
+    .table-stack-mobile td {
+        display: flex !important;
+        align-items: flex-start;
+        padding: 0.625rem 1rem !important;
+        border-bottom: 1px solid var(--border-color);
+        white-space: normal !important;
+        min-width: 0;
+    }
+
+    .table-stack-mobile td:last-child {
+        border-bottom: none !important;
+    }
+
+    /* data-label attribute creates the "header" column in stacked view */
+    .table-stack-mobile td[data-label]::before {
+        content: attr(data-label) ": ";
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+        min-width: 6.5rem;
+        flex-shrink: 0;
+        padding-top: 0.125rem;
+    }
+
+    .dark-mode .table-stack-mobile tr {
+        border-color: var(--border-color);
+        background-color: var(--bg-card);
+    }
+
+    .dark-mode .table-stack-mobile td {
+        border-bottom-color: var(--border-color);
+    }
+
+    .dark-mode .table-stack-mobile td[data-label]::before {
+        color: var(--text-muted);
+    }
+}
+
+/* Table row hover on desktop */
+@media (hover: hover) and (pointer: fine) {
+    tbody tr {
+        transition: background-color 0.15s ease;
+    }
+
+    tbody tr:hover {
+        background-color: rgba(0, 102, 179, 0.04) !important;
+    }
+
+    .dark-mode tbody tr:hover {
+        background-color: rgba(255, 255, 255, 0.04) !important;
+    }
+}
+
+/* ══ E. UNIVERSAL BUTTON ANIMATIONS ═════════════════════════════════════ */
+/* btn-primary is handled above; cover btn-secondary, btn-danger, etc.  */
+
+/* Secondary button */
+.btn-secondary,
+a.btn-secondary,
+button.btn-secondary {
+    transition:
+        transform 0.18s var(--animation-spring),
+        box-shadow 0.18s ease,
+        background 0.2s ease !important;
+}
+
+.btn-secondary:hover,
+a.btn-secondary:hover,
+button.btn-secondary:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12) !important;
+}
+
+.btn-secondary:active,
+a.btn-secondary:active,
+button.btn-secondary:active {
+    transform: translateY(0) scale(0.97) !important;
+}
+
+/* Danger / red button */
+.btn-danger,
+a.btn-danger,
+button.btn-danger {
+    transition:
+        transform 0.18s var(--animation-spring),
+        box-shadow 0.18s ease !important;
+}
+
+.btn-danger:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.28) !important;
+}
+
+.btn-danger:active {
+    transform: scale(0.97) !important;
+}
+
+/* Bootstrap primary/secondary/etc. buttons */
+.btn.btn-primary,
+.btn.btn-secondary,
+.btn.btn-success,
+.btn.btn-danger,
+.btn.btn-warning,
+.btn.btn-info,
+.btn.btn-outline-primary,
+.btn.btn-outline-secondary {
+    transition:
+        transform 0.18s var(--animation-spring),
+        box-shadow 0.18s ease,
+        background-color 0.18s ease !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .btn.btn-primary:hover,
+    .btn.btn-success:hover,
+    .btn.btn-danger:hover,
+    .btn.btn-warning:hover,
+    .btn.btn-info:hover {
+        transform: translateY(-2px) !important;
+    }
+
+    .btn.btn-outline-primary:hover,
+    .btn.btn-outline-secondary:hover {
+        transform: translateY(-1px) !important;
+    }
+}
+
+.btn:active {
+    transform: scale(0.96) !important;
+}
+
+/* Icon buttons */
+.btn-icon,
+.icon-btn {
+    transition:
+        transform 0.18s var(--animation-spring),
+        background 0.18s ease,
+        color 0.18s ease !important;
+}
+
+.btn-icon:hover,
+.icon-btn:hover {
+    transform: scale(1.1) !important;
+}
+
+.btn-icon:active,
+.icon-btn:active {
+    transform: scale(0.9) !important;
+}
+
+/* ══ F. UNIVERSAL FOCUS RING ════════════════════════════════════════════ */
+/* Consistent, beautiful focus rings for keyboard navigation            */
+
+:focus-visible {
+    outline: 2px solid var(--ibc-blue);
+    outline-offset: 3px;
+    border-radius: 4px;
+}
+
+.dark-mode :focus-visible {
+    outline-color: var(--ibc-blue-light);
+}
+
+/* Remove ugly default outline for mouse users */
+:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* ══ G. FORM & INPUT IMPROVEMENTS (all modules, all screens) ════════════ */
+
+/* iOS font size fix: prevents auto-zoom on input focus (GLOBAL, all inputs) */
+@media (max-width: 767px) {
+    input,
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="search"],
+    input[type="number"],
+    input[type="tel"],
+    input[type="url"],
+    input[type="date"],
+    input[type="datetime-local"],
+    input[type="time"],
+    input[type="month"],
+    input[type="week"],
+    textarea,
+    select {
+        font-size: 16px !important;
+    }
+}
+
+/* Form groups: stack label+input vertically on mobile */
+@media (max-width: 639px) {
+    .form-row,
+    .form-inline {
+        flex-direction: column !important;
+        gap: 0.75rem !important;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+}
+
+/* Textarea: minimum comfortable height on mobile */
+@media (max-width: 767px) {
+    textarea {
+        min-height: 100px;
+    }
+}
+
+/* Input label animation (for labeled inputs) */
+.form-label,
+label.form-label {
+    transition: color 0.2s ease;
+}
+
+.form-label:has(+ input:focus),
+.form-label:has(+ textarea:focus),
+.form-label:has(+ select:focus) {
+    color: var(--ibc-blue);
+}
+
+/* ══ H. MODAL RESPONSIVE IMPROVEMENTS ══════════════════════════════════ */
+/* All Bootstrap and custom modals need safe-area insets on mobile      */
+
+@media (max-width: 639px) {
+    .modal-dialog {
+        margin: 0.5rem !important;
+        max-width: calc(100vw - 1rem) !important;
+    }
+
+    .modal-body {
+        padding: 1rem !important;
+    }
+
+    .modal-footer {
+        flex-direction: column !important;
+        gap: 0.75rem !important;
+        padding: 1rem !important;
+    }
+
+    .modal-footer .btn,
+    .modal-footer a {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+
+    /* Fixed position modals - safe area bottom */
+    .fixed.inset-0 > div[class*="max-w"],
+    .fixed.inset-0 > div[class*="rounded"] {
+        margin-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+    }
+}
+
+/* ══ I. RESPONSIVE HEADING & TYPOGRAPHY SCALE (all modules) ══════════ */
+
+/* Fluid heading scale for medium screens (640–1023px) */
+@media (min-width: 640px) and (max-width: 1023px) {
+    h1 { font-size: clamp(1.5rem, 4vw, 2rem); }
+    h2 { font-size: clamp(1.25rem, 3vw, 1.75rem); }
+    h3 { font-size: clamp(1.1rem, 2.5vw, 1.375rem); }
+}
+
+/* Section headers with overflow-wrapping */
+.dash-section-title,
+.page-section-title,
+[class*="section-title"] {
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+/* ══ J. SPECIFIC RESPONSIVE FIXES PER MODULE ════════════════════════════ */
+
+/* ── Dashboard ───────────────────────────────────────────────────────── */
+
+/* Quick action pills: wrap on small phones */
+@media (max-width: 479px) {
+    .hero-quick-action {
+        font-size: 0.75rem !important;
+        padding: 0.5rem 0.875rem !important;
+        gap: 0.35rem !important;
+    }
+}
+
+/* Stat cards: 2 columns minimum on mobile */
+@media (max-width: 639px) {
+    .dash-stat-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.75rem !important;
+    }
+
+    .dash-stat-card {
+        padding: 1rem !important;
+    }
+}
+
+/* ── Events ─────────────────────────────────────────────────────────── */
+
+/* Event grid: 1 column on mobile, 2 on tablet */
+@media (max-width: 639px) {
+    .events-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+    .events-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+/* ── Members / Alumni ───────────────────────────────────────────────── */
+
+/* Directory toolbar: stack on mobile */
+@media (max-width: 639px) {
+    .directory-toolbar {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.625rem !important;
+    }
+
+    .directory-toolbar-group {
+        width: 100% !important;
+    }
+
+    .directory-search-wrapper {
+        width: 100% !important;
+    }
+
+    .directory-search-wrapper input {
+        width: 100% !important;
+    }
+}
+
+/* Member/alumni grid: always at least 2 cols */
+@media (max-width: 479px) {
+    .member-grid,
+    .alumni-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.75rem !important;
+    }
+}
+
+/* ── Inventory ───────────────────────────────────────────────────────── */
+
+/* Inventory lend dialog: full-width on narrow screens */
+@media (max-width: 479px) {
+    #lendDialog {
+        width: calc(100vw - 2rem) !important;
+        left: 1rem !important;
+        right: 1rem !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+    }
+}
+
+/* ── Blog ────────────────────────────────────────────────────────────── */
+
+@media (max-width: 639px) {
+    .blog-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ── Polls ───────────────────────────────────────────────────────────── */
+
+@media (max-width: 639px) {
+    .polls-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ── Projects ────────────────────────────────────────────────────────── */
+
+@media (max-width: 639px) {
+    .projects-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ── Jobs ────────────────────────────────────────────────────────────── */
+
+@media (max-width: 639px) {
+    .jobs-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ── Admin Pages ─────────────────────────────────────────────────────── */
+
+/* Admin toolbar: stack on mobile */
+@media (max-width: 767px) {
+    .admin-toolbar,
+    .page-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.75rem !important;
+    }
+
+    .admin-toolbar input[type="text"],
+    .admin-toolbar input[type="search"],
+    .admin-toolbar select {
+        width: 100% !important;
+    }
+}
+
+/* Admin stat cards: 2 columns on tablet */
+@media (min-width: 640px) and (max-width: 1023px) {
+    .admin-stat-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+/* ── Invoices ────────────────────────────────────────────────────────── */
+
+@media (max-width: 767px) {
+    .invoice-toolbar {
+        flex-direction: column !important;
+        gap: 0.75rem !important;
+    }
+}
+
+/* ── Links Page ──────────────────────────────────────────────────────── */
+
+@media (max-width: 479px) {
+    .links-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ── Error Pages (404/403) ───────────────────────────────────────────── */
+
+@media (max-width: 639px) {
+    .error-page-icon {
+        font-size: 4rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .error-page-code {
+        font-size: 5rem !important;
+    }
+
+    .error-page-title {
+        font-size: 1.5rem !important;
+    }
+}
+
+/* ══ K. STAGGERED LIST ANIMATIONS FOR MODULE CONTENT ════════════════════ */
+/* Applies staggered entrance to grid/list items inside main content.   */
+
+@media (prefers-reduced-motion: no-preference) {
+    /* Card grids: stagger direct children */
+    #main-content .grid > * {
+        animation: ibc-fade-up 0.4s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+    }
+
+    #main-content .grid > *:nth-child(1) { animation-delay: 0.05s; }
+    #main-content .grid > *:nth-child(2) { animation-delay: 0.10s; }
+    #main-content .grid > *:nth-child(3) { animation-delay: 0.15s; }
+    #main-content .grid > *:nth-child(4) { animation-delay: 0.20s; }
+    #main-content .grid > *:nth-child(5) { animation-delay: 0.24s; }
+    #main-content .grid > *:nth-child(6) { animation-delay: 0.27s; }
+    #main-content .grid > *:nth-child(7) { animation-delay: 0.30s; }
+    #main-content .grid > *:nth-child(8) { animation-delay: 0.32s; }
+    #main-content .grid > *:nth-child(n+9) { animation-delay: 0.34s; }
+}
+
+/* ══ L. PERFORMANCE & GPU OPTIMIZATION ════════════════════════════════ */
+/* Promote animated elements to their own compositor layer.            */
+
+.card,
+.dash-stat-card,
+.dash-event-card,
+.dash-blog-card,
+.dash-helper-card,
+.dash-poll-card,
+.event-card,
+.project-card,
+.poll-card,
+.blog-card,
+.job-card,
+.link-card,
+.member-card,
+.idea-card,
+.alumni-card,
+.inventory-card {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+/* ══ M. PRINT STYLES ═══════════════════════════════════════════════════ */
+
+@media print {
+    .sidebar,
+    .mobile-topbar,
+    .mobile-bottom-nav,
+    .desktop-navbar,
+    .mobile-topbar-btn,
+    .sidebar-overlay,
+    #mobile-menu {
+        display: none !important;
+    }
+
+    #main-content {
+        margin-left: 0 !important;
+        padding: 1rem !important;
+    }
+
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #ccc !important;
+        page-break-inside: avoid;
+    }
+
+    a[href]::after {
+        content: " (" attr(href) ")";
+        font-size: 0.75em;
+        color: #555;
+    }
+}
+
+/* ══ N. DARK MODE IMPROVEMENTS FOR ALL MODULES ══════════════════════════ */
+
+/* Filter tabs in dark mode */
+.dark-mode .events-filter-tab,
+.dark-mode .projects-filter-tab,
+.dark-mode .polls-filter-tab,
+.dark-mode .jobs-filter-tab,
+.dark-mode .blog-filter-tab {
+    background: var(--bg-body) !important;
+    color: var(--text-muted) !important;
+    border-color: var(--border-light) !important;
+}
+
+.dark-mode .events-filter-tab:hover,
+.dark-mode .projects-filter-tab:hover,
+.dark-mode .polls-filter-tab:hover,
+.dark-mode .jobs-filter-tab:hover,
+.dark-mode .blog-filter-tab:hover {
+    border-color: var(--ibc-blue-light) !important;
+    color: var(--ibc-blue-light) !important;
+}
+
+/* Date chips in dark mode */
+.dark-mode .event-date-chip-day,
+.dark-mode .dash-event-date-day {
+    color: var(--text-main);
+}
+
+/* ══ O. EXTRA SMALL SCREEN (≤360px) EMERGENCY FIXES ═══════════════════ */
+
+@media (max-width: 360px) {
+    /* Compress card padding to minimum */
+    .card {
+        padding: 0.75rem !important;
+    }
+
+    /* Stack flex rows on extreme narrow screens */
+    .flex-row {
+        flex-direction: column !important;
+    }
+
+    /* Reduce icon sizes */
+    .dash-section-icon {
+        width: 2rem !important;
+        height: 2rem !important;
+        font-size: 0.8rem !important;
+    }
+
+    /* Compress hero quick actions */
+    .hero-quick-action {
+        padding: 0.4rem 0.75rem !important;
+        font-size: 0.75rem !important;
+    }
+
+    /* Invoice badges stay compact */
+    .invoice-badge {
+        padding: 0.15rem 0.5rem !important;
+        font-size: 0.75rem !important;
+    }
+}
+
+/* ══ P. TABLET OPTIMIZATIONS (768–1024px) ══════════════════════════════ */
+
+@media (min-width: 768px) and (max-width: 1024px) {
+    /* Content area: slightly more padding */
+    #main-content {
+        padding-left: 1.5rem !important;
+        padding-right: 1.5rem !important;
+    }
+
+    /* Adjust sidebar width CSS vars for tablets */
+    .sidebar {
+        width: var(--sidebar-width-md) !important;
+    }
+
+    /* 2-column grids on tablet for 3+ column desktop grids */
+    .grid-cols-3,
+    .sm\:grid-cols-3 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .grid-cols-4,
+    .lg\:grid-cols-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ══ Q. REDUCED MOTION – GLOBAL RESET ══════════════════════════════════ */
+/* Covers ALL new animation additions in this file                      */
+
+@media (prefers-reduced-motion: reduce) {
+    /* All module cards */
+    .event-card,
+    .project-card,
+    .poll-card,
+    .blog-card,
+    .job-card,
+    .link-card,
+    .member-card,
+    .idea-card,
+    .alumni-card,
+    .inventory-card {
+        transition: border-color 0.15s ease !important;
+        transform: none !important;
+        animation: none !important;
+    }
+
+    /* All buttons */
+    .btn-secondary,
+    .btn-danger,
+    .btn.btn-primary,
+    .btn.btn-secondary,
+    .btn.btn-success,
+    .btn.btn-danger,
+    .btn.btn-warning,
+    .btn.btn-info,
+    .btn-icon,
+    .icon-btn {
+        transition: none !important;
+        transform: none !important;
+    }
+
+    /* Table rows */
+    tbody tr {
+        transition: none !important;
+    }
+
+    /* Grid stagger */
+    #main-content .grid > * {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    /* Page entrance */
+    #main-content > * {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}
+
+/* ══ END OF COMPREHENSIVE ALL-SCREENS ALL-MODULES DESIGN SYSTEM ════════ */
