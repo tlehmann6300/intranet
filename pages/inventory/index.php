@@ -291,29 +291,30 @@ ob_start();
 
 <!-- ─── Lending Modal ─── -->
 <div id="lendModal"
-     class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4"
+     class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/60 p-4"
      role="dialog" aria-modal="true" aria-labelledby="lendModalTitle"
      onclick="if(event.target===this)closeLendModal()">
-    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <div class="p-6">
-            <!-- Header -->
-            <div class="flex items-start justify-between mb-5">
-                <div>
-                    <h2 id="lendModalTitle" class="text-xl font-extrabold text-slate-900 dark:text-white">Ausleihen / Entnehmen</h2>
-                    <p id="lendModalItemName" class="text-sm text-slate-500 dark:text-slate-400 mt-0.5"></p>
-                </div>
-                <button type="button" onclick="closeLendModal()" class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-slate-100 hover:bg-red-100 dark:bg-slate-700 dark:hover:bg-red-900/40 text-slate-500 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 transition-all duration-200 ml-4 flex-shrink-0 shadow-sm" aria-label="Schließen">
-                    <i class="fas fa-times text-base"></i>
-                </button>
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] flex flex-col">
+        <!-- Modal Header (always visible) -->
+        <div class="px-6 pt-6 pb-4 flex-shrink-0 flex items-start justify-between">
+            <div>
+                <h2 id="lendModalTitle" class="text-xl font-extrabold text-slate-900 dark:text-white">Ausleihen / Entnehmen</h2>
+                <p id="lendModalItemName" class="text-sm text-slate-500 dark:text-slate-400 mt-0.5"></p>
             </div>
+            <button type="button" onclick="closeLendModal()" class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-slate-100 hover:bg-red-100 dark:bg-slate-700 dark:hover:bg-red-900/40 text-slate-500 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 transition-all duration-200 ml-4 flex-shrink-0 shadow-sm" aria-label="Schließen">
+                <i class="fas fa-times text-base"></i>
+            </button>
+        </div>
 
-            <!-- Form -->
-            <form id="lendForm" method="POST" action="">
-                <input type="hidden" name="checkout" value="1">
-                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(CSRFHandler::getToken()); ?>">
-                <input type="hidden" name="return_to" value="index">
+        <!-- Form wraps scrollable body + fixed footer -->
+        <form id="lendForm" method="POST" action="" class="flex flex-col flex-1 min-h-0">
+            <input type="hidden" name="checkout" value="1">
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(CSRFHandler::getToken()); ?>">
+            <input type="hidden" name="return_to" value="index">
 
-                <div class="space-y-4">
+            <!-- Modal Body (scrollable) -->
+            <div class="px-6 overflow-y-auto flex-1">
+                <div class="space-y-4 pb-2">
                     <!-- Quantity -->
                     <div>
                         <label for="lendQuantity" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
@@ -365,20 +366,20 @@ ob_start();
                                class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 transition-all">
                     </div>
                 </div>
+            </div>
 
-                <!-- Submit -->
-                <div class="mt-6 flex gap-3">
-                    <button type="button" onclick="closeLendModal()"
-                            class="flex-1 py-2.5 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-xl font-semibold text-sm transition-all">
-                        Abbrechen
-                    </button>
-                    <button type="submit"
-                            class="flex-1 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-xl font-bold text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
-                        <i class="fas fa-paper-plane"></i>Anfrage senden
-                    </button>
-                </div>
-            </form>
-        </div>
+            <!-- Modal Footer (always visible) -->
+            <div class="px-6 py-4 flex gap-3 flex-shrink-0">
+                <button type="button" onclick="closeLendModal()"
+                        class="flex-1 py-2.5 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-xl font-semibold text-sm transition-all">
+                    Abbrechen
+                </button>
+                <button type="submit"
+                        class="flex-1 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-xl font-bold text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                    <i class="fas fa-paper-plane"></i>Anfrage senden
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
