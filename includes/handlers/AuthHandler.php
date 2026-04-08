@@ -726,16 +726,13 @@ class AuthHandler {
                     }
                 }
                 
-                // Store job title and company in users table
-                $jobTitle = $profileData['jobTitle'] ?? null;
-                $companyName = $profileData['companyName'] ?? null;
-
                 // Store Entra App Roles (from JWT) in entra_roles field
                 $entraRolesJson = !empty($azureRoles) ? json_encode($azureRoles) : null;
 
-                // Update user record with profile data
-                $stmt = $db->prepare("UPDATE users SET job_title = ?, company = ?, entra_roles = ? WHERE id = ?");
-                $stmt->execute([$jobTitle, $companyName, $entraRolesJson, $userId]);
+                // Update user record: only sync entra_roles.
+                // job_title is intentionally not synced from Entra so users can manage it manually.
+                $stmt = $db->prepare("UPDATE users SET entra_roles = ? WHERE id = ?");
+                $stmt->execute([$entraRolesJson, $userId]);
 
                 // Store Entra roles in session for display
                 $_SESSION['entra_roles'] = $azureRoles;

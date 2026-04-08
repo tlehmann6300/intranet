@@ -190,13 +190,13 @@ ob_start();
         <?php endif; ?>
 
         <!-- ── Email preview ───────────────────────────────────────────────── -->
-        <div class="w-full max-w-2xl">
+        <div class="w-full">
             <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
 
                 <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between gap-3">
                     <div class="flex items-center gap-2">
                         <i class="fas fa-eye text-ibc-blue"></i>
-                        <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-100">Vorschau</h2>
+                        <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-100">Ansicht</h2>
                     </div>
                     <button id="toggle-preview"
                             class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
@@ -206,14 +206,14 @@ ob_start();
                     </button>
                 </div>
 
-                <div id="preview-container" class="p-4">
+                <div id="preview-container" class="p-0">
                     <iframe
                         id="newsletter-preview"
                         src="render.php?id=<?php echo $newsletterId; ?>"
-                        class="w-full border-0 block rounded-lg"
-                        style="min-height:500px;"
+                        class="w-full border-0 block"
+                        style="height:80vh; min-height:600px; max-height:none; display:block;"
                         sandbox="allow-same-origin"
-                        title="Newsletter Vorschau">
+                        title="Newsletter Ansicht">
                     </iframe>
                 </div>
 
@@ -233,15 +233,17 @@ ob_start();
     var label     = document.getElementById('toggle-label');
 
     // Auto-resize the iframe to fit its content once it has loaded.
+    // We use a generous fixed height (80vh) so scrolling within the iframe works naturally.
     if (iframe) {
         iframe.addEventListener('load', function () {
             try {
                 var h = this.contentDocument.documentElement.scrollHeight;
-                if (h > 0) {
+                // Only override if content is taller than the default 80vh
+                if (h > this.offsetHeight) {
                     this.style.height = h + 'px';
                 }
             } catch (e) {
-                // Same-origin restriction not met – keep the default min-height.
+                // Same-origin restriction not met – keep the default 80vh height.
             }
         });
     }

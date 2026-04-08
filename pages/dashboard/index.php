@@ -875,7 +875,7 @@ function dismissProfileReviewPrompt() {
                 </p>
                 <!-- Greeting -->
                 <h1 class="font-extrabold tracking-tight hero-title mb-2" style="font-size: clamp(1.85rem, 4vw, 2.85rem); line-height: 1.12; text-shadow: 0 2px 8px rgba(0,0,0,0.18);">
-                    <?php echo htmlspecialchars($greeting); ?>, <?php echo htmlspecialchars($displayName); ?>! 👋
+                    <?php echo htmlspecialchars($greeting); ?>, <?php echo htmlspecialchars($displayName); ?>!
                 </h1>
                 <p class="hero-subtitle hero-subtitle-text">
                     Willkommen zurück im IBC&nbsp;Intranet – hier ist deine Übersicht für heute.

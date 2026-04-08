@@ -59,6 +59,47 @@ function is_nav_active(string $path): bool {
 if (!isset($currentUser)) {
     $currentUser = Auth::user();
 }
+
+// Pre-compute user display data for both the desktop navbar and sidebar footer
+// so both components share the same values without a second DB query.
+require_once __DIR__ . '/../models/Alumni.php';
+require_once __DIR__ . '/../models/User.php';
+$_navbarFirstname = '';
+$_navbarLastname  = '';
+$_navbarEmail     = '';
+$_navbarRole      = 'User';
+$_navbarImgSrc    = '';
+$_navbarAvatarColor = '#374151';
+$_navbarInitials  = 'U';
+
+if ($currentUser && isset($currentUser['id'])) {
+    $_navbarProfile = Alumni::getProfileByUserId($currentUser['id']);
+    if ($_navbarProfile && !empty($_navbarProfile['first_name'])) {
+        $_navbarFirstname = $_navbarProfile['first_name'];
+        $_navbarLastname  = $_navbarProfile['last_name'] ?? '';
+    } elseif (!empty($currentUser['first_name'])) {
+        $_navbarFirstname = $currentUser['first_name'];
+        $_navbarLastname  = $currentUser['last_name'] ?? '';
+    }
+    $_navbarEmail = $currentUser['email'] ?? '';
+    $_navbarRole  = $currentUser['role'] ?? 'User';
+
+    if (!empty($_navbarFirstname) && !empty($_navbarLastname)) {
+        $_navbarInitials = strtoupper(substr($_navbarFirstname, 0, 1) . substr($_navbarLastname, 0, 1));
+    } elseif (!empty($_navbarFirstname)) {
+        $_navbarInitials = strtoupper(substr($_navbarFirstname, 0, 1));
+    } elseif (!empty($_navbarEmail)) {
+        $_navbarInitials = strtoupper(substr($_navbarEmail, 0, 1));
+    }
+
+    $_navbarAvatarColor = getAvatarColor($_navbarFirstname . ' ' . $_navbarLastname);
+
+    if (!empty($_navbarEmail)) {
+        $_navbarImgSrc = asset('fetch-profile-photo.php') . '?email=' . urlencode($_navbarEmail);
+    } else {
+        $_navbarImgSrc = asset(User::getProfilePictureUrl((int)$currentUser['id'], $currentUser));
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="de" class="overflow-x-hidden">
@@ -584,6 +625,47 @@ if (!isset($currentUser)) {
         </nav>
     </div>
 
+    <!-- Desktop Fixed Top Navbar (hidden on mobile) -->
+    <header class="desktop-navbar" id="desktop-navbar" aria-label="Desktop-Navigation">
+        <!-- Light/Dark Mode Toggle -->
+        <button id="navbar-theme-toggle" class="navbar-theme-btn" aria-label="Zwischen hellem und dunklem Modus wechseln">
+            <i id="navbar-theme-icon" class="fas fa-moon" aria-hidden="true"></i>
+        </button>
+
+        <!-- Profile Dropdown Trigger -->
+        <div class="relative" id="navbar-profile-wrapper">
+            <button id="navbar-profile-btn" class="navbar-profile-btn" aria-haspopup="true" aria-expanded="false" aria-controls="navbar-profile-dropdown">
+                <!-- Avatar -->
+                <div class="w-8 h-8 rounded-full overflow-hidden relative flex-shrink-0" style="background-color:<?php echo htmlspecialchars($_navbarAvatarColor); ?>">
+                    <span class="absolute inset-0 flex items-center justify-center text-xs font-bold text-white select-none" aria-hidden="true"><?php echo htmlspecialchars($_navbarInitials); ?></span>
+                    <img src="<?php echo htmlspecialchars($_navbarImgSrc); ?>" alt="Profilbild" class="absolute inset-0 w-full h-full object-cover" onerror="this.onerror=null;this.style.display='none';">
+                </div>
+                <!-- Name -->
+                <?php if (!empty($_navbarFirstname) || !empty($_navbarLastname)): ?>
+                <span class="navbar-profile-name"><?php echo htmlspecialchars(trim($_navbarFirstname . ' ' . $_navbarLastname)); ?></span>
+                <?php endif; ?>
+                <i class="fas fa-chevron-down navbar-profile-chevron" aria-hidden="true"></i>
+            </button>
+
+            <!-- Dropdown Menu -->
+            <div id="navbar-profile-dropdown" class="navbar-profile-dropdown" role="menu" aria-labelledby="navbar-profile-btn">
+                <a href="<?php echo asset('pages/auth/profile.php'); ?>" class="navbar-dropdown-item <?php echo is_nav_active('/auth/profile.php') ? 'font-semibold' : ''; ?>" role="menuitem">
+                    <i class="fas fa-user" aria-hidden="true"></i>
+                    <span>Mein Profil</span>
+                </a>
+                <a href="<?php echo asset('pages/auth/settings.php'); ?>" class="navbar-dropdown-item <?php echo is_nav_active('/auth/settings.php') ? 'font-semibold' : ''; ?>" role="menuitem">
+                    <i class="fas fa-cog" aria-hidden="true"></i>
+                    <span>Einstellungen</span>
+                </a>
+                <div class="navbar-dropdown-divider"></div>
+                <a href="<?php echo asset('pages/auth/logout.php'); ?>" class="navbar-dropdown-item navbar-dropdown-logout" role="menuitem">
+                    <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                    <span>Abmelden</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
     <!-- Sidebar -->
     <aside id="sidebar" class="sidebar fixed left-0 top-0 h-screen w-64 md:w-72 transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-40 text-white shadow-2xl flex flex-col" aria-label="Seitenleiste">
         <?php 
@@ -1059,42 +1141,19 @@ if (!isset($currentUser)) {
                     <?php endif; ?>
                 </div>
             </div>
-            
-            <!-- Profile Navigation -->
-            <a href='<?php echo asset('pages/auth/profile.php'); ?>' 
-               class='sidebar-footer-btn <?php echo is_nav_active('/auth/profile.php') ? 'active-btn' : ''; ?>'
-               <?php echo is_nav_active('/auth/profile.php') ? 'aria-current="page"' : ''; ?>>
-                <i class='fas fa-user' aria-hidden="true"></i>
-                <span>Mein Profil</span>
-            </a>
 
-            <a href='<?php echo asset('pages/auth/settings.php'); ?>' 
-               class='sidebar-footer-btn <?php echo is_nav_active('/auth/settings.php') ? 'active-btn' : ''; ?>'
-               <?php echo is_nav_active('/auth/settings.php') ? 'aria-current="page"' : ''; ?>>
-                <i class='fas fa-cog' aria-hidden="true"></i>
-                <span>Einstellungen</span>
-            </a>
-
-            <!-- Dark/Light Mode Toggle -->
-            <button id="theme-toggle" class='sidebar-footer-btn' aria-label="Zwischen hellem und dunklem Modus wechseln">
-                <i id="theme-icon" class='fas fa-moon' aria-hidden="true"></i>
-                <span id="theme-text">Darkmode</span>
-            </button>
-
-            <!-- Logout -->
-            <a href='<?php echo asset('pages/auth/logout.php'); ?>' 
-               class='sidebar-footer-btn sidebar-logout-btn'>
-                <i class='fas fa-sign-out-alt' aria-hidden="true"></i>
-                <span>Abmelden</span>
-            </a>
-
-            
-            <!-- Live Clock -->
-            <div class='mt-2 pt-2 border-t border-white/20 text-center'>
+            <!-- Live Clock (left-aligned) -->
+            <div class='mt-2 pt-2 border-t border-white/20'>
                 <div id="live-clock" class='text-xs text-white/80 font-mono'>
                     <!-- JavaScript will update this -->
                 </div>
             </div>
+
+            <!-- Hidden elements to keep theme-toggle IDs for existing JS -->
+            <button id="theme-toggle" class="hidden" aria-hidden="true" tabindex="-1">
+                <i id="theme-icon" class='fas fa-moon'></i>
+                <span id="theme-text">Darkmode</span>
+            </button>
         </div>
     </aside>
 
@@ -1345,6 +1404,8 @@ if (!isset($currentUser)) {
         const themeText = document.getElementById('theme-text');
         const mobileThemeToggle = document.getElementById('mobile-theme-toggle');
         const mobileThemeIcon = document.getElementById('mobile-theme-icon');
+        const navbarThemeToggle = document.getElementById('navbar-theme-toggle');
+        const navbarThemeIcon = document.getElementById('navbar-theme-icon');
         
         // Get user's saved theme preference from database (via data attribute)
         const userThemePreference = document.body.getAttribute('data-user-theme') || 'auto';
@@ -1364,6 +1425,8 @@ if (!isset($currentUser)) {
                 if (themeText) themeText.textContent = 'Lightmode';
                 if (mobileThemeIcon) { mobileThemeIcon.classList.remove('fa-moon'); mobileThemeIcon.classList.add('fa-sun'); }
                 if (mobileThemeToggle) mobileThemeToggle.setAttribute('aria-label', 'Zu Lightmode wechseln');
+                if (navbarThemeIcon) { navbarThemeIcon.classList.remove('fa-moon'); navbarThemeIcon.classList.add('fa-sun'); }
+                if (navbarThemeToggle) navbarThemeToggle.setAttribute('aria-label', 'Zu Lightmode wechseln');
             } else {
                 document.body.classList.remove('dark-mode', 'dark');
                 document.documentElement.classList.remove('dark-mode', 'dark');
@@ -1373,6 +1436,8 @@ if (!isset($currentUser)) {
                 if (themeText) themeText.textContent = 'Darkmode';
                 if (mobileThemeIcon) { mobileThemeIcon.classList.remove('fa-sun'); mobileThemeIcon.classList.add('fa-moon'); }
                 if (mobileThemeToggle) mobileThemeToggle.setAttribute('aria-label', 'Zu Darkmode wechseln');
+                if (navbarThemeIcon) { navbarThemeIcon.classList.remove('fa-sun'); navbarThemeIcon.classList.add('fa-moon'); }
+                if (navbarThemeToggle) navbarThemeToggle.setAttribute('aria-label', 'Zu Darkmode wechseln');
             }
         }
         
@@ -1392,6 +1457,8 @@ if (!isset($currentUser)) {
                 if (themeText) themeText.textContent = 'Darkmode';
                 if (mobileThemeIcon) { mobileThemeIcon.classList.remove('fa-sun'); mobileThemeIcon.classList.add('fa-moon'); }
                 if (mobileThemeToggle) mobileThemeToggle.setAttribute('aria-label', 'Zu Darkmode wechseln');
+                if (navbarThemeIcon) { navbarThemeIcon.classList.remove('fa-sun'); navbarThemeIcon.classList.add('fa-moon'); }
+                if (navbarThemeToggle) navbarThemeToggle.setAttribute('aria-label', 'Zu Darkmode wechseln');
             } else {
                 document.body.classList.add('dark-mode', 'dark');
                 document.documentElement.classList.add('dark-mode', 'dark');
@@ -1402,6 +1469,8 @@ if (!isset($currentUser)) {
                 if (themeText) themeText.textContent = 'Lightmode';
                 if (mobileThemeIcon) { mobileThemeIcon.classList.remove('fa-moon'); mobileThemeIcon.classList.add('fa-sun'); }
                 if (mobileThemeToggle) mobileThemeToggle.setAttribute('aria-label', 'Zu Lightmode wechseln');
+                if (navbarThemeIcon) { navbarThemeIcon.classList.remove('fa-moon'); navbarThemeIcon.classList.add('fa-sun'); }
+                if (navbarThemeToggle) navbarThemeToggle.setAttribute('aria-label', 'Zu Lightmode wechseln');
             }
         }
 
@@ -1409,6 +1478,60 @@ if (!isset($currentUser)) {
 
         // Mobile theme toggle (synced with sidebar toggle)
         mobileThemeToggle?.addEventListener('click', toggleTheme);
+
+        // Navbar theme toggle
+        navbarThemeToggle?.addEventListener('click', toggleTheme);
+
+        // ── Navbar Profile Dropdown ──────────────────────────────────
+        (function() {
+            const profileBtn = document.getElementById('navbar-profile-btn');
+            const dropdown   = document.getElementById('navbar-profile-dropdown');
+            if (!profileBtn || !dropdown) return;
+
+            function openDropdown() {
+                dropdown.classList.add('open');
+                profileBtn.setAttribute('aria-expanded', 'true');
+            }
+            function closeDropdown() {
+                dropdown.classList.remove('open');
+                profileBtn.setAttribute('aria-expanded', 'false');
+            }
+            function toggleDropdown() {
+                if (dropdown.classList.contains('open')) {
+                    closeDropdown();
+                } else {
+                    openDropdown();
+                }
+            }
+
+            profileBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleDropdown();
+            });
+
+            // Close when clicking outside
+            document.addEventListener('click', function(e) {
+                const wrapper = document.getElementById('navbar-profile-wrapper');
+                if (wrapper && !wrapper.contains(e.target)) {
+                    closeDropdown();
+                }
+            });
+
+            // Close on Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && dropdown.classList.contains('open')) {
+                    closeDropdown();
+                    profileBtn.focus();
+                }
+            });
+
+            // Close when a dropdown link is clicked
+            dropdown.querySelectorAll('a').forEach(function(link) {
+                link.addEventListener('click', function() {
+                    closeDropdown();
+                });
+            });
+        })();
         
         // Live Clock - Updates every second
         function updateLiveClock() {
