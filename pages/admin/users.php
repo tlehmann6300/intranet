@@ -108,11 +108,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)"
                 );
                 if ($stmt->execute([$entraEmail, $passwordHash, $firstName, $lastName, $role, $entraId, $userType, $isAlumniValidated])) {
-                    $message = 'Entra-Benutzer "' . htmlspecialchars($displayName) . '" erfolgreich hinzugefügt.';
+                    $successMsg = 'Entra-Benutzer "' . htmlspecialchars($displayName) . '" erfolgreich hinzugefügt.';
                     if (!MailService::sendActivationEmail($entraEmail)) {
                         error_log("Activation email could not be sent to {$entraEmail}");
-                        $message .= ' (Hinweis: Aktivierungs-E-Mail konnte nicht gesendet werden.)';
+                        $successMsg .= ' (Hinweis: Aktivierungs-E-Mail konnte nicht gesendet werden.)';
                     }
+                    // Redirect to Entra tab after successful import (prevents double-submit on F5)
+                    $redirectUrl = (defined('BASE_URL') ? BASE_URL : '') . '/pages/admin/users.php?tab=entra-search&msg=' . urlencode($successMsg);
+                    header('Location: ' . $redirectUrl);
+                    exit;
                 } else {
                     $error = 'Fehler beim Speichern des Benutzers.';
                 }
@@ -122,6 +126,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $users = User::getAll();
+
+// Pick up redirect message from Entra import POST-redirect-GET
+if (!empty($_GET['msg'])) {
+    $message = htmlspecialchars(strip_tags($_GET['msg']));
+}
+$initialTab = (($_GET['tab'] ?? '') === 'entra-search') ? 'entra-search' : 'users';
 
 // Get current user data
 $currentUser = Auth::user();
@@ -172,7 +182,7 @@ ob_start();
             </button>
             <?php if (Auth::canManageUsers()): ?>
             <button 
-                class="tab-button flex-1 py-3 sm:py-4 px-3 sm:px-6 min-h-[44px] text-center font-semibold transition-all duration-200 relative overflow-hidden bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
+                class="tab-button flex-1 py-3 sm:py-4 px-3 sm:px-6 min-h-[44px] text-center font-semibold transition-all duration-200 relative overflow-hidden bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600"
                 data-tab="entra-search"
             >
                 <span class="relative z-10 flex items-center justify-center gap-2">
@@ -601,9 +611,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // Update button styles - Modern gradient design
             tabButtons.forEach(btn => {
                 btn.classList.remove('active', 'bg-gradient-to-r', 'from-purple-600', 'to-indigo-600', 'text-white');
-                btn.classList.add('bg-gray-50', 'dark:bg-gray-700', 'text-gray-600', 'dark:text-gray-300', 'hover:bg-gray-100', 'dark:hover:bg-gray-600');
+                btn.classList.add('bg-gray-50', 'dark:bg-gray-700', 'text-gray-900', 'dark:text-gray-100', 'hover:bg-gray-100', 'dark:hover:bg-gray-600');
             });
-            this.classList.remove('bg-gray-50', 'dark:bg-gray-700', 'text-gray-600', 'dark:text-gray-300', 'hover:bg-gray-100', 'dark:hover:bg-gray-600');
+            this.classList.remove('bg-gray-50', 'dark:bg-gray-700', 'text-gray-900', 'dark:text-gray-100', 'hover:bg-gray-100', 'dark:hover:bg-gray-600');
             this.classList.add('active', 'bg-gradient-to-r', 'from-purple-600', 'to-indigo-600', 'text-white');
             
             // Update content visibility
