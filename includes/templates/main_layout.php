@@ -202,57 +202,8 @@ if ($currentUser && isset($currentUser['id'])) {
             .badge:not(.sidebar-nav-badge) { padding: 0.375rem 0.75rem !important; font-size: 0.875rem !important; }
         }
 
-        /* Very narrow screens (under 480px): force single column for ALL grids including 2-column */
-        @media (max-width: 479px) {
-            .grid:not(.grid-no-stack):not(.grid-cols-1) {
-                grid-template-columns: 1fr !important;
-                gap: 1.5rem !important;
-            }
-        }
-
-        /* Extra small screens (below Tailwind sm: breakpoint): stack 3+ column grids to single column */
-        @media (max-width: 639px) {
-            .grid:not(.grid-no-stack):not(.grid-cols-1):not(.grid-cols-2) {
-                grid-template-columns: 1fr !important;
-                gap: 1.5rem !important;
-            }
-        }
-
-        /* Tablet view improvements */
-        @media (min-width: 768px) and (max-width: 1024px) {
-            /* 2-column grid on tablets */
-            .grid:not(.grid-no-stack):not(.grid-cols-1) {
-                grid-template-columns: repeat(2, 1fr) !important;
-            }
-        }
-
-        /* Desktop and larger */
-        @media (min-width: 1025px) {
-            .container { max-width: 1400px; margin: 0 auto; }
-        }
-
-        /* Extra large screens */
-        @media (min-width: 1536px) {
-            .container { max-width: 1600px; }
-        }
-
-        /* Landscape mobile optimization */
-        @media (max-height: 500px) and (orientation: landscape) and (max-width: 767px) {
-            .sidebar { width: 14rem !important; }
-            .sidebar nav a { padding: 0.5rem 1rem !important; font-size: 0.875rem !important; }
-        }
-
-        /* High DPI displays */
-        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-            body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-            .card { border-width: 0.5px; }
-        }
-
-        /* Touch device optimizations: larger targets, better tap feedback */
-        @media (hover: none) and (pointer: coarse) {
-            a, button, input[type="submit"], input[type="button"] { min-height: 44px; min-width: 44px; }
-            a:active, button:active { opacity: 0.7; transform: scale(0.98); transition: all 0.1s ease; }
-        }
+        /* Grid collapse, breakpoints, HiDPI, touch targets, landscape, container
+           are now handled comprehensively in theme.css Part 2 & 3. */
 
         /* Ensure long text doesn't overflow */
         p, span, li, h1, h2, h3 { overflow-wrap: break-word; word-break: break-word; }
