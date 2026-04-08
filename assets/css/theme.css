@@ -5137,6 +5137,8 @@ body.dark-mode {
         touch-action: pan-y;
         flex: 1 1 auto;
         min-height: 0;
+        /* Extra bottom padding so the last nav item isn't hidden behind the mobile bottom nav bar (~60px) */
+        padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px)) !important;
     }
     .main-content {
         margin-left: 0 !important; /* No margin on mobile */
@@ -5441,7 +5443,9 @@ textarea {
 /* Safari: Fix sticky positioning */
 .sidebar {
     -webkit-overflow-scrolling: touch;
-    overflow-y: auto;
+    /* overflow-y must remain hidden so the inner .sidebar-scroll flex child
+       is the sole scroll container; setting auto here breaks flex-shrink and
+       causes the sidebar to stop scrolling mid-way. */
 }
 
 /* Safari: Fix backdrop-filter (already handled but ensure fallback) */
@@ -9272,9 +9276,8 @@ body:not(.dark-mode) .dash-stat-card * {
 
 /* ── LANDSCAPE MOBILE IMPROVEMENTS ─────────────────────────── */
 @media (max-height: 500px) and (orientation: landscape) and (max-width: 1024px) {
-    /* In landscape mobile, sidebar should scroll better */
-    .sidebar {
-        overflow-y: auto;
+    /* In landscape mobile, sidebar should scroll better via the inner .sidebar-scroll */
+    .sidebar .sidebar-scroll {
         -webkit-overflow-scrolling: touch;
     }
 
