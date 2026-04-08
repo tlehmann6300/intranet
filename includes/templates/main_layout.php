@@ -452,6 +452,23 @@ if (!isset($currentUser)) {
             }
         }
 
+        /* ── INDEPENDENT SCROLLING (DESKTOP) ───────────────────────
+           Lock the body so only the sidebar and the content area
+           scroll – not the browser window itself.
+           The sidebar already scrolls via its inner .sidebar-scroll;
+           the content area gets its own scrollbar here.
+           Mobile keeps the default body-scroll behaviour intact. */
+        @media (min-width: 768px) {
+            body {
+                overflow: hidden;
+                height: 100vh;
+            }
+            #main-content {
+                height: 100vh;
+                overflow-y: auto;
+            }
+        }
+
         /* hamburger button inside top header */
         #mobile-menu-btn {
             align-items: center;
