@@ -51,15 +51,15 @@ ob_start();
                 </div>
             </div>
             <div class="flex gap-3 shrink-0">
-                <div class="bg-white bg-opacity-15 backdrop-blur-sm rounded-xl px-4 py-3 text-center w-20">
+                <div class="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 text-center w-20">
                     <p class="text-2xl font-bold text-white"><?php echo $counts['pending']; ?></p>
                     <p class="text-xs text-white opacity-80 uppercase tracking-wide">Ausstehend</p>
                 </div>
-                <div class="bg-white bg-opacity-15 backdrop-blur-sm rounded-xl px-4 py-3 text-center w-20">
+                <div class="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 text-center w-20">
                     <p class="text-2xl font-bold text-white"><?php echo $counts['approved']; ?></p>
                     <p class="text-xs text-white opacity-80 uppercase tracking-wide">Akzeptiert</p>
                 </div>
-                <div class="bg-white bg-opacity-15 backdrop-blur-sm rounded-xl px-4 py-3 text-center w-20">
+                <div class="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 text-center w-20">
                     <p class="text-2xl font-bold text-white"><?php echo $counts['rejected']; ?></p>
                     <p class="text-xs text-white opacity-80 uppercase tracking-wide">Abgelehnt</p>
                 </div>
