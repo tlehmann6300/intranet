@@ -229,7 +229,7 @@ ob_start();
             <!-- Checkout/Borrow Button for all users -->
             <?php if ($item['available_quantity'] > 0): ?>
             <div class="mb-8 flex flex-wrap items-center gap-3">
-                <button onclick="openCheckoutModal()" class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-green-700 hover:to-green-800 transition-all transform hover:scale-105 font-bold shadow-lg text-lg" aria-haspopup="dialog">
+                <button onclick="openCheckoutModal(this)" class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-green-700 hover:to-green-800 transition-all transform hover:scale-105 font-bold shadow-lg text-lg" aria-haspopup="dialog">
                     <i class="fas fa-hand-holding-box mr-3" aria-hidden="true"></i>Entnehmen / Ausleihen
                 </button>
             </div>
@@ -569,13 +569,13 @@ if (!empty($logbookNote)):
 </div>
 
 <!-- Combined Checkout/Rental Modal -->
-<div id="checkoutModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="checkout-modal-title">
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden">
-        <form id="combinedCheckoutForm" method="POST" action="checkout.php?id=<?php echo htmlspecialchars($item['id']); ?>" class="flex flex-col flex-1 min-h-0">
+<div id="checkoutModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="checkout-modal-title">
+    <div id="checkoutDialog" class="absolute bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
+        <form id="combinedCheckoutForm" method="POST" action="checkout.php?id=<?php echo htmlspecialchars($item['id']); ?>">
             <input type="hidden" name="csrf_token" value="<?php echo CSRFHandler::getToken(); ?>">
             <input type="hidden" name="checkout" value="1">
 
-            <div class="p-6 overflow-y-auto flex-1">
+            <div class="p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h2 id="checkout-modal-title" class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100">
                         <i class="fas fa-hand-holding-box text-green-600 mr-2" aria-hidden="true"></i>
@@ -667,18 +667,50 @@ if (!empty($logbookNote)):
 </div>
 
 <script>
-function openCheckoutModal() {
-    const modal = document.getElementById('checkoutModal');
+function openCheckoutModal(btn) {
+    var modal  = document.getElementById('checkoutModal');
+    var dialog = document.getElementById('checkoutDialog');
     modal.classList.remove('hidden');
-    modal.style.display = 'flex';
+    modal.style.display = 'block';
     document.body.style.overflow = 'hidden';
+
+    // Position dialog near the clicked button
+    var rect    = btn.getBoundingClientRect();
+    var vpW     = window.innerWidth;
+    var vpH     = window.innerHeight;
+    var gap     = 8;   // space between button edge and dialog
+    var padding = 16;  // minimum distance from viewport edges
+    var maxDlgW = 512; // max-w-lg ≈ 32rem
+    var dlgW    = Math.min(maxDlgW, vpW - padding * 2);
+
+    dialog.style.width = dlgW + 'px';
+
+    // Horizontal: center under the button, clamped within viewport
+    var left = rect.left + rect.width / 2 - dlgW / 2;
+    left = Math.max(padding, Math.min(left, vpW - dlgW - padding));
+    dialog.style.left = left + 'px';
+
+    // Vertical: place below button first, then check for overflow
+    dialog.style.top = (rect.bottom + gap) + 'px';
+
+    requestAnimationFrame(function () {
+        var dlgH = dialog.offsetHeight;
+        if (rect.bottom + gap + dlgH > vpH - padding) {
+            var topAbove = rect.top - gap - dlgH;
+            dialog.style.top = (topAbove >= padding ? topAbove : Math.max(padding, (vpH - dlgH) / 2)) + 'px';
+        }
+    });
 }
 
 function closeCheckoutModal() {
-    const modal = document.getElementById('checkoutModal');
+    var modal  = document.getElementById('checkoutModal');
+    var dialog = document.getElementById('checkoutDialog');
     modal.classList.add('hidden');
     modal.style.display = '';
-    document.body.style.overflow = 'auto';
+    dialog.style.top   = '';
+    dialog.style.left  = '';
+    dialog.style.width = '';
+    document.body.style.overflow = '';
 }
 
 // Close modal when clicking outside
