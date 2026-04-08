@@ -5957,7 +5957,7 @@ img:not([loading]) {
 }
 
 .directory-card--members .directory-card-avatar-wrap {
-    bottom: -36px; /* half of 72px member avatar */
+    bottom: -48px; /* half of 96px full-size avatar */
 }
 
 /* Card content area below header */
@@ -5969,7 +5969,7 @@ img:not([loading]) {
 }
 
 .directory-card--members .directory-card-body {
-    padding-top: 44px; /* top space = 36px avatar hang + 8px gap */
+    padding-top: 56px; /* top space = 48px avatar hang + 8px gap (full-size avatar) */
 }
 
 /* Role badge inside gradient header: white background for contrast */

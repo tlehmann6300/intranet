@@ -239,9 +239,7 @@ ob_start();
             </h3>
 
             <?php if (!empty($item['category_name'])): ?>
-            <span class="inline-block self-start px-2 py-0.5 text-xs rounded-full mb-3 font-semibold" style="background-color: <?php echo htmlspecialchars($item['category_color'] ?? '#8b5cf6'); ?>20; color: <?php echo htmlspecialchars($item['category_color'] ?? '#8b5cf6'); ?>">
-                <?php echo htmlspecialchars($item['category_name']); ?>
-            </span>
+            <?php /* category badge intentionally removed per request */ ?>
             <?php endif; ?>
 
             <?php if ($itemDesc !== ''): ?>

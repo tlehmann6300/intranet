@@ -149,12 +149,6 @@ ob_start();
                 <div class="card directory-card directory-card--alumni d-flex flex-column h-100">
                     <!-- Card Header: gradient band with avatar -->
                     <div class="directory-card-header">
-                        <div class="position-absolute top-0 end-0 mt-2 me-2">
-                            <span class="inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold directory-role-badge border <?php echo $badgeClass; ?>">
-                                <i class="fas <?php echo getRoleIcon($displayRoleKey); ?>" aria-hidden="true"></i>
-                                <?php echo $displayRole; ?>
-                            </span>
-                        </div>
                         <?php 
                         // Generate initials for fallback
                         $initials = getMemberInitials($profile['first_name'], $profile['last_name']);
