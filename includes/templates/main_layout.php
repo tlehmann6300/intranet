@@ -516,7 +516,7 @@ if (!isset($currentUser)) {
             font-size: 0.875rem;
             font-weight: 500;
             color: #374151;
-            max-width: 120px;
+            max-width: 180px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -855,9 +855,8 @@ if (!isset($currentUser)) {
         <!-- Page title -->
         <div class="flex-1 min-w-0 px-2">
             <p class="text-sm font-semibold text-slate-700 dark:text-slate-100 truncate leading-snug">
-                <?php echo htmlspecialchars($title ?? 'Dashboard'); ?>
+                <?php echo htmlspecialchars(($title ?? 'Dashboard') . ' – IBC Intranet'); ?>
             </p>
-            <p class="text-[11px] text-slate-400 dark:text-slate-500 hidden sm:block leading-snug">IBC Business Consulting</p>
         </div>
 
         <!-- Right-side actions -->
@@ -882,7 +881,15 @@ if (!isset($currentUser)) {
                          onerror="this.onerror=null; this.style.display='none'; avatarLoaded(this);">
                 </div>
                 <span class="header-user-name hidden sm:block">
-                    <?php echo htmlspecialchars(!empty($firstname) ? $firstname : ($email ?? '')); ?>
+                    <?php
+                        if (!empty($firstname) && !empty($lastname)) {
+                            echo htmlspecialchars(trim($firstname . ' ' . $lastname));
+                        } elseif (!empty($firstname)) {
+                            echo htmlspecialchars($firstname);
+                        } else {
+                            echo htmlspecialchars($email ?? '');
+                        }
+                    ?>
                 </span>
                 <i data-lucide="chevron-down" class="w-3.5 h-3.5 hidden sm:block" aria-hidden="true"></i>
             </button>
