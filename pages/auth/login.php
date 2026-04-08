@@ -1184,13 +1184,13 @@ try {
         .alert-success {
             background: rgba(108, 183, 62, 0.15);
             border: 1px solid rgba(108, 183, 62, 0.4);
-            color: #6cb73e;
+            color: #ffffff;
         }
 
         .alert-error {
             background: rgba(244, 67, 54, 0.15);
             border: 1px solid rgba(244, 67, 54, 0.4);
-            color: #f44336;
+            color: #ffffff;
         }
 
         .alert-icon {
@@ -1636,8 +1636,8 @@ try {
 
         <?php if ($error): ?>
         <div class="alert-message alert-error">
-            <span class="alert-icon">⚠</span>
-            <span><?php echo htmlspecialchars($error); ?></span>
+            <span class="alert-icon text-white">⚠</span>
+            <span class="text-white"><?php echo htmlspecialchars($error); ?></span>
         </div>
         <?php endif; ?>
 
