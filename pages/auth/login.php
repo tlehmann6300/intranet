@@ -1616,8 +1616,8 @@ try {
 
         <!-- Welcome Text -->
         <div class="welcome-text">
-            <h1 class="welcome-title">Willkommen zurück</h1>
-            <p class="welcome-subtitle">Melde dich mit deinem Microsoft-Konto an</p>
+            <h1 class="welcome-title text-white">Willkommen zurück</h1>
+            <p class="welcome-subtitle text-white">Melde dich mit deinem Microsoft-Konto an</p>
         </div>
 
         <?php if (isset($_GET['timeout']) && $_GET['timeout'] == 1): ?>
