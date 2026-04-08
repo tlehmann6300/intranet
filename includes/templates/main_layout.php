@@ -202,57 +202,8 @@ if ($currentUser && isset($currentUser['id'])) {
             .badge:not(.sidebar-nav-badge) { padding: 0.375rem 0.75rem !important; font-size: 0.875rem !important; }
         }
 
-        /* Very narrow screens (under 480px): force single column for ALL grids including 2-column */
-        @media (max-width: 479px) {
-            .grid:not(.grid-no-stack):not(.grid-cols-1) {
-                grid-template-columns: 1fr !important;
-                gap: 1.5rem !important;
-            }
-        }
-
-        /* Extra small screens (below Tailwind sm: breakpoint): stack 3+ column grids to single column */
-        @media (max-width: 639px) {
-            .grid:not(.grid-no-stack):not(.grid-cols-1):not(.grid-cols-2) {
-                grid-template-columns: 1fr !important;
-                gap: 1.5rem !important;
-            }
-        }
-
-        /* Tablet view improvements */
-        @media (min-width: 768px) and (max-width: 1024px) {
-            /* 2-column grid on tablets */
-            .grid:not(.grid-no-stack):not(.grid-cols-1) {
-                grid-template-columns: repeat(2, 1fr) !important;
-            }
-        }
-
-        /* Desktop and larger */
-        @media (min-width: 1025px) {
-            .container { max-width: 1400px; margin: 0 auto; }
-        }
-
-        /* Extra large screens */
-        @media (min-width: 1536px) {
-            .container { max-width: 1600px; }
-        }
-
-        /* Landscape mobile optimization */
-        @media (max-height: 500px) and (orientation: landscape) and (max-width: 767px) {
-            .sidebar { width: 14rem !important; }
-            .sidebar nav a { padding: 0.5rem 1rem !important; font-size: 0.875rem !important; }
-        }
-
-        /* High DPI displays */
-        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-            body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-            .card { border-width: 0.5px; }
-        }
-
-        /* Touch device optimizations: larger targets, better tap feedback */
-        @media (hover: none) and (pointer: coarse) {
-            a, button, input[type="submit"], input[type="button"] { min-height: 44px; min-width: 44px; }
-            a:active, button:active { opacity: 0.7; transform: scale(0.98); transition: all 0.1s ease; }
-        }
+        /* Grid collapse, breakpoints, HiDPI, touch targets, landscape, container
+           are now handled comprehensively in theme.css Part 2 & 3. */
 
         /* Ensure long text doesn't overflow */
         p, span, li, h1, h2, h3 { overflow-wrap: break-word; word-break: break-word; }
@@ -459,14 +410,14 @@ if ($currentUser && isset($currentUser['id'])) {
     <header id="mobile-header" class="mobile-topbar md:hidden flex items-center px-3" aria-label="Mobile-Navigation">
         <button id="mobile-menu-btn" class="mobile-topbar-btn block md:hidden shrink-0" aria-label="Menü öffnen" aria-expanded="false" aria-controls="mobile-menu">
             <svg class="w-5 h-5 text-white" id="menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path id="menu-icon-top" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16" class="transition-all duration-300"></path>
-                <path id="menu-icon-middle" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 12h16" class="transition-all duration-300"></path>
-                <path id="menu-icon-bottom" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 18h16" class="transition-all duration-300"></path>
+                <path id="menu-icon-top" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16" style="transition: d 0.3s ease, opacity 0.3s ease;"></path>
+                <path id="menu-icon-middle" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 12h16" style="transition: d 0.3s ease, opacity 0.3s ease;"></path>
+                <path id="menu-icon-bottom" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 18h16" style="transition: d 0.3s ease, opacity 0.3s ease;"></path>
             </svg>
         </button>
-        <div class="flex-1 flex flex-col items-center justify-center select-none">
-            <span class="text-white font-bold text-sm tracking-wide leading-tight">IBC Intranet</span>
-            <span class="mobile-topbar-page-title text-white/60 text-[11px] font-medium leading-tight"><?php echo htmlspecialchars($title ?? 'Dashboard'); ?></span>
+        <div class="flex-1 flex flex-col items-center justify-center select-none" style="gap:1px">
+            <span class="text-white font-bold leading-tight" style="font-size:0.9375rem;letter-spacing:-0.01em">IBC Intranet</span>
+            <span class="mobile-topbar-page-title leading-tight" style="font-size:0.6875rem;color:rgba(255,255,255,0.68);font-weight:500"><?php echo htmlspecialchars($title ?? 'Dashboard'); ?></span>
         </div>
         <div class="flex items-center gap-1 shrink-0">
             <button id="mobile-theme-toggle" class="mobile-topbar-btn" aria-label="Zwischen hellem und dunklem Modus wechseln">
@@ -478,11 +429,11 @@ if ($currentUser && isset($currentUser['id'])) {
     <!-- Mobile Slide-Down Nav Menu (block md:hidden, toggled by #mobile-menu-btn) -->
     <div id="mobile-menu"
          class="hidden md:hidden fixed left-0 right-0 overflow-y-auto z-50"
-         style="top: calc(var(--topbar-height) + env(safe-area-inset-top, 0px)); max-height: calc(100dvh - var(--topbar-height) - env(safe-area-inset-top, 0px) - 4rem); background-color: var(--bg-card); border-bottom: 1px solid var(--border-color); box-shadow: 0 8px 32px rgba(0,0,0,0.18);"
+         style="top: calc(var(--topbar-height) + env(safe-area-inset-top, 0px)); max-height: calc(100dvh - var(--topbar-height) - env(safe-area-inset-top, 0px) - 4rem); background-color: var(--bg-card); border-bottom: 1px solid var(--border-color); box-shadow: 0 8px 40px rgba(0,0,0,0.22);"
          role="navigation"
          aria-label="Mobile Navigation"
          aria-hidden="true">
-        <nav class="flex flex-col space-y-4" aria-label="Hauptnavigation">
+        <nav class="flex flex-col" aria-label="Hauptnavigation">
             <!-- Dashboard -->
             <a href="<?php echo asset('pages/dashboard/index.php'); ?>"
                class="mobile-menu-link <?php echo is_nav_active('/dashboard/') ? 'mobile-menu-link--active' : ''; ?>"
@@ -1186,13 +1137,13 @@ if ($currentUser && isset($currentUser['id'])) {
            class="mobile-bottom-nav-item <?php echo (is_nav_active('/events/') && !is_nav_active('/events/helpers.php')) ? 'active' : ''; ?>"
            aria-label="Events"
            <?php echo (is_nav_active('/events/') && !is_nav_active('/events/helpers.php')) ? 'aria-current="page"' : ''; ?>>
-            <i class="fas fa-calendar" aria-hidden="true"></i>
+            <i class="fas fa-calendar-alt" aria-hidden="true"></i>
             <span>Events</span>
         </a>
         <a href="<?php echo asset('pages/alumni/index.php'); ?>"
-           class="mobile-bottom-nav-item <?php echo is_nav_active('/alumni/') ? 'active' : ''; ?>"
+           class="mobile-bottom-nav-item <?php echo is_nav_active('/alumni/') && !is_nav_active('/alumni/requests.php') ? 'active' : ''; ?>"
            aria-label="Alumni-Datenbank"
-           <?php echo is_nav_active('/alumni/') ? 'aria-current="page"' : ''; ?>>
+           <?php echo is_nav_active('/alumni/') && !is_nav_active('/alumni/requests.php') ? 'aria-current="page"' : ''; ?>>
             <i class="fas fa-user-graduate" aria-hidden="true"></i>
             <span>Alumni</span>
         </a>
@@ -1201,7 +1152,7 @@ if ($currentUser && isset($currentUser['id'])) {
                 aria-label="Menü öffnen"
                 aria-expanded="false"
                 aria-controls="sidebar">
-            <i class="fas fa-th" aria-hidden="true"></i>
+            <i class="fas fa-grip-horizontal" aria-hidden="true"></i>
             <span>Mehr</span>
         </button>
     </nav>

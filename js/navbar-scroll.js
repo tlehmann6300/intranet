@@ -5,14 +5,17 @@
  *
  * Features:
  *  - Uses requestAnimationFrame so scroll handling never blocks the main thread.
- *  - Adds/removes the `.scrolled` class on the mobile menu button once the user
- *    has scrolled past SCROLL_THRESHOLD (50 px).
+ *  - Adds/removes the `.scrolled` class on the mobile topbar and menu button once
+ *    the user has scrolled past SCROLL_THRESHOLD (50 px).
  *  - Guarantees that every `overflow: hidden` attribute applied to <body> and
  *    <html> by the mobile-menu overlay is fully cleaned up when the menu closes,
  *    preventing the page from staying locked in a non-scrollable state.
  *  - Dynamically measures the actual mobile topbar height (including safe area)
  *    and updates the --topbar-safe-height CSS custom property so that the main
  *    content is always correctly padded, even on devices with Dynamic Island.
+ *  - Runs an IntersectionObserver-based scroll-reveal for elements marked with
+ *    the `.animate-on-scroll` class, adding `.in-view` once they enter the
+ *    viewport. Falls back gracefully when the API is unavailable.
  */
 (function () {
     'use strict';
@@ -64,6 +67,14 @@
                 navbarBtn.classList.add('scrolled');
             } else {
                 navbarBtn.classList.remove('scrolled');
+            }
+        }
+        // Also add/remove 'scrolled' class on the mobile topbar for shadow enhancement
+        if (mobileHeaderEl) {
+            if (lastScrollY >= SCROLL_THRESHOLD) {
+                mobileHeaderEl.classList.add('scrolled');
+            } else {
+                mobileHeaderEl.classList.remove('scrolled');
             }
         }
         ticking = false;
@@ -240,6 +251,44 @@
                 closeMobileMenu();
             }
         }, { passive: true });
+
+        // ── Scroll-reveal (IntersectionObserver) ──────────────────────────────
+        // Elements with .animate-on-scroll get .in-view added when they enter the
+        // viewport. CSS handles the actual fade/slide animation.
+        initScrollReveal();
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Scroll-reveal with IntersectionObserver                             */
+    /* ------------------------------------------------------------------ */
+
+    function initScrollReveal() {
+        // Skip if the user prefers reduced motion or the API is unavailable
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        if (!('IntersectionObserver' in window)) {
+            // Fallback: just show everything immediately
+            document.querySelectorAll('.animate-on-scroll').forEach(function (el) {
+                el.classList.add('in-view');
+            });
+            return;
+        }
+
+        var observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('in-view');
+                    // Unobserve after animating – no need to re-trigger
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.12,
+            rootMargin: '0px 0px -40px 0px'
+        });
+
+        document.querySelectorAll('.animate-on-scroll').forEach(function (el) {
+            observer.observe(el);
+        });
     }
 
     if (document.readyState === 'loading') {
@@ -253,7 +302,8 @@
     window.navbarScrollUtils = {
         ensureScrollUnlocked: ensureScrollUnlocked,
         updateTopbarHeight: updateTopbarHeight,
-        closeMobileMenu: closeMobileMenu
+        closeMobileMenu: closeMobileMenu,
+        initScrollReveal: initScrollReveal
     };
 
 }());
