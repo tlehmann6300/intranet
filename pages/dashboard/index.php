@@ -877,7 +877,7 @@ function dismissProfileReviewPrompt() {
         <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hero-content-animate">
             <div class="flex-1 min-w-0">
                 <!-- Date pill -->
-                <p class="hero-date-text hero-date">
+                <p class="hero-date-text hero-date text-white">
                     <i class="fas fa-calendar-day" style="opacity:0.85"></i><?php
                         $germanMonths = [1=>'Januar',2=>'Februar',3=>'März',4=>'April',5=>'Mai',6=>'Juni',7=>'Juli',8=>'August',9=>'September',10=>'Oktober',11=>'November',12=>'Dezember'];
                         $monthNum = (int)date('n');
@@ -885,10 +885,10 @@ function dismissProfileReviewPrompt() {
                     ?>
                 </p>
                 <!-- Greeting -->
-                <h1 class="font-extrabold tracking-tight hero-title mb-2" style="font-size: clamp(1.85rem, 4vw, 2.85rem); line-height: 1.12; text-shadow: 0 2px 8px rgba(0,0,0,0.18);">
+                <h1 class="font-extrabold tracking-tight hero-title mb-2 text-white" style="font-size: clamp(1.85rem, 4vw, 2.85rem); line-height: 1.12; text-shadow: 0 2px 8px rgba(0,0,0,0.18);">
                     <?php echo htmlspecialchars($greeting); ?>, <?php echo htmlspecialchars($displayName); ?>! 👋
                 </h1>
-                <p class="hero-subtitle hero-subtitle-text">
+                <p class="hero-subtitle hero-subtitle-text text-white">
                     Willkommen zurück im IBC&nbsp;Intranet – hier ist deine Übersicht für heute.
                 </p>
                 <!-- Quick action pill buttons -->

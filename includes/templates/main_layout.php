@@ -1277,7 +1277,7 @@ if (!isset($currentUser)) {
         </div>
         <footer class="max-w-7xl mx-auto mt-8 py-4 border-t border-gray-200 dark:border-slate-700">
             <div class="flex flex-col items-center md:flex-row md:justify-between gap-2 text-sm text-gray-500 dark:text-gray-400">
-                <p class="text-white">&copy; <?php echo date('Y'); ?> Institut für Business Consulting Furtwangen. Alle Rechte vorbehalten.</p>
+                <p>&copy; <?php echo date('Y'); ?> Institut für Business Consulting Furtwangen. Alle Rechte vorbehalten.</p>
                 <div class="flex gap-4">
                     <a href="https://business-consulting.de/impressum.html" target="_blank" rel="noopener noreferrer" class="hover:text-ibc-green transition-all duration-300 ease-in-out" aria-label="Impressum – Rechtliche Hinweise">Impressum</a>
                 </div>
