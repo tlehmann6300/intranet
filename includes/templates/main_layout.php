@@ -954,7 +954,7 @@ if (!isset($currentUser)) {
     </div>
 
     <!-- Sidebar (Business Consulting – dark, fixed left, Lucide icons) -->
-    <aside id="sidebar" class="sidebar glass-sidebar fixed left-0 top-0 h-screen w-64 z-40 text-white shadow-2xl flex flex-col backdrop-blur-2xl" aria-label="Seitenleiste">
+    <aside id="sidebar" class="sidebar glass-sidebar fixed left-0 inset-y-0 h-[100dvh] w-64 z-40 text-white shadow-2xl flex flex-col backdrop-blur-2xl" aria-label="Seitenleiste">
         <?php
         // $currentUser, $userRole already set by the early PHP block above
         ?>
