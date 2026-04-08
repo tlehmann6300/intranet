@@ -12465,3 +12465,1148 @@ body.dark-mode .sidebar .sidebar-nav-item--active {
         padding-top: calc(var(--topbar-height) + 2.5rem) !important;
     }
 }
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   IBC INTRANET – RESPONSIVE DESIGN & MOBILE REDESIGN 2026
+   Complete overhaul of mobile/responsive design with premium animations.
+   Placed at the end so these rules override all earlier styles via cascade.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. DESIGN TOKENS – Additional variables for the new design ──────────── */
+:root {
+    --mobile-bar-height: 64px;
+    --mobile-nav-pill-color: var(--ibc-blue);
+    --mobile-nav-pill-glow: rgba(0, 102, 179, 0.28);
+    --mobile-nav-active-icon: var(--ibc-blue);
+    --topbar-gradient: linear-gradient(135deg, var(--ibc-blue-dark) 0%, var(--ibc-blue) 100%);
+    --sidebar-active-bg: rgba(255, 255, 255, 0.18);
+    --sidebar-hover-bg: rgba(255, 255, 255, 0.10);
+    --card-hover-lift: translate3d(0, -6px, 0);
+    --animation-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --animation-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+    --animation-snappy: cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* ── 2. REDESIGNED MOBILE BOTTOM NAVIGATION ─────────────────────────────── */
+
+/* Container */
+@media (max-width: 767px) {
+    .mobile-bottom-nav {
+        display: grid !important;
+        grid-template-columns: repeat(4, 1fr);
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        min-height: calc(var(--mobile-bar-height) + env(safe-area-inset-bottom, 0px));
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+        z-index: var(--z-bottom-nav);
+
+        /* Premium frosted glass */
+        background: rgba(255, 255, 255, 0.92);
+        -webkit-backdrop-filter: saturate(2) blur(20px);
+        backdrop-filter: saturate(2) blur(20px);
+        border-top: 1px solid rgba(0, 0, 0, 0.06);
+        box-shadow:
+            0 -2px 12px rgba(0, 0, 0, 0.06),
+            0 -1px 0 rgba(0, 0, 0, 0.04);
+
+        /* Smooth show/hide on page load */
+        animation: bottomNavEnter 0.4s var(--animation-spring) both;
+    }
+}
+
+@keyframes bottomNavEnter {
+    from { transform: translateY(100%); opacity: 0; }
+    to   { transform: translateY(0);   opacity: 1; }
+}
+
+/* Dark mode container */
+@media (max-width: 767px) {
+    .dark-mode .mobile-bottom-nav {
+        background: rgba(14, 20, 36, 0.94) !important;
+        border-top-color: rgba(255, 255, 255, 0.08) !important;
+        box-shadow:
+            0 -2px 20px rgba(0, 0, 0, 0.55),
+            0 -1px 0 rgba(255, 255, 255, 0.05) !important;
+    }
+}
+
+/* Tab items */
+.mobile-bottom-nav-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    min-height: var(--mobile-bar-height);
+    padding: 10px 6px 12px;
+    color: var(--ibc-gray-400);
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-family: var(--ibc-font-family);
+    -webkit-tap-highlight-color: transparent;
+    -webkit-appearance: none;
+    appearance: none;
+    text-decoration: none !important;
+    z-index: 1;
+    /* Remove old top-border transition */
+    transition: color 0.22s var(--animation-smooth);
+    overflow: hidden;
+}
+
+/* Remove old ::before top-border indicator – use background pill instead */
+.mobile-bottom-nav-item::before {
+    content: none !important;
+}
+
+/* Pill background indicator (::after) */
+.mobile-bottom-nav-item::after {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%) scaleX(0) scaleY(0.5);
+    width: 52px;
+    height: 32px;
+    background: rgba(0, 102, 179, 0.12);
+    border-radius: 16px;
+    transition:
+        transform 0.32s var(--animation-spring),
+        opacity 0.22s var(--animation-smooth),
+        background 0.22s ease;
+    opacity: 0;
+    z-index: -1;
+}
+
+/* Active state */
+.mobile-bottom-nav-item.active {
+    color: var(--mobile-nav-active-icon) !important;
+}
+
+.dark-mode .mobile-bottom-nav-item.active {
+    color: var(--ibc-blue-light) !important;
+}
+
+.mobile-bottom-nav-item.active::after {
+    transform: translateX(-50%) scaleX(1) scaleY(1);
+    opacity: 1;
+    background: rgba(0, 102, 179, 0.12);
+}
+
+.dark-mode .mobile-bottom-nav-item.active::after {
+    background: rgba(51, 133, 196, 0.18) !important;
+}
+
+/* "Open/More" state */
+.mobile-bottom-nav-item.open {
+    color: var(--ibc-green) !important;
+}
+
+.dark-mode .mobile-bottom-nav-item.open {
+    color: var(--ibc-green-light) !important;
+}
+
+.mobile-bottom-nav-item.open::after {
+    transform: translateX(-50%) scaleX(1) scaleY(1) !important;
+    opacity: 1 !important;
+    background: rgba(0, 166, 81, 0.12) !important;
+}
+
+/* Icon */
+.mobile-bottom-nav-item i {
+    font-size: 1.25rem;
+    display: block;
+    transition:
+        transform 0.32s var(--animation-spring),
+        color 0.22s var(--animation-smooth);
+    will-change: transform;
+}
+
+/* Active icon lift + scale */
+.mobile-bottom-nav-item.active i {
+    transform: translateY(-3px) scale(1.15);
+}
+
+/* Label */
+.mobile-bottom-nav-item span {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    line-height: 1;
+    transition: color 0.22s var(--animation-smooth), opacity 0.22s ease;
+}
+
+/* Active label */
+.mobile-bottom-nav-item.active span {
+    font-weight: 700;
+}
+
+/* Tap feedback */
+@media (hover: none) and (pointer: coarse) {
+    .mobile-bottom-nav-item:active {
+        transform: scale(0.88) !important;
+        transition: transform 0.07s ease !important;
+        opacity: 0.75;
+    }
+}
+
+/* Light mode override for inactive items */
+body:not(.dark-mode) .mobile-bottom-nav-item,
+body:not(.dark-mode) .mobile-bottom-nav-item i,
+body:not(.dark-mode) .mobile-bottom-nav-item span {
+    color: #9ca3af;
+}
+
+body:not(.dark-mode) .mobile-bottom-nav-item.active,
+body:not(.dark-mode) .mobile-bottom-nav-item.active i,
+body:not(.dark-mode) .mobile-bottom-nav-item.active span {
+    color: var(--ibc-blue) !important;
+}
+
+body:not(.dark-mode) .mobile-bottom-nav-item.open,
+body:not(.dark-mode) .mobile-bottom-nav-item.open i,
+body:not(.dark-mode) .mobile-bottom-nav-item.open span {
+    color: var(--ibc-green) !important;
+}
+
+/* Icon bounce animation on activation */
+@media (prefers-reduced-motion: no-preference) {
+    .mobile-bottom-nav-item.active i {
+        animation: navIconPop 0.38s var(--animation-spring) both;
+    }
+}
+
+@keyframes navIconPop {
+    0%   { transform: translateY(0) scale(1); }
+    35%  { transform: translateY(-5px) scale(1.22); }
+    65%  { transform: translateY(-2px) scale(0.96); }
+    100% { transform: translateY(-3px) scale(1.15); }
+}
+
+/* Main content extra padding for bottom nav */
+@media (max-width: 767px) {
+    main, #main-content {
+        padding-bottom: calc(var(--mobile-bar-height) + env(safe-area-inset-bottom, 0px) + 1.5rem) !important;
+    }
+}
+
+/* ── 3. REDESIGNED MOBILE TOPBAR ────────────────────────────────────────── */
+
+.mobile-topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    min-height: var(--topbar-height);
+    display: flex;
+    align-items: center;
+    padding: 0 0.75rem;
+    z-index: var(--z-topbar);
+
+    /* Premium gradient */
+    background: var(--topbar-gradient);
+
+    /* Frosted glass on browsers that support it */
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+
+    /* Shadow */
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.1) inset,
+        0 2px 16px rgba(0, 0, 0, 0.22);
+
+    transition: box-shadow 0.3s var(--animation-smooth);
+}
+
+/* Scrolled state – deeper shadow */
+.mobile-topbar.scrolled {
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.08) inset,
+        0 4px 24px rgba(0, 0, 0, 0.36);
+}
+
+/* Dark mode topbar */
+.dark-mode .mobile-topbar {
+    background: linear-gradient(135deg, #0a1428 0%, #0f1e38 100%);
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.06) inset,
+        0 2px 20px rgba(0, 0, 0, 0.6);
+}
+
+/* Topbar menu button – larger hit area, spring tap */
+.mobile-topbar-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    border: none;
+    background: rgba(255, 255, 255, 0.12);
+    color: white;
+    cursor: pointer;
+    transition:
+        background 0.18s ease,
+        transform 0.18s var(--animation-spring);
+    -webkit-tap-highlight-color: transparent;
+    flex-shrink: 0;
+}
+
+.mobile-topbar-btn:active {
+    background: rgba(255, 255, 255, 0.24) !important;
+    transform: scale(0.90) !important;
+}
+
+.mobile-topbar-btn:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.8);
+    outline-offset: 2px;
+}
+
+/* Topbar title area */
+.mobile-topbar .flex-col span:first-child {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.mobile-topbar .flex-col span:last-child {
+    font-size: 0.6875rem;
+    opacity: 0.7;
+}
+
+/* ── 4. ENHANCED SIDEBAR ────────────────────────────────────────────────── */
+
+/* Sidebar base – smoother open transition */
+.sidebar {
+    transition:
+        transform 0.32s var(--animation-snappy),
+        visibility 0s 0.32s !important;
+    will-change: transform;
+}
+
+.sidebar.open {
+    transition:
+        transform 0.32s var(--animation-snappy),
+        visibility 0s 0s !important;
+}
+
+@media (min-width: 768px) {
+    .sidebar {
+        transition: none !important;
+    }
+}
+
+/* Sidebar nav items – premium hover/active states */
+.sidebar nav .sidebar-nav-item,
+.sidebar .sidebar-nav-item {
+    position: relative;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    padding: 0.625rem 0.875rem !important;
+    margin: 1px 0.5rem !important;
+    border-radius: 10px !important;
+    color: rgba(255, 255, 255, 0.85) !important;
+    text-decoration: none !important;
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+    transition:
+        background 0.2s var(--animation-smooth),
+        color 0.2s var(--animation-smooth),
+        transform 0.2s var(--animation-spring) !important;
+    line-height: 1.4 !important;
+    border-left: 3px solid transparent !important;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Hover state */
+.sidebar nav .sidebar-nav-item:hover,
+.sidebar .sidebar-nav-item:hover {
+    background: rgba(255, 255, 255, 0.11) !important;
+    color: #fff !important;
+    transform: translate3d(3px, 0, 0) !important;
+    border-left-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+/* Active state – glowing pill */
+.sidebar nav .sidebar-nav-item--active,
+.sidebar .sidebar-nav-item--active {
+    background: rgba(255, 255, 255, 0.20) !important;
+    color: #fff !important;
+    font-weight: 600 !important;
+    border-left: 3px solid #fff !important;
+    transform: none !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.12),
+        0 2px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Active icon */
+.sidebar .sidebar-nav-item--active .sidebar-nav-icon {
+    opacity: 1 !important;
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.5));
+}
+
+/* Nav icon base */
+.sidebar-nav-item .sidebar-nav-icon {
+    width: 1.2rem !important;
+    font-size: 0.9rem !important;
+    flex-shrink: 0;
+    margin-right: 0.75rem !important;
+    text-align: center;
+    opacity: 0.82;
+    transition: opacity 0.2s ease, filter 0.2s ease !important;
+}
+
+/* Section labels */
+.sidebar-section-label {
+    font-size: 0.65rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.1em !important;
+    text-transform: uppercase !important;
+    color: rgba(255, 255, 255, 0.35) !important;
+    padding: 0.75rem 1.25rem 0.3rem !important;
+    margin-top: 0.125rem !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.07) !important;
+    pointer-events: none;
+    user-select: none;
+}
+
+/* Dark mode nav tweaks */
+body.dark-mode .sidebar nav .sidebar-nav-item,
+body.dark-mode .sidebar .sidebar-nav-item {
+    color: rgba(255, 255, 255, 0.72) !important;
+}
+
+body.dark-mode .sidebar nav .sidebar-nav-item:hover,
+body.dark-mode .sidebar .sidebar-nav-item:hover {
+    background: rgba(255, 255, 255, 0.09) !important;
+    color: rgba(255, 255, 255, 0.96) !important;
+    border-left-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+body.dark-mode .sidebar nav .sidebar-nav-item--active,
+body.dark-mode .sidebar .sidebar-nav-item--active {
+    background: rgba(255, 255, 255, 0.16) !important;
+    border-left-color: rgba(255, 255, 255, 0.75) !important;
+}
+
+/* Touch: slightly larger targets on mobile */
+@media (max-width: 767px) {
+    .sidebar nav .sidebar-nav-item,
+    .sidebar .sidebar-nav-item {
+        min-height: 50px !important;
+        padding-top: 0.75rem !important;
+        padding-bottom: 0.75rem !important;
+    }
+
+    /* Tap shrink feedback */
+    .sidebar nav .sidebar-nav-item:active,
+    .sidebar .sidebar-nav-item:active {
+        transform: scale(0.97) !important;
+        background: rgba(255, 255, 255, 0.22) !important;
+        transition: transform 0.07s ease, background 0.07s ease !important;
+    }
+}
+
+/* ── 5. REDESIGNED DESKTOP NAVBAR ───────────────────────────────────────── */
+
+.desktop-navbar {
+    position: fixed;
+    top: 0;
+    left: var(--sidebar-width-md);
+    right: 0;
+    height: var(--topbar-height);
+    display: none;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 1.5rem;
+    gap: 0.75rem;
+    z-index: 39;
+
+    /* Frosted glass */
+    background: rgba(255, 255, 255, 0.88);
+    -webkit-backdrop-filter: blur(16px) saturate(1.8);
+    backdrop-filter: blur(16px) saturate(1.8);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.9) inset,
+        0 2px 12px rgba(0, 0, 0, 0.06);
+
+    transition:
+        background 0.3s var(--animation-smooth),
+        border-color 0.3s var(--animation-smooth),
+        box-shadow 0.3s var(--animation-smooth);
+}
+
+@media (min-width: 768px) {
+    .desktop-navbar { display: flex; }
+}
+
+@media (min-width: 1024px) {
+    .desktop-navbar { left: var(--sidebar-width-lg); }
+}
+
+/* Dark mode navbar */
+.dark-mode .desktop-navbar {
+    background: rgba(15, 22, 40, 0.90) !important;
+    border-bottom-color: rgba(255, 255, 255, 0.07) !important;
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.05) inset,
+        0 2px 16px rgba(0, 0, 0, 0.45) !important;
+}
+
+/* Navbar theme toggle button */
+.navbar-theme-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background: transparent;
+    border: 1.5px solid var(--border-color);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s var(--animation-spring);
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.navbar-theme-btn:hover {
+    background: var(--bg-body);
+    border-color: var(--ibc-blue);
+    color: var(--ibc-blue);
+    transform: rotate(20deg) scale(1.08);
+}
+
+.navbar-theme-btn:active {
+    transform: rotate(0deg) scale(0.92);
+}
+
+/* Navbar profile button */
+.navbar-profile-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.3rem 0.625rem 0.3rem 0.3rem;
+    border-radius: 9999px;
+    border: 1.5px solid var(--border-color);
+    background: transparent;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+    max-width: 14rem;
+}
+
+.navbar-profile-btn:hover {
+    background: var(--bg-body);
+    border-color: var(--ibc-blue);
+    box-shadow: 0 0 0 3px rgba(0, 102, 179, 0.10);
+}
+
+/* Profile dropdown – spring entrance */
+.navbar-profile-dropdown {
+    position: absolute;
+    top: calc(100% + 0.625rem);
+    right: 0;
+    min-width: 13rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow:
+        0 4px 6px rgba(0, 0, 0, 0.04),
+        0 10px 30px rgba(0, 0, 0, 0.10),
+        0 20px 60px rgba(0, 0, 0, 0.06);
+    z-index: 200;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+    transform-origin: top right;
+    transition:
+        opacity 0.22s var(--animation-smooth),
+        transform 0.22s var(--animation-spring);
+    pointer-events: none;
+}
+
+.dark-mode .navbar-profile-dropdown {
+    box-shadow:
+        0 4px 6px rgba(0, 0, 0, 0.2),
+        0 10px 30px rgba(0, 0, 0, 0.45),
+        0 20px 60px rgba(0, 0, 0, 0.30) !important;
+}
+
+.navbar-profile-dropdown.open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.navbar-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.7rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-main);
+    text-decoration: none !important;
+    transition: background 0.15s ease, color 0.15s ease;
+    border: none;
+    background: transparent;
+    width: 100%;
+    cursor: pointer;
+    text-align: left;
+}
+
+.navbar-dropdown-item:hover {
+    background: var(--bg-body);
+    color: var(--ibc-blue);
+    text-decoration: none !important;
+}
+
+.navbar-dropdown-item:hover i {
+    color: var(--ibc-blue);
+}
+
+.navbar-dropdown-item i {
+    width: 1.1rem;
+    text-align: center;
+    font-size: 0.875rem;
+    opacity: 0.7;
+    flex-shrink: 0;
+    transition: color 0.15s ease;
+}
+
+/* ── 6. PREMIUM PAGE ENTRANCE ANIMATIONS ────────────────────────────────── */
+
+@keyframes ibcFadeSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.99);
+        filter: blur(2px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+    }
+}
+
+@keyframes ibcFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    #main-content > *:not(.fixed):not([style*="position: fixed"]):not([style*="position:fixed"]) {
+        animation: ibcFadeSlideUp 0.4s var(--animation-spring) both;
+        animation-fill-mode: both;
+    }
+
+    #main-content > *:nth-child(2) { animation-delay: 0.06s; }
+    #main-content > *:nth-child(3) { animation-delay: 0.12s; }
+    #main-content > *:nth-child(4) { animation-delay: 0.18s; }
+    #main-content > *:nth-child(5) { animation-delay: 0.24s; }
+    #main-content > *:nth-child(6) { animation-delay: 0.28s; }
+}
+
+/* ── 7. PREMIUM CARD ANIMATIONS ─────────────────────────────────────────── */
+
+/* Desktop hover – lift + glow */
+@media (hover: hover) and (pointer: fine) {
+    .card,
+    .dash-stat-card,
+    .dash-event-card,
+    .dash-blog-card,
+    .dash-helper-card {
+        transition:
+            transform 0.28s var(--animation-spring),
+            box-shadow 0.28s var(--animation-smooth),
+            border-color 0.2s ease !important;
+        will-change: transform, box-shadow;
+    }
+
+    .card:hover,
+    .dash-stat-card:hover,
+    .dash-event-card:hover,
+    .dash-blog-card:hover,
+    .dash-helper-card:hover {
+        transform: translate3d(0, -7px, 0) scale(1.006) !important;
+        box-shadow:
+            0 12px 32px rgba(0, 0, 0, 0.10),
+            0 4px 12px rgba(0, 102, 179, 0.10),
+            0 1px 0 rgba(0, 102, 179, 0.08) !important;
+        border-color: rgba(0, 102, 179, 0.18) !important;
+    }
+
+    .dark-mode .card:hover,
+    .dark-mode .dash-stat-card:hover,
+    .dark-mode .dash-event-card:hover,
+    .dark-mode .dash-blog-card:hover,
+    .dark-mode .dash-helper-card:hover {
+        box-shadow:
+            0 16px 48px rgba(0, 0, 0, 0.55),
+            0 4px 16px rgba(51, 133, 196, 0.18),
+            0 1px 0 rgba(51, 133, 196, 0.12) !important;
+        border-color: rgba(51, 133, 196, 0.25) !important;
+    }
+}
+
+/* Touch / mobile – spring press */
+@media (hover: none) and (pointer: coarse) {
+    .card,
+    .dash-stat-card,
+    .dash-event-card,
+    .dash-blog-card,
+    .dash-helper-card,
+    .dash-poll-card {
+        transform: none !important;
+        transition:
+            transform 0.15s var(--animation-spring),
+            box-shadow 0.15s ease,
+            border-color 0.15s ease !important;
+    }
+
+    .card:active,
+    .dash-stat-card:active,
+    .dash-event-card:active,
+    .dash-blog-card:active,
+    .dash-helper-card:active {
+        transform: scale(0.975) !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10) !important;
+        transition: transform 0.07s ease, box-shadow 0.07s ease !important;
+    }
+}
+
+/* ── 8. SIDEBAR OVERLAY – ENHANCED ─────────────────────────────────────── */
+
+@media (max-width: 767px) {
+    .sidebar-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0);
+        z-index: var(--z-overlay);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.32s var(--animation-smooth), visibility 0s 0.32s;
+        pointer-events: none;
+    }
+
+    .sidebar-overlay.active {
+        opacity: 1;
+        visibility: visible;
+        background: rgba(0, 0, 0, 0.48);
+        transition: opacity 0.32s var(--animation-smooth), visibility 0s 0s;
+        pointer-events: auto;
+    }
+
+    @supports (backdrop-filter: blur(4px)) {
+        .sidebar-overlay.active {
+            backdrop-filter: blur(4px) saturate(1.2);
+            -webkit-backdrop-filter: blur(4px) saturate(1.2);
+            background: rgba(0, 0, 0, 0.38) !important;
+        }
+    }
+}
+
+/* ── 9. BUTTON ANIMATIONS ───────────────────────────────────────────────── */
+
+/* Primary button */
+.btn-primary,
+button[class*="btn-primary"],
+a[class*="btn-primary"] {
+    transition:
+        transform 0.18s var(--animation-spring),
+        box-shadow 0.18s ease,
+        background 0.2s ease,
+        opacity 0.18s ease !important;
+}
+
+.btn-primary:hover,
+button[class*="btn-primary"]:hover,
+a[class*="btn-primary"]:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(0, 102, 179, 0.32) !important;
+}
+
+.btn-primary:active,
+button[class*="btn-primary"]:active,
+a[class*="btn-primary"]:active {
+    transform: translateY(0) scale(0.97) !important;
+    box-shadow: 0 2px 8px rgba(0, 102, 179, 0.20) !important;
+}
+
+/* Touch buttons */
+@media (hover: none) and (pointer: coarse) {
+    .btn-primary:active,
+    button[class*="btn-primary"]:active,
+    a[class*="btn-primary"]:active {
+        transform: scale(0.95) !important;
+        opacity: 0.88;
+    }
+}
+
+/* ── 10. MOBILE MENU SLIDE-DOWN ANIMATION ───────────────────────────────── */
+
+#mobile-menu {
+    transform-origin: top center;
+    transition: none;
+}
+
+#mobile-menu:not(.hidden) {
+    animation: mobileMenuSlideDown 0.3s var(--animation-spring) both;
+}
+
+@keyframes mobileMenuSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-12px) scaleY(0.95);
+        transform-origin: top center;
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scaleY(1);
+    }
+}
+
+/* Mobile menu links – enhanced */
+.mobile-menu-link {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    width: 100%;
+    padding: 0.9rem 1.25rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    text-decoration: none;
+    border-bottom: 1px solid var(--border-color);
+    transition:
+        background-color 0.18s ease,
+        color 0.18s ease,
+        padding-left 0.18s var(--animation-spring);
+    color: var(--text-main);
+}
+
+.mobile-menu-link:hover {
+    background-color: var(--bg-body);
+    padding-left: 1.5rem;
+    color: var(--ibc-blue);
+}
+
+.mobile-menu-link--active {
+    background-color: rgba(0, 102, 179, 0.08);
+    color: var(--ibc-blue) !important;
+    border-left: 4px solid var(--ibc-blue);
+    padding-left: 1.125rem;
+}
+
+.dark-mode .mobile-menu-link--active {
+    background-color: rgba(51, 133, 196, 0.14);
+    color: var(--ibc-blue-light) !important;
+    border-left-color: var(--ibc-blue-light);
+}
+
+.mobile-menu-link--active i {
+    color: var(--ibc-blue) !important;
+}
+
+.dark-mode .mobile-menu-link--active i {
+    color: var(--ibc-blue-light) !important;
+}
+
+.mobile-menu-section-label {
+    padding: 0.5rem 1.25rem 0.25rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    background-color: var(--bg-body);
+}
+
+/* ── 11. RESPONSIVE GRID IMPROVEMENTS ──────────────────────────────────── */
+
+/* Very narrow (< 400px): force single column */
+@media (max-width: 399px) {
+    .grid:not(.grid-no-stack):not(.grid-cols-1) {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
+}
+
+/* Small (400-639px): max 2 columns */
+@media (min-width: 400px) and (max-width: 639px) {
+    .grid:not(.grid-no-stack):not(.grid-cols-1):not(.grid-cols-2) {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 1rem !important;
+    }
+}
+
+/* Tablet (768-1023px): 2 columns for 3+ column grids */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .grid:not(.grid-no-stack):not(.grid-cols-1):not(.grid-cols-2) {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 1.25rem !important;
+    }
+}
+
+/* ── 12. IMPROVED FORM INPUT ANIMATIONS ────────────────────────────────── */
+
+input:not([type="checkbox"]):not([type="radio"]),
+textarea,
+select {
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease,
+        transform 0.15s var(--animation-spring) !important;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--ibc-blue) !important;
+    box-shadow:
+        0 0 0 4px rgba(0, 102, 179, 0.12),
+        0 1px 4px rgba(0, 0, 0, 0.08) !important;
+    transform: translateY(-1px);
+}
+
+.dark-mode input:not([type="checkbox"]):not([type="radio"]):focus,
+.dark-mode textarea:focus {
+    border-color: var(--ibc-blue-light) !important;
+    box-shadow:
+        0 0 0 4px rgba(51, 133, 196, 0.2),
+        0 1px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* iOS zoom-in prevention */
+@media (max-width: 767px) {
+    input:not([type="checkbox"]):not([type="radio"]),
+    textarea,
+    select {
+        font-size: 16px !important;
+    }
+}
+
+/* ── 13. SCROLL-TRIGGERED REVEAL ANIMATIONS (CSS-only via Intersection Observer fallback) */
+/* Cards and content blocks that have .animate-on-scroll added by JS */
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+        opacity 0.5s var(--animation-smooth),
+        transform 0.5s var(--animation-spring);
+}
+
+.animate-on-scroll.in-view {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Staggered children */
+.stagger-children > *:nth-child(1) { transition-delay: 0.00s; }
+.stagger-children > *:nth-child(2) { transition-delay: 0.05s; }
+.stagger-children > *:nth-child(3) { transition-delay: 0.10s; }
+.stagger-children > *:nth-child(4) { transition-delay: 0.15s; }
+.stagger-children > *:nth-child(5) { transition-delay: 0.20s; }
+.stagger-children > *:nth-child(6) { transition-delay: 0.25s; }
+
+/* ── 14. MOBILE CONTENT SPACING ────────────────────────────────────────── */
+
+@media (max-width: 767px) {
+    /* Better horizontal padding using safe areas */
+    #main-content {
+        padding-left: max(1rem, env(safe-area-inset-left, 0px)) !important;
+        padding-right: max(1rem, env(safe-area-inset-right, 0px)) !important;
+    }
+
+    /* Card base on mobile */
+    .card {
+        padding: 1rem !important;
+        border-radius: 14px !important;
+        margin-bottom: 1rem;
+    }
+
+    /* Tables: horizontal scroll with momentum */
+    table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    table thead { display: table-header-group; }
+    table tbody { display: table-row-group; }
+
+    /* Prevent page-level horizontal scroll */
+    body { overflow-x: hidden; }
+}
+
+/* ── 15. VERY SMALL SCREEN FALLBACKS (< 360px) ──────────────────────────── */
+@media (max-width: 360px) {
+    .mobile-topbar {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    .mobile-topbar-btn {
+        width: 38px !important;
+        height: 38px !important;
+    }
+
+    .mobile-bottom-nav-item span {
+        font-size: 0.5625rem !important;
+    }
+
+    .mobile-bottom-nav-item i {
+        font-size: 1.125rem !important;
+    }
+
+    .mobile-bottom-nav-item::after {
+        width: 44px !important;
+    }
+}
+
+/* ── 16. LANDSCAPE MOBILE OPTIMIZATIONS ─────────────────────────────────── */
+@media (max-height: 500px) and (orientation: landscape) and (max-width: 1024px) {
+    /* Compact bottom nav in landscape */
+    .mobile-bottom-nav {
+        min-height: calc(50px + env(safe-area-inset-bottom, 0px)) !important;
+    }
+
+    .mobile-bottom-nav-item {
+        min-height: 50px !important;
+        padding: 4px 4px 6px !important;
+    }
+
+    /* Hide labels in landscape to save vertical space */
+    .mobile-bottom-nav-item span {
+        display: none !important;
+    }
+
+    .mobile-bottom-nav-item i {
+        font-size: 1.375rem !important;
+    }
+
+    .mobile-bottom-nav-item::after {
+        width: 44px !important;
+        height: 44px !important;
+        top: 3px !important;
+        border-radius: 50% !important;
+    }
+
+    main {
+        padding-bottom: calc(50px + env(safe-area-inset-bottom, 0px) + 0.5rem) !important;
+    }
+}
+
+/* ── 17. REDUCED MOTION OVERRIDES ───────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+    .mobile-bottom-nav {
+        animation: none !important;
+    }
+
+    .mobile-bottom-nav-item::after {
+        transition: opacity 0.15s ease !important;
+    }
+
+    .mobile-bottom-nav-item i,
+    .mobile-bottom-nav-item.active i {
+        animation: none !important;
+        transition: color 0.15s ease !important;
+        transform: none !important;
+    }
+
+    #mobile-menu:not(.hidden) {
+        animation: none !important;
+    }
+
+    #main-content > * {
+        animation: none !important;
+    }
+
+    .sidebar {
+        transition: transform 0.15s ease, visibility 0s 0.15s !important;
+    }
+
+    .sidebar.open {
+        transition: transform 0.15s ease, visibility 0s 0s !important;
+    }
+
+    .card,
+    .dash-stat-card,
+    .dash-event-card {
+        transition: border-color 0.15s ease !important;
+    }
+
+    .navbar-theme-btn:hover {
+        transform: none !important;
+    }
+
+    .animate-on-scroll {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+}
+
+/* ── 18. HIGH-DPI / RETINA IMPROVEMENTS ────────────────────────────────── */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    .mobile-topbar {
+        border-bottom-width: 0.5px;
+    }
+
+    .card {
+        border-width: 0.5px;
+    }
+
+    .mobile-bottom-nav {
+        border-top-width: 0.5px;
+    }
+}
+
+/* ── 19. TOUCH DEVICE MINIMUM HIT SIZES ─────────────────────────────────── */
+@media (hover: none) and (pointer: coarse) {
+    a, button, input[type="submit"], input[type="button"] {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    /* Exception: inline elements and icon-only buttons that have their own sizing */
+    .mobile-bottom-nav-item,
+    .mobile-topbar-btn,
+    .sidebar-footer-btn {
+        min-height: auto;
+        min-width: auto;
+    }
+}
+
+/* ── 20. SELECTION HIGHLIGHT ────────────────────────────────────────────── */
+::selection {
+    background-color: rgba(0, 102, 179, 0.18);
+    color: inherit;
+}
+
+.dark-mode ::selection {
+    background-color: rgba(51, 133, 196, 0.28);
+    color: inherit;
+}
+
+/* ══ END OF RESPONSIVE DESIGN & MOBILE REDESIGN 2026 ════════════════════ */
