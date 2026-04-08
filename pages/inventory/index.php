@@ -276,7 +276,7 @@ ob_start();
                 <?php if ($hasStock): ?>
                 <button
                     type="button"
-                    onclick="openLendModal(<?php echo htmlspecialchars(json_encode([
+                    onclick="openLendModal(this, <?php echo htmlspecialchars(json_encode([
                         'id'       => (string)$itemId,
                         'name'     => $itemName,
                         'pieces'   => $itemAvailable,
@@ -307,10 +307,10 @@ ob_start();
 
 <!-- ─── Lending Modal ─── -->
 <div id="lendModal"
-     class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4"
+     class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden"
      role="dialog" aria-modal="true" aria-labelledby="lendModalTitle"
      onclick="if(event.target===this)closeLendModal()">
-    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+    <div id="lendDialog" class="absolute bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
         <div class="p-6">
             <!-- Header -->
             <div class="flex items-start justify-between mb-5">
@@ -414,8 +414,9 @@ ob_start();
             + String(d.getDate()).padStart(2, '0');
     }
 
-    window.openLendModal = function (item) {
+    window.openLendModal = function (btn, item) {
         var modal    = document.getElementById('lendModal');
+        var dialog   = document.getElementById('lendDialog');
         var form     = document.getElementById('lendForm');
         var nameEl   = document.getElementById('lendModalItemName');
         var qtyInput = document.getElementById('lendQuantity');
@@ -445,17 +446,49 @@ ob_start();
         if (purposeEl) { purposeEl.value = ''; }
         if (destEl)    { destEl.value    = ''; }
 
-        // Show modal
+        // Show backdrop so dialog dimensions are available
         modal.classList.remove('hidden');
-        modal.style.display = 'flex';
+        modal.style.display = 'block';
         document.body.style.overflow = 'hidden';
-        qtyInput.focus();
+
+        // Position dialog near the clicked button
+        var rect    = btn.getBoundingClientRect();
+        var vpW     = window.innerWidth;
+        var vpH     = window.innerHeight;
+        var gap     = 8;   // space between button edge and dialog
+        var padding = 16;  // minimum distance from viewport edges
+        var maxDlgW = 448; // matches Tailwind max-w-md (28rem)
+        var dlgW    = Math.min(maxDlgW, vpW - padding * 2);
+
+        dialog.style.width = dlgW + 'px';
+
+        // Horizontal: center under the button, clamped within viewport
+        var left = rect.left + rect.width / 2 - dlgW / 2;
+        left = Math.max(padding, Math.min(left, vpW - dlgW - padding));
+        dialog.style.left = left + 'px';
+
+        // Vertical: place below button first, then check for overflow
+        dialog.style.top = (rect.bottom + gap) + 'px';
+
+        requestAnimationFrame(function () {
+            var dlgH = dialog.offsetHeight;
+            if (rect.bottom + gap + dlgH > vpH - padding) {
+                // Not enough room below – try above
+                var topAbove = rect.top - gap - dlgH;
+                dialog.style.top = (topAbove >= padding ? topAbove : Math.max(padding, (vpH - dlgH) / 2)) + 'px';
+            }
+            qtyInput.focus();
+        });
     };
 
     window.closeLendModal = function () {
-        var modal = document.getElementById('lendModal');
+        var modal   = document.getElementById('lendModal');
+        var dialog  = document.getElementById('lendDialog');
         modal.style.display = '';
         modal.classList.add('hidden');
+        dialog.style.top = '';
+        dialog.style.left = '';
+        dialog.style.width = '';
         document.body.style.overflow = '';
     };
 
