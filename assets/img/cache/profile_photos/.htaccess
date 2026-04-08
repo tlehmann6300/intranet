@@ -1,6 +1,0 @@
-# Prevent directory listing and direct PHP execution in the photo cache.
-# Works with both mod_php and PHP-FPM/CGI.
-Options -Indexes
-<FilesMatch "\.php$">
-    Require all denied
-</FilesMatch>

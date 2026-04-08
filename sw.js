@@ -1,28 +1,9 @@
-// IBC Intranet – Service Worker v4
-// Strategies:
-//   • Stale-while-revalidate  → static assets (CSS, JS, fonts, images)
-//   • Network-first           → pages/ routes and API calls
-//   • Offline fallback        → pages/errors/offline.html for navigation failures
+// IBC Intranet – Service Worker
+// Caches static assets (CSS, JS, images) for offline availability.
 
-const CACHE_VERSION = 'v4';
-const STATIC_CACHE  = `ibc-static-${CACHE_VERSION}`;
-const PAGE_CACHE    = `ibc-pages-${CACHE_VERSION}`;
-const ALL_CACHES    = [STATIC_CACHE, PAGE_CACHE];
+const CACHE_NAME = 'ibc-intranet-v2';
 
-const OFFLINE_URL = '/pages/errors/offline.html';
-
-// Assets to pre-cache on install (core CSS/JS, images, offline page).
-// CSS/JS are listed without version query params; staleWhileRevalidate uses
-// ignoreSearch so these cached entries also serve versioned (?v=…) requests.
-const PRECACHE_ASSETS = [
-    OFFLINE_URL,
-    // Core stylesheets
-    '/assets/css/theme.css',
-    '/assets/css/tailwind.css',
-    // Core scripts
-    '/js/navbar-scroll.js',
-    '/js/pjax-navigation.js',
-    // Images
+const STATIC_ASSETS = [
     '/assets/img/cropped_maskottchen_32x32.webp',
     '/assets/img/cropped_maskottchen_180x180.webp',
     '/assets/img/cropped_maskottchen_192x192.webp',
@@ -32,21 +13,21 @@ const PRECACHE_ASSETS = [
     '/assets/img/default_profil.png',
 ];
 
-// ── Install: pre-cache essential assets ──────────────────────────────────────
+// Install: pre-cache static assets
 self.addEventListener('install', (event) => {
     event.waitUntil(
-        caches.open(STATIC_CACHE).then((cache) => cache.addAll(PRECACHE_ASSETS))
+        caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
     );
     self.skipWaiting();
 });
 
-// ── Activate: remove outdated caches ─────────────────────────────────────────
+// Activate: remove outdated caches
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((keys) =>
             Promise.all(
                 keys
-                    .filter((key) => !ALL_CACHES.includes(key))
+                    .filter((key) => key !== CACHE_NAME)
                     .map((key) => caches.delete(key))
             )
         )
@@ -54,84 +35,41 @@ self.addEventListener('activate', (event) => {
     self.clients.claim();
 });
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-function isStaticAsset(url) {
-    return (
-        url.pathname.startsWith('/assets/') ||
-        /\.(css|js|woff2?|ttf|eot|webp|png|jpg|jpeg|gif|svg|ico)$/i.test(url.pathname)
-    );
-}
-
-function isNavigationOrPage(request, url) {
-    return (
-        request.mode === 'navigate' ||
-        url.pathname.startsWith('/pages/') ||
-        url.pathname === '/' ||
-        url.pathname.endsWith('.php')
-    );
-}
-
-function isApiCall(url) {
-    return url.pathname.startsWith('/api/');
-}
-
-// ── Stale-while-revalidate for static assets ──────────────────────────────────
-// Uses ignoreSearch so pre-cached base paths (e.g. /assets/css/theme.css) also
-// serve versioned requests (e.g. /assets/css/theme.css?v=12345).
-function staleWhileRevalidate(request) {
-    return caches.open(STATIC_CACHE).then((cache) =>
-        cache.match(request, { ignoreSearch: true }).then((cached) => {
-            const networkFetch = fetch(request).then((response) => {
-                if (response && response.status === 200) {
-                    cache.put(request, response.clone());
-                }
-                return response;
-            });
-            // Return the cached version immediately; update in background
-            return cached || networkFetch;
-        })
-    );
-}
-
-// ── Network-first with page-cache fallback ────────────────────────────────────
-function networkFirst(request) {
-    return fetch(request)
-        .then((response) => {
-            if (response && response.status === 200 && request.mode === 'navigate') {
-                // Clone synchronously before returning, so the body is not
-                // consumed by the caller before caches.open() resolves.
-                const responseClone = response.clone();
-                caches.open(PAGE_CACHE).then((cache) => cache.put(request, responseClone));
-            }
-            return response;
-        })
-        .catch(() =>
-            caches.match(request).then(
-                (cached) => cached || caches.match(OFFLINE_URL)
-            )
-        );
-}
-
-// ── Fetch handler ─────────────────────────────────────────────────────────────
+// Fetch: cache-first for static assets, network-first for everything else
 self.addEventListener('fetch', (event) => {
     const { request } = event;
 
-    // Only handle same-origin GET requests
+    // Only handle GET requests
     if (request.method !== 'GET') return;
+
     const url = new URL(request.url);
-    if (url.origin !== self.location.origin) return;
 
-    if (isStaticAsset(url)) {
-        event.respondWith(staleWhileRevalidate(request));
+    // Cache-first strategy for static assets (CSS, JS, images, fonts)
+    const isStaticAsset =
+        url.pathname.startsWith('/assets/') ||
+        /\.(css|js|webp|png|jpg|jpeg|gif|svg|ico|woff2?|ttf|eot)$/i.test(url.pathname);
+
+    if (isStaticAsset) {
+        event.respondWith(
+            caches.match(request).then((cached) => {
+                if (cached) return cached;
+                return fetch(request).then((response) => {
+                    if (!response || response.status !== 200) {
+                        return response;
+                    }
+                    const clone = response.clone();
+                    caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+                    return response;
+                });
+            })
+        );
         return;
     }
 
-    if (isNavigationOrPage(request, url) || isApiCall(url)) {
-        event.respondWith(networkFirst(request));
-        return;
-    }
-
-    // Default: network-first for everything else
-    event.respondWith(networkFirst(request));
+    // Network-first strategy for HTML pages
+    event.respondWith(
+        fetch(request).catch(() =>
+            caches.match(request).then((cached) => cached || Response.error())
+        )
+    );
 });

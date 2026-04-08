@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => '__root__',
-        'pretty_version' => 'dev-copilot/improve-alumni-and-members-database-design',
-        'version' => 'dev-copilot/improve-alumni-and-members-database-design',
-        'reference' => 'b9887a8543f473340e48324271e2347964ebff4e',
+        'pretty_version' => 'dev-main',
+        'version' => 'dev-main',
+        'reference' => '94ccce35635880ef4a8ea963d43618a5611a7391',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -11,9 +11,9 @@
     ),
     'versions' => array(
         '__root__' => array(
-            'pretty_version' => 'dev-copilot/improve-alumni-and-members-database-design',
-            'version' => 'dev-copilot/improve-alumni-and-members-database-design',
-            'reference' => 'b9887a8543f473340e48324271e2347964ebff4e',
+            'pretty_version' => 'dev-main',
+            'version' => 'dev-main',
+            'reference' => '94ccce35635880ef4a8ea963d43618a5611a7391',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
