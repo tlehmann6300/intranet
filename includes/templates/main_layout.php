@@ -601,7 +601,7 @@ if ($currentUser && isset($currentUser['id'])) {
             <!-- Dropdown Menu -->
             <div id="navbar-profile-dropdown" class="navbar-profile-dropdown" role="menu" aria-labelledby="navbar-profile-btn">
                 <?php if (!empty($_navbarRole) && $_navbarRole !== 'User'): ?>
-                <div class="navbar-dropdown-role" aria-label="Rolle: <?php echo htmlspecialchars(getFormattedRoleName($_navbarRole)); ?>">
+                <div class="navbar-dropdown-role">
                     <i class="fas <?php echo getRoleIcon($_navbarRole); ?>" aria-hidden="true"></i>
                     <span><?php echo htmlspecialchars(getFormattedRoleName($_navbarRole)); ?></span>
                 </div>
