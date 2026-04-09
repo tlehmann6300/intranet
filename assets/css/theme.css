@@ -16024,3 +16024,260 @@ textarea.form-control {
 }
 
 /* ══ END OF BOOTSTRAP 5 INTEGRATION & TAILWIND ENHANCEMENTS ════════════ */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   BUG-FIX PATCH v1.0 – April 2026
+   Gezielte Korrekturen für bekannte UI-Bugs.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* ── FIX 1: Alter #theme-toggle Button im Sidebar-Footer definitiv verstecken.
+   Die generische Regel .sidebar-footer button { display: flex !important }
+   überschrieb Tailwinds .hidden Klasse und ließ den Button sichtbar werden. */
+#theme-toggle,
+#theme-toggle *,
+button#theme-toggle {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    opacity: 0 !important;
+    position: absolute !important;
+}
+
+/* ── FIX 2: Navbar Theme-Toggle Icon – sichtbar in Light- und Dark-Mode.
+   Im Light Mode war die Icon-Farbe durch Vererbung unsichtbar (weiß auf weiß). */
+.navbar-theme-btn {
+    color: var(--ibc-gray-700) !important;
+}
+.navbar-theme-btn i,
+#navbar-theme-icon {
+    font-size: 1rem !important;
+    line-height: 1 !important;
+    display: inline-block !important;
+    color: inherit !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+.dark-mode .navbar-theme-btn {
+    color: #cbd5e1 !important;
+}
+.dark-mode .navbar-theme-btn:hover {
+    color: #fff !important;
+}
+.navbar-theme-btn:hover {
+    color: var(--ibc-blue) !important;
+}
+
+/* ── FIX 3: Sidebar Footer – nur Uhrzeit/Datum, sauber zentriert. */
+.sidebar-footer {
+    padding: 0.5rem 1rem 0.75rem !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+    background: transparent !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+#live-clock {
+    display: block;
+    text-align: center !important;
+    font-size: 0.8rem !important;
+    font-weight: 500 !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+    letter-spacing: 0.04em;
+    font-variant-numeric: tabular-nums;
+    padding: 0.35rem 0 !important;
+    margin: 0 auto !important;
+}
+
+/* ── FIX 4: Light Mode – Footer-Text in Hauptlayout lesbar machen. */
+body:not(.dark-mode) #main-content footer {
+    border-top-color: var(--border-color) !important;
+}
+body:not(.dark-mode) #main-content footer p {
+    color: var(--text-muted) !important;
+}
+body:not(.dark-mode) #main-content footer a {
+    color: var(--text-muted) !important;
+    transition: color 0.15s ease;
+}
+body:not(.dark-mode) #main-content footer a:hover {
+    color: var(--ibc-green) !important;
+}
+.dark-mode #main-content footer p,
+.dark-mode #main-content footer a {
+    color: #94a3b8 !important;
+}
+.dark-mode #main-content footer a:hover {
+    color: var(--ibc-green-light) !important;
+}
+
+/* ── FIX 5: Light Mode – Karten und Content-Bereiche mit korrektem Kontrast. */
+body:not(.dark-mode) .card {
+    background-color: #ffffff !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: var(--shadow-card) !important;
+}
+body:not(.dark-mode) .card p,
+body:not(.dark-mode) .card span:not(.badge):not(.role-badge),
+body:not(.dark-mode) .card div,
+body:not(.dark-mode) .card h1,
+body:not(.dark-mode) .card h2,
+body:not(.dark-mode) .card h3,
+body:not(.dark-mode) .card h4,
+body:not(.dark-mode) .card h5,
+body:not(.dark-mode) .card h6 {
+    color: var(--text-main) !important;
+}
+body:not(.dark-mode) .card .text-muted,
+body:not(.dark-mode) .card small {
+    color: var(--text-muted) !important;
+}
+
+/* ── FIX 6: Light Mode – bg-white Elemente bekommen korrekte Textfarbe. */
+body:not(.dark-mode) .bg-white,
+body:not(.dark-mode) [class*="bg-white"] {
+    color: var(--text-main) !important;
+}
+
+/* ── FIX 7: Light Mode – Tabellen-Text korrekt. */
+body:not(.dark-mode) .table,
+body:not(.dark-mode) table {
+    color: var(--text-main) !important;
+}
+body:not(.dark-mode) .table thead th,
+body:not(.dark-mode) table thead th {
+    color: var(--text-muted) !important;
+    border-bottom-color: var(--border-color) !important;
+}
+body:not(.dark-mode) .table td,
+body:not(.dark-mode) table td {
+    border-color: var(--border-color) !important;
+    color: var(--text-main) !important;
+}
+
+/* ── FIX 8: Light Mode – Input/Form Felder mit sichtbarem Text. */
+body:not(.dark-mode) input,
+body:not(.dark-mode) select,
+body:not(.dark-mode) textarea {
+    background-color: #ffffff !important;
+    color: var(--text-main) !important;
+    border-color: var(--border-color) !important;
+}
+body:not(.dark-mode) input::placeholder,
+body:not(.dark-mode) textarea::placeholder {
+    color: var(--ibc-gray-400) !important;
+}
+body:not(.dark-mode) .form-control,
+body:not(.dark-mode) .form-select {
+    background-color: #ffffff !important;
+    color: var(--text-main) !important;
+    border-color: var(--ibc-gray-300) !important;
+}
+body:not(.dark-mode) .form-label,
+body:not(.dark-mode) label {
+    color: var(--text-main) !important;
+}
+
+/* ── FIX 9: Light Mode – Badges mit korrekten Farben. */
+body:not(.dark-mode) .badge.bg-secondary,
+body:not(.dark-mode) .badge.bg-light {
+    background-color: var(--ibc-gray-100) !important;
+    color: var(--ibc-gray-700) !important;
+}
+
+/* ── FIX 10: Light Mode – Modals korrekt gestyled. */
+body:not(.dark-mode) .modal-content {
+    background-color: #ffffff !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--border-color) !important;
+}
+body:not(.dark-mode) .modal-header {
+    border-bottom-color: var(--border-color) !important;
+    color: var(--text-main) !important;
+}
+body:not(.dark-mode) .modal-footer {
+    border-top-color: var(--border-color) !important;
+}
+
+/* ── FIX 11: Light Mode – Dropdown-Menüs korrekt. */
+body:not(.dark-mode) .dropdown-menu {
+    background-color: #ffffff !important;
+    border-color: var(--border-color) !important;
+    box-shadow: var(--shadow-elevated) !important;
+}
+body:not(.dark-mode) .dropdown-item {
+    color: var(--text-main) !important;
+}
+body:not(.dark-mode) .dropdown-item:hover {
+    background-color: var(--ibc-gray-100) !important;
+    color: var(--ibc-blue) !important;
+}
+
+/* ── FIX 12: Light Mode – Alerts/Status-Meldungen immer lesbar. */
+body:not(.dark-mode) .alert {
+    color: var(--text-main) !important;
+}
+/* Bootstrap .alert Farben für Light Mode korrigieren (scoped auf .alert Bootstrap-Klasse) */
+body:not(.dark-mode) .alert.alert-success { color: #166534 !important; background-color: #dcfce7 !important; border-color: #86efac !important; }
+body:not(.dark-mode) .alert.alert-danger  { color: #991b1b !important; background-color: #fee2e2 !important; border-color: #fca5a5 !important; }
+body:not(.dark-mode) .alert.alert-warning { color: #92400e !important; background-color: #fef3c7 !important; border-color: #fcd34d !important; }
+body:not(.dark-mode) .alert.alert-info    { color: #1e40af !important; background-color: #dbeafe !important; border-color: #93c5fd !important; }
+.dark-mode .alert.alert-success { color: #86efac !important; background-color: rgba(22, 101, 52, 0.2) !important; border-color: rgba(134, 239, 172, 0.3) !important; }
+.dark-mode .alert.alert-danger  { color: #fca5a5 !important; background-color: rgba(153, 27, 27, 0.2) !important; border-color: rgba(252, 165, 165, 0.3) !important; }
+.dark-mode .alert.alert-warning { color: #fcd34d !important; background-color: rgba(146, 64, 14, 0.2) !important; border-color: rgba(252, 211, 77, 0.3) !important; }
+.dark-mode .alert.alert-info    { color: #93c5fd !important; background-color: rgba(30, 64, 175, 0.2) !important; border-color: rgba(147, 197, 253, 0.3) !important; }
+
+/* ── FIX 13: Hover-Effekte vereinheitlichen – kein brutales transform auf Cards. */
+body:not(.dark-mode) .card:hover {
+    box-shadow: var(--shadow-card-hover) !important;
+    border-color: var(--ibc-gray-300) !important;
+    transform: translateY(-2px) !important;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease !important;
+}
+.dark-mode .card:hover {
+    box-shadow: var(--shadow-card-hover) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    transform: translateY(-2px) !important;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease !important;
+}
+/* Nur auf touch-Geräten kein hover-transform */
+@media (hover: none) {
+    .card:hover {
+        transform: none !important;
+    }
+}
+
+/* ── FIX 14: Light Mode – Sidebar aktiver Menü-Punkt soll trotzdem hell bleiben,
+   da Sidebar-Hintergrund immer dunkelblau ist, unabhängig vom App-Theme. */
+body:not(.dark-mode) .sidebar nav .sidebar-nav-item--active,
+body:not(.dark-mode) .sidebar .sidebar-nav-item--active {
+    background: rgba(255, 255, 255, 0.22) !important;
+    color: #fff !important;
+    border-left-color: #fff !important;
+}
+
+/* ── FIX 15: Navbar Profil-Dropdown im Light Mode. */
+body:not(.dark-mode) .navbar-profile-dropdown {
+    background-color: #ffffff !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-main) !important;
+}
+body:not(.dark-mode) .navbar-dropdown-item {
+    color: var(--text-main) !important;
+}
+body:not(.dark-mode) .navbar-dropdown-item:hover {
+    background-color: var(--ibc-gray-50) !important;
+    color: var(--ibc-blue) !important;
+}
+body:not(.dark-mode) .navbar-profile-name {
+    color: var(--text-main) !important;
+}
+body:not(.dark-mode) .navbar-profile-chevron {
+    color: var(--text-muted) !important;
+}
+
+/* ── END BUG-FIX PATCH v1.0 ──────────────────────────────────────────────── */

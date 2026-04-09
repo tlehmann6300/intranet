@@ -78,7 +78,8 @@ try {
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0a0f1e;
+            background: #0a0f1e !important;
+            color: #ffffff !important; /* Verhindert schwarzen Text durch theme.css Light-Mode-Override */
             min-height: 100vh;
             min-height: 100dvh;
             display: flex;
@@ -1187,6 +1188,7 @@ try {
         .alert-icon {
             font-size: 20px;
             flex-shrink: 0;
+            color: inherit; /* Erbt Farbe vom Parent-Alert */
         }
 
         /* Footer */
