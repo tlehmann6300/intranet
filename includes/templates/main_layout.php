@@ -1409,44 +1409,103 @@ if ($currentUser && isset($currentUser['id'])) {
     </script>
 
     <?php if (isset($_SESSION['show_2fa_nudge']) && $_SESSION['show_2fa_nudge']): ?>
-    <div id="tfa-nudge-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1070] p-4" role="dialog" aria-modal="true" aria-labelledby="tfa-nudge-title">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden transform transition-all">
-            <!-- Modal Header -->
-            <div class="bg-gradient-to-r from-blue-600 to-green-600 px-6 py-4">
-                <div class="flex items-center">
-                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center mr-4">
-                        <i class="fas fa-shield-alt text-white text-2xl" aria-hidden="true"></i>
+    <style>
+    /* 2FA Nudge Modal – Premium Design */
+    #tfa-nudge-modal { animation: ibc-modal-backdrop 0.25s ease both; }
+    #tfa-nudge-modal .ibc-modal-card {
+        animation: ibc-modal-slide 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+    }
+    @keyframes ibc-modal-backdrop { from { opacity:0; } to { opacity:1; } }
+    @keyframes ibc-modal-slide { from { opacity:0; transform:translateY(24px) scale(0.96); } to { opacity:1; transform:translateY(0) scale(1); } }
+
+    .ibc-modal-header-icon {
+        width: 3rem; height: 3rem; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        background: rgba(255,255,255,0.22);
+        border: 1.5px solid rgba(255,255,255,0.35);
+        flex-shrink: 0;
+        font-size: 1.25rem; color: #fff;
+    }
+    .ibc-modal-info-box {
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        display: flex; gap: 0.875rem; align-items: flex-start;
+        background: rgba(59,130,246,0.08);
+        border: 1px solid rgba(59,130,246,0.2);
+    }
+    .dark-mode .ibc-modal-info-box {
+        background: rgba(59,130,246,0.12);
+        border-color: rgba(59,130,246,0.25);
+    }
+    .ibc-modal-btn-primary {
+        flex: 1; display: inline-flex; align-items: center; justify-content: center;
+        gap: 0.5rem; padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, #0066b3 0%, #00a651 100%);
+        color: #fff !important; font-weight: 600; font-size: 0.9375rem;
+        border-radius: 10px; border: none; cursor: pointer; text-decoration: none !important;
+        transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 4px 12px rgba(0,102,179,0.3);
+    }
+    .ibc-modal-btn-primary:hover {
+        opacity: 0.92; transform: translateY(-1px);
+        box-shadow: 0 8px 20px rgba(0,102,179,0.4);
+        color: #fff !important;
+    }
+    .ibc-modal-btn-secondary {
+        flex: 1; display: inline-flex; align-items: center; justify-content: center;
+        gap: 0.5rem; padding: 0.75rem 1.5rem;
+        background: var(--bg-body); color: var(--text-muted) !important;
+        font-weight: 500; font-size: 0.9375rem;
+        border-radius: 10px; border: 1.5px solid var(--border-color); cursor: pointer;
+        transition: background 0.2s ease, border-color 0.2s ease;
+    }
+    .ibc-modal-btn-secondary:hover {
+        background: var(--bg-card);
+        border-color: var(--ibc-gray-400);
+        color: var(--text-main) !important;
+    }
+    </style>
+    <div id="tfa-nudge-modal"
+         class="fixed inset-0 flex items-center justify-center z-[1070] p-4"
+         style="background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);"
+         role="dialog" aria-modal="true" aria-labelledby="tfa-nudge-title">
+        <div class="ibc-modal-card rounded-2xl shadow-2xl w-full max-w-md flex flex-col overflow-hidden">
+
+            <!-- Header -->
+            <div style="background:linear-gradient(135deg,#0052a3 0%,#0066b3 40%,#00845f 75%,#00a651 100%);padding:1.5rem 1.5rem 1.25rem;">
+                <div class="flex items-center gap-4">
+                    <div class="ibc-modal-header-icon">
+                        <i class="fas fa-shield-alt" aria-hidden="true" style="color:#fff;font-size:1.2rem;"></i>
                     </div>
-                    <h3 id="tfa-nudge-title" class="text-xl font-bold text-white">Sicherheitshinweis</h3>
+                    <div>
+                        <p style="font-size:0.75rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.7);margin-bottom:2px;">Sicherheitshinweis</p>
+                        <h3 id="tfa-nudge-title" style="font-size:1.1875rem;font-weight:700;color:#fff;margin:0;">Erhöhe deine Sicherheit</h3>
+                    </div>
                 </div>
             </div>
-            
-            <!-- Modal Body -->
-            <div class="px-6 py-6 overflow-y-auto flex-1">
-                <p class="text-slate-800 dark:text-slate-200 text-lg mb-2 font-semibold">
-                    Erhöhe deine Sicherheit!
+
+            <!-- Body -->
+            <div style="padding:1.5rem;">
+                <p style="color:var(--text-main);margin-bottom:1.25rem;font-size:0.9375rem;line-height:1.6;">
+                    Aktiviere die <strong>2-Faktor-Authentifizierung</strong> für zusätzlichen Schutz deines IBC-Kontos.
                 </p>
-                <p class="text-slate-800 dark:text-slate-200 mb-6">
-                    Aktiviere jetzt die 2-Faktor-Authentifizierung für zusätzlichen Schutz deines Kontos.
-                </p>
-                
-                <div class="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
-                    <div class="flex items-start">
-                        <i class="fas fa-info-circle text-blue-600 dark:text-blue-400 mt-1 mr-3" aria-hidden="true"></i>
-                        <p class="text-sm text-slate-800 dark:text-slate-200">
-                            Die 2-Faktor-Authentifizierung macht dein Konto deutlich sicherer, indem bei der Anmeldung ein zusätzlicher Code erforderlich ist.
-                        </p>
-                    </div>
+                <div class="ibc-modal-info-box">
+                    <i class="fas fa-info-circle" style="color:var(--ibc-blue);margin-top:2px;flex-shrink:0;" aria-hidden="true"></i>
+                    <p style="color:var(--text-muted);font-size:0.875rem;line-height:1.55;margin:0;">
+                        Bei der Anmeldung wird zusätzlich ein Code aus einer Authenticator-App abgefragt. Das schützt dein Konto auch bei gestohlenen Zugangsdaten.
+                    </p>
                 </div>
             </div>
-            
-            <!-- Modal Footer -->
-            <div class="px-6 py-4 bg-gray-50 dark:bg-slate-700 flex flex-col items-center md:flex-row md:justify-between gap-3">
-                <a href="<?php echo asset('pages/auth/profile.php'); ?>" class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-green-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-green-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                    <i class="fas fa-shield-alt mr-2" aria-hidden="true"></i>
+
+            <!-- Footer -->
+            <div style="padding:1rem 1.5rem 1.5rem;display:flex;gap:0.75rem;flex-wrap:wrap;">
+                <a href="<?php echo asset('pages/auth/settings.php'); ?>#2fa" class="ibc-modal-btn-primary">
+                    <i class="fas fa-shield-alt" aria-hidden="true"></i>
                     Jetzt einrichten
                 </a>
-                <button onclick="dismissTfaNudge()" class="flex-1 px-6 py-3 bg-gray-300 dark:bg-slate-600 text-slate-800 dark:text-slate-200 rounded-lg font-semibold hover:bg-gray-400 dark:hover:bg-slate-500 transition-all duration-300">
+                <button onclick="dismissTfaNudge()" class="ibc-modal-btn-secondary">
                     Später
                 </button>
             </div>
@@ -1454,9 +1513,9 @@ if ($currentUser && isset($currentUser['id'])) {
     </div>
 
     <script>
-    // Dismiss modal
     function dismissTfaNudge() {
-        document.getElementById('tfa-nudge-modal').style.display = 'none';
+        var m = document.getElementById('tfa-nudge-modal');
+        if (m) { m.style.opacity='0'; m.style.transition='opacity 0.2s ease'; setTimeout(function(){m.style.display='none';},200); }
     }
     </script>
     <?php 
@@ -1465,45 +1524,47 @@ if ($currentUser && isset($currentUser['id'])) {
     ?>
 
     <?php if (isset($_SESSION['show_role_notice']) && $_SESSION['show_role_notice']): ?>
-    <!-- Role Notice Modal -->
-    <div id="role-notice-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1060] p-4" role="dialog" aria-modal="true" aria-labelledby="role-notice-title" aria-describedby="role-notice-description">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden transform transition-all">
-            <!-- Modal Header -->
-            <div class="bg-gradient-to-r from-orange-500 to-yellow-500 px-6 py-4">
-                <div class="flex items-center">
-                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center mr-4">
-                        <i class="fas fa-user-tag text-white text-2xl" aria-hidden="true"></i>
+    <!-- Role Notice Modal – Premium Design -->
+    <div id="role-notice-modal"
+         class="fixed inset-0 flex items-center justify-center z-[1060] p-4"
+         style="background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);animation:ibc-modal-backdrop 0.25s ease both;"
+         role="dialog" aria-modal="true" aria-labelledby="role-notice-title" aria-describedby="role-notice-description">
+        <div class="ibc-modal-card rounded-2xl shadow-2xl w-full max-w-md flex flex-col overflow-hidden">
+
+            <!-- Header -->
+            <div style="background:linear-gradient(135deg,#d97706 0%,#f59e0b 100%);padding:1.5rem 1.5rem 1.25rem;">
+                <div class="flex items-center gap-4">
+                    <div class="ibc-modal-header-icon">
+                        <i class="fas fa-user-tag" aria-hidden="true" style="color:#fff;font-size:1.2rem;"></i>
                     </div>
-                    <h3 id="role-notice-title" class="text-xl font-bold text-white">Rollenhinweis</h3>
-                </div>
-            </div>
-
-            <!-- Modal Body -->
-            <div class="px-6 py-6 overflow-y-auto flex-1">
-                <p class="text-slate-800 dark:text-slate-200 text-lg mb-2 font-semibold">
-                    Stimmt deine Rolle?
-                </p>
-                <p id="role-notice-description" class="text-slate-800 dark:text-slate-200 mb-6">
-                    Dir wurde automatisch die Rolle <strong>Mitglied</strong> zugewiesen, da in Microsoft keine Rolle hinterlegt ist. Falls deine Rolle nicht korrekt ist, kannst du einen Änderungsantrag stellen.
-                </p>
-
-                <div class="bg-orange-50 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-700 rounded-lg p-4">
-                    <div class="flex items-start">
-                        <i class="fas fa-info-circle text-orange-600 dark:text-orange-400 mt-1 mr-3" aria-hidden="true"></i>
-                        <p class="text-sm text-slate-800 dark:text-slate-200">
-                            Bitte wende dich an den Vorstand oder stelle einen Änderungsantrag, wenn deine Rolle angepasst werden muss.
-                        </p>
+                    <div>
+                        <p style="font-size:0.75rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.75);margin-bottom:2px;">Rollenhinweis</p>
+                        <h3 id="role-notice-title" style="font-size:1.1875rem;font-weight:700;color:#fff;margin:0;">Stimmt deine Rolle?</h3>
                     </div>
                 </div>
             </div>
 
-            <!-- Modal Footer -->
-            <div class="px-6 py-4 bg-gray-50 dark:bg-slate-700 flex flex-col items-center md:flex-row md:justify-between gap-3">
-                <a href="<?php echo asset('pages/auth/settings.php'); ?>#aenderungsantrag" class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-orange-500 to-yellow-500 text-white rounded-lg font-semibold hover:from-orange-600 hover:to-yellow-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                    <i class="fas fa-file-alt mr-2" aria-hidden="true"></i>
+            <!-- Body -->
+            <div style="padding:1.5rem;">
+                <p id="role-notice-description" style="color:var(--text-main);margin-bottom:1.25rem;font-size:0.9375rem;line-height:1.6;">
+                    Dir wurde automatisch die Rolle <strong>Mitglied</strong> zugewiesen, da in Microsoft keine Rolle hinterlegt ist. Falls das nicht stimmt, stelle bitte einen Änderungsantrag.
+                </p>
+                <div style="border-radius:12px;padding:1rem 1.25rem;display:flex;gap:0.875rem;align-items:flex-start;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.22);">
+                    <i class="fas fa-info-circle" style="color:#f59e0b;margin-top:2px;flex-shrink:0;" aria-hidden="true"></i>
+                    <p style="color:var(--text-muted);font-size:0.875rem;line-height:1.55;margin:0;">
+                        Wende dich an den Vorstand oder stelle einen Änderungsantrag, wenn deine Rolle angepasst werden muss.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div style="padding:1rem 1.5rem 1.5rem;display:flex;gap:0.75rem;flex-wrap:wrap;">
+                <a href="<?php echo asset('pages/auth/settings.php'); ?>#aenderungsantrag"
+                   style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;padding:0.75rem 1.5rem;background:linear-gradient(135deg,#d97706,#f59e0b);color:#fff !important;font-weight:600;font-size:0.9375rem;border-radius:10px;border:none;cursor:pointer;text-decoration:none !important;box-shadow:0 4px 12px rgba(217,119,6,0.35);transition:opacity 0.2s ease;">
+                    <i class="fas fa-file-alt" aria-hidden="true"></i>
                     Zum Änderungsantrag
                 </a>
-                <button onclick="dismissRoleNotice()" class="flex-1 px-6 py-3 bg-gray-300 dark:bg-slate-600 text-slate-800 dark:text-slate-200 rounded-lg font-semibold hover:bg-gray-400 dark:hover:bg-slate-500 transition-all duration-300">
+                <button onclick="dismissRoleNotice()" class="ibc-modal-btn-secondary">
                     Später
                 </button>
             </div>

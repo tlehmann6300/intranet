@@ -1191,17 +1191,23 @@ try {
             color: inherit; /* Erbt Farbe vom Parent-Alert */
         }
 
-        /* Footer */
-        .login-footer {
-            text-align: center;
-            margin-top: 40px;
+        /* Footer – Bulletproof weiße Farbe, schlägt alle Overrides */
+        .login-footer,
+        .login-footer *,
+        .login-footer p,
+        .login-footer a,
+        .login-footer span,
+        body .login-footer,
+        body .login-footer p {
             color: #ffffff !important;
+            text-align: center;
+        }
+        .login-footer {
+            margin-top: 40px;
             font-size: 14px;
+            opacity: 0.75;
             -webkit-animation: textSlideUp 1s ease-out 1.1s both;
             animation: textSlideUp 1s ease-out 1.1s both;
-        }
-        .login-footer p {
-            color: #ffffff !important;
         }
 
         /* RESPONSIVE DESIGN - Perfekt für ALLE Größen */
