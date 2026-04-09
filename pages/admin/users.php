@@ -67,6 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     } else if (isset($_POST['import_entra_user'])) {
+        CSRFHandler::verifyToken($_POST['csrf_token'] ?? '');
         $entraId      = trim($_POST['entra_id'] ?? '');
         $displayName  = trim($_POST['display_name'] ?? '');
         $entraEmail   = trim($_POST['entra_email'] ?? '');
@@ -83,38 +84,67 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif (!in_array($role, Auth::VALID_ROLES)) {
             $error = 'Ungültige Rolle.';
         } else {
-            // Check if user already exists (by email or azure_oid)
             $db = Database::getUserDB();
-            $stmt = $db->prepare("SELECT id FROM users WHERE email = ? OR azure_oid = ? LIMIT 1");
-            $stmt->execute([$entraEmail, $entraId]);
-            $existing = $stmt->fetch();
 
-            if ($existing) {
-                $error = 'Ein Benutzer mit dieser E-Mail oder Entra-ID existiert bereits.';
+            // Check for exact conflict: same azure_oid already linked to another account
+            $stmt = $db->prepare("SELECT id, email, azure_oid FROM users WHERE azure_oid = ? LIMIT 1");
+            $stmt->execute([$entraId]);
+            $entraConflict = $stmt->fetch();
+
+            if ($entraConflict) {
+                $error = 'Diese Entra-ID ist bereits mit einem anderen Konto verknüpft.';
             } else {
-                // Split displayName into first/last name (best effort)
-                $nameParts = explode(' ', $displayName, 2);
-                $firstName = $nameParts[0] ?? '';
-                $lastName  = $nameParts[1] ?? '';
+                // Check if an account with this e-mail already exists but has no Entra-ID yet.
+                // If so, link the Entra-ID to that existing account instead of creating a duplicate.
+                $stmt = $db->prepare("SELECT id, azure_oid, role AS existing_role FROM users WHERE email = ? LIMIT 1");
+                $stmt->execute([$entraEmail]);
+                $existingByEmail = $stmt->fetch();
 
-                // Random password – login is Entra-only, password is never used
-                $randomPassword = bin2hex(random_bytes(32));
-                $passwordHash   = password_hash($randomPassword, HASH_ALGO);
-
-                $isAlumniValidated = ($role === 'alumni') ? 0 : 1;
-
-                $stmt = $db->prepare(
-                    "INSERT INTO users (email, password, first_name, last_name, role, azure_oid, user_type, is_alumni_validated, profile_complete)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)"
-                );
-                if ($stmt->execute([$entraEmail, $passwordHash, $firstName, $lastName, $role, $entraId, $userType, $isAlumniValidated])) {
-                    $message = 'Entra-Benutzer "' . htmlspecialchars($displayName) . '" erfolgreich hinzugefügt.';
-                    if (!MailService::sendActivationEmail($entraEmail)) {
-                        error_log("Activation email could not be sent to {$entraEmail}");
-                        $message .= ' (Hinweis: Aktivierungs-E-Mail konnte nicht gesendet werden.)';
+                if ($existingByEmail) {
+                    if (!empty($existingByEmail['azure_oid'])) {
+                        // E-mail is already linked to a different Entra-ID
+                        $error = 'Ein Benutzer mit dieser E-Mail-Adresse ist bereits mit einer anderen Entra-ID verknüpft.';
+                    } else {
+                        // Account exists without an Entra-ID – link it now
+                        $isAlumniValidated = ($role === 'alumni') ? 0 : 1;
+                        $previousRole = $existingByEmail['existing_role'] ?? '';
+                        $stmt = $db->prepare(
+                            "UPDATE users SET azure_oid = ?, role = ?, user_type = ?, is_alumni_validated = ? WHERE id = ?"
+                        );
+                        if ($stmt->execute([$entraId, $role, $userType, $isAlumniValidated, $existingByEmail['id']])) {
+                            $message = 'Bestehendes Konto für "' . htmlspecialchars($entraEmail) . '" erfolgreich mit Entra-ID verknüpft.';
+                            if ($previousRole !== $role) {
+                                $message .= ' Rolle geändert von "' . htmlspecialchars($previousRole) . '" zu "' . htmlspecialchars($role) . '".';
+                            }
+                        } else {
+                            $error = 'Fehler beim Verknüpfen des bestehenden Kontos mit der Entra-ID.';
+                        }
                     }
                 } else {
-                    $error = 'Fehler beim Speichern des Benutzers.';
+                    // No existing account – create a new one
+                    $nameParts = explode(' ', $displayName, 2);
+                    $firstName = $nameParts[0] ?? '';
+                    $lastName  = $nameParts[1] ?? '';
+
+                    // Random password – login is Entra-only, password is never used
+                    $randomPassword = bin2hex(random_bytes(32));
+                    $passwordHash   = password_hash($randomPassword, HASH_ALGO);
+
+                    $isAlumniValidated = ($role === 'alumni') ? 0 : 1;
+
+                    $stmt = $db->prepare(
+                        "INSERT INTO users (email, password, first_name, last_name, role, azure_oid, user_type, is_alumni_validated, profile_complete)
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)"
+                    );
+                    if ($stmt->execute([$entraEmail, $passwordHash, $firstName, $lastName, $role, $entraId, $userType, $isAlumniValidated])) {
+                        $message = 'Entra-Benutzer "' . htmlspecialchars($displayName) . '" erfolgreich hinzugefügt.';
+                        if (!MailService::sendActivationEmail($entraEmail)) {
+                            error_log("Activation email could not be sent to {$entraEmail}");
+                            $message .= ' (Hinweis: Aktivierungs-E-Mail konnte nicht gesendet werden.)';
+                        }
+                    } else {
+                        $error = 'Fehler beim Speichern des Benutzers.';
+                    }
                 }
             }
         }
@@ -540,6 +570,7 @@ ob_start();
 
             <!-- Import form (hidden, filled by JS) -->
             <form id="entraImportForm" method="POST" class="hidden mt-6 p-5 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800 rounded-xl">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(CSRFHandler::getToken(), ENT_QUOTES, 'UTF-8'); ?>">
                 <input type="hidden" name="entra_id" id="importEntraId">
                 <input type="hidden" name="display_name" id="importDisplayName">
                 <input type="hidden" name="entra_email" id="importEntraEmail">

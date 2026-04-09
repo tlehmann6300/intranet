@@ -44,6 +44,11 @@ self.addEventListener('fetch', (event) => {
 
     const url = new URL(request.url);
 
+    // Only intercept same-origin requests; let the browser handle CDN/external
+    // resources natively so they are governed by style-src / script-src / font-src
+    // rather than connect-src, preventing CSP violations in the service worker.
+    if (url.origin !== self.location.origin) return;
+
     // Cache-first strategy for static assets (CSS, JS, images, fonts)
     const isStaticAsset =
         url.pathname.startsWith('/assets/') ||

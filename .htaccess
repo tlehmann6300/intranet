@@ -20,13 +20,9 @@ Options -Indexes
 # Schütze sensible Ordner, erlaube aber explizit assets, pages und api
 RewriteRule ^(private|config|vendor|logs|sql|includes|src)/.*$ - [F,L]
 
-# Erlaube manifest.json explizit (benötigt für PWA)
-<Files "manifest.json">
-    Require all granted
-</Files>
-
-# Schütze Konfigurationsdateien
-<FilesMatch "\.(env|ini|log|sh|bak|sql|json|lock|example)$">
+# Schütze Konfigurationsdateien, aber erlaube manifest.json explizit (benötigt für PWA)
+# Negativer Lookahead sorgt dafür, dass manifest.json nicht geblockt wird.
+<FilesMatch "^(?!manifest\.json$).*\.(env|ini|log|sh|bak|sql|json|lock|example)$">
     Require all denied
 </FilesMatch>
 
@@ -43,8 +39,4 @@ RewriteRule ^(private|config|vendor|logs|sql|includes|src)/.*$ - [F,L]
     Header always set X-Content-Type-Options "nosniff"
     Header always set X-XSS-Protection "1; mode=block"
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
-    
-    # CSP angepasst für Microsoft Auth (login.microsoftonline.com)
-    # HINWEIS: Wenn Grafiken von Microsoft geladen werden, muss 'img-src' angepasst werden
-    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://login.microsoftonline.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://login.microsoftonline.com https://graph.microsoft.com;"
 </IfModule>

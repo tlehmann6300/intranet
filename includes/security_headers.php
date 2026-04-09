@@ -150,6 +150,9 @@ if (!headers_sent()) {
     //                                 + gstatic.com for reCAPTCHA images
     //   font-src                    – Google Fonts CDN + Flaticon
     //   connect-src 'self'          – XHR/fetch only to same origin;
+    //                                 login.microsoftonline.com and
+    //                                 graph.microsoft.com required for
+    //                                 Microsoft Entra authentication;
     //                                 cdn.jsdelivr.net allowed for source
     //                                 map fetches by browser DevTools
     //   frame-src 'self'            – explicit allowlist for iframes;
@@ -172,7 +175,7 @@ if (!headers_sent()) {
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn-uicons.flaticon.com https://cdn.jsdelivr.net https://www.gstatic.com",
             "img-src 'self' data: blob: https://www.gstatic.com",
             "font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn-uicons.flaticon.com",
-            "connect-src 'self' https://cdn.jsdelivr.net",
+            "connect-src 'self' https://login.microsoftonline.com https://graph.microsoft.com https://cdn.jsdelivr.net",
             "frame-src 'self' https://www.google.com https://forms.office.com",
             "form-action 'self'",
             "base-uri 'self'",
