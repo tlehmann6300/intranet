@@ -12335,7 +12335,7 @@ body.dark-mode .sidebar .sidebar-nav-item--active {
     border-radius: 9999px;
     background: transparent;
     border: 1.5px solid var(--border-color);
-    color: var(--text-muted);
+    color: var(--text-main);
     cursor: pointer;
     transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
     font-size: 0.9rem;
@@ -12437,6 +12437,23 @@ body.dark-mode .sidebar .sidebar-nav-item--active {
     height: 1px;
     background: var(--border-color);
     margin: 0.25rem 0;
+}
+.navbar-dropdown-role {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.6rem 1rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    pointer-events: none;
+    user-select: none;
+}
+.navbar-dropdown-role i {
+    width: 1.1rem;
+    text-align: center;
+    font-size: 0.8125rem;
+    flex-shrink: 0;
 }
 .navbar-dropdown-logout {
     color: var(--ibc-error) !important;
@@ -12972,7 +12989,7 @@ body.dark-mode .sidebar .sidebar-nav-item--active {
     border-radius: 50%;
     background: transparent;
     border: 1.5px solid var(--border-color);
-    color: var(--text-muted);
+    color: var(--text-main);
     cursor: pointer;
     transition:
         background 0.2s ease,

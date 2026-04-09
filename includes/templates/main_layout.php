@@ -600,6 +600,13 @@ if ($currentUser && isset($currentUser['id'])) {
 
             <!-- Dropdown Menu -->
             <div id="navbar-profile-dropdown" class="navbar-profile-dropdown" role="menu" aria-labelledby="navbar-profile-btn">
+                <?php if (!empty($_navbarRole) && $_navbarRole !== 'User'): ?>
+                <div class="navbar-dropdown-role" aria-label="Rolle: <?php echo htmlspecialchars(getFormattedRoleName($_navbarRole)); ?>">
+                    <i class="fas <?php echo getRoleIcon($_navbarRole); ?>" aria-hidden="true"></i>
+                    <span><?php echo htmlspecialchars(getFormattedRoleName($_navbarRole)); ?></span>
+                </div>
+                <div class="navbar-dropdown-divider"></div>
+                <?php endif; ?>
                 <a href="<?php echo asset('pages/auth/profile.php'); ?>" class="navbar-dropdown-item <?php echo is_nav_active('/auth/profile.php') ? 'font-semibold' : ''; ?>" role="menuitem">
                     <i class="fas fa-user" aria-hidden="true"></i>
                     <span>Mein Profil</span>
@@ -927,174 +934,10 @@ if ($currentUser && isset($currentUser['id'])) {
             </nav>
         </div>
 
-        <!-- User Profile Section -->
+        <!-- Sidebar Footer -->
         <div class='sidebar-footer mt-auto pt-2 pb-2 px-3'>
-            <?php 
-            $currentUser = Auth::user();
-            
-            // Initialize default values
-            $firstname = '';
-            $lastname = '';
-            $email = '';
-            $role = 'User';
-            $displayRoles = [];
-            
-            // Only try to get profile if user is logged in
-            if ($currentUser && isset($currentUser['id'])) {
-                // Try to get name from alumni_profiles table first
-                require_once __DIR__ . '/../models/Alumni.php';
-                $profile = Alumni::getProfileByUserId($currentUser['id']);
-                
-                // Entra photo path and custom avatar info are available directly from $currentUser
-                // (Auth::user() fetches these columns via SELECT *).
-                // No extra DB query needed here.
-                
-                // Profile data may be user-edited, so don't transform it
-                if ($profile && !empty($profile['first_name'])) {
-                    $firstname = $profile['first_name'];
-                    $lastname = $profile['last_name'] ?? '';
-                } elseif (!empty($currentUser['first_name'])) {
-                    $firstname = $currentUser['first_name'];
-                    $lastname = $currentUser['last_name'] ?? '';
-                }
-                
-                $email = $currentUser['email'] ?? '';
-                $role = $currentUser['role'] ?? 'User';
-                
-                // Check for Entra roles - priority: entra_roles from user table, then session azure_roles, then fallback to internal role
-                $displayRoles = [];
-                
-                // Debug logging for role determination
-                if (!empty($currentUser['entra_roles'])) {
-                    error_log("main_layout.php: User " . intval($currentUser['id']) . " has entra_roles in database: " . $currentUser['entra_roles']);
-                }
-                if (!empty($_SESSION['azure_roles'])) {
-                    error_log("main_layout.php: Session azure_roles for user " . intval($currentUser['id']) . ": " . (is_array($_SESSION['azure_roles']) ? json_encode($_SESSION['azure_roles']) : $_SESSION['azure_roles']));
-                }
-                if (!empty($_SESSION['entra_roles'])) {
-                    error_log("main_layout.php: Session entra_roles for user " . intval($currentUser['id']) . ": " . (is_array($_SESSION['entra_roles']) ? json_encode($_SESSION['entra_roles']) : $_SESSION['entra_roles']));
-                }
-                
-                if (!empty($currentUser['entra_roles'])) {
-                    // Parse JSON array from database.
-                    // entra_roles stores App Role value strings (e.g. ["mitglied"]).
-                    // Apply translateAzureRole so they are rendered as human-readable German names.
-                    $rolesArray = json_decode($currentUser['entra_roles'], true);
-                    if (json_last_error() === JSON_ERROR_NONE && is_array($rolesArray)) {
-                        foreach ($rolesArray as $r) {
-                            $label = is_array($r) && isset($r['displayName'])
-                                ? $r['displayName']
-                                : translateAzureRole($r);
-                            if (!empty($label)) {
-                                $displayRoles[] = $label;
-                            }
-                        }
-                    } else {
-                        error_log("Failed to decode entra_roles in main_layout for user ID " . intval($currentUser['id']) . ": " . json_last_error_msg());
-                    }
-                } elseif (!empty($_SESSION['entra_roles'])) {
-                    // Prefer entra_roles from session (groups from Microsoft Graph)
-                    if (is_array($_SESSION['entra_roles'])) {
-                        // Extract displayName from each group object (groups now contain both id and displayName)
-                        $displayRoles = extractGroupDisplayNames($_SESSION['entra_roles']);
-                    }
-                } elseif (!empty($_SESSION['azure_roles'])) {
-                    // Check session variable as alternative (App Roles from JWT)
-                    if (is_array($_SESSION['azure_roles'])) {
-                        $displayRoles = array_filter(array_map('translateAzureRole', $_SESSION['azure_roles']));
-                    } else {
-                        // Try to decode if it's JSON string
-                        $sessionRoles = json_decode($_SESSION['azure_roles'], true);
-                        if (json_last_error() === JSON_ERROR_NONE && is_array($sessionRoles)) {
-                            $displayRoles = array_filter(array_map('translateAzureRole', $sessionRoles));
-                        }
-                    }
-                }
-                
-                // If no Entra roles found, use internal role as fallback
-                if (empty($displayRoles)) {
-                    $displayRoles = [translateRole($role)];
-                }
-            }
-            
-            // Generate initials with proper fallbacks
-            if (!empty($firstname) && !empty($lastname)) {
-                $initials = strtoupper(substr($firstname, 0, 1) . substr($lastname, 0, 1));
-            } elseif (!empty($firstname)) {
-                $initials = strtoupper(substr($firstname, 0, 1));
-            } elseif (!empty($lastname)) {
-                $initials = strtoupper(substr($lastname, 0, 1));
-            } elseif (!empty($email)) {
-                $initials = strtoupper(substr($email, 0, 1));
-            } else {
-                $initials = 'U';
-            }
-
-            // Role badge: color-coded by role type for clear visual separation
-            $roleBadgeConfig = [
-                'admin'             => ['bg' => '#dc2626', 'text' => '#fff'],
-                'vorstand_intern'   => ['bg' => '#d97706', 'text' => '#fff'],
-                'vorstand_extern'   => ['bg' => '#d97706', 'text' => '#fff'],
-                'vorstand_finanzen' => ['bg' => '#d97706', 'text' => '#fff'],
-                'alumni_vorstand'   => ['bg' => '#2563eb', 'text' => '#fff'],
-                'alumni_finanz'     => ['bg' => '#2563eb', 'text' => '#fff'],
-                'alumni'            => ['bg' => '#0891b2', 'text' => '#fff'],
-                'ressortleiter'     => ['bg' => '#7c3aed', 'text' => '#fff'],
-                'mitglied'          => ['bg' => '#4f46e5', 'text' => '#fff'],
-                'anwaerter'         => ['bg' => '#ea580c', 'text' => '#fff'],
-                'ehrenmitglied'     => ['bg' => '#be185d', 'text' => '#fff'],
-            ];
-            $badgeCfg = $roleBadgeConfig[$role] ?? ['bg' => '#374151', 'text' => '#fff'];
-            $badgeStyle = 'background:' . htmlspecialchars($badgeCfg['bg']) . '; color:' . htmlspecialchars($badgeCfg['text']) . ';';
-            ?>
-
-            <!-- User Info -->
-            <div class='flex items-start gap-2 mb-2'>
-                <?php
-                // Use fetch-profile-photo.php when email is available to serve the live Entra ID
-                // photo (cached 24 h). Fall back to the locally stored avatar when no email is set.
-                if (!empty($email)) {
-                    $sidebarImgSrc = asset('fetch-profile-photo.php') . '?email=' . urlencode($email);
-                } else {
-                    $sidebarImgSrc = asset(User::getProfilePictureUrl((int)$currentUser['id'], $currentUser));
-                }
-                $sidebarAvatarColor = getAvatarColor($firstname . ' ' . $lastname);
-                ?>
-                <div class="w-9 h-9 shrink-0 rounded-full overflow-hidden relative flex-shrink-0" style="background-color:<?php echo htmlspecialchars($sidebarAvatarColor); ?>">
-                    <span class="absolute inset-0 flex items-center justify-center text-xs font-bold text-white select-none" aria-hidden="true"><?php echo htmlspecialchars($initials); ?></span>
-                    <img src="<?php echo htmlspecialchars($sidebarImgSrc); ?>" alt="Profilbild" class="absolute inset-0 w-full h-full object-cover" onerror="this.onerror=null; this.style.display='none';">
-                </div>
-                <div class='flex-1 min-w-0'>
-                    <?php if (!empty($firstname) || !empty($lastname)): ?>
-                    <p class='text-xs font-semibold text-white truncate leading-snug mb-0.5' title='<?php echo htmlspecialchars($firstname . ' ' . $lastname); ?>'>
-                        <?php echo htmlspecialchars($firstname . ' ' . $lastname); ?>
-                    </p>
-                    <?php endif; ?>
-                    <p class='text-[11px] text-white/70 truncate leading-snug' title='<?php echo htmlspecialchars($email); ?>'>
-                        <?php echo htmlspecialchars($email); ?>
-                    </p>
-                    <?php if (!empty($displayRoles)): ?>
-                    <span class='role-badge inline-flex items-center gap-1 mt-1 max-w-full'
-                          style='<?php echo $badgeStyle; ?>'
-                          title='<?php echo htmlspecialchars(implode(', ', $displayRoles)); ?>'
-                          aria-label='Rolle: <?php echo htmlspecialchars($displayRoles[0]); ?>'>
-                        <i class='fas <?php echo getRoleIcon($role); ?> flex-shrink-0' aria-hidden='true'></i>
-                        <span class='truncate'><?php echo htmlspecialchars($displayRoles[0]); ?></span>
-                    </span>
-                    <?php elseif (!empty($role) && $role !== 'User'): ?>
-                    <span class='role-badge inline-flex items-center gap-1 mt-1 max-w-full'
-                          style='<?php echo $badgeStyle; ?>'
-                          title='<?php echo htmlspecialchars(getFormattedRoleName($role)); ?>'
-                          aria-label='Rolle: <?php echo htmlspecialchars(getFormattedRoleName($role)); ?>'>
-                        <i class='fas <?php echo getRoleIcon($role); ?> flex-shrink-0' aria-hidden='true'></i>
-                        <span class='truncate'><?php echo htmlspecialchars(getFormattedRoleName($role)); ?></span>
-                    </span>
-                    <?php endif; ?>
-                </div>
-            </div>
-
-            <!-- Live Clock (left-aligned) -->
-            <div class='mt-2 pt-2 border-t border-white/20'>
+            <!-- Live Clock (centered) -->
+            <div class='pt-2 border-t border-white/20 text-center'>
                 <div id="live-clock" class='text-xs text-white/80 font-mono'>
                     <!-- JavaScript will update this -->
                 </div>
