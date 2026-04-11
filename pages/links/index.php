@@ -17,7 +17,7 @@ if (!$currentUser || !in_array($currentUser['role'] ?? '', $allowedRoles)) {
     exit;
 }
 
-$userRole = $currentUser['role'] ?? '';
+$userRole  = $currentUser['role'] ?? '';
 $canManage = Link::canManage($userRole);
 
 // Handle delete action
@@ -36,136 +36,328 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     exit;
 }
 
-// Load search query from URL
 $searchQuery = trim($_GET['q'] ?? '');
 
-// Load links from DB
 $links = [];
 try {
     $links = Link::getAll($searchQuery);
 } catch (Exception $e) {
-    $_SESSION['error_message'] = 'Fehler beim Laden der Links aus der Datenbank: ' . htmlspecialchars($e->getMessage());
+    $_SESSION['error_message'] = 'Fehler beim Laden der Links: ' . htmlspecialchars($e->getMessage());
 }
 
 $title = 'Nützliche Links - IBC Intranet';
 ob_start();
 ?>
 
-<div class="mb-8 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-    <div>
-        <div class="flex items-center gap-3 mb-2">
-            <div class="w-11 h-11 rounded-2xl bg-green-100 dark:bg-green-900/40 flex items-center justify-center shadow-sm">
-                <i class="fas fa-link text-ibc-green text-xl"></i>
-            </div>
-            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-50 tracking-tight">Nützliche Links</h1>
-        </div>
-        <p class="text-gray-500 dark:text-gray-400 text-sm">Schnellzugriff auf häufig genutzte Tools und Ressourcen</p>
-    </div>
+<style>
+/* ── Nützliche Links Module ── */
+.lnk-header-icon {
+    width: 3rem; height: 3rem;
+    border-radius: 0.875rem;
+    background: linear-gradient(135deg, var(--ibc-green), var(--ibc-green-dark));
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 14px rgba(0,160,80,0.3);
+    flex-shrink: 0;
+}
 
-    <?php if ($canManage): ?>
-    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-        <button id="toggle-edit-mode"
-                class="inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-400 dark:hover:border-gray-500 transition-all text-sm shadow-sm w-full sm:w-auto">
-            <i class="fas fa-pencil-alt"></i>
-            Bearbeiten
-        </button>
-        <a href="edit.php"
-           class="btn-primary w-full sm:w-auto justify-center">
-            <i class="fas fa-plus"></i>
-            Neuer Link
-        </a>
-    </div>
-    <?php endif; ?>
-</div>
+/* Action buttons in header */
+.lnk-edit-btn {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.625rem 1.125rem; border-radius: 0.75rem;
+    background-color: var(--bg-card);
+    border: 1.5px solid var(--border-color);
+    color: var(--text-muted); font-weight: 600; font-size: 0.875rem;
+    cursor: pointer;
+    transition: border-color .2s, color .2s, background .2s, box-shadow .2s;
+    white-space: nowrap;
+}
+.lnk-edit-btn:hover,
+.lnk-edit-btn--active {
+    border-color: var(--ibc-green);
+    color: var(--ibc-green);
+    box-shadow: 0 3px 12px rgba(0,160,80,0.18);
+}
+.lnk-edit-btn--active {
+    background: rgba(0,160,80,0.08);
+}
+.lnk-new-btn {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.625rem 1.125rem; border-radius: 0.75rem;
+    background: linear-gradient(135deg, var(--ibc-green), var(--ibc-green-dark));
+    color: #fff; font-weight: 600; font-size: 0.875rem;
+    text-decoration: none;
+    box-shadow: 0 3px 12px rgba(0,160,80,0.3);
+    transition: opacity .2s, transform .15s;
+    white-space: nowrap;
+}
+.lnk-new-btn:hover { opacity: .9; transform: scale(1.03); color: #fff; }
 
-<form method="GET" class="mb-6 flex items-stretch gap-2 w-full max-w-lg">
-    <input type="text" name="q"
-           value="<?php echo htmlspecialchars($searchQuery, ENT_QUOTES, 'UTF-8'); ?>"
-           placeholder="Links durchsuchen..."
-           class="flex-1 rounded-xl border-gray-300 dark:border-gray-700 shadow-sm focus:ring-ibc-green focus:border-ibc-green py-2.5 px-4 text-sm">
-    <button type="submit"
-            class="inline-flex items-center justify-center gap-2 px-5 rounded-xl bg-ibc-green text-white font-semibold hover:bg-ibc-green-dark transition-colors shadow-sm text-sm">
-        <i class="fas fa-search"></i>Suchen
-    </button>
-    <?php if ($searchQuery !== ''): ?>
-    <a href="index.php"
-       class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-200 dark:hover:bg-gray-700 transition text-sm">
-        <i class="fas fa-times"></i>Zurücksetzen
-    </a>
-    <?php endif; ?>
-</form>
+/* Search bar */
+.lnk-search-wrap {
+    margin-bottom: 1.5rem;
+    display: flex; align-items: stretch; gap: 0.5rem;
+    max-width: 32rem;
+}
+.lnk-search-input {
+    flex: 1; padding: 0.625rem 1rem;
+    border: 1.5px solid var(--border-color);
+    border-radius: 0.75rem;
+    background-color: var(--bg-card);
+    color: var(--text-main); font-size: 0.9rem;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+}
+.lnk-search-input:focus {
+    border-color: var(--ibc-green);
+    box-shadow: 0 0 0 3px rgba(0,160,80,0.14);
+}
+.lnk-search-input::placeholder { color: var(--text-muted); }
+.lnk-search-btn {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.625rem 1.125rem; border-radius: 0.75rem; border: none;
+    background: var(--ibc-green); color: #fff;
+    font-weight: 600; font-size: 0.875rem; cursor: pointer;
+    transition: background .2s;
+    white-space: nowrap;
+}
+.lnk-search-btn:hover { background: var(--ibc-green-dark); }
+.lnk-clear-btn {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.625rem 0.875rem; border-radius: 0.75rem;
+    background-color: rgba(100,116,139,0.1);
+    color: var(--text-muted); font-size: 0.875rem; font-weight: 600;
+    text-decoration: none;
+    transition: background .2s;
+}
+.lnk-clear-btn:hover { background-color: rgba(100,116,139,0.2); }
+
+/* Flash */
+.lnk-flash {
+    margin-bottom: 1.25rem; padding: 0.875rem 1.125rem;
+    border-radius: 0.75rem; border: 1px solid;
+    display: flex; align-items: center; gap: 0.625rem; font-size: 0.9rem;
+}
+.lnk-flash--ok  { background:rgba(22,163,74,0.08);  border-color:rgba(22,163,74,0.3);  color:#15803d; }
+.lnk-flash--err { background:rgba(220,38,38,0.08);  border-color:rgba(220,38,38,0.3);  color:#b91c1c; }
+
+/* Cards grid */
+.lnk-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+    gap: 1rem;
+}
+
+/* Link card */
+.lnk-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    transition: box-shadow .25s, border-color .2s, transform .2s;
+    animation: lnkCardIn .4s ease both;
+}
+.lnk-card:hover {
+    box-shadow: 0 6px 24px rgba(0,160,80,0.12);
+    border-color: rgba(0,160,80,0.35);
+    transform: translateY(-3px);
+}
+@keyframes lnkCardIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.lnk-card:nth-child(1)  { animation-delay:.04s }
+.lnk-card:nth-child(2)  { animation-delay:.08s }
+.lnk-card:nth-child(3)  { animation-delay:.12s }
+.lnk-card:nth-child(4)  { animation-delay:.16s }
+.lnk-card:nth-child(5)  { animation-delay:.20s }
+.lnk-card:nth-child(6)  { animation-delay:.24s }
+.lnk-card:nth-child(n+7){ animation-delay:.28s }
+
+/* Card link area */
+.lnk-card-link {
+    display: flex; align-items: flex-start; gap: 1rem;
+    padding: 1.125rem; flex: 1; text-decoration: none;
+}
+.lnk-card-link:hover { text-decoration: none; }
+
+/* Icon box */
+.lnk-card-icon {
+    width: 2.75rem; height: 2.75rem; border-radius: 0.625rem;
+    background: rgba(0,160,80,0.1);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: background .25s, transform .2s;
+}
+.lnk-card-icon i { color: var(--ibc-green); font-size: 1.1rem; transition: color .2s; }
+.lnk-card:hover .lnk-card-icon {
+    background: var(--ibc-green);
+    transform: scale(1.1);
+}
+.lnk-card:hover .lnk-card-icon i { color: #fff; }
+
+/* Card text */
+.lnk-card-body { flex: 1; min-width: 0; }
+.lnk-card-title {
+    font-size: 0.9375rem; font-weight: 600;
+    color: var(--text-main);
+    line-height: 1.35; word-break: break-word;
+    transition: color .2s;
+    display: block;
+}
+.lnk-card:hover .lnk-card-title { color: var(--ibc-green); }
+.lnk-card-desc {
+    font-size: 0.8rem; color: var(--text-muted);
+    margin-top: 0.3rem; line-height: 1.5; word-break: break-word;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.lnk-card-ext {
+    color: var(--border-color); font-size: 0.7rem;
+    flex-shrink: 0; margin-top: 0.1rem;
+    transition: color .2s;
+}
+.lnk-card:hover .lnk-card-ext { color: var(--ibc-green); }
+
+/* Edit actions – shown only when editing */
+.lnk-card-actions {
+    padding: 0 1.125rem 1rem;
+    display: none;
+    justify-content: flex-end;
+    gap: 0.625rem;
+}
+.lnk-page--editing .lnk-card-actions { display: flex; }
+
+.lnk-action-edit {
+    display: inline-flex; align-items: center; gap: 0.375rem;
+    padding: 0.4375rem 0.875rem; border-radius: 0.5rem;
+    background: rgba(100,116,139,0.1); color: var(--text-muted);
+    font-size: 0.8rem; font-weight: 600; text-decoration: none;
+    transition: background .2s, color .2s;
+}
+.lnk-action-edit:hover { background: rgba(100,116,139,0.2); color: var(--text-main); }
+.lnk-action-del {
+    display: inline-flex; align-items: center; gap: 0.375rem;
+    padding: 0.4375rem 0.875rem; border-radius: 0.5rem;
+    background: rgba(220,38,38,0.08); color: #dc2626;
+    font-size: 0.8rem; font-weight: 600; cursor: pointer; border: none;
+    transition: background .2s;
+}
+.lnk-action-del:hover { background: rgba(220,38,38,0.16); }
+
+/* Empty state */
+.lnk-empty {
+    background-color: var(--bg-card);
+    border: 1.5px dashed var(--border-color);
+    border-radius: 1rem; padding: 3.5rem 2rem; text-align: center;
+}
+</style>
+
+<div id="lnkPage">
 
 <?php if (isset($_SESSION['success_message'])): ?>
-<div class="mb-6 flex items-center gap-3 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-300 rounded-xl text-sm">
+<div class="lnk-flash lnk-flash--ok">
     <i class="fas fa-check-circle flex-shrink-0"></i>
     <span><?php echo htmlspecialchars($_SESSION['success_message']); ?></span>
 </div>
 <?php unset($_SESSION['success_message']); endif; ?>
 
 <?php if (isset($_SESSION['error_message'])): ?>
-<div class="mb-6 flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 rounded-xl text-sm">
+<div class="lnk-flash lnk-flash--err">
     <i class="fas fa-exclamation-circle flex-shrink-0"></i>
     <span><?php echo htmlspecialchars($_SESSION['error_message']); ?></span>
 </div>
 <?php unset($_SESSION['error_message']); endif; ?>
 
+<!-- Page Header -->
+<div style="margin-bottom:2rem; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1rem;">
+    <div style="display:flex; align-items:center; gap:0.875rem;">
+        <div class="lnk-header-icon">
+            <i class="fas fa-link" style="color:#fff; font-size:1.1875rem;"></i>
+        </div>
+        <div>
+            <h1 style="font-size:1.75rem; font-weight:800; color:var(--text-main); margin:0; line-height:1.2;">Nützliche Links</h1>
+            <p style="color:var(--text-muted); margin:0.2rem 0 0; font-size:0.9rem;">Schnellzugriff auf häufig genutzte Tools und Ressourcen</p>
+        </div>
+    </div>
+
+    <?php if ($canManage): ?>
+    <div style="display:flex; gap:0.625rem; align-items:center; flex-wrap:wrap;">
+        <button id="lnkToggleEdit" class="lnk-edit-btn" type="button">
+            <i class="fas fa-pencil-alt"></i>Bearbeiten
+        </button>
+        <a href="edit.php" class="lnk-new-btn">
+            <i class="fas fa-plus"></i>Neuer Link
+        </a>
+    </div>
+    <?php endif; ?>
+</div>
+
+<!-- Search -->
+<form method="GET" class="lnk-search-wrap">
+    <input type="text" name="q" class="lnk-search-input"
+           value="<?php echo htmlspecialchars($searchQuery, ENT_QUOTES, 'UTF-8'); ?>"
+           placeholder="Links durchsuchen...">
+    <button type="submit" class="lnk-search-btn">
+        <i class="fas fa-search"></i>Suchen
+    </button>
+    <?php if ($searchQuery !== ''): ?>
+    <a href="index.php" class="lnk-clear-btn">
+        <i class="fas fa-times"></i>Zurücksetzen
+    </a>
+    <?php endif; ?>
+</form>
+
 <?php if (empty($links)): ?>
-<div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-12 text-center">
-    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-        <i class="fas fa-link text-gray-400 dark:text-gray-600 text-2xl" aria-hidden="true"></i>
+<div class="lnk-empty">
+    <div style="width:4rem; height:4rem; border-radius:50%; background:rgba(0,160,80,0.08); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem;">
+        <i class="fas fa-link" style="font-size:1.75rem; color:rgba(0,160,80,0.3);"></i>
     </div>
     <?php if ($searchQuery !== ''): ?>
-    <p class="text-gray-600 dark:text-gray-400 font-medium">Keine Links für „<?php echo htmlspecialchars($searchQuery, ENT_QUOTES, 'UTF-8'); ?>" gefunden.</p>
+    <p style="font-weight:600; color:var(--text-main); margin:0 0 0.25rem;">Keine Links für „<?php echo htmlspecialchars($searchQuery, ENT_QUOTES, 'UTF-8'); ?>" gefunden.</p>
     <?php else: ?>
-    <p class="text-gray-600 dark:text-gray-400 font-medium">Noch keine Links vorhanden.</p>
+    <p style="font-weight:600; color:var(--text-main); margin:0 0 0.25rem;">Noch keine Links vorhanden.</p>
     <?php if ($canManage): ?>
-    <p class="text-gray-400 dark:text-gray-500 text-sm mt-2">Klicken Sie auf „Neuer Link", um den ersten Link hinzuzufügen.</p>
+    <p style="font-size:0.875rem; color:var(--text-muted); margin:0;">Klicke auf „Neuer Link", um den ersten Link hinzuzufügen.</p>
     <?php endif; ?>
     <?php endif; ?>
 </div>
 <?php else: ?>
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
+<div class="lnk-grid" id="lnkGrid">
     <?php foreach ($links as $link):
         $rawUrl  = $link['url'] ?? '';
         $parsed  = parse_url($rawUrl);
         $scheme  = strtolower($parsed['scheme'] ?? '');
         $url     = (in_array($scheme, ['http', 'https']) && !empty($parsed['host'])) ? $rawUrl : '#';
-        $icon = htmlspecialchars($link['icon'] ?? 'fas fa-external-link-alt', ENT_QUOTES, 'UTF-8');
+        $icon    = htmlspecialchars($link['icon'] ?? 'fas fa-external-link-alt', ENT_QUOTES, 'UTF-8');
         $linkDbId = $link['id'] ?? null;
     ?>
-    <div class="w-full group bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md hover:border-ibc-green/30 dark:hover:border-ibc-green/30 transition-all duration-200 flex flex-col overflow-hidden">
+    <div class="lnk-card">
         <a href="<?php echo htmlspecialchars($url, ENT_QUOTES, 'UTF-8'); ?>"
-           target="_blank"
-           rel="noopener noreferrer"
-           class="flex items-start gap-4 p-5 flex-1">
-            <div class="flex-shrink-0 w-11 h-11 bg-green-50 dark:bg-green-900/30 rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:bg-ibc-green group-hover:text-white transition-all duration-200">
-                <i class="<?php echo $icon; ?> text-ibc-green group-hover:text-white text-lg transition-colors duration-200"></i>
+           target="_blank" rel="noopener noreferrer"
+           class="lnk-card-link">
+            <div class="lnk-card-icon">
+                <i class="<?php echo $icon; ?>"></i>
             </div>
-            <div class="min-w-0 flex-1">
-                <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-ibc-green dark:group-hover:text-ibc-green-light transition-colors duration-200 leading-snug break-words hyphens-auto">
-                    <?php echo htmlspecialchars($link['title'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
-                </h3>
+            <div class="lnk-card-body">
+                <span class="lnk-card-title"><?php echo htmlspecialchars($link['title'] ?? '', ENT_QUOTES, 'UTF-8'); ?></span>
                 <?php if (!empty($link['description'])): ?>
-                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed break-words hyphens-auto">
-                    <?php echo htmlspecialchars($link['description'], ENT_QUOTES, 'UTF-8'); ?>
-                </p>
+                <p class="lnk-card-desc"><?php echo htmlspecialchars($link['description'], ENT_QUOTES, 'UTF-8'); ?></p>
                 <?php endif; ?>
             </div>
-            <i class="fas fa-external-link-alt text-gray-300 dark:text-gray-600 text-xs flex-shrink-0 mt-1 group-hover:text-ibc-green transition-colors duration-200"></i>
+            <i class="fas fa-external-link-alt lnk-card-ext"></i>
         </a>
 
         <?php if ($canManage && $linkDbId !== null): ?>
-        <div class="link-actions hidden px-5 pb-4 pt-0 flex justify-end gap-4">
-            <a href="edit.php?id=<?php echo (int)$linkDbId; ?>"
-               class="inline-flex items-center gap-1.5 px-3 py-2 min-h-[44px] text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition font-medium">
+        <div class="lnk-card-actions">
+            <a href="edit.php?id=<?php echo (int)$linkDbId; ?>" class="lnk-action-edit">
                 <i class="fas fa-edit"></i>Bearbeiten
             </a>
-            <form method="POST" action="index.php" data-confirm="Link wirklich löschen?" class="inline delete-form">
+            <form method="POST" action="index.php" class="lnk-delete-form" style="display:inline;">
                 <input type="hidden" name="csrf_token" value="<?php echo CSRFHandler::getToken(); ?>">
                 <input type="hidden" name="action" value="delete">
                 <input type="hidden" name="link_id" value="<?php echo (int)$linkDbId; ?>">
-                <button type="submit"
-                        class="inline-flex items-center gap-1.5 px-3 py-2 min-h-[44px] text-xs bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/50 transition font-medium">
+                <button type="submit" class="lnk-action-del">
                     <i class="fas fa-trash"></i>Löschen
                 </button>
             </form>
@@ -176,38 +368,30 @@ ob_start();
 </div>
 <?php endif; ?>
 
+</div><!-- /#lnkPage -->
+
 <script>
-document.querySelectorAll('.delete-form').forEach(function(form) {
-    form.addEventListener('submit', function(e) {
-        var msg = this.dataset.confirm || 'Wirklich löschen?';
-        if (!confirm(msg)) {
-            e.preventDefault();
-        }
+// Delete confirmation
+document.querySelectorAll('.lnk-delete-form').forEach(function (form) {
+    form.addEventListener('submit', function (e) {
+        if (!confirm('Link wirklich löschen?')) e.preventDefault();
     });
 });
 
-const toggleBtn = document.getElementById('toggle-edit-mode');
-if (toggleBtn) {
-    toggleBtn.addEventListener('click', function() {
-        const isActive = toggleBtn.classList.toggle('bg-ibc-green');
-        toggleBtn.classList.toggle('text-white', isActive);
-        toggleBtn.classList.toggle('border-ibc-green', isActive);
-        toggleBtn.classList.toggle('shadow-md', isActive);
-        toggleBtn.classList.toggle('hover:bg-gray-50', !isActive);
-        toggleBtn.classList.toggle('dark:hover:bg-gray-700', !isActive);
-        toggleBtn.classList.toggle('hover:border-gray-400', !isActive);
-        toggleBtn.classList.toggle('dark:hover:border-gray-500', !isActive);
-        toggleBtn.classList.toggle('bg-white', !isActive);
-        toggleBtn.classList.toggle('dark:bg-gray-800', !isActive);
-        toggleBtn.classList.toggle('border-gray-300', !isActive);
-        toggleBtn.classList.toggle('dark:border-gray-600', !isActive);
-        toggleBtn.classList.toggle('text-gray-600', !isActive);
-        toggleBtn.classList.toggle('dark:text-gray-300', !isActive);
-        document.querySelectorAll('.link-actions').forEach(function(el) {
-            el.classList.toggle('hidden', !isActive);
-        });
+// Edit-mode toggle
+(function () {
+    var btn  = document.getElementById('lnkToggleEdit');
+    var page = document.getElementById('lnkPage');
+    if (!btn || !page) return;
+
+    btn.addEventListener('click', function () {
+        var active = page.classList.toggle('lnk-page--editing');
+        btn.classList.toggle('lnk-edit-btn--active', active);
+        btn.innerHTML = active
+            ? '<i class="fas fa-times"></i>Fertig'
+            : '<i class="fas fa-pencil-alt"></i>Bearbeiten';
     });
-}
+}());
 </script>
 
 <?php

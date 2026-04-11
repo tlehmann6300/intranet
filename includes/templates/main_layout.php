@@ -142,143 +142,20 @@ if ($currentUser && isset($currentUser['id'])) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="<?php echo asset('assets/css/theme.css') . '?v=' . $_themeCssVersion; ?>">
     <link rel="stylesheet" href="<?php echo asset('assets/css/tailwind.css') . '?v=' . $_tailwindCssVersion; ?>">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css" crossorigin="anonymous">
     <style>
-        /* Mobile menu button accessibility */
-        #mobile-menu-btn {
-            border: none;
-            outline: none;
-        }
-        #mobile-menu-btn:focus-visible {
-            outline: 2px solid rgba(255,255,255,0.8);
-            outline-offset: 2px;
-        }
-
-        /* Mobile view improvements */
-        @media (max-width: 767px) {
-            .sidebar .sidebar-scroll {
-                padding-bottom: 2rem !important;
-            }
-
-            /* Better logo sizing on mobile */
-            .sidebar img[alt="IBC Logo"] {
-                max-width: 90% !important;
-                margin: 0 auto !important;
-            }
-
-            /* Fix text overflow in cards */
-            .card p, .card div, .card span {
-                word-wrap: break-word;
-                overflow-wrap: break-word;
-                hyphens: auto;
-            }
-
-            /* Prevent horizontal overflow on tables */
-            table {
-                display: block;
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-                border-radius: 8px;
-            }
-            table thead { display: table-header-group; }
-            table tbody { display: table-row-group; }
-            th, td { white-space: nowrap; }
-
-            /* Better form inputs on mobile (prevents iOS zoom-in) */
-            form input, form select, form textarea {
-                font-size: 16px;
-                padding: 0.875rem !important;
-                border-radius: 10px !important;
-            }
-
-            /* Better image scaling on mobile */
-            img:not([class*="w-"]) { max-width: 100%; height: auto; }
-
-            /* Improved stat cards on mobile */
-            .stat-icon { width: 48px !important; height: 48px !important; font-size: 1.25rem !important; }
-
-            /* Better badge sizing (exclude sidebar-nav-badge which has its own sizing) */
-            .badge:not(.sidebar-nav-badge) { padding: 0.375rem 0.75rem !important; font-size: 0.875rem !important; }
-        }
-
-        /* Grid collapse, breakpoints, HiDPI, touch targets, landscape, container
-           are now handled comprehensively in theme.css Part 2 & 3. */
-
-        /* Ensure long text doesn't overflow */
+        /* ════════════════════════════════════════════════════════════════
+           GLOBAL BASE
+           ════════════════════════════════════════════════════════════════ */
         p, span, li, h1, h2, h3 { overflow-wrap: break-word; word-break: break-word; }
 
-        /* ── DVH SUPPORT ────────────────────────────────────────── */
-        @supports (height: 100dvh) {
-            .sidebar {
-                height: 100dvh;
-            }
-        }
+        ::selection { background-color: rgba(0,102,179,0.2); color: inherit; }
+        .dark-mode ::selection { background-color: rgba(51,133,196,0.3); }
 
-        /* ── SIDEBAR CLOSING ANIMATION ───────────────────────────── */
-        .sidebar {
-            transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1), visibility 0s 0.3s;
-            visibility: hidden;
-        }
-        .sidebar.open {
-            visibility: visible;
-            transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1), visibility 0s 0s;
-        }
-        @media (min-width: 768px) {
-            .sidebar {
-                visibility: visible;
-                transition: none;
-            }
-        }
+        @supports (height: 100dvh) { .sidebar { height: 100dvh; } }
 
-        /* ── SIDEBAR OVERLAY Z-INDEX ─────────────────────────────── */
-        /* Overlay sits above page content but below the sidebar so that
-           clicks on the dimmed backdrop reliably reach the overlay itself. */
-        @media (max-width: 767px) {
-            .sidebar-overlay {
-                z-index: 1040; /* above content, below sidebar (1050) */
-                pointer-events: none; /* inactive state: pass clicks through */
-            }
-            .sidebar-overlay.active {
-                pointer-events: auto; /* active state: capture clicks to close sidebar */
-            }
-            .sidebar.open {
-                z-index: 1050; /* above overlay (1040) */
-            }
-        }
-
-        /* ── MOBILE: BODY SCROLL LOCK FIX ───────────────────────── */
-        body.sidebar-open {
-            overflow: hidden !important;
-            position: fixed;
-            width: 100%;
-        }
-
-        /* ── IMPROVED SELECTION HIGHLIGHT ───────────────────────── */
-        ::selection {
-            background-color: rgba(0, 102, 179, 0.2);
-            color: inherit;
-        }
-        .dark-mode ::selection {
-            background-color: rgba(51, 133, 196, 0.3);
-        }
-
-        /* ── IMPROVE MAIN CONTENT AREA PADDING ──────────────────── */
-        /* On mobile, padding-top accounts for the fixed topbar height.
-           Uses env(safe-area-inset-top) so content is never hidden behind the
-           Dynamic Island / notch. The JS in navbar-scroll.js updates
-           --mobile-menu-height from the actual measured height of #mobile-header;
-           the calc() below is the pure-CSS fallback.
-           The transition uses the same duration/easing as the sidebar so the
-           push-down animation of #main-content stays perfectly in sync. */
-        @media (max-width: 767px) {
-            #main-content {
-                padding-top: var(--mobile-menu-height, calc(var(--topbar-height) + env(safe-area-inset-top, 0px))) !important;
-                transition: padding-top 0.3s cubic-bezier(0.32, 0.72, 0, 1);
-            }
-        }
-
-        /* ── PAGE ENTRANCE ANIMATION ─────────────────────────────── */
+        /* ── PAGE ENTRANCE ANIMATION ──────────────────────────────── */
         @keyframes pageEntranceFade {
             from { opacity: 0; transform: translateY(10px); }
             to   { opacity: 1; transform: translateY(0); }
@@ -293,86 +170,297 @@ if ($currentUser && isset($currentUser['id'])) {
             #main-content > *:nth-child(5) { animation-delay: 0.16s; }
         }
 
-        /* ── SPRING-LIKE CARD TAP ANIMATION (MOBILE) ─────────────── */
+        /* ── SPRING CARD TAP (MOBILE) ────────────────────────────── */
         @media (hover: none) and (pointer: coarse) {
             .card, .dash-stat-card, .dash-event-card, .dash-blog-card,
-            .dash-helper-card, .dash-poll-card {
-                transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1),
-                            box-shadow 0.15s ease,
-                            border-color 0.15s ease !important;
+            .dash-helper-card, .dash-poll-card, .d-card, .d-stat-card,
+            .d-event-item, .d-invoice-item, .d-blog-card {
+                transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1),
+                            box-shadow 0.15s ease, border-color 0.15s ease !important;
             }
-            .card:active, .dash-stat-card:active, .dash-event-card:active,
-            .dash-blog-card:active, .dash-helper-card:active {
-                transform: scale(0.975) !important;
-                transition: transform 0.08s ease !important;
-            }
+            .card:active, .dash-stat-card:active, .d-card:active,
+            .d-stat-card:active, .d-blog-card:active { transform: scale(0.975) !important; }
         }
 
-        /* ── IMPROVED MOBILE TOPBAR SAFE AREA ───────────────────── */
-        /* Ensure topbar correctly accommodates Dynamic Island and notch */
-        #mobile-header {
-            min-height: calc(var(--topbar-height) + env(safe-area-inset-top, 0px));
-            padding-top: env(safe-area-inset-top, 0px);
+        /* ── MOBILE BODY SCROLL LOCK ─────────────────────────────── */
+        body.sidebar-open { overflow: hidden !important; position: fixed; width: 100%; }
+
+        /* ── SIDEBAR ANIMATION ───────────────────────────────────── */
+        .sidebar {
+            transition: transform 0.3s cubic-bezier(0.32,0.72,0,1), visibility 0s 0.3s;
+            visibility: hidden;
+        }
+        .sidebar.open {
+            visibility: visible;
+            transition: transform 0.3s cubic-bezier(0.32,0.72,0,1), visibility 0s 0s;
+        }
+        @media (min-width: 768px) {
+            .sidebar { visibility: visible; transition: none; }
         }
 
-        /* ── SMOOTH SIDEBAR OVERLAY BLUR ─────────────────────────── */
+        /* ── SIDEBAR OVERLAY ─────────────────────────────────────── */
+        @media (max-width: 767px) {
+            .sidebar-overlay { z-index: 1040; pointer-events: none; }
+            .sidebar-overlay.active { pointer-events: auto; }
+            .sidebar.open { z-index: 1050; }
+        }
         @supports (backdrop-filter: blur(4px)) {
             .sidebar-overlay.active {
-                backdrop-filter: blur(4px) saturate(1.2);
-                -webkit-backdrop-filter: blur(4px) saturate(1.2);
-                background: rgba(0, 0, 0, 0.45) !important;
+                backdrop-filter: blur(5px) saturate(1.2);
+                -webkit-backdrop-filter: blur(5px) saturate(1.2);
+                background: rgba(0,0,0,0.5) !important;
             }
         }
 
-        /* ── MOBILE SLIDE-DOWN NAVIGATION MENU ───────────────────── */
-        .mobile-menu-link {
+        /* ── MOBILE: MAIN CONTENT TOP PADDING ───────────────────── */
+        @media (max-width: 767px) {
+            #main-content {
+                padding-top: var(--mobile-menu-height, calc(var(--topbar-height) + env(safe-area-inset-top,0px))) !important;
+                padding-bottom: calc(4.5rem + env(safe-area-inset-bottom,0px)) !important;
+                transition: padding-top 0.3s cubic-bezier(0.32,0.72,0,1);
+            }
+        }
+
+        /* ── MOBILE TOPBAR ───────────────────────────────────────── */
+        #mobile-header {
+            min-height: calc(var(--topbar-height) + env(safe-area-inset-top,0px));
+            padding-top: env(safe-area-inset-top,0px);
+        }
+
+        /* ── MOBILE TOPBAR BUTTON BASE ───────────────────────────── */
+        .mob-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.375rem;
+            height: 2.375rem;
+            border-radius: 0.625rem;
+            border: none;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.18s;
+            -webkit-tap-highlight-color: transparent;
+            flex-shrink: 0;
+        }
+        .mob-btn:hover, .mob-btn:focus-visible {
+            background: rgba(255,255,255,0.2);
+            outline: none;
+        }
+        .mob-btn:focus-visible { outline: 2px solid rgba(255,255,255,0.7); outline-offset: 2px; }
+
+        /* ── MOBILE PROFILE DROPDOWN ─────────────────────────────── */
+        .mob-profile-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.25rem 0.5rem 0.25rem 0.25rem;
+            border-radius: 2rem;
+            border: none;
+            background: rgba(255,255,255,0.12);
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.18s;
+            -webkit-tap-highlight-color: transparent;
+            max-width: 11rem;
+        }
+        .mob-profile-btn:hover { background: rgba(255,255,255,0.22); }
+        .mob-profile-btn .mob-avatar {
+            width: 1.875rem;
+            height: 1.875rem;
+            border-radius: 50%;
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .mob-profile-btn .mob-name {
+            font-size: 0.8125rem;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .mob-profile-btn .mob-chevron {
+            font-size: 0.55rem;
+            opacity: 0.7;
+            margin-left: auto;
+            transition: transform 0.2s;
+            flex-shrink: 0;
+        }
+        .mob-profile-btn[aria-expanded="true"] .mob-chevron {
+            transform: rotate(180deg);
+        }
+
+        /* ── MOBILE PROFILE DROPDOWN MENU ───────────────────────── */
+        #mob-profile-dropdown {
+            position: fixed;
+            top: calc(var(--topbar-height) + env(safe-area-inset-top,0px) + 0.375rem);
+            right: 0.75rem;
+            min-width: 14rem;
+            background: var(--bg-card);
+            border: 1.5px solid var(--border-color);
+            border-radius: 1rem;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.18), 0 4px 16px rgba(0,0,0,0.1);
+            z-index: 1100;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(-8px) scale(0.97);
+            pointer-events: none;
+            transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        #mob-profile-dropdown.open {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+        .mob-dd-header {
+            padding: 0.875rem 1rem 0.625rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .mob-dd-user-name {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 0;
+        }
+        .mob-dd-role {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.2rem 0.6rem;
+            border-radius: 9999px;
+            background: rgba(0,102,179,0.1);
+            color: var(--ibc-blue);
+            margin-top: 0.25rem;
+        }
+        .mob-dd-item {
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            width: 100%;
-            padding: 0.875rem 1.25rem;
-            font-size: 0.9375rem;
-            font-weight: 500;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-main);
             text-decoration: none;
-            border-bottom: 1px solid var(--border-color);
-            transition: background-color 0.15s ease;
+            transition: background 0.15s;
+        }
+        .mob-dd-item:hover { background: var(--bg-body); }
+        .mob-dd-item i { width: 1rem; text-align: center; color: var(--text-muted); font-size: 0.875rem; }
+        .mob-dd-divider { height: 1px; background: var(--border-color); margin: 0.125rem 0; }
+        .mob-dd-item--logout { color: #ef4444; }
+        .mob-dd-item--logout i { color: #ef4444; }
+        .mob-dd-theme-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-body);
+        }
+        .mob-dd-theme-row span {
+            flex: 1;
+            font-size: 0.875rem;
+            font-weight: 600;
             color: var(--text-main);
         }
-        .mobile-menu-link:hover {
-            background-color: var(--bg-body);
-            color: var(--text-main);
+        .mob-dd-theme-toggle {
+            position: relative;
+            width: 2.5rem;
+            height: 1.375rem;
+            border-radius: 9999px;
+            background: var(--border-color);
+            border: none;
+            cursor: pointer;
+            transition: background 0.25s;
+            flex-shrink: 0;
         }
-        .mobile-menu-link--active {
-            background-color: var(--ibc-blue);
-            color: #fff !important;
-            border-left: 4px solid var(--ibc-blue-dark);
+        .dark-mode .mob-dd-theme-toggle { background: var(--ibc-blue); }
+        .mob-dd-theme-toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background: #fff;
+            transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
         }
-        .mobile-menu-link--active i {
-            color: #fff !important;
+        .dark-mode .mob-dd-theme-toggle::after { transform: translateX(1.125rem); }
+
+        /* ── MOBILE BOTTOM NAV ───────────────────────────────────── */
+        #mobile-bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 900;
+            display: flex;
+            align-items: stretch;
+            background: var(--bg-card);
+            border-top: 1.5px solid var(--border-color);
+            box-shadow: 0 -4px 24px rgba(0,0,0,0.1);
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+            height: calc(3.75rem + env(safe-area-inset-bottom, 0px));
         }
-        .mobile-menu-section-label {
-            padding: 0.5rem 1.25rem 0.25rem;
-            font-size: 0.6875rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.07em;
+        @media (min-width: 768px) { #mobile-bottom-nav { display: none !important; } }
+
+        .mob-nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+            padding: 0.5rem 0.25rem;
+            text-decoration: none;
             color: var(--text-muted);
-            background-color: var(--bg-body);
+            font-size: 0.625rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            border: none;
+            background: none;
+            cursor: pointer;
+            transition: color 0.15s;
+            -webkit-tap-highlight-color: transparent;
+            position: relative;
+        }
+        .mob-nav-item i { font-size: 1.2rem; transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1); }
+        .mob-nav-item:hover i, .mob-nav-item:active i { transform: scale(1.18); }
+        .mob-nav-item.active { color: var(--ibc-blue); }
+        .mob-nav-item.active::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 25%;
+            right: 25%;
+            height: 2.5px;
+            border-radius: 0 0 4px 4px;
+            background: var(--ibc-blue);
+        }
+        .mob-nav-item.open { color: var(--ibc-blue); }
+
+        /* ── MOBILE FORM FIXES ───────────────────────────────────── */
+        @media (max-width: 767px) {
+            table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            table thead { display: table-header-group; }
+            table tbody { display: table-row-group; }
+            th, td { white-space: nowrap; }
+            form input, form select, form textarea {
+                font-size: 16px !important; /* prevents iOS auto-zoom */
+            }
+            img:not([class*="w-"]) { max-width: 100%; height: auto; }
         }
 
         /* ── ROLE BADGE ──────────────────────────────────────────── */
         .role-badge {
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.04em;
-            padding: 0.25rem 0.6rem;
-            border-radius: 9999px;
-            line-height: 1;
-            white-space: nowrap;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.30);
-        }
-        .role-badge i {
-            font-size: 9px;
+            font-size: 10px; font-weight: 700; letter-spacing: 0.04em;
+            padding: 0.25rem 0.6rem; border-radius: 9999px; line-height: 1;
+            white-space: nowrap; box-shadow: 0 1px 4px rgba(0,0,0,0.3);
         }
     </style>
 </head>
@@ -407,173 +495,73 @@ if ($currentUser && isset($currentUser['id'])) {
     <div id="sidebar-overlay" class="sidebar-overlay"></div>
 
     <!-- Mobile Header Bar (visible on small screens only) -->
-    <header id="mobile-header" class="mobile-topbar md:hidden flex items-center px-3" aria-label="Mobile-Navigation">
-        <button id="mobile-menu-btn" class="mobile-topbar-btn block md:hidden shrink-0" aria-label="Menü öffnen" aria-expanded="false" aria-controls="mobile-menu">
-            <svg class="w-5 h-5 text-white" id="menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path id="menu-icon-top" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16" style="transition: d 0.3s ease, opacity 0.3s ease;"></path>
-                <path id="menu-icon-middle" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 12h16" style="transition: d 0.3s ease, opacity 0.3s ease;"></path>
-                <path id="menu-icon-bottom" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 18h16" style="transition: d 0.3s ease, opacity 0.3s ease;"></path>
+    <header id="mobile-header" class="mobile-topbar md:hidden flex items-center px-3 gap-2" aria-label="Mobile-Navigation">
+        <!-- Hamburger: opens sidebar overlay -->
+        <button id="mobile-menu-btn" class="mob-btn" aria-label="Menü öffnen" aria-expanded="false">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                <path id="mob-icon-top" stroke="#fff" stroke-width="2" stroke-linecap="round" d="M2 4.5h14"/>
+                <path id="mob-icon-mid" stroke="#fff" stroke-width="2" stroke-linecap="round" d="M2 9h14"/>
+                <path id="mob-icon-bot" stroke="#fff" stroke-width="2" stroke-linecap="round" d="M2 13.5h14"/>
             </svg>
         </button>
-        <div class="flex-1 flex flex-col items-center justify-center select-none" style="gap:1px">
-            <span class="text-white font-bold leading-tight" style="font-size:0.9375rem;letter-spacing:-0.01em">IBC Intranet</span>
-            <span class="mobile-topbar-page-title leading-tight" style="font-size:0.6875rem;color:rgba(255,255,255,0.68);font-weight:500"><?php echo htmlspecialchars($title ?? 'Dashboard'); ?></span>
+
+        <!-- Center: IBC Logo -->
+        <div class="flex-1 flex justify-center">
+            <img src="<?php echo asset('assets/img/ibc_logo_original_navbar.webp'); ?>"
+                 alt="IBC Intranet"
+                 style="height:1.75rem;width:auto;object-fit:contain;filter:brightness(0) invert(1);"
+                 decoding="async">
         </div>
-        <div class="flex items-center gap-1 shrink-0">
-            <button id="mobile-theme-toggle" class="mobile-topbar-btn" aria-label="Zwischen hellem und dunklem Modus wechseln">
-                <i id="mobile-theme-icon" class="fas fa-moon text-white text-base" aria-hidden="true"></i>
+
+        <!-- Right: Theme toggle + Profile dropdown button -->
+        <div class="flex items-center gap-1.5 shrink-0">
+            <button id="mobile-theme-toggle" class="mob-btn" aria-label="Darkmode umschalten">
+                <i id="mobile-theme-icon" class="fas fa-moon" aria-hidden="true"></i>
+            </button>
+            <button id="mob-profile-btn" class="mob-profile-btn" aria-label="Profil-Menü öffnen" aria-expanded="false" aria-controls="mob-profile-dropdown">
+                <div class="mob-avatar" style="background-color:<?php echo htmlspecialchars($_navbarAvatarColor); ?>">
+                    <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:0.625rem;font-weight:700;color:#fff;" aria-hidden="true"><?php echo htmlspecialchars($_navbarInitials); ?></span>
+                    <img src="<?php echo htmlspecialchars($_navbarImgSrc); ?>" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" onerror="this.onerror=null;this.style.display='none';">
+                </div>
+                <?php if (!empty($_navbarFirstname)): ?>
+                <span class="mob-name"><?php echo htmlspecialchars($_navbarFirstname); ?></span>
+                <?php endif; ?>
+                <i class="fas fa-chevron-down mob-chevron" aria-hidden="true"></i>
             </button>
         </div>
     </header>
 
-    <!-- Mobile Slide-Down Nav Menu (block md:hidden, toggled by #mobile-menu-btn) -->
-    <div id="mobile-menu"
-         class="hidden md:hidden fixed left-0 right-0 overflow-y-auto z-50"
-         style="top: calc(var(--topbar-height) + env(safe-area-inset-top, 0px)); max-height: calc(100dvh - var(--topbar-height) - env(safe-area-inset-top, 0px) - 4rem); background-color: var(--bg-card); border-bottom: 1px solid var(--border-color); box-shadow: 0 8px 40px rgba(0,0,0,0.22);"
-         role="navigation"
-         aria-label="Mobile Navigation"
-         aria-hidden="true">
-        <nav class="flex flex-col" aria-label="Hauptnavigation">
-            <!-- Dashboard -->
-            <a href="<?php echo asset('pages/dashboard/index.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/dashboard/') ? 'mobile-menu-link--active' : ''; ?>"
-               <?php echo is_nav_active('/dashboard/') ? 'aria-current="page"' : ''; ?>>
-                <i class="fas fa-home w-5 text-center flex-shrink-0" style="color: var(--ibc-blue);" aria-hidden="true"></i>
-                <span>Dashboard</span>
-            </a>
-
-            <!-- Kommunikation -->
-            <div class="mobile-menu-section-label">Kommunikation</div>
-            <a href="<?php echo asset('pages/newsletter/index.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/newsletter/') ? 'mobile-menu-link--active' : ''; ?>"
-               <?php echo is_nav_active('/newsletter/') ? 'aria-current="page"' : ''; ?>>
-                <i class="fas fa-envelope-open-text w-5 text-center flex-shrink-0" style="color: var(--ibc-blue);" aria-hidden="true"></i>
-                <span>Newsletter</span>
-            </a>
-            <a href="<?php echo asset('pages/blog/index.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/blog/') ? 'mobile-menu-link--active' : ''; ?>"
-               <?php echo is_nav_active('/blog/') ? 'aria-current="page"' : ''; ?>>
-                <i class="fas fa-newspaper w-5 text-center flex-shrink-0" style="color: var(--ibc-blue);" aria-hidden="true"></i>
-                <span>Blog</span>
-            </a>
-            <a href="<?php echo asset('pages/jobs/index.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/jobs/') ? 'mobile-menu-link--active' : ''; ?>"
-               <?php echo is_nav_active('/jobs/') ? 'aria-current="page"' : ''; ?>>
-                <i class="fas fa-briefcase w-5 text-center flex-shrink-0" style="color: var(--ibc-blue);" aria-hidden="true"></i>
-                <span>Job- &amp; Praktikumsbörse</span>
-            </a>
-
-            <!-- Community -->
-            <div class="mobile-menu-section-label">Community</div>
-            <a href="<?php echo asset('pages/events/index.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/events/') && !is_nav_active('/events/helpers.php') ? 'mobile-menu-link--active' : ''; ?>"
-               <?php echo is_nav_active('/events/') && !is_nav_active('/events/helpers.php') ? 'aria-current="page"' : ''; ?>>
-                <i class="fas fa-calendar w-5 text-center flex-shrink-0" style="color: var(--ibc-blue);" aria-hidden="true"></i>
-                <span>Events</span>
-            </a>
-            <a href="<?php echo asset('pages/events/helpers.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/events/helpers.php') ? 'mobile-menu-link--active' : ''; ?>"
-               <?php echo is_nav_active('/events/helpers.php') ? 'aria-current="page"' : ''; ?>>
-                <i class="fas fa-hands-helping w-5 text-center flex-shrink-0" style="color: var(--ibc-blue);" aria-hidden="true"></i>
-                <span>Helfersystem</span>
-            </a>
-            <a href="<?php echo asset('pages/projects/index.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/projects/') ? 'mobile-menu-link--active' : ''; ?>"
-               <?php echo is_nav_active('/projects/') ? 'aria-current="page"' : ''; ?>>
-                <i class="fas fa-project-diagram w-5 text-center flex-shrink-0" style="color: var(--ibc-blue);" aria-hidden="true"></i>
-                <span>Projekte</span>
-            </a>
-            <?php if (Auth::canAccessPage('ideas')): ?>
-            <a href="<?php echo asset('pages/ideas/index.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/ideas/') ? 'mobile-menu-link--active' : ''; ?>"
-               <?php echo is_nav_active('/ideas/') ? 'aria-current="page"' : ''; ?>>
-                <i class="fas fa-lightbulb w-5 text-center flex-shrink-0" style="color: var(--ibc-blue);" aria-hidden="true"></i>
-                <span>Ideenbox</span>
-            </a>
+    <!-- Mobile Profile Dropdown -->
+    <div id="mob-profile-dropdown" role="menu" aria-labelledby="mob-profile-btn" aria-hidden="true">
+        <div class="mob-dd-header">
+            <?php if (!empty($_navbarFirstname) || !empty($_navbarLastname)): ?>
+            <p class="mob-dd-user-name"><?php echo htmlspecialchars(trim($_navbarFirstname . ' ' . $_navbarLastname)); ?></p>
             <?php endif; ?>
-
-            <!-- Daten -->
-            <div class="mobile-menu-section-label">Daten</div>
-            <a href="<?php echo asset('pages/alumni/index.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/alumni/') && !is_nav_active('/alumni/requests.php') ? 'mobile-menu-link--active' : ''; ?>"
-               <?php echo is_nav_active('/alumni/') && !is_nav_active('/alumni/requests.php') ? 'aria-current="page"' : ''; ?>>
-                <i class="fas fa-user-graduate w-5 text-center flex-shrink-0" style="color: var(--ibc-blue);" aria-hidden="true"></i>
-                <span>Alumni-Datenbank</span>
-            </a>
-            <?php if (Auth::canAccessPage('members')): ?>
-            <a href="<?php echo asset('pages/members/index.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/members/') ? 'mobile-menu-link--active' : ''; ?>"
-               <?php echo is_nav_active('/members/') ? 'aria-current="page"' : ''; ?>>
-                <i class="fas fa-users w-5 text-center flex-shrink-0" style="color: var(--ibc-blue);" aria-hidden="true"></i>
-                <span>Mitglieder-Datenbank</span>
-            </a>
+            <?php if (!empty($_navbarRole) && $_navbarRole !== 'User'): ?>
+            <span class="mob-dd-role">
+                <i class="fas <?php echo getRoleIcon($_navbarRole); ?>" aria-hidden="true"></i>
+                <?php echo htmlspecialchars(getFormattedRoleName($_navbarRole)); ?>
+            </span>
             <?php endif; ?>
-
-            <!-- Tools & Services -->
-            <div class="mobile-menu-section-label">Tools &amp; Services</div>
-            <a href="<?php echo asset('pages/inventory/index.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/inventory/') && !is_nav_active('/my_rentals.php') && !is_nav_active('/checkout.php') ? 'mobile-menu-link--active' : ''; ?>"
-               <?php echo is_nav_active('/inventory/') && !is_nav_active('/my_rentals.php') && !is_nav_active('/checkout.php') ? 'aria-current="page"' : ''; ?>>
-                <i class="fas fa-box w-5 text-center flex-shrink-0" style="color: var(--ibc-blue);" aria-hidden="true"></i>
-                <span>Inventar</span>
-            </a>
-            <a href="<?php echo asset('pages/inventory/my_rentals.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/my_rentals.php') ? 'mobile-menu-link--active' : ''; ?>"
-               <?php echo is_nav_active('/my_rentals.php') ? 'aria-current="page"' : ''; ?>>
-                <i class="fas fa-clipboard-list w-5 text-center flex-shrink-0" style="color: var(--ibc-blue);" aria-hidden="true"></i>
-                <span>Ausleihe</span>
-            </a>
-            <?php if (Auth::canAccessPage('invoices')): ?>
-            <a href="<?php echo asset('pages/invoices/index.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/invoices/') ? 'mobile-menu-link--active' : ''; ?>"
-               <?php echo is_nav_active('/invoices/') ? 'aria-current="page"' : ''; ?>>
-                <i class="fas fa-file-invoice-dollar w-5 text-center flex-shrink-0" style="color: var(--ibc-blue);" aria-hidden="true"></i>
-                <span>Rechnungen</span>
-            </a>
-            <?php endif; ?>
-            <?php if (Auth::canAccessPage('polls')): ?>
-            <a href="<?php echo asset('pages/polls/index.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/polls/') ? 'mobile-menu-link--active' : ''; ?>"
-               <?php echo is_nav_active('/polls/') ? 'aria-current="page"' : ''; ?>>
-                <i class="fas fa-poll w-5 text-center flex-shrink-0" style="color: var(--ibc-blue);" aria-hidden="true"></i>
-                <span>Umfragen</span>
-            </a>
-            <?php endif; ?>
-
-            <!-- Administration -->
-            <?php if (Auth::canCreateBasicContent()): ?>
-            <div class="mobile-menu-section-label">Administration</div>
-            <a href="<?php echo asset('pages/admin/vcards.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/admin/vcards.php') ? 'mobile-menu-link--active' : ''; ?>"
-               <?php echo is_nav_active('/admin/vcards.php') ? 'aria-current="page"' : ''; ?>>
-                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--ibc-blue);" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-                </svg>
-                <span>Digitale Visitenkarten</span>
-            </a>
-            <?php endif; ?>
-
-            <!-- Konto -->
-            <div class="mobile-menu-section-label">Konto</div>
-            <a href="<?php echo asset('pages/auth/profile.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/auth/profile.php') ? 'mobile-menu-link--active' : ''; ?>"
-               <?php echo is_nav_active('/auth/profile.php') ? 'aria-current="page"' : ''; ?>>
-                <i class="fas fa-user w-5 text-center flex-shrink-0" style="color: var(--ibc-blue);" aria-hidden="true"></i>
-                <span>Mein Profil</span>
-            </a>
-            <a href="<?php echo asset('pages/auth/settings.php'); ?>"
-               class="mobile-menu-link <?php echo is_nav_active('/auth/settings.php') ? 'mobile-menu-link--active' : ''; ?>"
-               <?php echo is_nav_active('/auth/settings.php') ? 'aria-current="page"' : ''; ?>>
-                <i class="fas fa-cog w-5 text-center flex-shrink-0" style="color: var(--ibc-blue);" aria-hidden="true"></i>
-                <span>Einstellungen</span>
-            </a>
-            <a href="<?php echo asset('pages/auth/logout.php'); ?>"
-               class="mobile-menu-link"
-               style="color: var(--ibc-error);">
-                <i class="fas fa-sign-out-alt w-5 text-center flex-shrink-0" aria-hidden="true"></i>
-                <span>Abmelden</span>
-            </a>
-        </nav>
+        </div>
+        <a href="<?php echo asset('pages/auth/profile.php'); ?>" class="mob-dd-item" role="menuitem">
+            <i class="fas fa-user" aria-hidden="true"></i>
+            <span>Mein Profil</span>
+        </a>
+        <a href="<?php echo asset('pages/auth/settings.php'); ?>" class="mob-dd-item" role="menuitem">
+            <i class="fas fa-cog" aria-hidden="true"></i>
+            <span>Einstellungen</span>
+        </a>
+        <div class="mob-dd-divider"></div>
+        <a href="<?php echo asset('pages/auth/logout.php'); ?>" class="mob-dd-item mob-dd-item--logout" role="menuitem">
+            <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+            <span>Abmelden</span>
+        </a>
+        <div class="mob-dd-theme-row">
+            <i class="fas fa-moon" style="color:var(--text-muted);width:1rem;text-align:center;font-size:0.875rem;" aria-hidden="true"></i>
+            <span>Darkmode</span>
+            <button class="mob-dd-theme-toggle" id="mob-dd-theme-btn" aria-label="Darkmode umschalten"></button>
+        </div>
     </div>
 
     <!-- Desktop Fixed Top Navbar (hidden on mobile) -->
@@ -631,9 +619,16 @@ if ($currentUser && isset($currentUser['id'])) {
         $userRole = $currentUser['role'] ?? '';
         ?>
         <div class="p-5 flex-1 overflow-y-auto sidebar-scroll">
-            <!-- IBC Logo in Navbar -->
-            <div class="mb-6 px-3 pt-2">
+            <!-- IBC Logo + mobile close button -->
+            <div class="mb-6 px-3 pt-2 relative">
                 <img src="<?php echo asset('assets/img/ibc_logo_original_navbar.webp'); ?>" alt="IBC Logo" class="w-full h-auto drop-shadow-lg" decoding="async">
+                <!-- Close button: only visible on mobile, hidden on md+ -->
+                <button id="sidebar-close-btn"
+                        class="md:hidden absolute top-0 right-0 flex items-center justify-center w-8 h-8 rounded-lg text-white/70 hover:text-white hover:bg-white/15 transition-colors"
+                        aria-label="Seitenleiste schließen"
+                        style="-webkit-tap-highlight-color: transparent;">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
             </div>
             
             <nav aria-label="Hauptnavigation">
@@ -968,33 +963,32 @@ if ($currentUser && isset($currentUser['id'])) {
     </main>
 
     <!-- Mobile Bottom Navigation Bar (visible on small screens only) -->
-    <nav id="mobile-bottom-nav" class="mobile-bottom-nav md:hidden" role="navigation" aria-label="Schnellnavigation">
+    <nav id="mobile-bottom-nav" role="navigation" aria-label="Schnellnavigation">
         <a href="<?php echo asset('pages/dashboard/index.php'); ?>"
-           class="mobile-bottom-nav-item <?php echo is_nav_active('/dashboard/') ? 'active' : ''; ?>"
+           class="mob-nav-item <?php echo is_nav_active('/dashboard/') ? 'active' : ''; ?>"
            aria-label="Dashboard"
            <?php echo is_nav_active('/dashboard/') ? 'aria-current="page"' : ''; ?>>
             <i class="fas fa-home" aria-hidden="true"></i>
             <span>Home</span>
         </a>
         <a href="<?php echo asset('pages/events/index.php'); ?>"
-           class="mobile-bottom-nav-item <?php echo (is_nav_active('/events/') && !is_nav_active('/events/helpers.php')) ? 'active' : ''; ?>"
+           class="mob-nav-item <?php echo (is_nav_active('/events/') && !is_nav_active('/events/helpers.php')) ? 'active' : ''; ?>"
            aria-label="Events"
            <?php echo (is_nav_active('/events/') && !is_nav_active('/events/helpers.php')) ? 'aria-current="page"' : ''; ?>>
             <i class="fas fa-calendar-alt" aria-hidden="true"></i>
             <span>Events</span>
         </a>
         <a href="<?php echo asset('pages/alumni/index.php'); ?>"
-           class="mobile-bottom-nav-item <?php echo is_nav_active('/alumni/') && !is_nav_active('/alumni/requests.php') ? 'active' : ''; ?>"
-           aria-label="Alumni-Datenbank"
+           class="mob-nav-item <?php echo is_nav_active('/alumni/') && !is_nav_active('/alumni/requests.php') ? 'active' : ''; ?>"
+           aria-label="Alumni"
            <?php echo is_nav_active('/alumni/') && !is_nav_active('/alumni/requests.php') ? 'aria-current="page"' : ''; ?>>
             <i class="fas fa-user-graduate" aria-hidden="true"></i>
             <span>Alumni</span>
         </a>
         <button id="bottom-nav-more-btn"
-                class="mobile-bottom-nav-item"
+                class="mob-nav-item"
                 aria-label="Menü öffnen"
-                aria-expanded="false"
-                aria-controls="sidebar">
+                aria-expanded="false">
             <i class="fas fa-grip-horizontal" aria-hidden="true"></i>
             <span>Mehr</span>
         </button>
@@ -1005,10 +999,6 @@ if ($currentUser && isset($currentUser['id'])) {
             const btn = document.getElementById('mobile-menu-btn');
             const sidebar = document.querySelector('.sidebar');
             const overlay = document.getElementById('sidebar-overlay');
-            const menuIconTop = document.getElementById('menu-icon-top');
-            const menuIconMiddle = document.getElementById('menu-icon-middle');
-            const menuIconBottom = document.getElementById('menu-icon-bottom');
-            const mobileMenu = document.getElementById('mobile-menu');
 
             // Tailwind md breakpoint (must match tailwind.config.js screens.md = 768px)
             var MD_BREAKPOINT = 768;
@@ -1031,40 +1021,43 @@ if ($currentUser && isset($currentUser['id'])) {
                 window.scrollTo(0, _savedScrollY);
             }
 
+            // Hamburger icon state helpers
+            function setHamburgerOpen(isOpen) {
+                const top = document.getElementById('mob-icon-top');
+                const mid = document.getElementById('mob-icon-mid');
+                const bot = document.getElementById('mob-icon-bot');
+                if (isOpen) {
+                    top?.setAttribute('d', 'M3 3l12 12');
+                    mid?.setAttribute('opacity', '0');
+                    bot?.setAttribute('d', 'M15 3L3 15');
+                    btn?.setAttribute('aria-expanded', 'true');
+                    btn?.setAttribute('aria-label', 'Menü schließen');
+                } else {
+                    top?.setAttribute('d', 'M2 4.5h14');
+                    mid?.setAttribute('opacity', '1');
+                    bot?.setAttribute('d', 'M2 13.5h14');
+                    btn?.setAttribute('aria-expanded', 'false');
+                    btn?.setAttribute('aria-label', 'Menü öffnen');
+                }
+            }
+
             // Reusable open/close helpers
             function openSidebar() {
                 if (!sidebar) return;
-                // Close slide-down menu before opening sidebar (via navbar-scroll.js utility)
-                window.navbarScrollUtils?.closeMobileMenu?.();
-                // Toggle Tailwind translate classes for the slide-over effect
                 sidebar.classList.remove('-translate-x-full');
                 sidebar.classList.add('translate-x-0', 'open');
-                // Show overlay and lock body scroll on all viewport sizes
                 if (overlay) overlay.classList.add('active');
                 lockBodyScroll();
-                btn?.setAttribute('aria-expanded', 'true');
-                btn?.setAttribute('aria-label', 'Menü schließen');
-                menuIconTop?.setAttribute('d', 'M6 18L18 6');
-                menuIconMiddle?.setAttribute('d', 'M12 12h0');
-                menuIconMiddle?.setAttribute('opacity', '0');
-                menuIconBottom?.setAttribute('d', 'M6 6L18 18');
+                setHamburgerOpen(true);
             }
             function closeSidebar() {
                 if (!sidebar) return;
-                // Toggle Tailwind translate classes for the slide-out effect
                 sidebar.classList.remove('translate-x-0', 'open');
                 sidebar.classList.add('-translate-x-full');
-                // Hide overlay and restore scroll on all viewport sizes
                 if (overlay) overlay.classList.remove('active');
                 unlockBodyScroll();
-                btn?.setAttribute('aria-expanded', 'false');
-                btn?.setAttribute('aria-label', 'Menü öffnen');
-                menuIconTop?.setAttribute('d', 'M4 6h16');
-                menuIconMiddle?.setAttribute('d', 'M4 12h16');
-                menuIconMiddle?.setAttribute('opacity', '1');
-                menuIconBottom?.setAttribute('d', 'M4 18h16');
+                setHamburgerOpen(false);
             }
-
             function toggleSidebar() {
                 if (sidebar && sidebar.classList.contains('open')) {
                     closeSidebar();
@@ -1073,7 +1066,15 @@ if ($currentUser && isset($currentUser['id'])) {
                 }
             }
 
-            // Note: hamburger button toggle for #mobile-menu is handled by navbar-scroll.js
+            // Hamburger button toggles sidebar
+            btn?.addEventListener('click', toggleSidebar);
+
+            // Sidebar close button (X inside sidebar)
+            const sidebarCloseBtn = document.getElementById('sidebar-close-btn');
+            sidebarCloseBtn?.addEventListener('click', function() {
+                closeSidebar();
+                syncBottomNavMoreBtn();
+            });
 
             // Bottom nav "More" button toggles sidebar
             const bottomNavMoreBtn = document.getElementById('bottom-nav-more-btn');
@@ -1117,14 +1118,16 @@ if ($currentUser && isset($currentUser['id'])) {
                 });
             }
 
-            // Escape key closes sidebar or mobile nav menu (accessibility)
+            // Escape key closes sidebar or mobile profile dropdown (accessibility)
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
                     if (sidebar?.classList.contains('open')) {
                         closeSidebar();
                         syncBottomNavMoreBtn();
-                    } else if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
-                        window.navbarScrollUtils?.closeMobileMenu?.();
+                    }
+                    const mobDrop = document.getElementById('mob-profile-dropdown');
+                    if (mobDrop?.classList.contains('open')) {
+                        window.closeMobProfileDropdown?.();
                     }
                     btn?.focus();
                 }
@@ -1168,6 +1171,57 @@ if ($currentUser && isset($currentUser['id'])) {
                     openSidebar();
                 }
             }, { passive: true });
+
+            // ── Mobile Profile Dropdown ──────────────────────────────────
+            (function() {
+                const profileBtn = document.getElementById('mob-profile-btn');
+                const dropdown   = document.getElementById('mob-profile-dropdown');
+                if (!profileBtn || !dropdown) return;
+
+                function openMobDropdown() {
+                    dropdown.classList.add('open');
+                    dropdown.setAttribute('aria-hidden', 'false');
+                    profileBtn.setAttribute('aria-expanded', 'true');
+                }
+                function closeMobDropdown() {
+                    dropdown.classList.remove('open');
+                    dropdown.setAttribute('aria-hidden', 'true');
+                    profileBtn.setAttribute('aria-expanded', 'false');
+                }
+                window.closeMobProfileDropdown = closeMobDropdown;
+
+                profileBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (dropdown.classList.contains('open')) {
+                        closeMobDropdown();
+                    } else {
+                        openMobDropdown();
+                    }
+                });
+
+                // Close when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!dropdown.contains(e.target) && !profileBtn.contains(e.target)) {
+                        closeMobDropdown();
+                    }
+                });
+
+                // Close when a dropdown link is clicked
+                dropdown.querySelectorAll('a').forEach(function(link) {
+                    link.addEventListener('click', function() {
+                        closeMobDropdown();
+                    });
+                });
+
+                // Dropdown theme toggle button
+                const ddThemeBtn = document.getElementById('mob-dd-theme-btn');
+                if (ddThemeBtn) {
+                    ddThemeBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        toggleTheme();
+                    });
+                }
+            })();
         });
         
         // Sidebar scroll position: restore on load, save on scroll and before unload
@@ -1401,9 +1455,17 @@ if ($currentUser && isset($currentUser['id'])) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
     <script src="<?php echo asset('js/navbar-scroll.js'); ?>" defer></script>
     <script>
+        // Service Worker v3 – cross-origin requests are skipped (CDN fix)
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
-                navigator.serviceWorker.register('<?php echo asset('sw.js'); ?>');
+                navigator.serviceWorker.register('<?php echo asset('sw.js'); ?>')
+                    .then(function(reg) {
+                        // Force immediate update check so new SW activates fast
+                        reg.update();
+                    })
+                    .catch(function(err) {
+                        console.warn('SW registration failed:', err);
+                    });
             });
         }
     </script>

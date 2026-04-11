@@ -82,21 +82,21 @@ $title = htmlspecialchars($profile['first_name'] . ' ' . $profile['last_name'], 
 ob_start();
 ?>
 
-<div class="max-w-4xl mx-auto">
+<div class="memv-container max-w-4xl mx-auto">
     <!-- Back Button -->
-    <div class="mb-6">
-        <a href="index.php" class="inline-flex items-center text-green-600 hover:text-green-800 transition-colors font-medium">
+    <div class="memv-back mb-6">
+        <a href="index.php" class="memv-back-link inline-flex items-center transition-colors font-medium">
             <i class="fas fa-arrow-left mr-2"></i>
             Zurück zum Mitgliederverzeichnis
         </a>
     </div>
 
     <!-- Profile Header Card -->
-    <div class="card directory-profile-header mb-6">
-        <div class="flex flex-col md:flex-row gap-6">
+    <div class="memv-header card mb-6">
+        <div class="memv-header-content flex flex-col md:flex-row gap-6">
             <!-- Profile Image -->
-            <div class="flex justify-center md:justify-start flex-shrink-0">
-                <?php 
+            <div class="memv-avatar-container flex justify-center md:justify-start flex-shrink-0">
+                <?php
                 $initials = strtoupper(substr($profile['first_name'], 0, 1) . substr($profile['last_name'], 0, 1));
                 // Prefer Entra ID photo via fetch-profile-photo.php when an e-mail address is
                 // available; fall back to the locally stored avatar / default image otherwise.
@@ -111,12 +111,12 @@ ob_start();
                     $imagePath = $hasActualImage ? asset($_pictureUrl) : '';
                 }
                 ?>
-                <div class="w-32 h-32 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-4xl font-bold overflow-hidden shadow-lg">
+                <div class="memv-avatar w-32 h-32 rounded-full flex items-center justify-center text-white text-4xl font-bold overflow-hidden shadow-lg">
                     <?php if ($hasActualImage): ?>
-                        <img 
-                            src="<?php echo htmlspecialchars($imagePath, ENT_QUOTES, 'UTF-8'); ?>" 
+                        <img
+                            src="<?php echo htmlspecialchars($imagePath, ENT_QUOTES, 'UTF-8'); ?>"
                             alt="<?php echo htmlspecialchars($profile['first_name'] . ' ' . $profile['last_name'], ENT_QUOTES, 'UTF-8'); ?>"
-                            class="w-full h-full object-cover"
+                            class="memv-avatar-img w-full h-full object-cover"
                             onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';"
                         >
                         <div style="display:none;" class="w-full h-full flex items-center justify-center text-4xl">
@@ -129,29 +129,14 @@ ob_start();
             </div>
 
             <!-- Profile Info -->
-            <div class="flex-1 min-w-0">
-                <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2 break-words hyphens-auto">
+            <div class="memv-info flex-1 min-w-0">
+                <h1 class="memv-name text-xl sm:text-2xl md:text-3xl font-bold mb-2 break-words hyphens-auto">
                     <?php echo htmlspecialchars($profile['first_name'] . ' ' . $profile['last_name'], ENT_QUOTES, 'UTF-8'); ?>
                 </h1>
 
                 <!-- Role Badge -->
-                <?php
-                $roleBadgeColors = [
-                    'vorstand_finanzen'   => 'bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-900 dark:text-purple-200 dark:border-purple-700',
-                    'vorstand_intern'     => 'bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-900 dark:text-purple-200 dark:border-purple-700',
-                    'vorstand_extern'     => 'bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-900 dark:text-purple-200 dark:border-purple-700',
-                    'ressortleiter'       => 'bg-teal-100 text-teal-800 border-teal-300 dark:bg-teal-900 dark:text-teal-200 dark:border-teal-700',
-                    'mitglied'            => 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900 dark:text-green-200 dark:border-green-700',
-                    'anwaerter'           => 'bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900 dark:text-yellow-200 dark:border-yellow-700',
-                    'alumni'              => 'bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-900 dark:text-purple-200 dark:border-purple-700',
-                    'alumni_vorstand'     => 'bg-indigo-100 text-indigo-800 border-indigo-300 dark:bg-indigo-900 dark:text-indigo-300 dark:border-indigo-500',
-                    'alumni_finanz'       => 'bg-indigo-100 text-indigo-800 border-indigo-300 dark:bg-indigo-900 dark:text-indigo-300 dark:border-indigo-500',
-                    'ehrenmitglied'       => 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900 dark:text-amber-200 dark:border-amber-700',
-                ];
-                $badgeClass = $roleBadgeColors[$displayRoleKey] ?? 'bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600';
-                ?>
-                <div class="mb-3">
-                    <span class="inline-flex items-center gap-1.5 px-4 py-1.5 text-sm font-semibold rounded-full border <?php echo $badgeClass; ?>">
+                <div class="memv-role mb-3">
+                    <span class="memv-role-badge inline-flex items-center gap-1.5 px-4 py-1.5 text-sm font-semibold rounded-full border">
                         <i class="fas <?php echo getRoleIcon($displayRoleKey); ?>" aria-hidden="true"></i>
                         <?php echo htmlspecialchars($resolvedDisplayRole, ENT_QUOTES, 'UTF-8'); ?>
                     </span>
@@ -182,13 +167,13 @@ ob_start();
 
         <!-- Profile Completeness (only for alumni roles) -->
         <?php if ($isAlumniProfile): ?>
-        <div class="mt-6 p-4 rounded-xl bg-gray-50 dark:bg-gray-700" style="border-left: 4px solid #a855f7">
-            <div class="flex items-center justify-between mb-1.5">
-                <span class="text-xs font-semibold text-gray-500 dark:text-gray-400">Profil-Fortschritt</span>
-                <span class="text-xs font-bold" style="color: #a855f7"><?php echo $profileCompletenessPercent; ?>%</span>
+        <div class="memv-progress mt-6 p-4 rounded-xl">
+            <div class="memv-progress-header flex items-center justify-between mb-1.5">
+                <span class="memv-progress-label text-xs font-semibold">Profil-Fortschritt</span>
+                <span class="memv-progress-percent text-xs font-bold"><?php echo $profileCompletenessPercent; ?>%</span>
             </div>
-            <div class="w-full rounded-full h-2.5 overflow-hidden bg-gray-200 dark:bg-gray-600">
-                <div class="h-2.5 rounded-full transition-all duration-500" style="width: <?php echo $profileCompletenessPercent; ?>%; background: linear-gradient(90deg, #a855f7, #ec4899)"></div>
+            <div class="memv-progress-bar w-full rounded-full h-2.5 overflow-hidden">
+                <div class="memv-progress-fill h-2.5 rounded-full transition-all duration-500" style="width: <?php echo $profileCompletenessPercent; ?>%"></div>
             </div>
         </div>
         <?php endif; ?>
@@ -196,22 +181,22 @@ ob_start();
 
     <!-- Über mich -->
     <?php if (!empty($profileUser['about_me'])): ?>
-    <div class="card directory-detail-card mb-6">
-        <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-3 flex items-center gap-2">
-            <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-100 text-green-600">
+    <div class="memv-card card mb-6">
+        <h2 class="memv-card-title text-lg font-bold mb-3 flex items-center gap-2">
+            <span class="memv-card-icon inline-flex items-center justify-center w-8 h-8 rounded-full">
                 <i class="fas fa-quote-left text-sm"></i>
             </span>
             Über mich
         </h2>
-        <p class="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line break-words hyphens-auto profile-about"><?php echo htmlspecialchars($profileUser['about_me'], ENT_QUOTES, 'UTF-8'); ?></p>
+        <p class="memv-about text-leading-relaxed whitespace-pre-line break-words hyphens-auto"><?php echo htmlspecialchars($profileUser['about_me'], ENT_QUOTES, 'UTF-8'); ?></p>
     </div>
     <?php endif; ?>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6 mb-6">
+    <div class="memv-grid grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6 mb-6">
         <!-- Kontaktinformationen -->
-        <div class="card directory-detail-card">
-            <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
-                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-100 text-green-600">
+        <div class="memv-card card">
+            <h2 class="memv-card-title text-lg font-bold mb-4 flex items-center gap-2">
+                <span class="memv-card-icon inline-flex items-center justify-center w-8 h-8 rounded-full">
                     <i class="fas fa-address-card text-sm"></i>
                 </span>
                 Kontakt
@@ -360,9 +345,9 @@ ob_start();
 
         <!-- Studium -->
         <?php if (!empty($profile['study_program']) || !empty($profile['semester']) || !empty($profile['angestrebter_abschluss']) || !empty($profile['graduation_year']) || !empty($profile['degree'])): ?>
-        <div class="card directory-detail-card">
-            <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
-                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-indigo-100 text-indigo-600">
+        <div class="memv-card card">
+            <h2 class="memv-card-title text-lg font-bold mb-4 flex items-center gap-2">
+                <span class="memv-card-icon inline-flex items-center justify-center w-8 h-8 rounded-full">
                     <i class="fas fa-graduation-cap text-sm"></i>
                 </span>
                 Studium
@@ -409,9 +394,9 @@ ob_start();
 
     <!-- Berufliches (shown if any professional info is set) -->
     <?php if (!empty($profile['company']) || !empty($profileUser['company']) || !empty($profile['position']) || !empty($profile['industry']) || !empty($profileUser['job_title'])): ?>
-    <div class="card directory-detail-card mb-6">
-        <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
-            <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-orange-100 text-orange-600">
+    <div class="memv-card card mb-6">
+        <h2 class="memv-card-title text-lg font-bold mb-4 flex items-center gap-2">
+            <span class="memv-card-icon inline-flex items-center justify-center w-8 h-8 rounded-full">
                 <i class="fas fa-briefcase text-sm"></i>
             </span>
             Berufliches
@@ -450,16 +435,16 @@ ob_start();
     $skillsList = !empty($profile['skills']) ? array_values(array_filter(array_map('trim', explode(',', $profile['skills'])))) : [];
     if (!empty($skillsList)):
     ?>
-    <div class="card directory-detail-card mb-6">
-        <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
-            <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-teal-100 text-teal-600">
+    <div class="memv-card card mb-6">
+        <h2 class="memv-card-title text-lg font-bold mb-4 flex items-center gap-2">
+            <span class="memv-card-icon inline-flex items-center justify-center w-8 h-8 rounded-full">
                 <i class="fas fa-tags text-sm"></i>
             </span>
             Fähigkeiten
         </h2>
-        <div class="flex flex-wrap gap-2">
+        <div class="memv-skills-list flex flex-wrap gap-2">
             <?php foreach ($skillsList as $skill): ?>
-            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-teal-100 text-teal-800 dark:bg-teal-900/40 dark:text-teal-300 border border-teal-200 dark:border-teal-700">
+            <span class="memv-skill-badge inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border">
                 <?php echo htmlspecialchars($skill, ENT_QUOTES, 'UTF-8'); ?>
             </span>
             <?php endforeach; ?>
@@ -469,21 +454,204 @@ ob_start();
 
     <!-- Lebenslauf / CV -->
     <?php if (!empty($profile['cv_path'])): ?>
-    <div class="card directory-detail-card mb-6">
-        <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
-            <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-red-100 text-red-600">
+    <div class="memv-card card mb-6">
+        <h2 class="memv-card-title text-lg font-bold mb-4 flex items-center gap-2">
+            <span class="memv-card-icon inline-flex items-center justify-center w-8 h-8 rounded-full">
                 <i class="fas fa-file-pdf text-sm"></i>
             </span>
             Lebenslauf
         </h2>
         <a href="<?php echo htmlspecialchars(asset($profile['cv_path']), ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer"
-           class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-700 hover:bg-red-100 dark:hover:bg-red-900/40 transition font-medium text-sm">
+           class="memv-cv-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg border transition font-medium text-sm">
             <i class="fas fa-download"></i>
             Lebenslauf herunterladen
         </a>
     </div>
     <?php endif; ?>
 </div>
+
+<style>
+/* MEMV (Member View) scoped styles */
+.memv-container {
+    animation: fadeIn 0.3s ease-out cubic-bezier(.22,.68,0,1.2);
+}
+
+.memv-back {
+    margin-bottom: 1.5rem;
+}
+
+.memv-back-link {
+    color: var(--ibc-blue);
+}
+
+.memv-back-link:hover {
+    color: var(--ibc-blue);
+    text-decoration: underline;
+}
+
+.memv-header {
+    background-color: var(--bg-card);
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-card);
+    padding: 2rem;
+}
+
+.memv-header:hover {
+    box-shadow: var(--shadow-card-hover);
+}
+
+.memv-header-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .memv-header-content {
+        flex-direction: row;
+    }
+}
+
+.memv-avatar {
+    background: linear-gradient(135deg, var(--ibc-blue), var(--ibc-green));
+    flex-shrink: 0;
+    width: 8rem;
+    height: 8rem;
+}
+
+.memv-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.memv-name {
+    color: var(--text-main);
+}
+
+.memv-role-badge {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: var(--ibc-blue);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.dark-mode .memv-role-badge {
+    background-color: rgba(59, 130, 246, 0.15);
+    border-color: rgba(59, 130, 246, 0.4);
+}
+
+.memv-progress {
+    background-color: var(--bg-body);
+    border-left: 4px solid var(--ibc-blue);
+}
+
+.memv-progress-label {
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.memv-progress-percent {
+    color: var(--ibc-blue);
+}
+
+.memv-progress-bar {
+    background-color: var(--border-color);
+}
+
+.memv-progress-fill {
+    background: linear-gradient(90deg, var(--ibc-blue), var(--ibc-green));
+}
+
+.memv-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+    .memv-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 900px) {
+    .memv-grid {
+        gap: 1.5rem;
+    }
+}
+
+.memv-card {
+    background-color: var(--bg-card);
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-card);
+    padding: 1.5rem;
+    transition: all 0.2s ease;
+}
+
+.memv-card:hover {
+    box-shadow: var(--shadow-card-hover);
+}
+
+.memv-card-title {
+    color: var(--text-main);
+}
+
+.memv-card-icon {
+    background-color: var(--bg-body);
+    color: var(--ibc-blue);
+}
+
+.memv-about {
+    color: var(--text-main);
+}
+
+.memv-skills-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.memv-skill-badge {
+    background-color: rgba(20, 184, 166, 0.1);
+    color: #0d9488;
+    border: 1px solid rgba(20, 184, 166, 0.3);
+}
+
+.dark-mode .memv-skill-badge {
+    background-color: rgba(20, 184, 166, 0.15);
+    border-color: rgba(20, 184, 166, 0.4);
+}
+
+.memv-cv-btn {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.memv-cv-btn:hover {
+    background-color: rgba(239, 68, 68, 0.2);
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-2px);
+}
+
+.dark-mode .memv-cv-btn {
+    background-color: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.4);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
 
 <?php
 $content = ob_get_clean();

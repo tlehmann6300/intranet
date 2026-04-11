@@ -32,29 +32,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 )
             ");
         }
-        
+
         if (isset($_POST['update_system_settings'])) {
-            // For now, we'll store settings in a simple key-value table
-            // In a production system, you'd want a more robust configuration system
-            
             $siteName = $_POST['site_name'] ?? 'IBC Intranet';
             $siteDescription = $_POST['site_description'] ?? '';
             $maintenanceMode = isset($_POST['maintenance_mode']) ? 1 : 0;
             $allowRegistration = isset($_POST['allow_registration']) ? 1 : 0;
-            
-            // Update or insert settings
+
             $stmt = $db->prepare("
-                INSERT INTO system_settings (setting_key, setting_value, updated_by) 
+                INSERT INTO system_settings (setting_key, setting_value, updated_by)
                 VALUES (?, ?, ?)
                 ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_by = VALUES(updated_by)
             ");
-            
+
             $stmt->execute(['site_name', $siteName, $_SESSION['user_id']]);
             $stmt->execute(['site_description', $siteDescription, $_SESSION['user_id']]);
             $stmt->execute(['maintenance_mode', $maintenanceMode, $_SESSION['user_id']]);
             $stmt->execute(['allow_registration', $allowRegistration, $_SESSION['user_id']]);
-            
-            // Log the action
+
             $stmt = $db->prepare("INSERT INTO system_logs (user_id, action, entity_type, details, ip_address) VALUES (?, ?, ?, ?, ?)");
             $stmt->execute([
                 $_SESSION['user_id'],
@@ -63,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'System-Einstellungen aktualisiert',
                 $_SERVER['REMOTE_ADDR'] ?? null
             ]);
-            
+
             $message = 'Einstellungen erfolgreich gespeichert';
         }
     } catch (Exception $e) {
@@ -92,110 +87,190 @@ $title = 'Systemeinstellungen - IBC Intranet';
 ob_start();
 ?>
 
-<div class="mb-8">
-    <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">
-        <i class="fas fa-cog text-purple-600 mr-2"></i>
-        Systemeinstellungen
-    </h1>
-    <p class="text-gray-600 dark:text-gray-300">Konfiguriere allgemeine Systemeinstellungen und Parameter</p>
+<style>
+/* ── Systemeinstellungen ─────────────────────────────── */
+@keyframes setSlideUp {
+  from { opacity:0; transform:translateY(18px) scale(.98); }
+  to   { opacity:1; transform:translateY(0)    scale(1);   }
+}
+.set-page { animation: setSlideUp .4s cubic-bezier(.22,.68,0,1.2) both; }
+
+/* Page header */
+.set-page-header { display:flex; align-items:center; gap:1rem; margin-bottom:2rem; flex-wrap:wrap; }
+.set-header-icon {
+  width:3rem; height:3rem; border-radius:.875rem;
+  background:linear-gradient(135deg,#7c3aed,#4f46e5);
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 4px 14px rgba(124,58,237,.4); flex-shrink:0;
+}
+.set-page-title { font-size:1.6rem; font-weight:800; color:var(--text-main); margin:0 0 .2rem; }
+.set-page-sub   { color:var(--text-muted); margin:0; font-size:.9rem; }
+
+/* Flash messages */
+.set-flash {
+  margin-bottom: 1.5rem; padding: 1rem 1.25rem; border-radius: .875rem;
+  display:flex; align-items:center; gap:.75rem; font-weight:500;
+  animation: setSlideUp .3s cubic-bezier(.22,.68,0,1.2) both;
+}
+.set-flash-ok  { background:rgba(34,197,94,.1);  border:1px solid rgba(34,197,94,.3);  color:rgba(21,128,61,1);  }
+.set-flash-err { background:rgba(239,68,68,.1);  border:1px solid rgba(239,68,68,.3);  color:rgba(185,28,28,1); }
+
+/* Settings card */
+.set-card {
+  border-radius: 1rem;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-card);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  transition: box-shadow .25s, transform .2s;
+  animation: setSlideUp .4s .05s cubic-bezier(.22,.68,0,1.2) both;
+}
+.set-card:hover { box-shadow:0 6px 24px rgba(0,0,0,.07); }
+
+.set-section-icon {
+  width:2.25rem; height:2.25rem; border-radius:.625rem;
+  background:rgba(99,102,241,.12); display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+
+/* Form elements */
+.set-field { margin-bottom:1rem; }
+.set-label { display:block; font-size:.8rem; font-weight:700; color:var(--text-muted); margin-bottom:.4rem; text-transform:uppercase; letter-spacing:.05em; }
+.set-input {
+  width:100%; padding:.625rem 1rem;
+  border-radius:.625rem; border:1px solid var(--border-color);
+  background:var(--bg-body); color:var(--text-main);
+  font-size:.9rem; transition:border-color .2s, box-shadow .2s;
+  outline:none; box-sizing:border-box;
+}
+.set-input:focus { border-color:rgba(99,102,241,.6); box-shadow:0 0 0 3px rgba(99,102,241,.12); }
+
+.set-check-row {
+  display:flex; align-items:center; gap:.625rem;
+  min-height:44px; cursor:pointer;
+  padding:.5rem .75rem;
+  border-radius:.625rem; border:1px solid var(--border-color);
+  background:var(--bg-body); transition:background .2s, border-color .2s;
+}
+.set-check-row:hover { background:rgba(99,102,241,.05); border-color:rgba(99,102,241,.25); }
+.set-check-row input[type="checkbox"] { width:1.1rem; height:1.1rem; accent-color:#6366f1; cursor:pointer; flex-shrink:0; }
+
+.set-check-rows { display:flex; flex-direction:column; gap:.625rem; margin-bottom:1.5rem; }
+
+.set-save-btn {
+  display:inline-flex; align-items:center; gap:.5rem;
+  padding:.7rem 1.75rem; min-height:46px;
+  background:linear-gradient(135deg,#7c3aed,#4f46e5);
+  color:#fff; font-weight:700; font-size:.9rem;
+  border-radius:.75rem; border:none; cursor:pointer;
+  transition:opacity .2s, transform .15s, box-shadow .2s;
+  box-shadow:0 2px 12px rgba(124,58,237,.4);
+}
+.set-save-btn:hover { opacity:.92; transform:translateY(-1px); box-shadow:0 4px 18px rgba(124,58,237,.5); }
+.set-save-btn:active { opacity:1; transform:none; }
+
+.set-info-box {
+  border-radius:.875rem; padding:1.25rem 1.5rem;
+  background:rgba(59,130,246,.07); border:1px solid rgba(59,130,246,.2);
+  display:flex; gap:1rem; align-items:flex-start;
+  animation: setSlideUp .4s .10s cubic-bezier(.22,.68,0,1.2) both;
+}
+
+/* Responsive */
+@media (max-width:480px) {
+  .set-page-title { font-size:1.35rem; }
+  .set-card { padding:1.25rem 1rem; }
+  .set-save-btn { width:100%; justify-content:center; }
+}
+</style>
+
+<div class="set-page">
+
+<!-- Page Header -->
+<div class="set-page-header">
+  <div class="set-header-icon">
+    <i class="fas fa-cog" style="color:#fff;font-size:1.35rem;"></i>
+  </div>
+  <div>
+    <h1 class="set-page-title">Systemeinstellungen</h1>
+    <p class="set-page-sub">Konfiguriere allgemeine Systemeinstellungen und Parameter</p>
+  </div>
 </div>
 
-<!-- Success/Error Messages -->
 <?php if ($message): ?>
-    <div class="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg flex items-start">
-        <i class="fas fa-check-circle mt-0.5 mr-3"></i>
-        <span><?php echo htmlspecialchars($message); ?></span>
-    </div>
+<div class="set-flash set-flash-ok">
+  <i class="fas fa-check-circle" style="font-size:1.1rem;flex-shrink:0;"></i>
+  <span><?php echo htmlspecialchars($message); ?></span>
+</div>
 <?php endif; ?>
 
 <?php if ($error): ?>
-    <div class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-start">
-        <i class="fas fa-exclamation-circle mt-0.5 mr-3"></i>
-        <span><?php echo htmlspecialchars($error); ?></span>
-    </div>
+<div class="set-flash set-flash-err">
+  <i class="fas fa-exclamation-circle" style="font-size:1.1rem;flex-shrink:0;"></i>
+  <span><?php echo htmlspecialchars($error); ?></span>
+</div>
 <?php endif; ?>
 
-<!-- General Settings -->
-<div class="card p-6 mb-6">
-    <h2 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">
-        <i class="fas fa-sliders-h text-blue-600 mr-2"></i>
-        Allgemeine Einstellungen
-    </h2>
-    
-    <form method="POST" class="space-y-4">
-        <input type="hidden" name="csrf_token" value="<?php echo CSRFHandler::getToken(); ?>">
+<!-- Settings Card -->
+<div class="set-card">
+  <div style="display:flex;align-items:center;gap:.625rem;margin-bottom:1.5rem;">
+    <div class="set-section-icon">
+      <i class="fas fa-sliders-h" style="color:#6366f1;"></i>
+    </div>
+    <h2 style="font-size:1.05rem;font-weight:700;color:var(--text-main);margin:0;">Allgemeine Einstellungen</h2>
+  </div>
+
+  <form method="POST">
+    <input type="hidden" name="csrf_token" value="<?php echo CSRFHandler::getToken(); ?>">
+
+    <div class="set-field">
+      <label class="set-label">Website-Name</label>
+      <input type="text" name="site_name" value="<?php echo htmlspecialchars($siteName); ?>" class="set-input" required>
+    </div>
+
+    <div class="set-field">
+      <label class="set-label">Website-Beschreibung</label>
+      <textarea name="site_description" rows="3" class="set-input" style="resize:vertical;"><?php echo htmlspecialchars($siteDescription); ?></textarea>
+    </div>
+
+    <div class="set-check-rows">
+      <label class="set-check-row">
+        <input type="checkbox" name="maintenance_mode" <?php echo $maintenanceMode == '1' ? 'checked' : ''; ?>>
         <div>
-            <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Website-Name
-            </label>
-            <input 
-                type="text" 
-                name="site_name" 
-                value="<?php echo htmlspecialchars($siteName); ?>"
-                class="w-full px-4 py-2 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                required
-            >
+          <div style="font-size:.9rem;font-weight:600;color:var(--text-main);">Wartungsmodus aktivieren</div>
+          <div style="font-size:.8rem;color:var(--text-muted);margin-top:.1rem;">Zeigt eine Wartungsseite für alle nicht-Admin-Benutzer</div>
         </div>
-        
+      </label>
+
+      <label class="set-check-row">
+        <input type="checkbox" name="allow_registration" <?php echo $allowRegistration == '1' ? 'checked' : ''; ?>>
         <div>
-            <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Website-Beschreibung
-            </label>
-            <textarea 
-                name="site_description" 
-                rows="3"
-                class="w-full px-4 py-2 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500"
-            ><?php echo htmlspecialchars($siteDescription); ?></textarea>
+          <div style="font-size:.9rem;font-weight:600;color:var(--text-main);">Registrierung erlauben</div>
+          <div style="font-size:.8rem;color:var(--text-muted);margin-top:.1rem;">Ermöglicht neuen Benutzern, sich selbst zu registrieren</div>
         </div>
-        
-        <div class="flex items-center space-x-4">
-            <label class="flex items-center space-x-2 cursor-pointer min-h-[44px]">
-                <input 
-                    type="checkbox" 
-                    name="maintenance_mode" 
-                    <?php echo $maintenanceMode == '1' ? 'checked' : ''; ?>
-                    class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                >
-                <span class="text-sm text-gray-700 dark:text-gray-300">Wartungsmodus aktivieren</span>
-            </label>
-        </div>
-        
-        <div class="flex items-center space-x-4">
-            <label class="flex items-center space-x-2 cursor-pointer min-h-[44px]">
-                <input 
-                    type="checkbox" 
-                    name="allow_registration" 
-                    <?php echo $allowRegistration == '1' ? 'checked' : ''; ?>
-                    class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                >
-                <span class="text-sm text-gray-700 dark:text-gray-300">Registrierung erlauben</span>
-            </label>
-        </div>
-        
-        <div class="pt-4">
-            <button type="submit" name="update_system_settings" class="btn-primary w-full sm:w-auto">
-                <i class="fas fa-save mr-2"></i>
-                Einstellungen speichern
-            </button>
-        </div>
-    </form>
+      </label>
+    </div>
+
+    <button type="submit" name="update_system_settings" class="set-save-btn">
+      <i class="fas fa-save"></i>Einstellungen speichern
+    </button>
+  </form>
 </div>
 
-<!-- Information Box -->
-<div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-    <div class="flex items-start">
-        <i class="fas fa-info-circle text-blue-600 dark:text-blue-400 text-xl mr-3 mt-1"></i>
-        <div>
-            <h3 class="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-1">
-                Hinweis zu Systemeinstellungen
-            </h3>
-            <p class="text-sm text-blue-800 dark:text-blue-200">
-                Einige Einstellungen erfordern möglicherweise einen Server-Neustart oder eine Cache-Löschung, um wirksam zu werden.
-                Sicherheitseinstellungen (Passwörter, MFA, Zugriffsrichtlinien) werden über Microsoft Entra verwaltet.
-            </p>
-        </div>
-    </div>
+<!-- Info Box -->
+<div class="set-info-box">
+  <div style="width:2.25rem;height:2.25rem;border-radius:.625rem;background:rgba(59,130,246,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+    <i class="fas fa-info-circle" style="color:rgba(59,130,246,1);font-size:1.1rem;"></i>
+  </div>
+  <div>
+    <h3 style="font-size:.9rem;font-weight:700;color:var(--text-main);margin:0 0 .3rem;">Hinweis zu Systemeinstellungen</h3>
+    <p style="font-size:.875rem;color:var(--text-muted);margin:0;line-height:1.6;">
+      Einige Einstellungen erfordern möglicherweise einen Server-Neustart oder eine Cache-Löschung, um wirksam zu werden.
+      Sicherheitseinstellungen (Passwörter, MFA, Zugriffsrichtlinien) werden über Microsoft Entra verwaltet.
+    </p>
+  </div>
 </div>
+
+</div><!-- .set-page -->
 
 <?php
 $content = ob_get_clean();

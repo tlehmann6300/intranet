@@ -161,15 +161,15 @@ $title = htmlspecialchars($project['title']) . ' - IBC Intranet';
 ob_start();
 ?>
 
-<div class="max-w-4xl mx-auto">
+<div class="prv-container">
     <!-- Back Button -->
-    <div class="mb-6 flex flex-wrap items-center gap-2">
-        <a href="index.php" class="inline-flex items-center text-purple-600 hover:text-purple-700 transition">
+    <div class="prv-header mb-6">
+        <a href="index.php" class="prv-back-btn">
             <i class="fas fa-arrow-left mr-2"></i>
             Zurück zur Übersicht
         </a>
         <?php if ($user['id'] === ($project['created_by'] ?? null) || Auth::isBoard() || Auth::hasPermission('manage_projects')): ?>
-        <a href="manage.php?edit=<?= (int)$project['id'] ?>" class="inline-flex items-center px-4 py-2 min-h-[44px] bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+        <a href="manage.php?edit=<?= (int)$project['id'] ?>" class="prv-edit-btn">
             <i class="fas fa-edit mr-2"></i>
             Projekt bearbeiten
         </a>
@@ -178,40 +178,37 @@ ob_start();
     
     <!-- Draft Warning -->
     <?php if ($project['status'] === 'draft' && Auth::hasPermission('manage_projects')): ?>
-    <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4">
+    <div class="prv-draft-warning">
         Status: ENTWURF - Für Mitglieder noch nicht sichtbar.
     </div>
     <?php endif; ?>
-    
+
     <?php if ($message): ?>
-    <div class="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+    <div class="prv-message prv-message--success mb-6">
         <i class="fas fa-check-circle mr-2"></i><?php echo htmlspecialchars($message); ?>
     </div>
     <?php endif; ?>
-    
+
     <?php if ($error): ?>
-    <div class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+    <div class="prv-message prv-message--error mb-6">
         <i class="fas fa-exclamation-circle mr-2"></i><?php echo htmlspecialchars($error); ?>
     </div>
     <?php endif; ?>
 
     <!-- Project Card with Enhanced Design -->
-    <div class="project-detail-card card p-8 relative overflow-hidden">
-        <!-- Decorative gradient background -->
-        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-600 via-blue-600 to-green-600" aria-hidden="true"></div>
+    <div class="prv-card card p-8">
         
         <!-- Image with Hero Effect -->
         <?php if (!empty($project['image_path'])): ?>
-        <div class="mb-8 rounded-xl overflow-hidden shadow-2xl relative group">
-            <img src="/<?php echo htmlspecialchars($project['image_path']); ?>" 
+        <div class="prv-hero-image">
+            <img src="/<?php echo htmlspecialchars($project['image_path']); ?>"
                  alt="<?php echo htmlspecialchars($project['title']); ?>"
-                 class="w-full h-48 sm:h-64 md:h-96 object-cover transform group-hover:scale-105 transition-transform duration-700">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                 class="w-full h-48 sm:h-64 md:h-96 object-cover">
         </div>
         <?php endif; ?>
         
         <!-- PDF Download Button -->
-        <?php 
+        <?php
         // Check if PDF file exists with security validation
         $showPdfButton = false;
         if (!empty($project['file_path'])) {
@@ -223,35 +220,32 @@ ob_start();
                 $showPdfButton = true;
             }
         }
-        if ($showPdfButton): 
+        if ($showPdfButton):
         ?>
-        <div class="mb-8">
-            <a href="/<?php echo htmlspecialchars($project['file_path']); ?>" 
-               class="inline-flex items-center px-6 py-4 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-xl font-bold hover:from-red-700 hover:to-rose-700 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300"
-               download>
-                <i class="fas fa-file-pdf mr-3 text-xl"></i>
-                <span>Projekt-Datei herunterladen (PDF)</span>
-            </a>
-        </div>
+        <a href="/<?php echo htmlspecialchars($project['file_path']); ?>"
+           class="prv-pdf-btn"
+           download>
+            <i class="fas fa-file-pdf mr-3 text-xl"></i>
+            <span>Projekt-Datei herunterladen (PDF)</span>
+        </a>
         <?php endif; ?>
         
         <!-- Status and Priority with Modern Badges -->
-        <div class="flex items-center gap-3 mb-8 flex-wrap">
-            <span class="status-detail-badge px-5 py-2.5 text-sm font-bold rounded-full shadow-md
-                <?php 
+        <div class="prv-badges">
+            <span class="prv-badge
+                <?php
                 switch($project['status']) {
-                    case 'draft': echo 'bg-gradient-to-r from-gray-400 to-gray-500 text-white'; break;
-                    case 'open': echo 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'; break;
-                    case 'applying': echo 'bg-gradient-to-r from-yellow-500 to-amber-600 text-white'; break;
-                    case 'assigned': echo 'bg-gradient-to-r from-green-500 to-emerald-600 text-white'; break;
-                    case 'running': echo 'bg-gradient-to-r from-purple-500 to-purple-600 text-white'; break;
-                    case 'completed': echo 'bg-gradient-to-r from-teal-500 to-cyan-600 text-white'; break;
-                    case 'archived': echo 'bg-gray-200 text-gray-600'; break;
-                    default: echo 'bg-gray-100 text-gray-800'; break;
+                    case 'draft': echo 'prv-status-draft'; break;
+                    case 'open': echo 'prv-status-open'; break;
+                    case 'applying': echo 'prv-status-applying'; break;
+                    case 'assigned': echo 'prv-status-assigned'; break;
+                    case 'running': echo 'prv-status-running'; break;
+                    case 'completed': echo 'prv-status-completed'; break;
+                    case 'archived': echo 'prv-status-archived'; break;
                 }
                 ?>">
-                <i class="fas fa-circle text-[10px] mr-2 animate-pulse"></i>
-                <?php 
+                <i class="fas fa-circle text-[10px] mr-2"></i>
+                <?php
                 switch($project['status']) {
                     case 'draft': echo 'Entwurf'; break;
                     case 'open': echo 'Offen'; break;
@@ -260,34 +254,31 @@ ob_start();
                     case 'running': echo 'Laufend'; break;
                     case 'completed': echo 'Abgeschlossen'; break;
                     case 'archived': echo 'Archiviert'; break;
-                    default: echo htmlspecialchars(ucfirst($project['status']), ENT_QUOTES, 'UTF-8'); break;
                 }
                 ?>
             </span>
-            
-            <span class="priority-detail-badge px-4 py-2.5 text-sm font-bold rounded-full shadow-md
-                <?php 
+
+            <span class="prv-badge
+                <?php
                 switch($project['priority']) {
-                    case 'low': echo 'bg-gradient-to-r from-blue-400 to-blue-500 text-white'; break;
-                    case 'medium': echo 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white'; break;
-                    case 'high': echo 'bg-gradient-to-r from-red-500 to-rose-600 text-white'; break;
-                    default: echo 'bg-gray-100 text-gray-800'; break;
+                    case 'low': echo 'prv-priority-low'; break;
+                    case 'medium': echo 'prv-priority-medium'; break;
+                    case 'high': echo 'prv-priority-high'; break;
                 }
                 ?>">
-                <?php 
+                <?php
                 switch($project['priority']) {
                     case 'low': echo '<i class="fas fa-arrow-down mr-1"></i> Niedrig'; break;
                     case 'medium': echo '<i class="fas fa-minus mr-1"></i> Mittel'; break;
                     case 'high': echo '<i class="fas fa-arrow-up mr-1"></i> Hoch'; break;
-                    default: echo htmlspecialchars(ucfirst($project['priority']), ENT_QUOTES, 'UTF-8'); break;
                 }
                 ?>
             </span>
-            
-            <span class="type-detail-badge px-4 py-2.5 text-sm font-bold rounded-full shadow-md
-                <?php 
+
+            <span class="prv-badge
+                <?php
                 $projectType = $project['type'] ?? 'internal';
-                echo $projectType === 'internal' ? 'bg-gradient-to-r from-indigo-500 to-blue-600 text-white' : 'bg-gradient-to-r from-green-500 to-emerald-600 text-white';
+                echo $projectType === 'internal' ? 'prv-type-internal' : 'prv-type-external';
                 ?>">
                 <i class="fas fa-tag mr-2"></i>
                 <?php echo $projectType === 'internal' ? 'Intern' : 'Extern'; ?>
@@ -295,73 +286,73 @@ ob_start();
         </div>
         
         <!-- Title with Gradient Effect -->
-        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold mb-8 bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 bg-clip-text text-transparent break-words hyphens-auto">
+        <h1 class="prv-title break-words hyphens-auto">
             <?php echo htmlspecialchars($project['title']); ?>
         </h1>
-        
+
         <!-- Project Information with Modern Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-8">
+        <div class="prv-info-grid mb-8">
             <?php if (!empty($project['client_name'])): ?>
-            <div class="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 shadow-sm" aria-label="Kundeninformation">
-                <div class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Kunde</div>
-                <div class="text-lg font-semibold text-gray-900 dark:text-white"><?php echo htmlspecialchars($project['client_name']); ?></div>
+            <div class="prv-info-item">
+                <div class="prv-info-label">Kunde</div>
+                <div class="prv-info-value"><?php echo htmlspecialchars($project['client_name']); ?></div>
             </div>
             <?php endif; ?>
-            
+
             <?php if (!empty($project['start_date'])): ?>
-            <div class="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 shadow-sm" aria-label="Startdatum">
-                <div class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Startdatum</div>
-                <div class="text-lg font-semibold text-gray-900 dark:text-white"><?php echo date('d.m.Y', strtotime($project['start_date'])); ?></div>
+            <div class="prv-info-item">
+                <div class="prv-info-label">Startdatum</div>
+                <div class="prv-info-value"><?php echo date('d.m.Y', strtotime($project['start_date'])); ?></div>
             </div>
             <?php endif; ?>
-            
+
             <?php if (!empty($project['end_date'])): ?>
-            <div class="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 shadow-sm" aria-label="Enddatum">
-                <div class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Enddatum</div>
-                <div class="text-lg font-semibold text-gray-900 dark:text-white"><?php echo date('d.m.Y', strtotime($project['end_date'])); ?></div>
+            <div class="prv-info-item">
+                <div class="prv-info-label">Enddatum</div>
+                <div class="prv-info-value"><?php echo date('d.m.Y', strtotime($project['end_date'])); ?></div>
             </div>
             <?php endif; ?>
         </div>
         
         <!-- Team Progress Bar -->
-        <div class="mb-8 p-6 bg-purple-50 rounded-2xl border border-purple-200">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-base sm:text-xl font-bold text-gray-800 flex items-center">
-                    <div class="w-10 h-10 rounded-xl bg-purple-600 flex items-center justify-center mr-3">
-                        <i class="fas fa-users text-white"></i>
+        <div class="prv-team-progress mb-8">
+            <div class="prv-progress-header">
+                <h3 class="prv-progress-title">
+                    <div class="prv-progress-icon">
+                        <i class="fas fa-users"></i>
                     </div>
                     Team Status
                 </h3>
-                <span class="text-lg sm:text-xl md:text-2xl font-bold text-purple-600">
+                <span class="prv-progress-count">
                     <?php echo $teamSize; ?> / <?php echo $maxConsultants; ?>
                 </span>
             </div>
-            <div class="relative w-full bg-gray-200 rounded-full h-5 overflow-hidden">
-                <div class="bg-purple-600 h-5 rounded-full transition-all duration-500 flex items-center justify-end pr-3"
+            <div class="prv-progress-bar-container">
+                <div class="prv-progress-bar-fill"
                      style="width: <?php echo $teamPercentage; ?>%;">
                     <?php if ($teamSize > 0): ?>
-                    <span class="text-xs font-bold text-white">
+                    <span class="prv-progress-text">
                         <?php echo $teamPercentage; ?>%
                     </span>
                     <?php endif; ?>
                 </div>
             </div>
-            <div class="mt-3 text-sm text-gray-600 font-medium">
+            <div class="mt-3 text-sm font-medium" style="color: var(--text-muted);">
                 <?php if ($teamPercentage >= 100): ?>
                     <i class="fas fa-check-circle text-green-500 mr-1"></i> Team vollständig besetzt
                 <?php elseif ($teamPercentage >= 75): ?>
-                    <i class="fas fa-info-circle text-purple-500 mr-1"></i> Nur noch wenige Plätze verfügbar
+                    <i class="fas fa-info-circle mr-1"></i> Nur noch wenige Plätze verfügbar
                 <?php else: ?>
-                    <i class="fas fa-users text-purple-500 mr-1"></i> Weitere Teammitglieder gesucht
+                    <i class="fas fa-users mr-1"></i> Weitere Teammitglieder gesucht
                 <?php endif; ?>
             </div>
         </div>
         
         <!-- Description -->
         <?php if (!empty($project['description'])): ?>
-        <div class="mb-6">
-            <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-3">Beschreibung</h2>
-            <div class="text-gray-700 leading-relaxed whitespace-pre-line break-words hyphens-auto">
+        <div class="prv-description mb-6">
+            <h2 class="prv-description-title">Beschreibung</h2>
+            <div class="prv-description-content">
                 <?php echo htmlspecialchars($project['description']); ?>
             </div>
         </div>
@@ -439,7 +430,7 @@ ob_start();
         
         <!-- Application / Participation Section -->
         <?php if (($project['status'] === 'open' || $project['status'] === 'applying' || $project['status'] === 'running') && $userRole !== 'alumni'): ?>
-        <div class="border-t border-gray-200 pt-6 mt-6">
+        <div class="prv-section-divider">
 
             <?php if ($isInternalProject && !$requiresApplication): ?>
                 <!-- Internal project with no application required: direct join/leave button -->
@@ -642,7 +633,7 @@ ob_start();
 
         <!-- Feedback Ansprechpartner Section -->
         <?php if ($feedbackContact): ?>
-        <div class="border-t border-gray-200 pt-6 mt-6">
+        <div class="prv-section-divider">
             <div class="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-2xl p-6 border border-purple-100 dark:border-purple-800">
                 <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
                     <span class="w-8 h-8 rounded-lg bg-purple-600/10 flex items-center justify-center flex-shrink-0">
@@ -697,7 +688,7 @@ ob_start();
 
         <!-- Participant List -->
         <?php if (!empty($participants)): ?>
-        <div class="border-t border-gray-200 pt-6 mt-6">
+        <div class="prv-section-divider">
             <h2 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">
                 <i class="fas fa-users text-purple-600 mr-2"></i>
                 Teilnehmer (<?php echo count($participants); ?>)
@@ -726,112 +717,395 @@ ob_start();
 </div>
 
 <style>
-    /* Enhanced project detail card */
-    .project-detail-card {
-        background: linear-gradient(135deg, #ffffff 0%, #f9fafb 50%, #ffffff 100%);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
-        animation: fadeIn 0.5s ease-out;
+/* PRV (Project View) scoped styles */
+.prv-container {
+    max-width: 56rem;
+    margin: 0 auto;
+}
+
+.prv-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.prv-back-btn {
+    display: inline-flex;
+    align-items: center;
+    color: var(--ibc-blue);
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.prv-back-btn:hover {
+    transform: translateX(-2px);
+}
+
+.prv-edit-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0.5rem 1rem;
+    background-color: var(--ibc-blue);
+    color: white;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.prv-edit-btn:hover {
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-2px);
+}
+
+.prv-draft-warning {
+    padding: 1rem;
+    background-color: rgba(234, 179, 8, 0.1);
+    border-left: 4px solid #ea b300;
+    color: #a16207;
+    margin-bottom: 1rem;
+    border-radius: 0.375rem;
+}
+
+.prv-message {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    animation: slideIn 0.3s ease-out cubic-bezier(.22,.68,0,1.2);
+}
+
+.prv-message--success {
+    background-color: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: var(--ibc-green);
+}
+
+.prv-message--error {
+    background-color: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+}
+
+.prv-card {
+    background-color: var(--bg-card);
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-card);
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    animation: fadeIn 0.5s ease-out cubic-bezier(.22,.68,0,1.2);
+}
+
+.prv-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--ibc-blue), var(--ibc-green), var(--ibc-blue));
+}
+
+.prv-card:hover {
+    box-shadow: var(--shadow-card-hover);
+}
+
+.prv-hero-image {
+    width: 100%;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    margin-bottom: 2rem;
+}
+
+.prv-hero-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.prv-hero-image:hover img {
+    transform: scale(1.02);
+}
+
+.prv-pdf-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, #dc2626, #f43f5e);
+    color: white;
+    border-radius: 0.75rem;
+    font-weight: 700;
+    text-decoration: none;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-card);
+    transition: all 0.3s ease;
+}
+
+.prv-pdf-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card-hover);
+}
+
+.prv-badges {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.prv-badge {
+    padding: 0.625rem 1.25rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+.prv-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.prv-status-draft {
+    background: linear-gradient(135deg, #9ca3af, #6b7280);
+    color: white;
+}
+
+.prv-status-open {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+}
+
+.prv-status-applying {
+    background: linear-gradient(135deg, #eab308, #d97706);
+    color: white;
+}
+
+.prv-status-assigned {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white;
+}
+
+.prv-status-running {
+    background: linear-gradient(135deg, #a855f7, #9333ea);
+    color: white;
+}
+
+.prv-status-completed {
+    background: linear-gradient(135deg, #14b8a6, #0d9488);
+    color: white;
+}
+
+.prv-status-archived {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.prv-priority-low {
+    background: linear-gradient(135deg, #60a5fa, #3b82f6);
+    color: white;
+}
+
+.prv-priority-medium {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    color: white;
+}
+
+.prv-priority-high {
+    background: linear-gradient(135deg, #f87171, #ef4444);
+    color: white;
+}
+
+.prv-type-internal {
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    color: white;
+}
+
+.prv-type-external {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+}
+
+.prv-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    background: linear-gradient(135deg, var(--ibc-blue), var(--ibc-green));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    word-break: break-words;
+}
+
+@media (max-width: 640px) {
+    .prv-title {
+        font-size: 1.5rem;
     }
-    
-    .project-detail-card:hover {
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.prv-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+.prv-info-item {
+    background-color: var(--bg-body);
+    border-radius: 1rem;
+    padding: 1.25rem;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.prv-info-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+}
+
+.prv-info-value {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.prv-team-progress {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(59, 130, 246, 0.1));
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.prv-progress-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.prv-progress-title {
+    display: flex;
+    align-items: center;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.prv-progress-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.75rem;
+    background-color: var(--ibc-blue);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.75rem;
+}
+
+.prv-progress-count {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--ibc-blue);
+}
+
+.prv-progress-bar-container {
+    position: relative;
+    width: 100%;
+    height: 1.25rem;
+    background-color: var(--border-color);
+    border-radius: 9999px;
+    overflow: hidden;
+}
+
+.prv-progress-bar-fill {
+    background-color: var(--ibc-blue);
+    height: 100%;
+    border-radius: 9999px;
+    transition: width 0.5s ease;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 0.75rem;
+}
+
+.prv-progress-text {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: white;
+}
+
+.prv-description {
+    margin-bottom: 1.5rem;
+}
+
+.prv-description-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 0.75rem;
+}
+
+.prv-description-content {
+    color: var(--text-main);
+    line-height: 1.6;
+    white-space: pre-line;
+    word-break: break-words;
+}
+
+.prv-section-divider {
+    border-top: 1px solid var(--border-color);
+    padding-top: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
     }
-    
-    /* Status badge hover effects */
-    .status-detail-badge, .priority-detail-badge, .type-detail-badge {
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
-    
-    .status-detail-badge:hover, .priority-detail-badge:hover, .type-detail-badge:hover {
-        transform: translateY(-2px) scale(1.05);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
     }
-    
-    /* Info card hover effects */
-    .info-card {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-        overflow: hidden;
+    to {
+        opacity: 1;
+        transform: translateX(0);
     }
-    
-    .info-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-        transition: left 0.5s ease;
-    }
-    
-    .info-card:hover::before {
-        left: 100%;
-    }
-    
-    .info-card:hover {
-        transform: translateY(-3px);
-    }
-    
-    /* Animated gradient for progress bar */
-    @keyframes gradient {
-        0% {
-            background-position: 0% 50%;
-        }
-        50% {
-            background-position: 100% 50%;
-        }
-        100% {
-            background-position: 0% 50%;
-        }
-    }
-    
-    .animate-gradient {
-        animation: gradient 3s ease infinite;
-    }
-    
-    /* Fade in animation */
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    /* Respect user motion preferences */
-    @media (prefers-reduced-motion: reduce) {
-        .project-detail-card {
-            animation: none;
-        }
-        
-        .animate-gradient {
-            animation: none;
-        }
-        
-        .status-detail-badge .animate-pulse,
-        .priority-detail-badge .animate-pulse,
-        .type-detail-badge .animate-pulse,
-        .status-detail-badge .fas,
-        .priority-detail-badge .fas,
-        .type-detail-badge .fas {
-            animation: none !important;
-        }
-        
-        .info-card,
-        .status-detail-badge,
-        .priority-detail-badge,
-        .type-detail-badge {
-            transition: none;
-            transform: none !important;
-        }
-    }
+}
+
+.dark-mode .prv-info-item {
+    background-color: var(--bg-body);
+    border-color: var(--border-color);
+}
+
+.dark-mode .prv-draft-warning {
+    background-color: rgba(234, 179, 8, 0.15);
+    border-color: rgba(234, 179, 8, 0.4);
+}
 </style>
 
 <script>

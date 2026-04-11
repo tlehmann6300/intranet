@@ -171,174 +171,777 @@ $og_image       = asset($post['image_path'] ?? BlogPost::DEFAULT_IMAGE);
 ob_start();
 ?>
 
-<div class="max-w-6xl mx-auto">
+<style>
+@keyframes bvFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.bv-container {
+    max-width: 64rem;
+    margin: 0 auto;
+}
+
+.bv-back-btn {
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    color: var(--ibc-blue);
+    text-decoration: none;
+    font-weight: 500;
+    transition: opacity 0.2s ease;
+}
+
+.bv-back-btn:hover {
+    opacity: 0.8;
+}
+
+.bv-alert {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    animation: bvFadeIn 0.3s cubic-bezier(0.22, 0.68, 0, 1.2);
+}
+
+.bv-alert-success {
+    background-color: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: var(--ibc-green);
+}
+
+.bv-alert-error {
+    background-color: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+}
+
+.dark-mode .bv-alert-success {
+    background-color: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.4);
+}
+
+.dark-mode .bv-alert-error {
+    background-color: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.4);
+}
+
+.bv-post-card {
+    overflow: hidden;
+    margin-bottom: 2rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-card);
+    animation: bvFadeIn 0.4s cubic-bezier(0.22, 0.68, 0, 1.2);
+}
+
+.dark-mode .bv-post-card {
+    background: linear-gradient(135deg, rgba(26, 31, 46, 0.95) 0%, rgba(20, 25, 40, 0.98) 100%);
+    border-color: rgba(255, 255, 255, 0.07);
+    box-shadow: var(--shadow-card);
+}
+
+.bv-post-image {
+    width: 100%;
+    height: 12rem;
+    overflow: hidden;
+    background-color: var(--bg-body);
+}
+
+@media (min-width: 640px) {
+    .bv-post-image {
+        height: 16rem;
+    }
+}
+
+@media (min-width: 900px) {
+    .bv-post-image {
+        height: 24rem;
+    }
+}
+
+.bv-post-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.bv-post-content {
+    padding: 1rem;
+}
+
+@media (min-width: 640px) {
+    .bv-post-content {
+        padding: 1.5rem;
+    }
+}
+
+@media (min-width: 900px) {
+    .bv-post-content {
+        padding: 2rem;
+    }
+}
+
+.bv-category-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: 9999px;
+    margin-bottom: 1rem;
+    background-color: rgba(59, 130, 246, 0.1);
+    color: var(--ibc-blue);
+}
+
+.dark-mode .bv-category-badge {
+    background-color: rgba(59, 130, 246, 0.2);
+}
+
+.bv-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 1rem;
+    word-break: break-word;
+}
+
+@media (min-width: 640px) {
+    .bv-title {
+        font-size: 2.25rem;
+    }
+}
+
+@media (min-width: 900px) {
+    .bv-title {
+        font-size: 2.25rem;
+    }
+}
+
+.bv-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.dark-mode .bv-meta {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.bv-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.bv-meta-icon {
+    color: var(--ibc-blue);
+    flex-shrink: 0;
+}
+
+.bv-post-body {
+    color: var(--text-main);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+@media (min-width: 640px) {
+    .bv-post-body {
+        font-size: 1.125rem;
+    }
+}
+
+.bv-action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+@media (min-width: 640px) {
+    .bv-action-buttons {
+        flex-direction: row;
+    }
+}
+
+.bv-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    min-height: 44px;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+}
+
+@media (min-width: 640px) {
+    .bv-btn {
+        width: auto;
+    }
+}
+
+.bv-btn-primary {
+    background: linear-gradient(135deg, var(--ibc-blue) 0%, rgba(37, 99, 235, 0.9) 100%);
+    color: white;
+    box-shadow: var(--shadow-card);
+}
+
+.bv-btn-primary:hover {
+    box-shadow: var(--shadow-card-hover);
+}
+
+.bv-btn-secondary {
+    background: linear-gradient(135deg, var(--ibc-green) 0%, rgba(16, 185, 129, 0.9) 100%);
+    color: white;
+    box-shadow: var(--shadow-card);
+}
+
+.bv-btn-secondary:hover {
+    box-shadow: var(--shadow-card-hover);
+}
+
+.bv-btn-gap {
+    gap: 0.5rem;
+}
+
+.bv-interaction-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-card);
+    animation: bvFadeIn 0.5s cubic-bezier(0.22, 0.68, 0, 1.2);
+}
+
+.dark-mode .bv-interaction-card {
+    background: linear-gradient(135deg, rgba(26, 31, 46, 0.95) 0%, rgba(20, 25, 40, 0.98) 100%);
+    border-color: rgba(255, 255, 255, 0.07);
+}
+
+@media (min-width: 640px) {
+    .bv-interaction-card {
+        padding: 1.5rem;
+    }
+}
+
+@media (min-width: 900px) {
+    .bv-interaction-card {
+        padding: 2rem;
+    }
+}
+
+.bv-section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+@media (min-width: 640px) {
+    .bv-section-title {
+        font-size: 1.5rem;
+    }
+}
+
+.bv-like-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    min-height: 44px;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    gap: 0.5rem;
+}
+
+.bv-like-btn.liked {
+    background: linear-gradient(135deg, #ef4444 0%, rgba(239, 68, 68, 0.9) 100%);
+    color: white;
+}
+
+.bv-like-btn.unliked {
+    background: var(--bg-body);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+}
+
+.bv-like-btn:hover {
+    box-shadow: var(--shadow-card-hover);
+}
+
+.bv-like-count {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    margin-left: 0.5rem;
+}
+
+.bv-comments-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    box-shadow: var(--shadow-card);
+    animation: bvFadeIn 0.6s cubic-bezier(0.22, 0.68, 0, 1.2);
+}
+
+.dark-mode .bv-comments-card {
+    background: linear-gradient(135deg, rgba(26, 31, 46, 0.95) 0%, rgba(20, 25, 40, 0.98) 100%);
+    border-color: rgba(255, 255, 255, 0.07);
+}
+
+@media (min-width: 640px) {
+    .bv-comments-card {
+        padding: 1.5rem;
+    }
+}
+
+@media (min-width: 900px) {
+    .bv-comments-card {
+        padding: 2rem;
+    }
+}
+
+.bv-comments-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.bv-comment {
+    background: var(--bg-body);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    animation: bvFadeIn 0.3s cubic-bezier(0.22, 0.68, 0, 1.2);
+}
+
+.dark-mode .bv-comment {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+@media (min-width: 640px) {
+    .bv-comment {
+        padding: 1.5rem;
+    }
+}
+
+.bv-comment-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.bv-comment-author {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+}
+
+.bv-comment-name {
+    font-weight: 600;
+    color: var(--text-main);
+    word-break: break-all;
+}
+
+.bv-comment-time {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.bv-comment-time-italic {
+    font-style: italic;
+    opacity: 0.7;
+}
+
+.bv-comment-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.bv-comment-btn {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    border-radius: 0.375rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--ibc-blue);
+}
+
+.bv-comment-btn:hover {
+    background: rgba(59, 130, 246, 0.2);
+}
+
+.bv-comment-btn-delete {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.bv-comment-btn-delete:hover {
+    background: rgba(239, 68, 68, 0.2);
+}
+
+.dark-mode .bv-comment-btn {
+    background: rgba(59, 130, 246, 0.15);
+}
+
+.dark-mode .bv-comment-btn-delete {
+    background: rgba(239, 68, 68, 0.15);
+}
+
+.bv-comment-body {
+    color: var(--text-main);
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin-bottom: 1rem;
+}
+
+.bv-comment-reactions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.bv-reaction-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.5rem 0.75rem;
+    min-height: 44px;
+    border-radius: 9999px;
+    border: 1px solid var(--border-color);
+    font-size: 0.875rem;
+    background: var(--bg-card);
+    color: var(--text-main);
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.bv-reaction-btn:hover {
+    background: var(--bg-body);
+}
+
+.bv-reaction-btn.active {
+    background: rgba(59, 130, 246, 0.15);
+    border-color: rgba(59, 130, 246, 0.5);
+    color: var(--ibc-blue);
+}
+
+.bv-comment-empty {
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+}
+
+.bv-comment-form-section {
+    border-top: 1px solid var(--border-color);
+    padding-top: 1.5rem;
+}
+
+.bv-form-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.bv-form-group {
+    margin-bottom: 1rem;
+}
+
+.bv-form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+}
+
+.bv-textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    background: var(--bg-body);
+    color: var(--text-main);
+    font-family: sans-serif;
+    font-size: 1rem;
+    line-height: 1.5;
+    resize: vertical;
+    min-height: 100px;
+    transition: all 0.2s ease;
+}
+
+.bv-textarea:focus {
+    outline: none;
+    border-color: var(--ibc-blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.bv-form-help {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+}
+
+.bv-hidden {
+    display: none;
+}
+
+.bv-edit-form {
+    margin-top: 0.75rem;
+}
+
+.bv-edit-form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.bv-edit-save-btn {
+    padding: 0.5rem 1rem;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    background: var(--ibc-blue);
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+    gap: 0.25rem;
+}
+
+.bv-edit-save-btn:hover {
+    opacity: 0.9;
+}
+
+.bv-edit-cancel-btn {
+    padding: 0.5rem 1rem;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    background: var(--bg-body);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+}
+
+.bv-edit-cancel-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.dark-mode .bv-edit-cancel-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+</style>
+
+<div class="bv-container">
     <!-- Back Button -->
-    <div class="mb-6">
-        <a href="index.php" class="text-blue-600 hover:text-blue-700 inline-flex items-center">
-            <i class="fas fa-arrow-left mr-2"></i>Zurück zu News & Updates
-        </a>
-    </div>
+    <a href="index.php" class="bv-back-btn">
+        <i class="fas fa-arrow-left" style="margin-right: 0.5rem;"></i>Zurück zu News & Updates
+    </a>
 
     <!-- Success Message -->
     <?php if ($successMessage): ?>
-    <div class="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
-        <i class="fas fa-check-circle mr-2"></i><?php echo htmlspecialchars($successMessage); ?>
+    <div class="bv-alert bv-alert-success">
+        <i class="fas fa-check-circle"></i>
+        <span><?php echo htmlspecialchars($successMessage); ?></span>
     </div>
     <?php endif; ?>
 
     <!-- Error Messages -->
     <?php if (!empty($errors)): ?>
-    <div class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-        <?php foreach ($errors as $error): ?>
-            <div><i class="fas fa-exclamation-circle mr-2"></i><?php echo htmlspecialchars($error); ?></div>
-        <?php endforeach; ?>
+    <div class="bv-alert bv-alert-error">
+        <div>
+            <i class="fas fa-exclamation-circle"></i>
+            <?php foreach ($errors as $error): ?>
+                <div><?php echo htmlspecialchars($error); ?></div>
+            <?php endforeach; ?>
+        </div>
     </div>
     <?php endif; ?>
 
     <!-- Main Post Card -->
-    <div class="card overflow-hidden mb-8">
+    <div class="bv-post-card">
         <!-- Full Width Header Image -->
-        <?php if (!empty($post['image_path'])): ?>
-            <div class="w-full h-48 sm:h-64 md:h-96 overflow-hidden bg-gray-200 dark:bg-gray-700">
-                <img src="/<?php echo htmlspecialchars($post['image_path']); ?>" 
-                     alt="<?php echo htmlspecialchars($post['title']); ?>"
-                     class="w-full h-full object-cover">
-            </div>
-        <?php else: ?>
-            <div class="w-full h-48 sm:h-64 md:h-96 overflow-hidden bg-gray-200 dark:bg-gray-700">
+        <div class="bv-post-image">
+            <?php if (!empty($post['image_path'])): ?>
+                <img src="/<?php echo htmlspecialchars($post['image_path']); ?>"
+                     alt="<?php echo htmlspecialchars($post['title']); ?>">
+            <?php else: ?>
                 <img src="/<?php echo htmlspecialchars(BlogPost::DEFAULT_IMAGE); ?>"
-                     alt=""
-                     class="w-full h-full object-cover">
-            </div>
-        <?php endif; ?>
-        
+                     alt="">
+            <?php endif; ?>
+        </div>
+
         <!-- Post Content -->
-        <div class="p-4 sm:p-6 md:p-8">
+        <div class="bv-post-content">
             <!-- Category Badge -->
-            <div class="mb-4">
-                <span class="px-4 py-2 text-sm font-semibold rounded-full <?php echo getCategoryColor($post['category']); ?>">
-                    <?php echo htmlspecialchars($post['category']); ?>
-                </span>
+            <div class="bv-category-badge">
+                <?php echo htmlspecialchars($post['category']); ?>
             </div>
-            
+
             <!-- Title -->
-            <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 dark:text-gray-100 mb-4 break-words hyphens-auto">
+            <h1 class="bv-title">
                 <?php echo htmlspecialchars($post['title']); ?>
             </h1>
-            
+
             <!-- Meta Information -->
-            <div class="flex flex-wrap items-center gap-4 text-gray-600 dark:text-gray-400 mb-6 pb-6 border-b border-gray-200 dark:border-gray-700">
-                <div class="flex items-center min-w-0">
-                    <i class="fas fa-user-circle mr-2 text-blue-600 dark:text-blue-400 flex-shrink-0"></i>
-                    <span class="break-all"><?php echo htmlspecialchars($post['author_email']); ?></span>
+            <div class="bv-meta">
+                <div class="bv-meta-item">
+                    <i class="fas fa-user-circle bv-meta-icon"></i>
+                    <span><?php echo htmlspecialchars($post['author_email']); ?></span>
                 </div>
-                <div class="flex items-center">
-                    <i class="fas fa-calendar-alt mr-2 text-blue-600 dark:text-blue-400 flex-shrink-0"></i>
+                <div class="bv-meta-item">
+                    <i class="fas fa-calendar-alt bv-meta-icon"></i>
                     <span>
-                        <?php 
+                        <?php
                             $date = new DateTime($post['created_at']);
                             echo $date->format('d.m.Y H:i');
                         ?>
                     </span>
                 </div>
             </div>
-            
+
             <!-- Full Content -->
-            <div class="prose max-w-none mb-8">
-                <div class="text-gray-700 dark:text-gray-300 text-base sm:text-lg leading-relaxed whitespace-pre-wrap break-words hyphens-auto">
-                    <?php echo htmlspecialchars($post['content']); ?>
-                </div>
+            <div class="bv-post-body">
+                <?php echo htmlspecialchars($post['content']); ?>
             </div>
-            
-            <!-- External Link Button -->
-            <?php if (!empty($post['external_link'])): ?>
-            <div class="mb-2">
-                <a href="<?php echo htmlspecialchars($post['external_link']); ?>" 
+
+            <!-- Action Buttons -->
+            <div class="bv-action-buttons">
+                <?php if (!empty($post['external_link'])): ?>
+                <a href="<?php echo htmlspecialchars($post['external_link']); ?>"
                    target="_blank"
                    rel="noopener noreferrer"
-                   class="inline-flex items-center justify-center w-full sm:w-auto px-6 p-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg font-semibold hover:from-green-700 hover:to-green-800 transition-all shadow-lg">
-                    <i class="fas fa-external-link-alt mr-2"></i>
+                   class="bv-btn bv-btn-secondary bv-btn-gap">
+                    <i class="fas fa-external-link-alt"></i>
                     Mehr Informationen
                 </a>
-            </div>
-            <?php endif; ?>
-            
-            <!-- Edit Button (Only for Author or Admin/Board) -->
-            <?php if ($canEdit): ?>
-            <div class="mb-2">
-                <a href="edit.php?id=<?php echo (int)$post['id']; ?>" 
-                   class="inline-flex items-center justify-center w-full sm:w-auto px-6 p-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg">
-                    <i class="fas fa-edit mr-2"></i>
+                <?php endif; ?>
+
+                <?php if ($canEdit): ?>
+                <a href="edit.php?id=<?php echo (int)$post['id']; ?>"
+                   class="bv-btn bv-btn-primary bv-btn-gap">
+                    <i class="fas fa-edit"></i>
                     Beitrag bearbeiten
                 </a>
+                <?php endif; ?>
             </div>
-            <?php endif; ?>
         </div>
     </div>
 
     <!-- Interaction Section -->
-    <div class="card p-4 sm:p-6 md:p-8 mb-8">
-        <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">
-            <i class="fas fa-heart mr-2 text-red-500"></i>
+    <div class="bv-interaction-card">
+        <h2 class="bv-section-title">
+            <i class="fas fa-heart"></i>
             Interaktion
         </h2>
-        
+
         <!-- Like Button -->
-        <form method="POST" class="mb-6">
+        <form method="POST">
             <input type="hidden" name="csrf_token" value="<?php echo CSRFHandler::getToken(); ?>">
             <input type="hidden" name="action" value="toggle_like">
-            
-            <button type="submit" 
-                    class="inline-flex items-center px-6 py-3 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg <?php echo $userHasLiked ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'; ?>">
-                <i class="fas fa-heart mr-2"></i>
-                <?php echo $userHasLiked ? 'Geliked' : 'Liken'; ?>
-                <span class="ml-2 px-2 py-1 bg-white bg-opacity-20 rounded-full text-sm">
-                    <?php echo (int)$post['like_count']; ?>
-                </span>
+
+            <button type="submit" class="bv-like-btn <?php echo $userHasLiked ? 'liked' : 'unliked'; ?>">
+                <i class="fas fa-heart"></i>
+                <span><?php echo $userHasLiked ? 'Geliked' : 'Liken'; ?></span>
+                <span class="bv-like-count"><?php echo (int)$post['like_count']; ?></span>
             </button>
         </form>
     </div>
 
     <!-- Comments Section -->
-    <div class="card p-4 sm:p-6 md:p-8">
-        <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">
-            <i class="fas fa-comments mr-2 text-blue-500"></i>
+    <div class="bv-comments-card">
+        <h2 class="bv-section-title">
+            <i class="fas fa-comments"></i>
             Kommentare (<?php echo count($post['comments']); ?>)
         </h2>
-        
+
         <!-- Existing Comments -->
         <?php if (!empty($post['comments'])): ?>
-            <div class="space-y-6 mb-8">
+            <div class="bv-comments-list">
                 <?php foreach ($post['comments'] as $comment): ?>
                 <?php
                     $isOwner = ((int)$comment['user_id'] === (int)$userId);
                     $reactions = $commentReactions[$comment['id']] ?? [];
                     $allowedReactions = ['👍', '❤️', '😄', '😮', '😢', '🎉'];
                 ?>
-                    <div class="bg-gray-50 dark:bg-gray-800 p-4 sm:p-6 rounded-lg border border-gray-200 dark:border-gray-700" id="comment-<?php echo (int)$comment['id']; ?>">
-                        <div class="flex flex-wrap items-start justify-between gap-3 mb-3">
-                            <div class="flex flex-wrap items-center gap-3 min-w-0">
-                                <div class="flex items-center text-gray-700 dark:text-gray-300 min-w-0">
-                                    <i class="fas fa-user-circle mr-2 text-blue-600 dark:text-blue-400 text-xl flex-shrink-0"></i>
-                                    <span class="font-semibold break-all"><?php echo htmlspecialchars($comment['commenter_email']); ?></span>
-                                </div>
-                                <div class="text-sm text-gray-500 dark:text-gray-400">
-                                    <i class="fas fa-clock mr-1"></i>
-                                    <?php 
-                                        $commentDate = new DateTime($comment['created_at']);
-                                        echo $commentDate->format('d.m.Y H:i');
-                                    ?>
-                                    <?php if (!empty($comment['updated_at']) && $comment['updated_at'] !== $comment['created_at']): ?>
-                                        <span class="ml-1 italic text-gray-400 dark:text-gray-500">(bearbeitet)</span>
-                                    <?php endif; ?>
+                    <div class="bv-comment" id="comment-<?php echo (int)$comment['id']; ?>">
+                        <div class="bv-comment-header">
+                            <div class="bv-comment-author">
+                                <i class="fas fa-user-circle" style="color: var(--ibc-blue); font-size: 1.25rem;"></i>
+                                <div>
+                                    <div class="bv-comment-name"><?php echo htmlspecialchars($comment['commenter_email']); ?></div>
+                                    <div class="bv-comment-time">
+                                        <i class="fas fa-clock"></i>
+                                        <?php
+                                            $commentDate = new DateTime($comment['created_at']);
+                                            echo $commentDate->format('d.m.Y H:i');
+                                        ?>
+                                        <?php if (!empty($comment['updated_at']) && $comment['updated_at'] !== $comment['created_at']): ?>
+                                            <span class="bv-comment-time-italic">(bearbeitet)</span>
+                                        <?php endif; ?>
+                                    </div>
                                 </div>
                             </div>
                             <!-- Comment actions -->
-                            <div class="flex gap-4">
+                            <div class="bv-comment-actions">
                                 <?php if ($isOwner): ?>
                                 <button onclick="openEditComment(<?php echo (int)$comment['id']; ?>, <?php echo json_encode($comment['content'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>)"
-                                        class="text-sm px-3 py-2 min-h-[44px] inline-flex items-center bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded hover:bg-blue-200 dark:hover:bg-blue-800 transition">
-                                    <i class="fas fa-edit mr-1"></i>Bearbeiten
+                                        class="bv-comment-btn">
+                                    <i class="fas fa-edit"></i>Bearbeiten
                                 </button>
                                 <?php endif; ?>
                                 <?php if ($isOwner || $canDeleteAnyComment): ?>
@@ -346,9 +949,8 @@ ob_start();
                                     <input type="hidden" name="csrf_token" value="<?php echo CSRFHandler::getToken(); ?>">
                                     <input type="hidden" name="action" value="delete_comment">
                                     <input type="hidden" name="comment_id" value="<?php echo (int)$comment['id']; ?>">
-                                    <button type="submit"
-                                            class="text-sm px-3 py-2 min-h-[44px] inline-flex items-center bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 rounded hover:bg-red-200 dark:hover:bg-red-800 transition">
-                                        <i class="fas fa-trash mr-1"></i>Löschen
+                                    <button type="submit" class="bv-comment-btn bv-comment-btn-delete">
+                                        <i class="fas fa-trash"></i>Löschen
                                     </button>
                                 </form>
                                 <?php endif; ?>
@@ -356,28 +958,27 @@ ob_start();
                         </div>
 
                         <!-- Comment content (view mode) -->
-                        <div class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words hyphens-auto comment-text-<?php echo (int)$comment['id']; ?>">
+                        <div class="bv-comment-body comment-text-<?php echo (int)$comment['id']; ?>">
                             <?php echo htmlspecialchars($comment['content']); ?>
                         </div>
 
                         <!-- Edit form (hidden by default) -->
                         <?php if ($isOwner): ?>
-                        <div id="edit-form-<?php echo (int)$comment['id']; ?>" class="hidden mt-3">
-                            <form method="POST" class="space-y-2">
+                        <div id="edit-form-<?php echo (int)$comment['id']; ?>" class="bv-hidden bv-edit-form">
+                            <form method="POST">
                                 <input type="hidden" name="csrf_token" value="<?php echo CSRFHandler::getToken(); ?>">
                                 <input type="hidden" name="action" value="edit_comment">
                                 <input type="hidden" name="comment_id" value="<?php echo (int)$comment['id']; ?>">
                                 <textarea name="comment_content" rows="4" maxlength="2000" required
                                           id="edit-textarea-<?php echo (int)$comment['id']; ?>"
-                                          class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-sans dark:bg-gray-700 dark:text-gray-100"
-                                          style="resize: vertical; min-height: 80px;"></textarea>
-                                <div class="flex gap-4">
-                                    <button type="submit"
-                                            class="px-4 py-2 min-h-[44px] inline-flex items-center bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm">
-                                        <i class="fas fa-save mr-1"></i>Speichern
+                                          class="bv-textarea"
+                                          style="min-height: 80px;"></textarea>
+                                <div class="bv-edit-form-actions">
+                                    <button type="submit" class="bv-edit-save-btn">
+                                        <i class="fas fa-save"></i>Speichern
                                     </button>
                                     <button type="button" onclick="closeEditComment(<?php echo (int)$comment['id']; ?>)"
-                                            class="px-4 py-2 min-h-[44px] inline-flex items-center bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition text-sm">
+                                            class="bv-edit-cancel-btn">
                                         Abbrechen
                                     </button>
                                 </div>
@@ -386,24 +987,20 @@ ob_start();
                         <?php endif; ?>
 
                         <!-- Reactions -->
-                        <div class="mt-4 flex flex-wrap items-center gap-3">
+                        <div class="bv-comment-reactions">
                             <?php foreach ($allowedReactions as $emoji): ?>
                             <?php
                                 $reactionData = $reactions[$emoji] ?? ['count' => 0, 'reacted' => false];
-                                $activeClass  = $reactionData['reacted']
-                                    ? 'bg-blue-100 dark:bg-blue-900 border-blue-400 dark:border-blue-600 text-blue-800 dark:text-blue-200'
-                                    : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600';
                             ?>
                             <form method="POST" class="inline">
                                 <input type="hidden" name="csrf_token" value="<?php echo CSRFHandler::getToken(); ?>">
                                 <input type="hidden" name="action" value="toggle_reaction">
                                 <input type="hidden" name="comment_id" value="<?php echo (int)$comment['id']; ?>">
                                 <input type="hidden" name="reaction" value="<?php echo htmlspecialchars($emoji); ?>">
-                                <button type="submit"
-                                        class="inline-flex items-center gap-1 px-3 py-2 min-h-[44px] rounded-full border text-sm transition <?php echo $activeClass; ?>">
+                                <button type="submit" class="bv-reaction-btn <?php echo $reactionData['reacted'] ? 'active' : ''; ?>">
                                     <?php echo $emoji; ?>
                                     <?php if ($reactionData['count'] > 0): ?>
-                                    <span class="text-xs font-semibold"><?php echo $reactionData['count']; ?></span>
+                                    <span><?php echo $reactionData['count']; ?></span>
                                     <?php endif; ?>
                                 </button>
                             </form>
@@ -413,40 +1010,39 @@ ob_start();
                 <?php endforeach; ?>
             </div>
         <?php else: ?>
-            <p class="text-gray-500 dark:text-gray-400 mb-8">Noch keine Kommentare. Seien Sie der Erste!</p>
+            <p class="bv-comment-empty">Noch keine Kommentare. Seien Sie der Erste!</p>
         <?php endif; ?>
-        
+
         <!-- Write Comment Form -->
-        <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
-            <h3 class="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
-                <i class="fas fa-pen mr-2"></i>
+        <div class="bv-comment-form-section">
+            <h3 class="bv-form-title">
+                <i class="fas fa-pen"></i>
                 Kommentar schreiben
             </h3>
-            
-            <form method="POST" class="space-y-4">
+
+            <form method="POST">
                 <input type="hidden" name="csrf_token" value="<?php echo CSRFHandler::getToken(); ?>">
                 <input type="hidden" name="action" value="add_comment">
-                
-                <div>
-                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Ihr Kommentar</label>
-                    <textarea 
-                        name="comment_content" 
-                        required 
+
+                <div class="bv-form-group">
+                    <label class="bv-form-label">Ihr Kommentar</label>
+                    <textarea
+                        name="comment_content"
+                        required
                         rows="4"
                         maxlength="2000"
                         placeholder="Schreibe Deinen Kommentar hier..."
-                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-sans dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400"
-                        style="resize: vertical; min-height: 100px;"
+                        class="bv-textarea"
+                        style="min-height: 100px;"
                     ></textarea>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                    <p class="bv-form-help">
                         Maximum: 2000 Zeichen
                     </p>
                 </div>
-                
+
                 <div>
-                    <button type="submit" 
-                            class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-xl">
-                        <i class="fas fa-paper-plane mr-2"></i>
+                    <button type="submit" class="bv-btn bv-btn-primary bv-btn-gap">
+                        <i class="fas fa-paper-plane"></i>
                         Kommentar absenden
                     </button>
                 </div>
@@ -457,16 +1053,15 @@ ob_start();
 
 <script>
 function openEditComment(commentId, currentContent) {
-    // Show edit form, hide text
-    document.getElementById('edit-form-' + commentId).classList.remove('hidden');
-    document.querySelector('.comment-text-' + commentId).classList.add('hidden');
+    document.getElementById('edit-form-' + commentId).classList.remove('bv-hidden');
+    document.querySelector('.comment-text-' + commentId).classList.add('bv-hidden');
     document.getElementById('edit-textarea-' + commentId).value = currentContent;
     document.getElementById('edit-textarea-' + commentId).focus();
 }
 
 function closeEditComment(commentId) {
-    document.getElementById('edit-form-' + commentId).classList.add('hidden');
-    document.querySelector('.comment-text-' + commentId).classList.remove('hidden');
+    document.getElementById('edit-form-' + commentId).classList.add('bv-hidden');
+    document.querySelector('.comment-text-' + commentId).classList.remove('bv-hidden');
 }
 </script>
 

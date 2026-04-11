@@ -176,16 +176,16 @@ ob_start();
 
 <?php if (!$showForm): ?>
 <!-- Project List View -->
-<div class="mb-8">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
-        <div>
-            <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">
-                <i class="fas fa-briefcase text-purple-600 mr-2"></i>
+<div class="prm-list-container mb-8">
+    <div class="prm-list-header flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
+        <div class="prm-list-title-block">
+            <h1 class="prm-list-title text-2xl sm:text-3xl font-bold mb-2">
+                <i class="fas fa-briefcase mr-2"></i>
                 Projekt-Verwaltung
             </h1>
-            <p class="text-gray-600 dark:text-gray-300"><?php echo count($projects); ?> Projekt(e) gefunden</p>
+            <p class="prm-list-subtitle"><?php echo count($projects); ?> Projekt(e) gefunden</p>
         </div>
-        <a href="manage.php?new=1" class="btn-primary w-full sm:w-auto">
+        <a href="manage.php?new=1" class="prm-new-project-btn w-full sm:w-auto">
             <i class="fas fa-plus mr-2"></i>Neues Projekt
         </a>
     </div>
@@ -205,18 +205,18 @@ ob_start();
 
 <!-- Projects Grid -->
 <?php if (empty($projects)): ?>
-<div class="card p-12 text-center">
-    <i class="fas fa-briefcase text-gray-400 dark:text-gray-500 text-6xl mb-4"></i>
-    <h3 class="text-base sm:text-xl font-semibold text-gray-600 dark:text-gray-300 mb-2">Keine Projekte gefunden</h3>
-    <p class="text-gray-500 dark:text-gray-400 mb-6">Es wurden noch keine Projekte erstellt.</p>
-    <a href="manage.php?new=1" class="btn-primary w-full sm:w-auto">
+<div class="prm-empty-card card p-12 text-center">
+    <i class="fas fa-briefcase text-gray-400 text-6xl mb-4"></i>
+    <h3 class="text-base sm:text-xl font-semibold mb-2">Keine Projekte gefunden</h3>
+    <p class="mb-6">Es wurden noch keine Projekte erstellt.</p>
+    <a href="manage.php?new=1" class="prm-new-project-btn w-full sm:w-auto">
         <i class="fas fa-plus mr-2"></i>Erstes Projekt erstellen
     </a>
 </div>
 <?php else: ?>
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
+<div class="prm-projects-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
     <?php foreach ($projects as $project): ?>
-    <div class="card p-6 hover:shadow-lg transition dark:hover:shadow-purple-900/20">
+    <div class="prm-project-card card p-6 transition">
         <!-- Image -->
         <?php if (!empty($project['image_path'])): ?>
         <div class="mb-4 rounded-lg overflow-hidden">
@@ -329,12 +329,12 @@ ob_start();
         </div>
 
         <!-- Actions -->
-        <div class="flex space-x-2">
-            <a href="manage.php?edit=<?php echo $project['id']; ?>" class="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-center text-sm no-underline">
+        <div class="prm-card-actions flex space-x-2">
+            <a href="manage.php?edit=<?php echo $project['id']; ?>" class="prm-edit-btn flex-1 px-4 py-2 rounded-lg transition text-center text-sm no-underline">
                 <i class="fas fa-edit mr-1"></i>Bearbeiten
             </a>
-            <button 
-                class="delete-project-btn px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm"
+            <button
+                class="prm-delete-btn delete-project-btn px-4 py-2 rounded-lg transition text-sm"
                 data-project-id="<?php echo $project['id']; ?>"
                 data-project-name="<?php echo htmlspecialchars($project['title']); ?>"
                 title="Löschen"
@@ -348,15 +348,15 @@ ob_start();
 <?php endif; ?>
 
 <!-- Delete Confirmation Modal -->
-<div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-gray-800 rounded-lg w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden">
-        <div class="p-6 overflow-y-auto flex-1">
-            <h3 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">
-                <i class="fas fa-exclamation-triangle text-red-600 mr-2"></i>
+<div id="deleteModal" class="prm-modal fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+    <div class="prm-modal-content bg-white rounded-lg w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden">
+        <div class="prm-modal-body p-6 overflow-y-auto flex-1">
+            <h3 class="prm-modal-title text-lg sm:text-xl font-bold mb-4">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
                 Projekt löschen
             </h3>
-            <p class="text-gray-600 dark:text-gray-300">
-                Möchtest Du das Projekt "<span id="deleteProjectName" class="font-semibold"></span>" wirklich löschen? 
+            <p class="prm-modal-text">
+                Möchtest Du das Projekt "<span id="deleteProjectName" class="font-semibold"></span>" wirklich löschen?
                 Diese Aktion kann nicht rückgängig gemacht werden.
             </p>
         </div>
@@ -365,10 +365,10 @@ ob_start();
             <input type="hidden" name="project_id" id="deleteProjectId" value="">
             <input type="hidden" name="delete_project" value="1">
             <div class="flex flex-col md:flex-row gap-4">
-                <button type="button" id="closeDeleteModalBtn" class="flex-1 px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                <button type="button" id="closeDeleteModalBtn" class="prm-modal-btn-cancel flex-1 px-6 py-3 rounded-lg transition">
                     Abbrechen
                 </button>
-                <button type="submit" class="flex-1 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+                <button type="submit" class="prm-modal-btn-delete flex-1 px-6 py-3 rounded-lg transition">
                     <i class="fas fa-trash mr-2"></i>Löschen
                 </button>
             </div>
@@ -421,13 +421,13 @@ document.getElementById('deleteModal')?.addEventListener('click', (e) => {
 
 <?php else: ?>
 <!-- Project Form View -->
-<div class="mb-8">
-    <div class="flex items-center justify-between mb-4">
-        <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-100">
-            <i class="fas fa-briefcase text-purple-600 mr-2"></i>
+<div class="prm-form-container mb-8">
+    <div class="prm-form-header flex items-center justify-between mb-4">
+        <h1 class="prm-form-title text-2xl sm:text-3xl font-bold">
+            <i class="fas fa-briefcase mr-2"></i>
             <?php echo $project ? 'Projekt bearbeiten' : 'Neues Projekt'; ?>
         </h1>
-        <a href="manage.php" class="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition no-underline">
+        <a href="manage.php" class="prm-form-back-btn px-6 py-2 rounded-lg transition no-underline">
             <i class="fas fa-arrow-left mr-2"></i>Zurück zur Übersicht
         </a>
     </div>
@@ -440,7 +440,7 @@ document.getElementById('deleteModal')?.addEventListener('click', (e) => {
 <?php endif; ?>
 
 <!-- Project Form -->
-<div class="card p-8">
+<div class="prm-form-card card p-8">
     <form method="POST" enctype="multipart/form-data" class="space-y-6">
         <input type="hidden" name="csrf_token" value="<?php echo CSRFHandler::getToken(); ?>">
         <input type="hidden" name="save_project" value="1">
@@ -687,22 +687,22 @@ document.getElementById('deleteModal')?.addEventListener('click', (e) => {
         </div>
 
         <!-- Form Actions -->
-        <div class="flex flex-col md:flex-row gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-            <a href="manage.php" class="btn-cancel sm:w-auto">
+        <div class="prm-form-actions flex flex-col md:flex-row gap-4 pt-6 border-t" style="border-color: var(--border-color);">
+            <a href="manage.php" class="prm-form-btn-cancel">
                 <i class="fas fa-times mr-2"></i>
                 Abbrechen
             </a>
             <?php if ($project): ?>
-                <button type="submit" class="flex-1 btn-primary">
+                <button type="submit" class="flex-1 prm-form-btn-submit">
                     <i class="fas fa-save mr-2"></i>
                     Änderungen speichern
                 </button>
             <?php else: ?>
-                <button type="submit" name="save_draft" value="1" class="flex-1 btn-secondary">
+                <button type="submit" name="save_draft" value="1" class="flex-1 prm-form-btn-draft">
                     <i class="fas fa-file mr-2"></i>
                     Als Entwurf speichern
                 </button>
-                <button type="submit" class="flex-1 btn-primary">
+                <button type="submit" class="flex-1 prm-form-btn-submit">
                     <i class="fas fa-paper-plane mr-2"></i>
                     Veröffentlichen
                 </button>
@@ -711,6 +711,331 @@ document.getElementById('deleteModal')?.addEventListener('click', (e) => {
     </form>
 </div>
 <?php endif; ?>
+
+<style>
+/* PRM (Project Manage) additional scoped styles */
+.prm-list-container {
+    margin-bottom: 2rem;
+}
+
+.prm-list-header {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+@media (min-width: 640px) {
+    .prm-list-header {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+}
+
+.prm-list-title {
+    color: var(--text-main);
+}
+
+.prm-list-subtitle {
+    color: var(--text-muted);
+}
+
+.prm-new-project-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    min-height: 44px;
+    background-color: var(--ibc-blue);
+    color: white;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.prm-new-project-btn:hover {
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-2px);
+}
+
+.prm-projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+@media (max-width: 900px) {
+    .prm-projects-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 0.75rem;
+    }
+}
+
+.prm-project-card {
+    background-color: var(--bg-card);
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-card);
+    padding: 1.5rem;
+    transition: all 0.2s ease;
+}
+
+.prm-project-card:hover {
+    box-shadow: var(--shadow-card-hover);
+}
+
+.prm-card-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.prm-edit-btn {
+    flex: 1;
+    padding: 0.5rem 1rem;
+    background-color: var(--ibc-blue);
+    color: white;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.prm-edit-btn:hover {
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-2px);
+}
+
+.prm-delete-btn {
+    padding: 0.5rem 1rem;
+    background-color: #ef4444;
+    color: white;
+    border-radius: 0.5rem;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.prm-delete-btn:hover {
+    background-color: #dc2626;
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-2px);
+}
+
+.prm-empty-card {
+    background-color: var(--bg-card);
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-card);
+    color: var(--text-muted);
+}
+
+.prm-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 50;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.prm-modal-content {
+    background-color: var(--bg-card);
+    border-radius: 0.5rem;
+    width: 100%;
+    max-width: 28rem;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.prm-modal-body {
+    overflow-y: auto;
+    flex: 1;
+    padding: 1.5rem;
+}
+
+.prm-modal-title {
+    color: var(--text-main);
+    font-weight: 700;
+}
+
+.prm-modal-text {
+    color: var(--text-muted);
+}
+
+.prm-modal-btn-cancel {
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    flex: 1;
+    transition: all 0.2s ease;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.prm-modal-btn-cancel:hover {
+    background-color: var(--border-color);
+}
+
+.prm-modal-btn-delete {
+    background-color: #ef4444;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    flex: 1;
+    transition: all 0.2s ease;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.prm-modal-btn-delete:hover {
+    background-color: #dc2626;
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-2px);
+}
+
+.prm-form-card {
+    background-color: var(--bg-card);
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-card);
+    padding: 2rem;
+}
+
+.prm-form-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-top: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .prm-form-actions {
+        flex-direction: row;
+    }
+}
+
+.prm-form-btn-cancel {
+    padding: 0.75rem 1.5rem;
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    flex: 1;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.prm-form-btn-cancel:hover {
+    background-color: var(--border-color);
+}
+
+.prm-form-btn-submit {
+    padding: 0.75rem 1.5rem;
+    background-color: var(--ibc-blue);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    flex: 1;
+    transition: all 0.2s ease;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.prm-form-btn-submit:hover {
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-2px);
+}
+
+.prm-form-btn-draft {
+    padding: 0.75rem 1.5rem;
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    flex: 1;
+    transition: all 0.2s ease;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.prm-form-btn-draft:hover {
+    background-color: var(--border-color);
+}
+
+.dark-mode .prm-modal-content {
+    background-color: var(--bg-card);
+}
+
+.dark-mode .prm-project-card {
+    background-color: var(--bg-card);
+}
+</style>
+/* PRM (Project Manage) scoped styles */
+.prm-form-container {
+    margin-bottom: 2rem;
+}
+
+.prm-form-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.prm-form-title {
+    color: var(--text-main);
+}
+
+.prm-form-back-btn {
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+}
+
+.prm-form-back-btn:hover {
+    background-color: var(--border-color);
+}
+
+.dark-mode .prm-form-back-btn {
+    background-color: var(--bg-body);
+    border-color: var(--border-color);
+}
+</style>
 
 <script>
 // Internal project checkbox logic

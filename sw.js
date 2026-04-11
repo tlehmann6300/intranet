@@ -1,7 +1,7 @@
 // IBC Intranet – Service Worker
 // Caches static assets (CSS, JS, images) for offline availability.
 
-const CACHE_NAME = 'ibc-intranet-v2';
+const CACHE_NAME = 'ibc-intranet-v3';
 
 const STATIC_ASSETS = [
     '/assets/img/cropped_maskottchen_32x32.webp',
@@ -35,7 +35,7 @@ self.addEventListener('activate', (event) => {
     self.clients.claim();
 });
 
-// Fetch: cache-first for static assets, network-first for everything else
+// Fetch: cache-first for same-origin static assets, skip everything else
 self.addEventListener('fetch', (event) => {
     const { request } = event;
 
@@ -44,7 +44,12 @@ self.addEventListener('fetch', (event) => {
 
     const url = new URL(request.url);
 
-    // Cache-first strategy for static assets (CSS, JS, images, fonts)
+    // ── CRITICAL: skip all cross-origin requests (CDN, fonts, external APIs)
+    // The CSP blocks the SW from fetching external URLs, so we must let the
+    // browser handle those directly without SW interception.
+    if (url.origin !== self.location.origin) return;
+
+    // Cache-first strategy for same-origin static assets only
     const isStaticAsset =
         url.pathname.startsWith('/assets/') ||
         /\.(css|js|webp|png|jpg|jpeg|gif|svg|ico|woff2?|ttf|eot)$/i.test(url.pathname);
@@ -54,19 +59,17 @@ self.addEventListener('fetch', (event) => {
             caches.match(request).then((cached) => {
                 if (cached) return cached;
                 return fetch(request).then((response) => {
-                    if (!response || response.status !== 200) {
-                        return response;
-                    }
+                    if (!response || response.status !== 200) return response;
                     const clone = response.clone();
                     caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
                     return response;
-                });
+                }).catch(() => Response.error());
             })
         );
         return;
     }
 
-    // Network-first strategy for HTML pages
+    // Network-first strategy for same-origin HTML pages
     event.respondWith(
         fetch(request).catch(() =>
             caches.match(request).then((cached) => cached || Response.error())

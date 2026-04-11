@@ -3,418 +3,517 @@ require_once __DIR__ . '/../../src/Auth.php';
 require_once __DIR__ . '/../../includes/models/Project.php';
 require_once __DIR__ . '/../../src/Database.php';
 
-// Check authentication - any logged-in user can view projects
 if (!Auth::check()) {
     header('Location: ../auth/login.php');
     exit;
 }
 
-$user = Auth::user();
-$userRole = $_SESSION['user_role'] ?? 'mitglied';
-
-// Get filter parameter from URL
+$user       = Auth::user();
+$userRole   = $_SESSION['user_role'] ?? 'mitglied';
 $typeFilter = $_GET['type'] ?? 'all';
-$validTypes = ['all', 'internal', 'external'];
-if (!in_array($typeFilter, $validTypes)) {
-    $typeFilter = 'all';
-}
+$validTypes = ['all','internal','external'];
+if (!in_array($typeFilter, $validTypes)) $typeFilter = 'all';
 
 $searchQuery = trim($_GET['q'] ?? '');
-
-// Get all projects based on filter
-$db = Database::getContentDB();
-
-// Check if user is admin - they can see archived projects
-$isAdmin = Auth::isBoard() || Auth::hasPermission('manage_projects');
+$db          = Database::getContentDB();
+$isAdmin     = Auth::isBoard() || Auth::hasPermission('manage_projects');
 
 if ($typeFilter === 'all') {
     if ($isAdmin) {
-        // Admins see all non-draft projects (including archived)
-        $stmt = $db->query("
-            SELECT * FROM projects 
-            WHERE status != 'draft'
-            ORDER BY created_at DESC
-        ");
+        $stmt = $db->query("SELECT * FROM projects WHERE status != 'draft' ORDER BY created_at DESC");
     } else {
-        // Regular users only see active projects: open, running, applying, completed
-        $stmt = $db->query("
-            SELECT * FROM projects 
-            WHERE status IN ('open', 'running', 'applying', 'completed')
-            ORDER BY created_at DESC
-        ");
+        $stmt = $db->query("SELECT * FROM projects WHERE status IN ('open','running','applying','completed') ORDER BY created_at DESC");
     }
 } else {
-    // For specific type filters (internal/external)
     if ($isAdmin) {
-        // Admins see all non-draft projects of the specified type
-        $stmt = $db->prepare("
-            SELECT * FROM projects 
-            WHERE status != 'draft' AND type = ?
-            ORDER BY created_at DESC
-        ");
+        $stmt = $db->prepare("SELECT * FROM projects WHERE status != 'draft' AND type = ? ORDER BY created_at DESC");
         $stmt->execute([$typeFilter]);
     } else {
-        // Regular users only see active projects of the specified type
-        $stmt = $db->prepare("
-            SELECT * FROM projects 
-            WHERE status IN ('open', 'running', 'applying', 'completed') AND type = ?
-            ORDER BY created_at DESC
-        ");
+        $stmt = $db->prepare("SELECT * FROM projects WHERE status IN ('open','running','applying','completed') AND type = ? ORDER BY created_at DESC");
         $stmt->execute([$typeFilter]);
     }
 }
-
 $projects = $stmt->fetchAll();
 
-// Filter sensitive data for each project based on user role
-$filteredProjects = array_map(function($project) use ($userRole, $user) {
-    return Project::filterSensitiveData($project, $userRole, $user['id']);
-}, $projects);
+$filteredProjects = array_map(fn($p) => Project::filterSensitiveData($p, $userRole, $user['id']), $projects);
 
-// Apply search filter
 if ($searchQuery !== '') {
-    $searchLower = mb_strtolower($searchQuery);
-    $filteredProjects = array_filter($filteredProjects, function($project) use ($searchLower) {
-        return str_contains(mb_strtolower($project['title'] ?? ''), $searchLower)
-            || str_contains(mb_strtolower($project['description'] ?? ''), $searchLower)
-            || str_contains(mb_strtolower($project['client_name'] ?? ''), $searchLower);
-    });
+    $sl = mb_strtolower($searchQuery);
+    $filteredProjects = array_filter($filteredProjects, fn($p) =>
+        str_contains(mb_strtolower($p['title'] ?? ''), $sl)
+        || str_contains(mb_strtolower($p['description'] ?? ''), $sl)
+        || str_contains(mb_strtolower($p['client_name'] ?? ''), $sl)
+    );
 }
+
+// Status style map
+$statusStyles = [
+    'open'      => ['c'=>'#3b82f6','b'=>'rgba(59,130,246,0.1)', 'icon'=>'fa-door-open',      'label'=>'Offen',           'badge_bg'=>'rgba(59,130,246,0.88)'],
+    'applying'  => ['c'=>'#f59e0b','b'=>'rgba(245,158,11,0.1)', 'icon'=>'fa-hourglass-half', 'label'=>'Bewerbungsphase', 'badge_bg'=>'rgba(245,158,11,0.88)'],
+    'assigned'  => ['c'=>'#22c55e','b'=>'rgba(34,197,94,0.1)',  'icon'=>'fa-user-check',     'label'=>'Vergeben',        'badge_bg'=>'rgba(34,197,94,0.88)'],
+    'running'   => ['c'=>'#8b5cf6','b'=>'rgba(139,92,246,0.1)', 'icon'=>'fa-play',           'label'=>'Laufend',         'badge_bg'=>'rgba(139,92,246,0.88)'],
+    'completed' => ['c'=>'#0d9488','b'=>'rgba(13,148,136,0.1)', 'icon'=>'fa-flag-checkered', 'label'=>'Abgeschlossen',   'badge_bg'=>'rgba(13,148,136,0.88)'],
+    'archived'  => ['c'=>'#6b7280','b'=>'rgba(107,114,128,0.1)','icon'=>'fa-archive',        'label'=>'Archiviert',      'badge_bg'=>'rgba(75,85,99,0.82)'],
+];
+$priorityStyles = [
+    'low'    => ['c'=>'#3b82f6','icon'=>'fa-arrow-down', 'label'=>'Niedrig', 'badge_bg'=>'rgba(59,130,246,0.88)'],
+    'medium' => ['c'=>'#f59e0b','icon'=>'fa-minus',      'label'=>'Mittel',  'badge_bg'=>'rgba(245,158,11,0.88)'],
+    'high'   => ['c'=>'#ef4444','icon'=>'fa-arrow-up',   'label'=>'Hoch',    'badge_bg'=>'rgba(239,68,68,0.88)'],
+];
 
 $title = 'Projekte - IBC Intranet';
 ob_start();
 ?>
+<style>
+/* ── Projekte Page ────────────────────────────────────────────── */
+.proj-filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding: 0.125rem 0 0.375rem;
+}
+.proj-filter-bar::-webkit-scrollbar { display: none; }
+.proj-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.45rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    white-space: nowrap;
+    text-decoration: none;
+    cursor: pointer;
+    transition: opacity 0.18s, transform 0.18s;
+    border: 1.5px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-muted);
+    flex-shrink: 0;
+    min-height: 2.375rem;
+    -webkit-tap-highlight-color: transparent;
+}
+.proj-chip:hover { opacity: 0.85; transform: translateY(-1px); }
+.proj-chip--active {
+    background: linear-gradient(135deg,#7c3aed,#4f46e5);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 2px 12px rgba(124,58,237,0.3);
+}
 
-<div class="max-w-7xl mx-auto">
-    <!-- Error/Success Messages -->
-    <?php if (isset($_SESSION['error'])): ?>
-    <div class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-        <i class="fas fa-exclamation-circle mr-2"></i><?php echo htmlspecialchars($_SESSION['error']); ?>
-    </div>
-    <?php unset($_SESSION['error']); ?>
-    <?php endif; ?>
-    
-    <?php if (isset($_SESSION['success'])): ?>
-    <div class="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
-        <i class="fas fa-check-circle mr-2"></i><?php echo htmlspecialchars($_SESSION['success']); ?>
-    </div>
-    <?php unset($_SESSION['success']); ?>
-    <?php endif; ?>
-    
-    <!-- Header -->
-    <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+/* ── Search Input ────────────────────────────────────────────── */
+.proj-search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+}
+.proj-search-icon {
+    position: absolute;
+    left: 0.875rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+.proj-search-input {
+    width: 100%;
+    background: var(--bg-card);
+    border: 1.5px solid var(--border-color);
+    border-radius: 9999px;
+    padding: 0.5rem 1rem 0.5rem 2.375rem;
+    font-size: 0.875rem;
+    color: var(--text-main);
+    outline: none;
+    transition: border-color 0.18s, box-shadow 0.18s;
+    -webkit-appearance: none;
+    min-height: 2.375rem;
+}
+.proj-search-input::placeholder { color: var(--text-muted); opacity: 0.7; }
+.proj-search-input:focus {
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 3px rgba(139,92,246,0.12);
+}
+
+/* ── Project Card ────────────────────────────────────────────── */
+.proj-card {
+    background: var(--bg-card);
+    border: 1.5px solid var(--border-color);
+    border-radius: 1rem;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+    transition: transform 0.28s cubic-bezier(0.34,1.2,0.64,1),
+                box-shadow 0.28s ease,
+                border-color 0.22s ease;
+}
+.proj-card:hover {
+    transform: translateY(-5px) scale(1.01);
+    box-shadow: 0 16px 36px rgba(124,58,237,0.14), 0 6px 14px rgba(0,0,0,0.09);
+    border-color: #8b5cf6;
+}
+.proj-card--archived { opacity: 0.62; filter: grayscale(55%); }
+
+/* Status accent bar (top) */
+.proj-accent {
+    height: 4px;
+    width: 100%;
+    flex-shrink: 0;
+    background: #8b5cf6;
+}
+.proj-card--open      .proj-accent { background: #3b82f6; }
+.proj-card--applying  .proj-accent { background: #f59e0b; }
+.proj-card--assigned  .proj-accent { background: #22c55e; }
+.proj-card--running   .proj-accent { background: #8b5cf6; }
+.proj-card--completed .proj-accent { background: #0d9488; }
+.proj-card--archived  .proj-accent { background: #9ca3af; }
+
+/* Image area */
+.proj-img-wrap {
+    position: relative;
+    overflow: hidden;
+    height: 12rem;
+    flex-shrink: 0;
+    background: #e5e7eb;
+}
+.proj-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+.proj-card:hover .proj-img-wrap img { transform: scale(1.06); }
+.proj-img-wrap::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.46) 100%);
+    pointer-events: none;
+}
+.proj-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #7c3aed, #4f46e5 60%, #1e1b4b);
+}
+.proj-card--open      .proj-placeholder { background: linear-gradient(135deg,#2563eb,#1d4ed8 60%,#1e3a8a); }
+.proj-card--applying  .proj-placeholder { background: linear-gradient(135deg,#d97706,#b45309 60%,#78350f); }
+.proj-card--assigned  .proj-placeholder { background: linear-gradient(135deg,#16a34a,#15803d 60%,#14532d); }
+.proj-card--completed .proj-placeholder { background: linear-gradient(135deg,#0d9488,#0f766e 60%,#134e4a); }
+.proj-card--archived  .proj-placeholder { background: linear-gradient(135deg,#374151,#1f2937); }
+
+/* Overlay badge */
+.proj-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.22rem 0.6rem;
+    border-radius: 9999px;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    white-space: nowrap;
+    color: #fff;
+}
+
+/* Meta rows */
+.proj-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+}
+.proj-meta-icon {
+    width: 1.125rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.proj-arrow-circle {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(124,58,237,0.1);
+    flex-shrink: 0;
+    transition: background 0.22s, transform 0.22s cubic-bezier(0.34,1.56,0.64,1);
+}
+.proj-card:hover .proj-arrow-circle { background: #7c3aed; transform: scale(1.15); }
+.proj-arrow-icon { font-size: 0.7rem; color: #7c3aed; transition: color 0.22s; }
+.proj-card:hover .proj-arrow-icon { color: #fff; }
+
+/* Apply CTA */
+.proj-apply-circle {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,166,81,0.1);
+    flex-shrink: 0;
+    transition: background 0.22s, transform 0.22s cubic-bezier(0.34,1.56,0.64,1);
+}
+.proj-card:hover .proj-apply-circle { background: var(--ibc-green); transform: scale(1.15); }
+.proj-apply-icon { font-size: 0.65rem; color: var(--ibc-green); transition: color 0.22s; }
+.proj-card:hover .proj-apply-icon { color: #fff; }
+
+/* Flash messages */
+.proj-flash {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.125rem;
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 1.25rem;
+}
+.proj-flash--success { background: rgba(0,166,81,0.08); border: 1.5px solid rgba(0,166,81,0.2); color: var(--ibc-green); }
+.proj-flash--error   { background: rgba(239,68,68,0.08); border: 1.5px solid rgba(239,68,68,0.2); color: #ef4444; }
+
+/* Stagger animations */
+@keyframes projCardIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: none; }
+}
+.proj-card { animation: projCardIn 0.32s ease both; }
+.proj-card:nth-child(2) { animation-delay: 0.06s; }
+.proj-card:nth-child(3) { animation-delay: 0.12s; }
+.proj-card:nth-child(4) { animation-delay: 0.18s; }
+.proj-card:nth-child(5) { animation-delay: 0.22s; }
+.proj-card:nth-child(6) { animation-delay: 0.26s; }
+.proj-card:nth-child(n+7) { animation-delay: 0.28s; }
+
+.proj-empty {
+    background: var(--bg-card);
+    border: 2px dashed var(--border-color);
+    border-radius: 1rem;
+    padding: 4rem 2rem;
+    text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .proj-card, .proj-card:nth-child(n) { animation: none; }
+    .proj-card:hover { transform: none; }
+}
+</style>
+
+<!-- ── Flash Messages ─────────────────────────────────────────── -->
+<?php if (isset($_SESSION['error'])): ?>
+<div class="proj-flash proj-flash--error">
+    <i class="fas fa-exclamation-circle" style="flex-shrink:0;" aria-hidden="true"></i>
+    <span><?php echo htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></span>
+</div>
+<?php endif; ?>
+<?php if (isset($_SESSION['success'])): ?>
+<div class="proj-flash proj-flash--success">
+    <i class="fas fa-check-circle" style="flex-shrink:0;" aria-hidden="true"></i>
+    <span><?php echo htmlspecialchars($_SESSION['success']); unset($_SESSION['success']); ?></span>
+</div>
+<?php endif; ?>
+
+<!-- ── Page Header ────────────────────────────────────────────── -->
+<div style="display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.75rem;">
+    <div style="display:flex;align-items:center;gap:1rem;flex:1;min-width:0;">
+        <div style="width:3rem;height:3rem;border-radius:0.875rem;background:linear-gradient(135deg,#7c3aed,#4f46e5);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(124,58,237,0.3);flex-shrink:0;">
+            <i class="fas fa-folder-open" style="color:#fff;font-size:1.2rem;" aria-hidden="true"></i>
+        </div>
         <div>
-            <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 dark:text-gray-100 mb-2">
-                <i class="fas fa-briefcase mr-3 text-purple-600 dark:text-purple-400"></i>
-                Projekte
-            </h1>
-            <p class="text-gray-600 dark:text-gray-300">Entdecke aktuelle Projekte und bewirb Dich</p>
+            <h1 style="font-size:1.625rem;font-weight:800;color:var(--text-main);letter-spacing:-0.02em;line-height:1.2;margin:0;">Projekte</h1>
+            <p style="font-size:0.875rem;color:var(--text-muted);margin:0.125rem 0 0;">Entdecke aktuelle Projekte und bewirb Dich</p>
         </div>
-        
-        <!-- Neues Projekt Button - Board/Head/Manager only -->
-        <?php if (Auth::hasPermission('manage_projects') || Auth::isBoard() || Auth::hasRole(['ressortleiter', 'alumni_vorstand'])): ?>
-        <a href="manage.php?new=1" class="btn-primary w-full sm:w-auto">
-            <i class="fas fa-plus mr-2"></i>Neues Projekt
-        </a>
-        <?php endif; ?>
     </div>
-
-    <!-- Filter & Search Bar -->
-    <div class="mb-6 flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-        <div class="flex gap-4 flex-wrap">
-            <a href="index.php?type=all<?php echo !empty($_GET['q']) ? '&q='.urlencode($_GET['q']) : ''; ?>"
-               class="projects-filter-tab <?php echo $typeFilter === 'all' ? 'projects-filter-tab--active text-white' : ''; ?>">
-                <i class="fas fa-list mr-2"></i>Alle
-            </a>
-            <a href="index.php?type=internal<?php echo !empty($_GET['q']) ? '&q='.urlencode($_GET['q']) : ''; ?>"
-               class="projects-filter-tab <?php echo $typeFilter === 'internal' ? 'projects-filter-tab--active text-white' : ''; ?>">
-                <i class="fas fa-building mr-2"></i>Intern
-            </a>
-            <a href="index.php?type=external<?php echo !empty($_GET['q']) ? '&q='.urlencode($_GET['q']) : ''; ?>"
-               class="projects-filter-tab <?php echo $typeFilter === 'external' ? 'projects-filter-tab--active text-white' : ''; ?>">
-                <i class="fas fa-users mr-2"></i>Extern
-            </a>
-        </div>
-        <form method="get" action="index.php" class="flex-1 min-w-[200px]">
-            <input type="hidden" name="type" value="<?php echo htmlspecialchars($typeFilter); ?>">
-            <div class="relative">
-                <span class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                    <i class="fas fa-search text-gray-400 text-sm"></i>
-                </span>
-                <input type="text" name="q" value="<?php echo htmlspecialchars($_GET['q'] ?? ''); ?>"
-                       placeholder="Projekte suchen…"
-                       class="w-full pl-9 pr-4 py-2.5 rounded-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition shadow-sm">
-            </div>
-        </form>
-    </div>
-
-    <!-- Projects Grid -->
-    <?php if (empty($filteredProjects)): ?>
-        <div class="card p-12 text-center rounded-2xl border border-dashed border-gray-300 dark:border-gray-600">
-            <img src="<?php echo htmlspecialchars(BASE_URL); ?>/assets/img/cropped_maskottchen_270x270.webp"
-                 alt="Keine Projekte"
-                 class="w-32 h-32 mx-auto mb-5 opacity-60">
-            <?php if ($searchQuery !== ''): ?>
-                <p class="text-base sm:text-xl font-semibold text-gray-600 dark:text-gray-300 mb-2">Keine Projekte gefunden</p>
-                <p class="text-sm text-gray-400 dark:text-gray-500">Versuche einen anderen Suchbegriff oder wähle einen anderen Filter.</p>
-            <?php else: ?>
-                <p class="text-base sm:text-xl font-semibold text-gray-600 dark:text-gray-300 mb-2">Aktuell gibt es keine aktiven Projekte.</p>
-                <p class="text-sm text-gray-400 dark:text-gray-500">Schau später wieder vorbei!</p>
-            <?php endif; ?>
-        </div>
-    <?php else: ?>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
-            <?php foreach ($filteredProjects as $project): ?>
-                <?php
-                    $isArchived = $project['status'] === 'archived';
-                    $canApply = ($project['status'] === 'open' || $project['status'] === 'applying') && $userRole !== 'alumni';
-                    $projectType = $project['type'] ?? 'internal';
-
-                    // Validate image path
-                    $hasImage = false;
-                    if (!empty($project['image_path'])) {
-                        $fullImagePath = __DIR__ . '/../../' . $project['image_path'];
-                        $realPath = realpath($fullImagePath);
-                        $baseDir = realpath(__DIR__ . '/../../');
-                        $hasImage = $realPath && $baseDir && str_starts_with($realPath, $baseDir . DIRECTORY_SEPARATOR) && file_exists($realPath);
-                    }
-                ?>
-                
-                <a href="view.php?id=<?php echo $project['id']; ?>" class="project-card card w-full flex flex-col overflow-hidden group no-underline project-card--<?php echo htmlspecialchars($project['status']); ?> <?php echo $isArchived ? 'project-card--archived' : ''; ?>" style="text-decoration:none;">
-                    <!-- Status accent strip -->
-                    <div class="project-card-accent"></div>
-
-                    <!-- Image / Placeholder -->
-                    <div class="project-card-image relative overflow-hidden flex-shrink-0">
-                        <?php if ($hasImage): ?>
-                            <img src="<?php echo htmlspecialchars(BASE_URL . '/' . $project['image_path']); ?>"
-                                 alt="<?php echo htmlspecialchars($project['title']); ?>"
-                                 loading="lazy"
-                                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
-                        <?php else: ?>
-                            <div class="w-full h-full flex flex-col items-center justify-center project-card-placeholder">
-                                <i class="fas fa-briefcase text-white/30 text-5xl mb-2"></i>
-                                <span class="text-white/50 text-xs font-semibold tracking-widest uppercase">Projekt</span>
-                            </div>
-                        <?php endif; ?>
-
-                        <!-- Overlay badges -->
-                        <div class="absolute top-3 left-3 flex flex-col gap-1">
-                            <?php
-                            $statusClass = '';
-                            $statusIcon  = '';
-                            $statusLabel = '';
-                            switch ($project['status']) {
-                                case 'open':      $statusClass = 'bg-blue-500/90';    $statusIcon = 'fa-door-open';       $statusLabel = 'Offen';           break;
-                                case 'applying':  $statusClass = 'bg-yellow-500/90';  $statusIcon = 'fa-hourglass-half';  $statusLabel = 'Bewerbungsphase'; break;
-                                case 'assigned':  $statusClass = 'bg-green-500/90';   $statusIcon = 'fa-user-check';      $statusLabel = 'Vergeben';        break;
-                                case 'running':   $statusClass = 'bg-purple-600/90';  $statusIcon = 'fa-play';            $statusLabel = 'Laufend';         break;
-                                case 'completed': $statusClass = 'bg-teal-500/90';    $statusIcon = 'fa-flag-checkered';  $statusLabel = 'Abgeschlossen';   break;
-                                case 'archived':  $statusClass = 'bg-gray-600/80';    $statusIcon = 'fa-archive';         $statusLabel = 'Archiviert';      break;
-                                default:          $statusClass = 'bg-gray-500/80';    $statusIcon = 'fa-circle';          $statusLabel = ucfirst($project['status']); break;
-                            }
-                            ?>
-                            <span class="px-2.5 py-1 <?php echo $statusClass; ?> backdrop-blur-sm text-white text-xs font-semibold rounded-full">
-                                <i class="fas <?php echo $statusIcon; ?> mr-1"></i><?php echo $statusLabel; ?>
-                            </span>
-                            <span class="px-2.5 py-1 backdrop-blur-sm text-white text-xs font-semibold rounded-full <?php echo $projectType === 'internal' ? 'bg-indigo-500/90' : 'bg-green-500/90'; ?>">
-                                <i class="fas <?php echo $projectType === 'internal' ? 'fa-building' : 'fa-users'; ?> mr-1"></i><?php echo $projectType === 'internal' ? 'Intern' : 'Extern'; ?>
-                            </span>
-                        </div>
-
-                        <?php if (!empty($project['priority'])): ?>
-                        <div class="absolute top-3 right-3">
-                            <?php
-                            $priClass = '';
-                            $priIcon  = '';
-                            $priLabel = '';
-                            switch ($project['priority']) {
-                                case 'low':    $priClass = 'bg-blue-400/90';   $priIcon = 'fa-arrow-down'; $priLabel = 'Niedrig'; break;
-                                case 'medium': $priClass = 'bg-yellow-400/90'; $priIcon = 'fa-minus';      $priLabel = 'Mittel';  break;
-                                case 'high':   $priClass = 'bg-red-500/90';    $priIcon = 'fa-arrow-up';   $priLabel = 'Hoch';    break;
-                            }
-                            ?>
-                            <?php if ($priClass): ?>
-                            <span class="px-2.5 py-1 <?php echo $priClass; ?> backdrop-blur-sm text-white text-xs font-semibold rounded-full">
-                                <i class="fas <?php echo $priIcon; ?> mr-1"></i><?php echo $priLabel; ?>
-                            </span>
-                            <?php endif; ?>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-
-                    <!-- Card Body -->
-                    <div class="flex flex-col flex-1 p-5">
-                        <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-3 leading-snug line-clamp-2">
-                            <?php echo htmlspecialchars($project['title']); ?>
-                        </h3>
-
-                        <!-- Meta Info -->
-                        <div class="space-y-2 text-sm text-gray-600 dark:text-gray-400 mb-4">
-                            <?php if (!empty($project['client_name'])): ?>
-                                <div class="flex items-center gap-2">
-                                    <span class="project-meta-icon"><i class="fas fa-user-tie text-purple-500"></i></span>
-                                    <span class="truncate"><?php echo htmlspecialchars($project['client_name']); ?></span>
-                                </div>
-                            <?php endif; ?>
-                            <?php if (!empty($project['start_date'])): ?>
-                                <div class="flex items-center gap-2">
-                                    <span class="project-meta-icon"><i class="fas fa-calendar-alt text-ibc-blue"></i></span>
-                                    <span>Start: <?php echo date('d.m.Y', strtotime($project['start_date'])); ?></span>
-                                </div>
-                            <?php endif; ?>
-                            <?php if (!empty($project['end_date'])): ?>
-                                <div class="flex items-center gap-2">
-                                    <span class="project-meta-icon"><i class="fas fa-calendar-check text-ibc-green"></i></span>
-                                    <span>Ende: <?php echo date('d.m.Y', strtotime($project['end_date'])); ?></span>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-
-                        <!-- Description Preview -->
-                        <?php if (!empty($project['description'])): ?>
-                            <p class="text-gray-500 dark:text-gray-400 text-sm line-clamp-2 flex-1 mb-4">
-                                <?php echo htmlspecialchars(substr($project['description'], 0, 120)); ?><?php echo strlen($project['description']) > 120 ? '…' : ''; ?>
-                            </p>
-                        <?php else: ?>
-                            <div class="flex-1"></div>
-                        <?php endif; ?>
-
-                        <!-- CTA -->
-                        <div class="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-700">
-                            <?php if ($canApply): ?>
-                                <span class="text-sm font-semibold text-ibc-green group-hover:text-ibc-green-dark transition-colors">
-                                    Jetzt bewerben
-                                </span>
-                                <span class="w-8 h-8 rounded-full bg-ibc-green/10 flex items-center justify-center group-hover:bg-ibc-green transition-all">
-                                    <i class="fas fa-paper-plane text-xs text-ibc-green group-hover:text-white transition-colors"></i>
-                                </span>
-                            <?php else: ?>
-                                <span class="text-sm font-semibold project-cta-link group-hover:text-purple-700 transition-colors">
-                                    Details ansehen
-                                </span>
-                                <span class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center group-hover:bg-purple-600 transition-all">
-                                    <i class="fas fa-arrow-right text-xs project-cta-link group-hover:text-white transition-colors"></i>
-                                </span>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </a>
-            <?php endforeach; ?>
-        </div>
+    <?php if (Auth::hasPermission('manage_projects') || Auth::isBoard() || Auth::hasRole(['ressortleiter','alumni_vorstand'])): ?>
+    <a href="manage.php?new=1"
+       style="display:inline-flex;align-items:center;gap:0.45rem;padding:0.6rem 1.1rem;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;border-radius:0.75rem;font-size:0.875rem;font-weight:700;text-decoration:none;white-space:nowrap;box-shadow:0 3px 12px rgba(124,58,237,0.3);transition:opacity 0.18s,transform 0.18s;flex-shrink:0;"
+       onmouseover="this.style.opacity='0.9';this.style.transform='translateY(-1px)'"
+       onmouseout="this.style.opacity='1';this.style.transform='none'">
+        <i class="fas fa-plus" aria-hidden="true"></i>
+        Neues Projekt
+    </a>
     <?php endif; ?>
 </div>
 
-<style>
-    /* ── Filter Tabs ────────────────────────────────── */
-    .projects-filter-tab {
-        display: inline-flex;
-        align-items: center;
-        padding: 0.6rem 1.5rem;
-        min-height: 44px;
-        border-radius: 9999px;
-        font-weight: 600;
-        font-size: 0.9rem;
-        transition: all 0.25s ease;
-        background: var(--bg-card);
-        color: var(--text-muted);
-        border: 1.5px solid var(--border-color);
-        text-decoration: none !important;
-    }
-    .projects-filter-tab:hover {
-        border-color: #8b5cf6;
-        color: #8b5cf6 !important;
-        box-shadow: 0 2px 8px rgba(139,92,246,0.12);
-    }
-    .projects-filter-tab--active {
-        background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%) !important;
-        color: #ffffff !important;
-        border-color: transparent !important;
-        box-shadow: 0 4px 14px rgba(124,58,237,0.35);
-    }
+<!-- ── Filter + Search ────────────────────────────────────────── -->
+<div style="background:var(--bg-card);border:1.5px solid var(--border-color);border-radius:0.875rem;padding:0.875rem 1rem;margin-bottom:1.75rem;">
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:0.75rem;">
+        <div class="proj-filter-bar" role="navigation" aria-label="Projekttyp filtern" style="flex-shrink:0;">
+            <?php
+            $chips = [
+                'all'      => ['icon'=>'fa-th-large',  'label'=>'Alle'],
+                'internal' => ['icon'=>'fa-building',  'label'=>'Intern'],
+                'external' => ['icon'=>'fa-users',     'label'=>'Extern'],
+            ];
+            foreach ($chips as $val => $cfg):
+            ?>
+            <a href="index.php?type=<?php echo $val; ?><?php echo $searchQuery ? '&q='.urlencode($searchQuery) : ''; ?>"
+               class="proj-chip <?php echo $typeFilter === $val ? 'proj-chip--active' : ''; ?>">
+                <i class="fas <?php echo $cfg['icon']; ?>" style="font-size:0.7rem;" aria-hidden="true"></i>
+                <?php echo $cfg['label']; ?>
+            </a>
+            <?php endforeach; ?>
+        </div>
+        <form method="get" action="index.php" style="flex:1;min-width:10rem;">
+            <input type="hidden" name="type" value="<?php echo htmlspecialchars($typeFilter); ?>">
+            <div class="proj-search-wrap">
+                <i class="fas fa-search proj-search-icon" aria-hidden="true"></i>
+                <input type="text"
+                       name="q"
+                       value="<?php echo htmlspecialchars($searchQuery); ?>"
+                       placeholder="Projekte suchen…"
+                       class="proj-search-input"
+                       aria-label="Projekte durchsuchen">
+            </div>
+        </form>
+    </div>
+</div>
 
-    /* ── Project Card ───────────────────────────────── */
-    .project-card {
-        transition: transform 0.25s ease, box-shadow 0.25s ease;
-        color: inherit;
-        border: 1.5px solid var(--border-color) !important;
-    }
-    .project-card:hover {
-        transform: translateY(-5px);
-        box-shadow: var(--shadow-card-hover);
-        border-color: #8b5cf6 !important;
-    }
-    .project-card--archived {
-        opacity: 0.65;
-        filter: grayscale(60%);
-    }
+<?php if (empty($filteredProjects)): ?>
+<!-- ── Empty State ────────────────────────────────────────────── -->
+<div class="proj-empty">
+    <div style="width:4.5rem;height:4.5rem;margin:0 auto 1.25rem;border-radius:50%;background:rgba(124,58,237,0.07);border:1.5px solid rgba(124,58,237,0.14);display:flex;align-items:center;justify-content:center;">
+        <i class="fas fa-folder-open" style="font-size:1.75rem;color:var(--text-muted);" aria-hidden="true"></i>
+    </div>
+    <p style="font-weight:700;color:var(--text-main);font-size:1.0625rem;margin:0 0 0.375rem;">
+        <?php echo $searchQuery ? 'Keine Projekte gefunden' : 'Aktuell gibt es keine aktiven Projekte.'; ?>
+    </p>
+    <p style="font-size:0.875rem;color:var(--text-muted);margin:0;">
+        <?php echo $searchQuery ? 'Versuche einen anderen Suchbegriff oder wähle einen anderen Filter.' : 'Schau später wieder vorbei!'; ?>
+    </p>
+</div>
 
-    /* Status accent strip */
-    .project-card-accent {
-        height: 4px;
-        flex-shrink: 0;
-        background: #8b5cf6;
-    }
-    .project-card--open      .project-card-accent { background: var(--ibc-blue); }
-    .project-card--applying  .project-card-accent { background: #f59e0b; }
-    .project-card--assigned  .project-card-accent { background: var(--ibc-green); }
-    .project-card--running   .project-card-accent { background: #7c3aed; }
-    .project-card--completed .project-card-accent { background: #0d9488; }
-    .project-card--archived  .project-card-accent { background: var(--ibc-gray-400); }
+<?php else: ?>
+<!-- ── Projects Grid ──────────────────────────────────────────── -->
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,20rem),1fr));gap:1.125rem;">
+    <?php foreach ($filteredProjects as $project):
+        $status     = $project['status'] ?? 'open';
+        $ss         = $statusStyles[$status] ?? $statusStyles['open'];
+        $isArchived = $status === 'archived';
+        $canApply   = in_array($status, ['open','applying']) && $userRole !== 'alumni';
+        $pType      = $project['type'] ?? 'internal';
 
-    /* ── Card Image ─────────────────────────────────── */
-    .project-card-image {
-        height: 200px;
-        background: #e5e7eb;
-        flex-shrink: 0;
-    }
-    .project-card-image::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.45) 100%);
-        pointer-events: none;
-    }
+        $hasImage = false;
+        if (!empty($project['image_path'])) {
+            $fp = realpath(__DIR__ . '/../../' . $project['image_path']);
+            $bd = realpath(__DIR__ . '/../../');
+            $hasImage = $fp && $bd && str_starts_with($fp, $bd) && file_exists($fp);
+        }
+    ?>
+    <a href="view.php?id=<?php echo (int)$project['id']; ?>"
+       class="proj-card proj-card--<?php echo htmlspecialchars($status); ?> <?php echo $isArchived ? 'proj-card--archived' : ''; ?>">
 
-    /* Placeholder gradient per status */
-    .project-card-placeholder {
-        background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 60%, #1e1b4b 100%);
-    }
-    .project-card--open      .project-card-placeholder { background: linear-gradient(135deg, var(--ibc-blue) 0%, var(--ibc-blue-dark) 60%, #001f3a 100%); }
-    .project-card--applying  .project-card-placeholder { background: linear-gradient(135deg, #d97706 0%, #b45309 60%, #78350f 100%); }
-    .project-card--assigned  .project-card-placeholder { background: linear-gradient(135deg, var(--ibc-green) 0%, var(--ibc-green-dark) 60%, #004a24 100%); }
-    .project-card--completed .project-card-placeholder { background: linear-gradient(135deg, #0d9488 0%, #0f766e 60%, #134e4a 100%); }
-    .project-card--archived  .project-card-placeholder { background: linear-gradient(135deg, #374151 0%, #1f2937 100%); }
+        <!-- Accent bar -->
+        <div class="proj-accent"></div>
 
-    /* ── Meta Icon ──────────────────────────────────── */
-    .project-meta-icon {
-        width: 1.25rem;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
+        <!-- Image / Placeholder -->
+        <div class="proj-img-wrap">
+            <?php if ($hasImage): ?>
+                <img src="<?php echo htmlspecialchars(BASE_URL . '/' . $project['image_path']); ?>"
+                     alt="<?php echo htmlspecialchars($project['title']); ?>"
+                     loading="lazy">
+            <?php else: ?>
+                <div class="proj-placeholder">
+                    <i class="fas fa-folder-open" style="font-size:2.75rem;color:rgba(255,255,255,0.22);margin-bottom:0.5rem;" aria-hidden="true"></i>
+                    <span style="font-size:0.6875rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.42);">Projekt</span>
+                </div>
+            <?php endif; ?>
 
-    /* ── Text Clamp ─────────────────────────────────── */
-    .line-clamp-2 {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-    .project-cta-link {
-        color: #7c3aed;
-    }
+            <!-- Top-left badges -->
+            <div style="position:absolute;top:0.75rem;left:0.75rem;display:flex;flex-direction:column;gap:0.3rem;z-index:2;">
+                <span class="proj-badge" style="background:<?php echo $ss['badge_bg']; ?>;">
+                    <i class="fas <?php echo $ss['icon']; ?>" style="font-size:0.55rem;" aria-hidden="true"></i>
+                    <?php echo $ss['label']; ?>
+                </span>
+                <span class="proj-badge" style="background:<?php echo $pType === 'internal' ? 'rgba(99,102,241,0.88)' : 'rgba(34,197,94,0.88)'; ?>;">
+                    <i class="fas <?php echo $pType === 'internal' ? 'fa-building' : 'fa-users'; ?>" style="font-size:0.55rem;" aria-hidden="true"></i>
+                    <?php echo $pType === 'internal' ? 'Intern' : 'Extern'; ?>
+                </span>
+            </div>
 
-    /* ── Reduced Motion ─────────────────────────────── */
-    @media (prefers-reduced-motion: reduce) {
-        .project-card { transition: none; }
-        .project-card:hover { transform: none; }
-        .project-card-image img { transition: none; }
-    }
-</style>
+            <!-- Top-right priority -->
+            <?php if (!empty($project['priority']) && isset($priorityStyles[$project['priority']])): ?>
+            <?php $ps = $priorityStyles[$project['priority']]; ?>
+            <div style="position:absolute;top:0.75rem;right:0.75rem;z-index:2;">
+                <span class="proj-badge" style="background:<?php echo $ps['badge_bg']; ?>;">
+                    <i class="fas <?php echo $ps['icon']; ?>" style="font-size:0.55rem;" aria-hidden="true"></i>
+                    <?php echo $ps['label']; ?>
+                </span>
+            </div>
+            <?php endif; ?>
+        </div>
+
+        <!-- Card Body -->
+        <div style="display:flex;flex-direction:column;flex:1;padding:1.125rem 1.125rem 1rem;">
+            <h3 style="font-size:1rem;font-weight:700;color:var(--text-main);line-height:1.35;margin:0 0 0.75rem;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">
+                <?php echo htmlspecialchars($project['title']); ?>
+            </h3>
+
+            <!-- Meta rows -->
+            <div style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:0.875rem;">
+                <?php if (!empty($project['client_name'])): ?>
+                <div class="proj-meta-row">
+                    <span class="proj-meta-icon"><i class="fas fa-user-tie" style="color:#8b5cf6;font-size:0.7rem;" aria-hidden="true"></i></span>
+                    <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?php echo htmlspecialchars($project['client_name']); ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if (!empty($project['start_date'])): ?>
+                <div class="proj-meta-row">
+                    <span class="proj-meta-icon"><i class="fas fa-calendar-alt" style="color:var(--ibc-blue);font-size:0.7rem;" aria-hidden="true"></i></span>
+                    <span>Start: <?php echo date('d.m.Y', strtotime($project['start_date'])); ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if (!empty($project['end_date'])): ?>
+                <div class="proj-meta-row">
+                    <span class="proj-meta-icon"><i class="fas fa-calendar-check" style="color:var(--ibc-green);font-size:0.7rem;" aria-hidden="true"></i></span>
+                    <span>Ende: <?php echo date('d.m.Y', strtotime($project['end_date'])); ?></span>
+                </div>
+                <?php endif; ?>
+            </div>
+
+            <!-- Description excerpt -->
+            <?php if (!empty($project['description'])): ?>
+            <p style="font-size:0.8125rem;color:var(--text-muted);line-height:1.55;margin:0 0 0.875rem;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;flex:1;">
+                <?php echo htmlspecialchars(mb_substr($project['description'], 0, 130)) . (mb_strlen($project['description']) > 130 ? '…' : ''); ?>
+            </p>
+            <?php else: ?>
+            <div style="flex:1;"></div>
+            <?php endif; ?>
+
+            <!-- Footer CTA -->
+            <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.75rem;border-top:1px solid var(--border-color);margin-top:auto;">
+                <?php if ($canApply): ?>
+                <span style="font-size:0.8125rem;font-weight:700;color:var(--ibc-green);">Jetzt bewerben</span>
+                <div class="proj-apply-circle">
+                    <i class="fas fa-paper-plane proj-apply-icon" aria-hidden="true"></i>
+                </div>
+                <?php else: ?>
+                <span style="font-size:0.8125rem;font-weight:700;color:#7c3aed;">Details ansehen</span>
+                <div class="proj-arrow-circle">
+                    <i class="fas fa-arrow-right proj-arrow-icon" aria-hidden="true"></i>
+                </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </a>
+    <?php endforeach; ?>
+</div>
+<?php endif; ?>
 
 <?php
 $content = ob_get_clean();
 require_once __DIR__ . '/../../includes/templates/main_layout.php';
-?>

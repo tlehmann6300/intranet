@@ -197,55 +197,327 @@ $pageTitle = $isEdit ? 'Beitrag bearbeiten - IBC Intranet' : 'Neuen Beitrag erst
 ob_start();
 ?>
 
-<div class="max-w-4xl mx-auto">
-    <div class="mb-6">
-        <a href="index.php" class="text-blue-600 hover:text-blue-700 inline-flex items-center mb-4">
-            <i class="fas fa-arrow-left mr-2"></i>Zurück zu News & Updates
+<style>
+@keyframes beFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.be-container {
+    max-width: 56rem;
+    margin: 0 auto;
+}
+
+.be-header {
+    margin-bottom: 1.5rem;
+}
+
+.be-back-btn {
+    display: inline-flex;
+    align-items: center;
+    color: var(--ibc-blue);
+    text-decoration: none;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    transition: opacity 0.2s ease;
+}
+
+.be-back-btn:hover {
+    opacity: 0.8;
+}
+
+.be-alert {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background-color: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+    animation: beFadeIn 0.3s cubic-bezier(0.22, 0.68, 0, 1.2);
+}
+
+.dark-mode .be-alert {
+    background-color: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.4);
+}
+
+.be-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    box-shadow: var(--shadow-card);
+    animation: beFadeIn 0.4s cubic-bezier(0.22, 0.68, 0, 1.2);
+}
+
+.dark-mode .be-card {
+    background: linear-gradient(135deg, rgba(26, 31, 46, 0.95) 0%, rgba(20, 25, 40, 0.98) 100%);
+    border-color: rgba(255, 255, 255, 0.07);
+}
+
+@media (min-width: 640px) {
+    .be-card {
+        padding: 1.5rem;
+    }
+}
+
+@media (min-width: 900px) {
+    .be-card {
+        padding: 2rem;
+    }
+}
+
+.be-card-header {
+    margin-bottom: 1.5rem;
+}
+
+.be-page-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+    .be-page-title {
+        font-size: 2rem;
+    }
+}
+
+.be-page-subtitle {
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+}
+
+.be-form {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+.be-form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.be-form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+}
+
+.be-form-required {
+    color: #ef4444;
+    margin-left: 0.25rem;
+}
+
+.be-input,
+.be-select,
+.be-textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    background: var(--bg-body);
+    color: var(--text-main);
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    font-family: sans-serif;
+}
+
+.be-input::placeholder,
+.be-textarea::placeholder {
+    color: var(--text-muted);
+}
+
+.be-input:focus,
+.be-select:focus,
+.be-textarea:focus {
+    outline: none;
+    border-color: var(--ibc-blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.be-textarea {
+    resize: vertical;
+    min-height: 200px;
+}
+
+.be-form-help {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+}
+
+.be-image-preview-section {
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.dark-mode .be-image-preview-section {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.be-current-image {
+    margin-bottom: 1rem;
+}
+
+.be-current-image-label {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.be-current-image-img {
+    max-width: 16rem;
+    height: 12rem;
+    object-fit: cover;
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow-card);
+}
+
+.be-form-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-top: 1.5rem;
+}
+
+@media (min-width: 900px) {
+    .be-form-actions {
+        flex-direction: row;
+        justify-content: flex-end;
+    }
+}
+
+.be-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    min-height: 44px;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    gap: 0.5rem;
+}
+
+.be-btn-primary {
+    background: linear-gradient(135deg, var(--ibc-blue) 0%, rgba(37, 99, 235, 0.9) 100%);
+    color: white;
+    box-shadow: var(--shadow-card);
+}
+
+.be-btn-primary:hover {
+    box-shadow: var(--shadow-card-hover);
+}
+
+.be-btn-secondary {
+    background: var(--bg-body);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+}
+
+.be-btn-secondary:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.dark-mode .be-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.be-btn-delete {
+    background: linear-gradient(135deg, #ef4444 0%, rgba(239, 68, 68, 0.9) 100%);
+    color: white;
+    box-shadow: var(--shadow-card);
+}
+
+.be-btn-delete:hover {
+    box-shadow: var(--shadow-card-hover);
+}
+
+@media (max-width: 899px) {
+    .be-btn {
+        width: 100%;
+    }
+}
+</style>
+
+<div class="be-container">
+    <!-- Back Button -->
+    <div class="be-header">
+        <a href="index.php" class="be-back-btn">
+            <i class="fas fa-arrow-left" style="margin-right: 0.5rem;"></i>Zurück zu News & Updates
         </a>
     </div>
 
+    <!-- Error Messages -->
     <?php if (!empty($errors)): ?>
-    <div class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+    <div class="be-alert">
         <?php foreach ($errors as $error): ?>
-            <div><i class="fas fa-exclamation-circle mr-2"></i><?php echo htmlspecialchars($error); ?></div>
+            <div><i class="fas fa-exclamation-circle" style="margin-right: 0.5rem;"></i><?php echo htmlspecialchars($error); ?></div>
         <?php endforeach; ?>
     </div>
     <?php endif; ?>
 
-    <div class="card p-4 sm:p-6 md:p-8">
-        <div class="mb-6">
-            <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-100">
-                <i class="fas fa-<?php echo $isEdit ? 'edit' : 'plus-circle'; ?> text-blue-600 dark:text-blue-400 mr-2"></i>
+    <!-- Main Card -->
+    <div class="be-card">
+        <!-- Header -->
+        <div class="be-card-header">
+            <h1 class="be-page-title">
+                <i class="fas fa-<?php echo $isEdit ? 'edit' : 'plus-circle'; ?>" style="color: var(--ibc-blue);"></i>
                 <?php echo $isEdit ? 'Beitrag bearbeiten' : 'Neuen Beitrag erstellen'; ?>
             </h1>
-            <p class="text-gray-600 dark:text-gray-300 mt-2">
+            <p class="be-page-subtitle">
                 <?php echo $isEdit ? 'Bearbeite die Details Deines Beitrags.' : 'Erstelle einen neuen Beitrag für News & Updates.'; ?>
             </p>
         </div>
 
-        <form method="POST" enctype="multipart/form-data" class="space-y-6">
+        <!-- Form -->
+        <form method="POST" enctype="multipart/form-data" class="be-form">
             <input type="hidden" name="csrf_token" value="<?php echo CSRFHandler::getToken(); ?>">
-            
+
             <!-- Title -->
-            <div>
-                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Titel *</label>
-                <input 
-                    type="text" 
-                    name="title" 
-                    required 
+            <div class="be-form-group">
+                <label class="be-form-label">
+                    Titel
+                    <span class="be-form-required">*</span>
+                </label>
+                <input
+                    type="text"
+                    name="title"
+                    required
                     value="<?php echo htmlspecialchars($title); ?>"
                     placeholder="Geben Sie einen aussagekräftigen Titel ein"
-                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400"
+                    class="be-input"
                 >
             </div>
 
             <!-- Category -->
-            <div>
-                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Kategorie *</label>
-                <select 
-                    name="category" 
-                    required 
-                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100"
+            <div class="be-form-group">
+                <label class="be-form-label">
+                    Kategorie
+                    <span class="be-form-required">*</span>
+                </label>
+                <select
+                    name="category"
+                    required
+                    class="be-select"
                 >
                     <option value="">-- Kategorie wählen --</option>
                     <option value="Allgemein" <?php echo $category === 'Allgemein' ? 'selected' : ''; ?>>Allgemein</option>
@@ -261,63 +533,72 @@ ob_start();
             </div>
 
             <!-- Content -->
-            <div>
-                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Inhalt *</label>
-                <textarea 
-                    name="content" 
-                    required 
+            <div class="be-form-group">
+                <label class="be-form-label">
+                    Inhalt
+                    <span class="be-form-required">*</span>
+                </label>
+                <textarea
+                    name="content"
+                    required
                     rows="10"
                     placeholder="Schreibe Deinen Beitrag hier..."
-                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-sans dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400"
-                    style="resize: vertical; min-height: 200px;"
+                    class="be-textarea"
                 ><?php echo htmlspecialchars($content); ?></textarea>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                <p class="be-form-help">
                     Der Inhalt wird als reiner Text gespeichert. HTML-Tags werden nicht unterstützt.
                 </p>
             </div>
 
             <!-- External Link -->
-            <div>
-                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Externer Link (optional)</label>
-                <input 
-                    type="url" 
-                    name="external_link" 
+            <div class="be-form-group">
+                <label class="be-form-label">Externer Link (optional)</label>
+                <input
+                    type="url"
+                    name="external_link"
                     value="<?php echo htmlspecialchars($externalLink); ?>"
                     placeholder="https://beispiel.de/artikel"
-                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400"
+                    class="be-input"
                 >
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                <p class="be-form-help">
                     Link zu einer externen Quelle oder weiteren Informationen.
                 </p>
             </div>
 
             <!-- Image Upload -->
-            <div class="pb-6 border-b border-gray-200 dark:border-gray-700">
-                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Bild (optional)</label>
+            <div class="be-image-preview-section">
+                <label class="be-form-label">Bild (optional)</label>
+
+                <!-- Current Image Preview -->
                 <?php if ($imagePath): ?>
-                <div class="mb-4">
-                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">Aktuelles Bild:</p>
-                    <img src="/<?php echo htmlspecialchars($imagePath); ?>" alt="Aktuelles Bild" class="w-64 h-48 object-cover rounded-lg shadow-md">
+                <div class="be-current-image">
+                    <span class="be-current-image-label">Aktuelles Bild:</span>
+                    <img src="/<?php echo htmlspecialchars($imagePath); ?>"
+                         alt="Aktuelles Bild"
+                         class="be-current-image-img">
                 </div>
                 <?php endif; ?>
-                <input 
-                    type="file" 
-                    name="image" 
+
+                <!-- File Input -->
+                <input
+                    type="file"
+                    name="image"
                     accept="image/jpeg,image/png,image/gif,image/webp"
-                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-300"
+                    class="be-input"
                 >
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                <p class="be-form-help">
                     Erlaubt: JPG, PNG, GIF, WebP. Maximum: 5MB. Das Bild wird sicher verarbeitet und validiert.
                 </p>
             </div>
 
             <!-- Submit Buttons -->
-            <div class="flex flex-col md:flex-row justify-end gap-4 pt-6">
-                <a href="index.php" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition text-center">
+            <div class="be-form-actions">
+                <a href="index.php" class="be-btn be-btn-secondary">
                     Abbrechen
                 </a>
-                <button type="submit" class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-xl">
-                    <i class="fas fa-save mr-2"></i><?php echo $isEdit ? 'Änderungen speichern' : 'Beitrag erstellen'; ?>
+                <button type="submit" class="be-btn be-btn-primary">
+                    <i class="fas fa-save"></i>
+                    <?php echo $isEdit ? 'Änderungen speichern' : 'Beitrag erstellen'; ?>
                 </button>
             </div>
         </form>

@@ -48,14 +48,22 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, [
 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
 
 $data = curl_exec($ch);
-$contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+$rawContentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE) ?? '';
 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 
-if ($httpCode == 200 && $data !== false && strpos($contentType, 'image/') === 0) {
-    header("Content-Type: $contentType");
+// Strip charset/boundary parameters: "image/jpeg; charset=utf-8" → "image/jpeg"
+$mimeOnly = strtolower(trim(explode(';', $rawContentType)[0]));
+
+// Strict whitelist – only known image MIME types; prevents response header injection
+$allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+
+if ($httpCode === 200 && $data !== false && strlen($data) > 0 && in_array($mimeOnly, $allowedMimes, true)) {
+    header('Content-Type: ' . $mimeOnly);
+    header('X-Content-Type-Options: nosniff');
+    header('Cache-Control: public, max-age=3600');
     echo $data;
 } else {
-    // Fallback image (1x1 pixel transparent or placeholder)
-    header("Location: /assets/img/ibc_logo_original.webp");
+    // Fallback – serve the local placeholder image
+    header('Location: /assets/img/ibc_logo_original.webp');
 }

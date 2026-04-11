@@ -54,42 +54,560 @@ $title = 'Event-Verwaltung - IBC Intranet';
 ob_start();
 ?>
 
-<div class="mb-8">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
-        <div>
-            <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">
-                <i class="fas fa-calendar-alt text-purple-600 mr-2"></i>
+<style>
+@keyframes emg-fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.emg-header-section {
+    margin-bottom: 2rem;
+    animation: emg-fadeIn 0.5s ease;
+}
+
+.emg-header-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+@media (min-width: 640px) {
+    .emg-header-wrapper {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+}
+
+.emg-header-content h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.emg-header-content h1 i {
+    color: #9333ea;
+}
+
+.emg-header-content p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+.emg-button-new {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    background-color: #9333ea;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 44px;
+    font-size: 0.95rem;
+}
+
+.emg-button-new:hover {
+    background-color: #a855f7;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
+}
+
+.emg-button-new i {
+    margin-right: 0.5rem;
+}
+
+.emg-alert {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    animation: emg-fadeIn 0.3s ease;
+}
+
+.emg-alert i {
+    margin-top: 0.125rem;
+    flex-shrink: 0;
+}
+
+.emg-alert-success {
+    background-color: #dcfce7;
+    border: 1px solid #86efac;
+    color: #166534;
+}
+
+.dark-mode .emg-alert-success {
+    background-color: rgba(34, 197, 94, 0.1);
+    border-color: rgba(34, 197, 94, 0.3);
+    color: #86efac;
+}
+
+.emg-alert-error {
+    background-color: #fee2e2;
+    border: 1px solid #fca5a5;
+    color: #991b1b;
+}
+
+.dark-mode .emg-alert-error {
+    background-color: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #fca5a5;
+}
+
+.emg-filter-card {
+    background-color: var(--bg-card);
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    animation: emg-fadeIn 0.5s ease;
+}
+
+.emg-filter-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.emg-filter-title i {
+    color: #9333ea;
+}
+
+.emg-filter-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+@media (max-width: 900px) {
+    .emg-filter-form {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .emg-filter-form {
+        grid-template-columns: 1fr;
+    }
+}
+
+.emg-filter-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.emg-filter-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+}
+
+.emg-filter-input,
+.emg-filter-select {
+    padding: 0.75rem;
+    background-color: var(--bg-body);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    color: var(--text-main);
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    min-height: 44px;
+}
+
+.emg-filter-input:focus,
+.emg-filter-select:focus {
+    outline: none;
+    border-color: #9333ea;
+    box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.1);
+}
+
+.emg-filter-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 900px) {
+    .emg-filter-actions {
+        grid-column: 1 / -1;
+        justify-content: stretch;
+    }
+}
+
+.emg-button-secondary {
+    padding: 0.75rem 1.5rem;
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    gap: 0.5rem;
+}
+
+.emg-button-secondary:hover {
+    background-color: var(--border-color);
+    border-color: var(--text-muted);
+}
+
+.emg-empty-state {
+    background-color: var(--bg-card);
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 3rem;
+    text-align: center;
+    animation: emg-fadeIn 0.5s ease;
+}
+
+.emg-empty-state i {
+    font-size: 3.75rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.emg-empty-state h3 {
+    font-size: clamp(1rem, 3vw, 1.25rem);
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+}
+
+.emg-empty-state p {
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+}
+
+.emg-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: clamp(0.75rem, 2vw, 1.5rem);
+}
+
+@media (max-width: 900px) {
+    .emg-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .emg-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.emg-event-card {
+    background-color: var(--bg-card);
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+    animation: emg-fadeIn 0.5s ease;
+}
+
+.emg-event-card:hover {
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-4px);
+    border-color: #9333ea;
+}
+
+.emg-event-badges {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.emg-status-badge {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 9999px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: inline-block;
+}
+
+.emg-status-planned {
+    background-color: #dbeafe;
+    color: #1e3a8a;
+}
+
+.dark-mode .emg-status-planned {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: #93c5fd;
+}
+
+.emg-status-open {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.dark-mode .emg-status-open {
+    background-color: rgba(34, 197, 94, 0.1);
+    color: #86efac;
+}
+
+.emg-status-running {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.dark-mode .emg-status-running {
+    background-color: rgba(250, 204, 21, 0.1);
+    color: #fcd34d;
+}
+
+.emg-status-closed {
+    background-color: #f3f4f6;
+    color: #374151;
+}
+
+.dark-mode .emg-status-closed {
+    background-color: rgba(107, 114, 128, 0.1);
+    color: #d1d5db;
+}
+
+.emg-status-past {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.dark-mode .emg-status-past {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #fca5a5;
+}
+
+.emg-helpers-badge {
+    background-color: #f3e8ff;
+    color: #6b21a8;
+    padding: 0.375rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.dark-mode .emg-helpers-badge {
+    background-color: rgba(168, 85, 247, 0.1);
+    color: #e9d5ff;
+}
+
+.emg-event-title {
+    font-size: clamp(1rem, 3vw, 1.25rem);
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 1rem;
+    line-height: 1.3;
+}
+
+.emg-event-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.emg-event-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.emg-event-meta-item i {
+    width: 1.25rem;
+    color: #9333ea;
+    text-align: center;
+}
+
+.emg-event-helpers {
+    background-color: var(--bg-body);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-main);
+}
+
+.emg-event-helpers strong {
+    color: #9333ea;
+}
+
+.emg-event-lock {
+    background-color: #fef3c7;
+    border: 1px solid #fcd34d;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    color: #92400e;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.dark-mode .emg-event-lock {
+    background-color: rgba(250, 204, 21, 0.1);
+    border-color: rgba(250, 204, 21, 0.3);
+    color: #fcd34d;
+}
+
+.emg-event-lock i {
+    flex-shrink: 0;
+}
+
+.emg-event-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: auto;
+    flex-wrap: wrap;
+}
+
+.emg-button-action {
+    flex: 1;
+    min-width: 100px;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    font-size: 0.8rem;
+    min-height: 44px;
+}
+
+.emg-button-edit {
+    background-color: #9333ea;
+    color: white;
+}
+
+.emg-button-edit:hover {
+    background-color: #a855f7;
+}
+
+.emg-button-stats {
+    background-color: #4f46e5;
+    color: white;
+}
+
+.emg-button-stats:hover {
+    background-color: #6366f1;
+}
+
+.emg-button-delete {
+    background-color: #ef4444;
+    color: white;
+}
+
+.emg-button-delete:hover {
+    background-color: #f87171;
+}
+
+.emg-button-action i {
+    font-size: 0.9rem;
+}
+
+@media (max-width: 640px) {
+    .emg-filter-actions {
+        grid-column: 1 / -1;
+    }
+
+    .emg-event-card {
+        padding: 1rem;
+    }
+
+    .emg-event-title {
+        font-size: 1rem;
+    }
+
+    .emg-event-actions {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color);
+    }
+}
+</style>
+
+<div class="emg-header-section">
+    <div class="emg-header-wrapper">
+        <div class="emg-header-content">
+            <h1>
+                <i class="fas fa-calendar-alt"></i>
                 Event-Verwaltung
             </h1>
-            <p class="text-gray-600 dark:text-gray-300"><?php echo count($events); ?> Event(s) gefunden</p>
+            <p><?php echo count($events); ?> Event(s) gefunden</p>
         </div>
-        <a href="edit.php?new=1" class="btn-primary w-full sm:w-auto">
-            <i class="fas fa-plus mr-2"></i>Neues Event
+        <a href="edit.php?new=1" class="emg-button-new">
+            <i class="fas fa-plus"></i>Neues Event
         </a>
     </div>
 </div>
 
 <?php if ($message): ?>
-<div class="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
-    <i class="fas fa-check-circle mr-2"></i><?php echo htmlspecialchars($message); ?>
+<div class="emg-alert emg-alert-success">
+    <i class="fas fa-check-circle"></i>
+    <span><?php echo htmlspecialchars($message); ?></span>
 </div>
 <?php endif; ?>
 
 <?php if ($error): ?>
-<div class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-    <i class="fas fa-exclamation-circle mr-2"></i><?php echo htmlspecialchars($error); ?>
+<div class="emg-alert emg-alert-error">
+    <i class="fas fa-exclamation-circle"></i>
+    <span><?php echo htmlspecialchars($error); ?></span>
 </div>
 <?php endif; ?>
 
 <!-- Filter Section -->
-<div class="card dark:bg-gray-800 p-6 mb-6">
-    <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">
-        <i class="fas fa-filter text-purple-600 mr-2"></i>Filter
+<div class="emg-filter-card">
+    <h2 class="emg-filter-title">
+        <i class="fas fa-filter"></i>Filter
     </h2>
-    <form method="GET" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-        <div>
-            <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
-            <select name="status" class="w-full px-4 py-2 bg-white border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+    <form method="GET" class="emg-filter-form">
+        <div class="emg-filter-group">
+            <label class="emg-filter-label">Status</label>
+            <select name="status" class="emg-filter-select">
                 <option value="">Alle</option>
                 <option value="planned" <?php echo (isset($_GET['status']) && $_GET['status'] === 'planned') ? 'selected' : ''; ?>>Geplant</option>
                 <option value="open" <?php echo (isset($_GET['status']) && $_GET['status'] === 'open') ? 'selected' : ''; ?>>Offen</option>
@@ -98,60 +616,53 @@ ob_start();
                 <option value="past" <?php echo (isset($_GET['status']) && $_GET['status'] === 'past') ? 'selected' : ''; ?>>Vergangen</option>
             </select>
         </div>
-        <div>
-            <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Helfer benötigt</label>
-            <select name="needs_helpers" class="w-full px-4 py-2 bg-white border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+        <div class="emg-filter-group">
+            <label class="emg-filter-label">Helfer benötigt</label>
+            <select name="needs_helpers" class="emg-filter-select">
                 <option value="">Alle</option>
                 <option value="1" <?php echo (isset($_GET['needs_helpers']) && $_GET['needs_helpers'] === '1') ? 'selected' : ''; ?>>Ja</option>
                 <option value="0" <?php echo (isset($_GET['needs_helpers']) && $_GET['needs_helpers'] === '0') ? 'selected' : ''; ?>>Nein</option>
             </select>
         </div>
-        <div>
-            <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Von Datum</label>
-            <input type="date" name="start_date" value="<?php echo htmlspecialchars($_GET['start_date'] ?? ''); ?>" class="w-full px-4 py-2 bg-white border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+        <div class="emg-filter-group">
+            <label class="emg-filter-label">Von Datum</label>
+            <input type="date" name="start_date" value="<?php echo htmlspecialchars($_GET['start_date'] ?? ''); ?>" class="emg-filter-input">
         </div>
-        <div>
-            <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Bis Datum</label>
-            <input type="date" name="end_date" value="<?php echo htmlspecialchars($_GET['end_date'] ?? ''); ?>" class="w-full px-4 py-2 bg-white border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+        <div class="emg-filter-group">
+            <label class="emg-filter-label">Bis Datum</label>
+            <input type="date" name="end_date" value="<?php echo htmlspecialchars($_GET['end_date'] ?? ''); ?>" class="emg-filter-input">
         </div>
-        <div class="md:col-span-2 lg:col-span-4 flex flex-col md:flex-row justify-end gap-2">
-            <a href="manage.php" class="w-full sm:w-auto px-6 py-3 bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition text-center">
-                <i class="fas fa-times mr-2"></i>Zurücksetzen
-            </a>
-            <button type="submit" class="btn-primary w-full sm:w-auto">
-                <i class="fas fa-search mr-2"></i>Filtern
-            </button>
+        <div class="emg-filter-group" style="grid-column: 1 / -1;">
+            <div class="emg-filter-actions">
+                <a href="manage.php" class="emg-button-secondary">
+                    <i class="fas fa-times"></i>Zurücksetzen
+                </a>
+                <button type="submit" class="emg-button-new">
+                    <i class="fas fa-search"></i>Filtern
+                </button>
+            </div>
         </div>
     </form>
 </div>
 
 <!-- Events Grid -->
 <?php if (empty($events)): ?>
-<div class="card dark:bg-gray-800 p-12 text-center">
-    <i class="fas fa-calendar-times text-gray-400 text-6xl mb-4"></i>
-    <h3 class="text-base sm:text-xl font-semibold text-gray-600 dark:text-gray-300 mb-2">Keine Events gefunden</h3>
-    <p class="text-gray-500 dark:text-gray-400 mb-6">Es wurden keine Events mit den ausgewählten Filtern gefunden.</p>
-    <a href="edit.php?new=1" class="btn-primary w-full sm:w-auto">
-        <i class="fas fa-plus mr-2"></i>Erstes Event erstellen
+<div class="emg-empty-state">
+    <i class="fas fa-calendar-times"></i>
+    <h3>Keine Events gefunden</h3>
+    <p>Es wurden keine Events mit den ausgewählten Filtern gefunden.</p>
+    <a href="edit.php?new=1" class="emg-button-new">
+        <i class="fas fa-plus"></i>Erstes Event erstellen
     </a>
 </div>
 <?php else: ?>
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
+<div class="emg-grid">
     <?php foreach ($events as $event): ?>
-    <div class="card dark:bg-gray-800 p-6 hover:shadow-lg transition">
-        <!-- Status Badge -->
-        <div class="flex items-start justify-between mb-4">
-            <span class="px-3 py-1 text-xs font-semibold rounded-full
-                <?php 
-                switch($event['status']) {
-                    case 'planned': echo 'bg-blue-100 text-blue-800'; break;
-                    case 'open': echo 'bg-green-100 text-green-800'; break;
-                    case 'running': echo 'bg-yellow-100 text-yellow-800'; break;
-                    case 'closed': echo 'bg-gray-100 text-gray-800'; break;
-                    case 'past': echo 'bg-red-100 text-red-800'; break;
-                }
-                ?>">
-                <?php 
+    <div class="emg-event-card">
+        <!-- Status Badges -->
+        <div class="emg-event-badges">
+            <span class="emg-status-badge emg-status-<?php echo htmlspecialchars($event['status']); ?>">
+                <?php
                 switch($event['status']) {
                     case 'planned': echo 'Geplant'; break;
                     case 'open': echo 'Offen'; break;
@@ -162,32 +673,32 @@ ob_start();
                 ?>
             </span>
             <?php if ($event['needs_helpers']): ?>
-            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
+            <span class="emg-helpers-badge">
                 <i class="fas fa-hands-helping"></i> Helfer
             </span>
             <?php endif; ?>
         </div>
 
         <!-- Title -->
-        <h3 class="text-base sm:text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">
+        <h3 class="emg-event-title">
             <?php echo htmlspecialchars($event['title']); ?>
         </h3>
 
         <!-- Location and Time -->
-        <div class="space-y-2 mb-4 text-sm text-gray-600 dark:text-gray-300">
+        <div class="emg-event-meta">
             <?php if ($event['location']): ?>
-            <div class="flex items-center">
-                <i class="fas fa-map-marker-alt w-5 text-purple-600"></i>
+            <div class="emg-event-meta-item">
+                <i class="fas fa-map-marker-alt"></i>
                 <span><?php echo htmlspecialchars($event['location']); ?></span>
             </div>
             <?php endif; ?>
-            <div class="flex items-center">
-                <i class="fas fa-clock w-5 text-purple-600"></i>
+            <div class="emg-event-meta-item">
+                <i class="fas fa-clock"></i>
                 <span><?php echo date('d.m.Y H:i', strtotime($event['start_time'])); ?></span>
             </div>
             <?php if ($event['is_external']): ?>
-            <div class="flex items-center">
-                <i class="fas fa-external-link-alt w-5 text-purple-600"></i>
+            <div class="emg-event-meta-item">
+                <i class="fas fa-external-link-alt"></i>
                 <span>Externes Event</span>
             </div>
             <?php endif; ?>
@@ -195,35 +706,31 @@ ob_start();
 
         <!-- Helper Info -->
         <?php if ($event['needs_helpers'] && !empty($event['helper_types'])): ?>
-        <div class="mb-4 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-            <div class="text-sm text-gray-700 dark:text-gray-300">
-                <strong><?php echo count($event['helper_types']); ?></strong> Helfer-Typ(en)
-            </div>
+        <div class="emg-event-helpers">
+            <strong><?php echo count($event['helper_types']); ?></strong> Helfer-Typ(en)
         </div>
         <?php endif; ?>
 
         <!-- Lock Status -->
-        <?php 
+        <?php
         $lockInfo = Event::checkLock($event['id'], $_SESSION['user_id']);
-        if ($lockInfo['is_locked']): 
+        if ($lockInfo['is_locked']):
             $lockedUser = User::getById($lockInfo['locked_by']);
         ?>
-        <div class="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-            <div class="flex items-center text-sm text-yellow-800 dark:text-yellow-300">
-                <i class="fas fa-lock mr-2"></i>
-                <span>Gesperrt von <?php echo htmlspecialchars($lockedUser['first_name'] ?? 'Benutzer'); ?></span>
-            </div>
+        <div class="emg-event-lock">
+            <i class="fas fa-lock"></i>
+            <span>Gesperrt von <?php echo htmlspecialchars($lockedUser['first_name'] ?? 'Benutzer'); ?></span>
         </div>
         <?php endif; ?>
 
         <!-- Actions -->
-        <div class="flex space-x-2">
-            <a href="edit.php?id=<?php echo $event['id']; ?>" class="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-center text-sm">
-                <i class="fas fa-edit mr-1"></i>Bearbeiten
+        <div class="emg-event-actions">
+            <a href="edit.php?id=<?php echo $event['id']; ?>" class="emg-button-action emg-button-edit">
+                <i class="fas fa-edit"></i><span>Bearbeiten</span>
             </a>
             <?php if ($canAddStats && in_array($event['status'], ['closed', 'past'])): ?>
             <button
-                class="add-stats-btn px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-sm"
+                class="add-stats-btn emg-button-action emg-button-stats"
                 data-event-id="<?php echo $event['id']; ?>"
                 data-event-year="<?php echo date('Y', strtotime($event['start_time'])); ?>"
                 title="Statistiken nachtragen"
@@ -231,8 +738,8 @@ ob_start();
                 <i class="fas fa-chart-bar"></i>
             </button>
             <?php endif; ?>
-            <button 
-                class="delete-event-btn px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm"
+            <button
+                class="delete-event-btn emg-button-action emg-button-delete"
                 data-event-id="<?php echo $event['id']; ?>"
                 data-event-name="<?php echo htmlspecialchars($event['title']); ?>"
                 title="Löschen"

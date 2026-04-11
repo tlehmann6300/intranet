@@ -169,215 +169,503 @@ $title = 'Mein Alumni-Profil bearbeiten - IBC Intranet';
 ob_start();
 ?>
 
-<div class="max-w-4xl mx-auto">
+<style>
+/* ── Alumni Edit Form ────────────────────────────────────── */
+.alme-container {
+    max-width: 56rem;
+    margin: 0 auto;
+}
+
+.alme-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--ibc-blue);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    margin-bottom: 1.5rem;
+    transition: opacity 0.2s;
+}
+
+.alme-back-link:hover {
+    opacity: 0.8;
+}
+
+.alme-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem 1.125rem;
+    border-radius: 0.875rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.9375rem;
+    border: 1.5px solid;
+}
+
+.alme-alert__icon {
+    flex-shrink: 0;
+    font-size: 1.25rem;
+    margin-top: 0.125rem;
+}
+
+.alme-alert--warning {
+    background: rgba(251,146,60,0.08);
+    border-color: rgba(251,146,60,0.2);
+    color: #92400e;
+}
+
+.alme-alert--info {
+    background: rgba(59,130,246,0.08);
+    border-color: rgba(59,130,246,0.2);
+    color: #1e40af;
+}
+
+.alme-alert--error {
+    background: rgba(239,68,68,0.08);
+    border-color: rgba(239,68,68,0.2);
+    color: #991b1b;
+}
+
+.dark-mode .alme-alert--warning {
+    background: rgba(251,146,60,0.12);
+    color: #fbbf24;
+}
+
+.dark-mode .alme-alert--info {
+    background: rgba(59,130,246,0.12);
+    color: #93c5fd;
+}
+
+.dark-mode .alme-alert--error {
+    background: rgba(239,68,68,0.12);
+    color: #fca5a5;
+}
+
+.alme-card {
+    background: var(--bg-card);
+    border: 1.5px solid var(--border-color);
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: var(--shadow-card);
+}
+
+.alme-header {
+    margin-bottom: 1.5rem;
+}
+
+.alme-title {
+    font-size: 1.875rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin: 0 0 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.alme-title-icon {
+    color: var(--ibc-blue);
+    font-size: 1.5rem;
+}
+
+.alme-subtitle {
+    font-size: 0.9375rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.alme-section {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.alme-section:last-of-type {
+    border-bottom: none;
+}
+
+.alme-section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 1rem;
+}
+
+.alme-form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+@media (min-width: 640px) {
+    .alme-form-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.alme-form-grid--full {
+    grid-column: 1 / -1;
+}
+
+.alme-form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.alme-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+}
+
+.alme-label--required::after {
+    content: ' *';
+    color: #ef4444;
+}
+
+.alme-input,
+.alme-file-input {
+    padding: 0.625rem 0.875rem;
+    border: 1.5px solid var(--border-color);
+    border-radius: 0.625rem;
+    background: var(--bg-body);
+    color: var(--text-main);
+    font-size: 0.9375rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    min-height: 44px;
+}
+
+.alme-input:focus,
+.alme-file-input:focus {
+    border-color: var(--ibc-blue);
+    box-shadow: 0 0 0 3px rgba(0,102,179,0.1);
+}
+
+.alme-input::placeholder {
+    color: var(--text-muted);
+}
+
+.alme-file-input {
+    padding: 0.75rem;
+    cursor: pointer;
+}
+
+.alme-help-text {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    margin-top: 0.375rem;
+}
+
+.alme-image-preview {
+    width: 8rem;
+    height: 8rem;
+    border-radius: 9999px;
+    object-fit: cover;
+    box-shadow: var(--shadow-card);
+    margin-bottom: 1rem;
+}
+
+.alme-image-label {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.alme-button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+@media (min-width: 768px) {
+    .alme-button-group {
+        flex-direction: row;
+        justify-content: flex-end;
+    }
+}
+
+.alme-btn-primary,
+.alme-btn-secondary {
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.625rem;
+    border: none;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(.22,.68,0,1.2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    min-height: 44px;
+}
+
+.alme-btn-primary {
+    background: linear-gradient(135deg, var(--ibc-blue), #0088ee);
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(0,102,179,0.25);
+}
+
+.alme-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,102,179,0.35);
+}
+
+.alme-btn-primary:active {
+    transform: translateY(0);
+}
+
+.alme-btn-secondary {
+    background: var(--bg-card);
+    color: var(--text-main);
+    border: 1.5px solid var(--border-color);
+}
+
+.alme-btn-secondary:hover {
+    background: rgba(100,116,139,0.1);
+}
+
+@media (max-width: 640px) {
+    .alme-card {
+        padding: 1.25rem;
+    }
+
+    .alme-title {
+        font-size: 1.5rem;
+    }
+
+    .alme-section {
+        margin-bottom: 1.25rem;
+        padding-bottom: 1.25rem;
+    }
+
+    .alme-button-group {
+        gap: 0.75rem;
+    }
+
+    .alme-btn-primary,
+    .alme-btn-secondary {
+        width: 100%;
+    }
+}
+</style>
+
+<div class="alme-container">
     <?php if (!$isFirstTimeSetup): ?>
-    <div class="mb-6">
-        <a href="index.php" class="text-purple-600 hover:text-purple-700 inline-flex items-center mb-4">
-            <i class="fas fa-arrow-left mr-2"></i>Zurück zum Alumni Directory
-        </a>
-    </div>
+    <a href="index.php" class="alme-back-link">
+        <i class="fas fa-arrow-left"></i>Zurück zum Alumni Directory
+    </a>
     <?php endif; ?>
-    
+
     <?php if ($isFirstTimeSetup): ?>
-    <div class="mb-6 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800">
-        <div class="flex items-start">
-            <i class="fas fa-exclamation-triangle mt-0.5 mr-3 text-xl"></i>
-            <div>
-                <h3 class="font-bold mb-2">Profil vervollständigen erforderlich</h3>
-                <p>Bitte geben Sie Ihren Vornamen und Nachnamen ein, um fortzufahren. Diese Informationen sind erforderlich.</p>
-            </div>
+    <div class="alme-alert alme-alert--warning">
+        <i class="fas fa-exclamation-triangle alme-alert__icon"></i>
+        <div>
+            <strong>Profil vervollständigen erforderlich</strong>
+            <p style="margin-top: 0.25rem; margin-bottom: 0;">Bitte geben Sie Ihren Vornamen und Nachnamen ein, um fortzufahren. Diese Informationen sind erforderlich.</p>
         </div>
     </div>
     <?php endif; ?>
-    
+
     <?php if (isset($_SESSION['profile_incomplete_message'])): ?>
-    <div class="mb-6 p-4 bg-blue-100 border border-blue-400 text-blue-700 rounded-lg">
-        <i class="fas fa-info-circle mr-2"></i><?php echo htmlspecialchars($_SESSION['profile_incomplete_message']); ?>
+    <div class="alme-alert alme-alert--info">
+        <i class="fas fa-info-circle alme-alert__icon"></i>
+        <span><?php echo htmlspecialchars($_SESSION['profile_incomplete_message']); ?></span>
     </div>
     <?php unset($_SESSION['profile_incomplete_message']); ?>
     <?php endif; ?>
 
     <?php if (!empty($errors)): ?>
-    <div class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-        <?php foreach ($errors as $error): ?>
-            <div><i class="fas fa-exclamation-circle mr-2"></i><?php echo htmlspecialchars($error); ?></div>
-        <?php endforeach; ?>
+    <div class="alme-alert alme-alert--error">
+        <i class="fas fa-exclamation-circle alme-alert__icon"></i>
+        <div>
+            <?php foreach ($errors as $error): ?>
+                <div><?php echo htmlspecialchars($error); ?></div>
+            <?php endforeach; ?>
+        </div>
     </div>
     <?php endif; ?>
 
-    <div class="card p-8">
-        <div class="mb-6">
-            <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-100">
-                <i class="fas fa-user-edit text-purple-600 mr-2"></i>
+    <div class="alme-card">
+        <div class="alme-header">
+            <h1 class="alme-title">
+                <i class="fas fa-user-edit alme-title-icon"></i>
                 <?php echo $profile ? 'Profil bearbeiten' : 'Profil erstellen'; ?>
             </h1>
-            <p class="text-gray-600 mt-2">
-                Vervollständigen Sie Ihr Alumni-Profil, damit andere Sie finden und kontaktieren können.
-            </p>
+            <p class="alme-subtitle">Vervollständigen Sie Ihr Alumni-Profil, damit andere Sie finden und kontaktieren können.</p>
         </div>
 
-        <form method="POST" enctype="multipart/form-data" class="space-y-6">
+        <form method="POST" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="<?php echo CSRFHandler::getToken(); ?>">
-            
+
             <!-- Personal Information -->
-            <div class="border-b pb-6">
-                <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-4">Persönliche Informationen</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">
-                    <div>
-                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Vorname *</label>
-                        <input 
-                            type="text" 
-                            name="first_name" 
-                            required 
+            <div class="alme-section">
+                <h2 class="alme-section-title">Persönliche Informationen</h2>
+                <div class="alme-form-grid">
+                    <div class="alme-form-group">
+                        <label class="alme-label alme-label--required">Vorname</label>
+                        <input
+                            type="text"
+                            name="first_name"
+                            required
                             value="<?php echo htmlspecialchars($firstName); ?>"
-                            class="w-full px-4 py-2 bg-white border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            class="alme-input"
                         >
                     </div>
 
-                    <div>
-                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nachname *</label>
-                        <input 
-                            type="text" 
-                            name="last_name" 
-                            required 
+                    <div class="alme-form-group">
+                        <label class="alme-label alme-label--required">Nachname</label>
+                        <input
+                            type="text"
+                            name="last_name"
+                            required
                             value="<?php echo htmlspecialchars($lastName); ?>"
-                            class="w-full px-4 py-2 bg-white border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            class="alme-input"
                         >
                     </div>
 
-                    <div>
-                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">E-Mail *</label>
-                        <input 
-                            type="email" 
-                            name="email" 
-                            required 
+                    <div class="alme-form-group">
+                        <label class="alme-label alme-label--required">E-Mail</label>
+                        <input
+                            type="email"
+                            name="email"
+                            required
                             value="<?php echo htmlspecialchars($email); ?>"
-                            class="w-full px-4 py-2 bg-white border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            class="alme-input"
                         >
                     </div>
 
-                    <div>
-                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mobiltelefon</label>
-                        <input 
-                            type="text" 
-                            name="mobile_phone" 
+                    <div class="alme-form-group">
+                        <label class="alme-label">Mobiltelefon</label>
+                        <input
+                            type="text"
+                            name="mobile_phone"
                             value="<?php echo htmlspecialchars($mobilePhone); ?>"
                             placeholder="+49 123 4567890"
-                            class="w-full px-4 py-2 bg-white border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            class="alme-input"
                         >
                     </div>
                 </div>
             </div>
 
             <!-- Professional Information -->
-            <div class="border-b pb-6">
-                <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-4">Berufliche Informationen</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">
-                    <div>
-                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Firma *</label>
-                        <input 
-                            type="text" 
-                            name="company" 
-                            required 
+            <div class="alme-section">
+                <h2 class="alme-section-title">Berufliche Informationen</h2>
+                <div class="alme-form-grid">
+                    <div class="alme-form-group">
+                        <label class="alme-label alme-label--required">Firma</label>
+                        <input
+                            type="text"
+                            name="company"
+                            required
                             value="<?php echo htmlspecialchars($company); ?>"
                             placeholder="z.B. ABC GmbH"
-                            class="w-full px-4 py-2 bg-white border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            class="alme-input"
                         >
                     </div>
 
-                    <div>
-                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Position *</label>
-                        <input 
-                            type="text" 
-                            name="position" 
-                            required 
+                    <div class="alme-form-group">
+                        <label class="alme-label alme-label--required">Position</label>
+                        <input
+                            type="text"
+                            name="position"
+                            required
                             value="<?php echo htmlspecialchars($position); ?>"
                             placeholder="z.B. Senior Consultant"
-                            class="w-full px-4 py-2 bg-white border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            class="alme-input"
                         >
                     </div>
 
-                    <div class="md:col-span-2">
-                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Branche</label>
-                        <input 
-                            type="text" 
-                            name="industry" 
+                    <div class="alme-form-group alme-form-grid--full">
+                        <label class="alme-label">Branche</label>
+                        <input
+                            type="text"
+                            name="industry"
                             value="<?php echo htmlspecialchars($industry); ?>"
                             placeholder="z.B. IT, Consulting, Finance"
-                            class="w-full px-4 py-2 bg-white border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            class="alme-input"
                         >
                     </div>
                 </div>
             </div>
 
             <!-- Social Media Links -->
-            <div class="border-b pb-6">
-                <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-4">Social Media</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">
-                    <div>
-                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            <i class="fab fa-linkedin text-blue-600 mr-1"></i>
+            <div class="alme-section">
+                <h2 class="alme-section-title">Social Media</h2>
+                <div class="alme-form-grid">
+                    <div class="alme-form-group">
+                        <label class="alme-label">
+                            <i class="fab fa-linkedin" style="color: var(--ibc-blue); margin-right: 0.25rem;"></i>
                             LinkedIn URL
                         </label>
-                        <input 
-                            type="url" 
-                            name="linkedin_url" 
+                        <input
+                            type="url"
+                            name="linkedin_url"
                             value="<?php echo htmlspecialchars($linkedinUrl); ?>"
                             placeholder="https://www.linkedin.com/in/ihr-profil"
-                            class="w-full px-4 py-2 bg-white border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            class="alme-input"
                         >
                     </div>
 
-                    <div>
-                        <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            <i class="fab fa-xing text-green-700 mr-1"></i>
+                    <div class="alme-form-group">
+                        <label class="alme-label">
+                            <i class="fab fa-xing" style="color: var(--ibc-green); margin-right: 0.25rem;"></i>
                             Xing URL
                         </label>
-                        <input 
-                            type="url" 
-                            name="xing_url" 
+                        <input
+                            type="url"
+                            name="xing_url"
                             value="<?php echo htmlspecialchars($xingUrl); ?>"
                             placeholder="https://www.xing.com/profile/ihr-profil"
-                            class="w-full px-4 py-2 bg-white border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            class="alme-input"
                         >
                     </div>
                 </div>
             </div>
 
             <!-- Profile Picture -->
-            <div class="pb-6">
-                <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-4">Profilbild</h2>
+            <div class="alme-section">
+                <h2 class="alme-section-title">Profilbild</h2>
                 <?php if ($imagePath): ?>
-                <div class="mb-4">
-                    <p class="text-sm text-gray-600 mb-2">Aktuelles Profilbild:</p>
-                    <img src="/<?php echo htmlspecialchars($imagePath); ?>" alt="Aktuelles Profilbild" class="w-32 h-32 rounded-full object-cover shadow-lg">
+                <div>
+                    <p class="alme-image-label">Aktuelles Profilbild:</p>
+                    <img src="/<?php echo htmlspecialchars($imagePath); ?>" alt="Aktuelles Profilbild" class="alme-image-preview">
                 </div>
                 <?php endif; ?>
-                <div>
-                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <div class="alme-form-group">
+                    <label class="alme-label">
                         <?php echo $imagePath ? 'Neues Bild hochladen (optional)' : 'Bild hochladen (optional)'; ?>
                     </label>
-                    <input 
-                        type="file" 
-                        name="image" 
+                    <input
+                        type="file"
+                        name="image"
                         accept="image/jpeg,image/png,image/gif,image/webp"
-                        class="w-full px-4 py-2 bg-white border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        class="alme-file-input"
                     >
-                    <p class="text-sm text-gray-500 mt-2">
+                    <p class="alme-help-text">
+                        <i class="fas fa-info-circle" style="margin-right: 0.25rem;"></i>
                         Erlaubt: JPG, PNG, GIF, WebP. Maximum: 5MB. Wird sicher verarbeitet und validiert.
                     </p>
                 </div>
             </div>
 
             <!-- Submit Buttons -->
-            <div class="flex flex-col md:flex-row justify-end gap-4 pt-6 border-t">
+            <div class="alme-button-group">
                 <?php if (!$isFirstTimeSetup): ?>
-                <a href="index.php" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-center">
+                <a href="index.php" class="alme-btn-secondary">
                     Abbrechen
                 </a>
                 <?php endif; ?>
-                <button type="submit" class="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-purple-800 transition-all shadow-lg hover:shadow-xl">
-                    <i class="fas fa-save mr-2"></i>Profil speichern
+                <button type="submit" class="alme-btn-primary">
+                    <i class="fas fa-save"></i>Profil speichern
                 </button>
             </div>
         </form>

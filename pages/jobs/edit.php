@@ -212,39 +212,364 @@ $pageTitle = 'Anzeige ändern - IBC Intranet';
 ob_start();
 ?>
 
-<div class="max-w-2xl mx-auto">
-    <div class="mb-6">
-        <a href="index.php" class="text-blue-600 hover:text-blue-700 inline-flex items-center mb-4">
-            <i class="fas fa-arrow-left mr-2"></i>Zurück zur Job- &amp; Praktikumsbörse
+<style>
+.jed-container {
+    max-width: 42rem;
+    margin-left: auto;
+    margin-right: auto;
+    animation: springFadeIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes springFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.jed-back-link {
+    display: inline-flex;
+    align-items: center;
+    color: var(--ibc-blue);
+    text-decoration: none;
+    margin-bottom: 1.5rem;
+    transition: color 0.2s;
+}
+
+.jed-back-link:hover {
+    color: var(--ibc-green);
+}
+
+.jed-error-box {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background-color: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 0.5rem;
+    color: #dc2626;
+}
+
+.dark-mode .jed-error-box {
+    background-color: rgba(127, 29, 29, 0.2);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #fca5a5;
+}
+
+.jed-error-item {
+    display: flex;
+    align-items: center;
+    margin: 0.25rem 0;
+    font-size: 0.875rem;
+}
+
+.jed-card {
+    background-color: var(--bg-card);
+    border-radius: 0.75rem;
+    padding: 2rem;
+    box-shadow: var(--shadow-card);
+    transition: box-shadow 0.2s;
+}
+
+.jed-card:hover {
+    box-shadow: var(--shadow-card-hover);
+}
+
+.dark-mode .jed-card {
+    border: 1px solid var(--border-color);
+}
+
+.jed-header {
+    margin-bottom: 1.5rem;
+}
+
+.jed-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+@media (max-width: 640px) {
+    .jed-title {
+        font-size: 1.5rem;
+    }
+}
+
+.jed-subtitle {
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+}
+
+.jed-form-group {
+    margin-bottom: 1.5rem;
+}
+
+.jed-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+}
+
+.jed-required {
+    color: #ef4444;
+}
+
+.jed-input,
+.jed-select,
+.jed-textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    font-size: 1rem;
+    transition: all 0.2s;
+    min-height: 44px;
+}
+
+.jed-input:focus,
+.jed-select:focus,
+.jed-textarea:focus {
+    outline: none;
+    border-color: var(--ibc-blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.dark-mode .jed-input:focus,
+.dark-mode .jed-select:focus,
+.dark-mode .jed-textarea:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.jed-textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.jed-hint {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.jed-hint-success {
+    color: var(--ibc-green);
+}
+
+.jed-warning-box {
+    padding: 0.75rem;
+    background-color: rgba(239, 68, 68, 0.05);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 0.5rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.dark-mode .jed-warning-box {
+    background-color: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.jed-warning-text {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-main);
+}
+
+.jed-info-box {
+    padding: 0.75rem;
+    background-color: rgba(59, 130, 246, 0.05);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.dark-mode .jed-info-box {
+    background-color: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+.jed-info-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.jed-radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.jed-radio-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+}
+
+.jed-radio-option input[type="radio"] {
+    min-height: 44px;
+    min-width: 44px;
+    accent-color: var(--ibc-blue);
+}
+
+.jed-checkbox-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    min-height: 44px;
+}
+
+.jed-checkbox-option input[type="checkbox"] {
+    min-height: 44px;
+    min-width: 44px;
+    accent-color: var(--ibc-blue);
+}
+
+.jed-button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-top: 1rem;
+    margin-top: 1rem;
+}
+
+@media (min-width: 768px) {
+    .jed-button-group {
+        flex-direction: row;
+        justify-content: flex-end;
+    }
+}
+
+.jed-btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    min-height: 44px;
+    width: 100%;
+}
+
+@media (min-width: 640px) {
+    .jed-btn {
+        width: auto;
+    }
+}
+
+.jed-btn-primary {
+    background: linear-gradient(135deg, var(--ibc-blue), var(--ibc-green));
+    color: white;
+    box-shadow: var(--shadow-card);
+}
+
+.jed-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card-hover);
+}
+
+.jed-btn-secondary {
+    background-color: var(--border-color);
+    color: var(--text-main);
+}
+
+.jed-btn-secondary:hover {
+    background-color: var(--text-muted);
+}
+
+.dark-mode .jed-btn-secondary {
+    background-color: var(--text-muted);
+    color: var(--bg-body);
+}
+
+.dark-mode .jed-btn-secondary:hover {
+    background-color: var(--text-main);
+}
+
+.jed-upload-field {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+
+<div class="jed-container">
+    <div class="jed-header">
+        <a href="index.php" class="jed-back-link">
+            <i class="fas fa-arrow-left"></i>Zurück zur Job- &amp; Praktikumsbörse
         </a>
     </div>
 
     <?php if (!empty($errors)): ?>
-    <div class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg space-y-1">
+    <div class="jed-error-box">
         <?php foreach ($errors as $error): ?>
-        <div><i class="fas fa-exclamation-circle mr-2"></i><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></div>
+        <div class="jed-error-item">
+            <i class="fas fa-exclamation-circle"></i>
+            <span><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></span>
+        </div>
         <?php endforeach; ?>
     </div>
     <?php endif; ?>
 
-    <div class="card p-8">
-        <div class="mb-6">
-            <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-100">
-                <i class="fas fa-edit text-blue-600 mr-2"></i>
+    <div class="jed-card">
+        <div class="jed-header">
+            <h1 class="jed-title">
+                <i class="fas fa-edit"></i>
                 Anzeige ändern
             </h1>
-            <p class="text-gray-600 dark:text-gray-300 mt-2">
+            <p class="jed-subtitle">
                 Bearbeite deine Anzeige und aktualisiere deine Angaben.
             </p>
         </div>
 
-        <form method="POST" enctype="multipart/form-data" class="space-y-6">
+        <form method="POST" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="<?php echo CSRFHandler::getToken(); ?>">
 
             <!-- Title -->
-            <div>
-                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Titel <span class="text-red-500">*</span>
+            <div class="jed-form-group">
+                <label class="jed-label">
+                    Titel <span class="jed-required">*</span>
                 </label>
                 <input
                     type="text"
@@ -253,20 +578,16 @@ ob_start();
                     maxlength="255"
                     value="<?php echo htmlspecialchars($title, ENT_QUOTES, 'UTF-8'); ?>"
                     placeholder="z.B. Suche Praktikum im Bereich Marketing"
-                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100"
+                    class="jed-input"
                 >
             </div>
 
             <!-- Search Type -->
-            <div>
-                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Gesuchter Typ <span class="text-red-500">*</span>
+            <div class="jed-form-group">
+                <label class="jed-label">
+                    Gesuchter Typ <span class="jed-required">*</span>
                 </label>
-                <select
-                    name="search_type"
-                    required
-                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100"
-                >
+                <select name="search_type" required class="jed-select">
                     <option value="">-- Typ wählen --</option>
                     <?php foreach (JobBoard::SEARCH_TYPES as $type): ?>
                     <option value="<?php echo htmlspecialchars($type, ENT_QUOTES, 'UTF-8'); ?>"
@@ -278,73 +599,69 @@ ob_start();
             </div>
 
             <!-- Description -->
-            <div>
-                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Beschreibung <span class="text-red-500">*</span>
+            <div class="jed-form-group">
+                <label class="jed-label">
+                    Beschreibung <span class="jed-required">*</span>
                 </label>
                 <textarea
                     name="description"
                     required
                     rows="6"
                     placeholder="Beschreibe, wonach du suchst, deine Qualifikationen, Verfügbarkeit usw."
-                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100"
-                    style="resize: vertical; min-height: 120px;"
+                    class="jed-textarea"
                 ><?php echo htmlspecialchars($description, ENT_QUOTES, 'UTF-8'); ?></textarea>
             </div>
 
             <!-- PDF Upload -->
-            <div>
-                <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Lebenslauf (optional)
-                </label>
+            <div class="jed-form-group">
+                <label class="jed-label">Lebenslauf (optional)</label>
                 <?php if (!empty($listing['pdf_path'])): ?>
-                <div class="mb-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg flex items-center justify-between gap-3">
-                    <span class="text-sm text-gray-600 dark:text-gray-300 flex items-center gap-2">
-                        <i class="fas fa-file-pdf text-red-500"></i>
+                <div class="jed-warning-box">
+                    <span class="jed-warning-text">
+                        <i class="fas fa-file-pdf"></i>
                         Aktueller Lebenslauf vorhanden
                     </span>
-                    <label class="flex items-center gap-2 min-h-[44px] text-sm text-red-600 dark:text-red-400 cursor-pointer">
-                        <input type="checkbox" name="remove_pdf" value="1" class="rounded">
-                        Lebenslauf entfernen
+                    <label class="jed-checkbox-option">
+                        <input type="checkbox" name="remove_pdf" value="1">
+                        <span>Entfernen</span>
                     </label>
                 </div>
                 <?php endif; ?>
                 <?php if ($profileCvPath !== null): ?>
-                <div class="mb-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg">
-                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        <i class="fas fa-user-circle text-blue-500 mr-1"></i>
+                <div class="jed-info-box">
+                    <div class="jed-info-title">
+                        <i class="fas fa-user-circle"></i>
                         Du hast einen Lebenslauf in deinem Profil hinterlegt.
-                    </p>
-                    <div class="flex flex-col gap-2">
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="cv_source" value="profile" id="cv_source_profile" class="text-blue-600">
-                            <span class="text-sm text-gray-700 dark:text-gray-300">
-                                <i class="fas fa-file-pdf text-red-500 mr-1"></i>Lebenslauf aus Profil übernehmen
-                            </span>
+                    </div>
+                    <div class="jed-radio-group">
+                        <label class="jed-radio-option">
+                            <input type="radio" name="cv_source" value="profile" id="cv_source_profile">
+                            <span><i class="fas fa-file-pdf"></i>Lebenslauf aus Profil übernehmen</span>
                         </label>
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="cv_source" value="upload" id="cv_source_upload" checked class="text-blue-600">
-                            <span class="text-sm text-gray-700 dark:text-gray-300">Neue Datei hochladen</span>
+                        <label class="jed-radio-option">
+                            <input type="radio" name="cv_source" value="upload" id="cv_source_upload" checked>
+                            <span>Neue Datei hochladen</span>
                         </label>
                     </div>
                 </div>
                 <?php else: ?>
                 <input type="hidden" name="cv_source" value="upload">
                 <?php endif; ?>
-                <div id="cv_upload_field">
+                <div id="cv_upload_field" class="jed-upload-field">
                     <input
                         type="file"
                         name="cv_pdf"
                         id="cv_pdf_input"
                         accept=".pdf,application/pdf"
-                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100"
+                        class="jed-input"
                     >
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                        <i class="fas fa-shield-alt mr-1 text-green-500"></i>
-                        Ausschließlich <strong>.pdf</strong>-Dateien erlaubt. Maximum: <strong>5 MB</strong>. Alle anderen Formate werden abgelehnt.
+                    <p class="jed-hint jed-hint-success">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Ausschließlich <strong>.pdf</strong>-Dateien erlaubt. Maximum: <strong>5 MB</strong>.
                         <?php if (!empty($listing['pdf_path'])): ?>
                         Eine neue Datei ersetzt den bestehenden Lebenslauf.
                         <?php endif; ?>
+                        </span>
                     </p>
                 </div>
                 <?php if ($profileCvPath !== null): ?>
@@ -368,14 +685,12 @@ ob_start();
             </div>
 
             <!-- Submit -->
-            <div class="flex flex-col md:flex-row justify-end gap-2 pt-4">
-                <a href="index.php"
-                   class="w-full sm:w-auto text-center px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+            <div class="jed-button-group">
+                <a href="index.php" class="jed-btn jed-btn-secondary">
                     Abbrechen
                 </a>
-                <button type="submit"
-                        class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-xl">
-                    <i class="fas fa-save mr-2"></i>Änderungen speichern
+                <button type="submit" class="jed-btn jed-btn-primary">
+                    <i class="fas fa-save"></i>Änderungen speichern
                 </button>
             </div>
         </form>

@@ -260,6 +260,22 @@ $roleIconMap = [
 ];
 $roleIcon = $roleIconMap[$userRole] ?? 'fa-user';
 
+// ── Role Color/Gradient Mapping ──────────────────────────────────────────────
+$roleColorMap = [
+    'vorstand_finanzen' => ['from' => '#10b981', 'to' => '#059669', 'glow' => 'rgba(16,185,129,0.35)'],  // Grün (Finanzen)
+    'vorstand_intern'   => ['from' => '#3b82f6', 'to' => '#1d4ed8', 'glow' => 'rgba(59,130,246,0.35)'],  // Blau
+    'vorstand_extern'   => ['from' => '#8b5cf6', 'to' => '#6d28d9', 'glow' => 'rgba(139,92,246,0.35)'],  // Violett
+    'alumni_vorstand'   => ['from' => '#f59e0b', 'to' => '#d97706', 'glow' => 'rgba(245,158,11,0.35)'],  // Gold
+    'alumni_finanz'     => ['from' => '#06b6d4', 'to' => '#0891b2', 'glow' => 'rgba(6,182,212,0.35)'],   // Cyan
+    'alumni'            => ['from' => '#64748b', 'to' => '#475569', 'glow' => 'rgba(100,116,139,0.3)'],   // Grau-Blau
+    'mitglied'          => ['from' => '#0066b3', 'to' => '#004d8c', 'glow' => 'rgba(0,102,179,0.35)'],   // IBC-Blau
+    'ressortleiter'     => ['from' => '#f97316', 'to' => '#ea580c', 'glow' => 'rgba(249,115,22,0.35)'],  // Orange
+    'anwaerter'         => ['from' => '#22c55e', 'to' => '#16a34a', 'glow' => 'rgba(34,197,94,0.35)'],   // Hellgrün
+    'ehrenmitglied'     => ['from' => '#eab308', 'to' => '#ca8a04', 'glow' => 'rgba(234,179,8,0.4)'],    // Gelb-Gold
+    'admin'             => ['from' => '#ef4444', 'to' => '#dc2626', 'glow' => 'rgba(239,68,68,0.35)'],   // Rot
+];
+$roleColor = $roleColorMap[$userRole] ?? ['from' => '#0066b3', 'to' => '#004d8c', 'glow' => 'rgba(0,102,179,0.35)'];
+
 // ── User Initials ────────────────────────────────────────────────────────────
 $initials = 'IBC';
 if (!empty($user['firstname']) && !empty($user['lastname'])) {
@@ -1113,14 +1129,16 @@ function dismissProfileReviewPrompt() {
         <div style="position:relative;z-index:2;display:flex;flex-direction:column;gap:1.25rem;">
             <!-- Top row: avatar + content -->
             <div style="display:flex;align-items:flex-start;gap:1.25rem;flex-wrap:wrap;">
-                <!-- Avatar -->
-                <div class="d-hero-avatar" aria-hidden="true">
+                <!-- Avatar with role color -->
+                <div class="d-hero-avatar" aria-hidden="true"
+                     style="background:linear-gradient(135deg,<?php echo $roleColor['from']; ?>,<?php echo $roleColor['to']; ?>);border-color:rgba(255,255,255,0.4);box-shadow:0 4px 20px <?php echo $roleColor['glow']; ?>,0 2px 8px rgba(0,0,0,0.2);">
                     <?php echo htmlspecialchars($initials); ?>
                 </div>
                 <!-- Greeting text -->
                 <div style="flex:1;min-width:0;">
-                    <!-- Role badge -->
-                    <div class="d-role-badge">
+                    <!-- Role badge – colored per role -->
+                    <div class="d-role-badge"
+                         style="background:linear-gradient(135deg,<?php echo $roleColor['from']; ?>,<?php echo $roleColor['to']; ?>);border-color:rgba(255,255,255,0.25);box-shadow:0 2px 10px <?php echo $roleColor['glow']; ?>;">
                         <i class="fas <?php echo $roleIcon; ?>" style="font-size:0.7rem;" aria-hidden="true"></i>
                         <?php echo htmlspecialchars($roleLabel); ?>
                     </div>

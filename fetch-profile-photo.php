@@ -14,6 +14,21 @@
  */
 
 require_once __DIR__ . '/config/config.php';
+require_once __DIR__ . '/src/Auth.php';
+
+// ---------------------------------------------------------------------------
+// Authentication guard – only logged-in users may fetch profile photos.
+// This prevents unauthenticated enumeration of Entra user existence.
+// ---------------------------------------------------------------------------
+if (!Auth::check()) {
+    http_response_code(401);
+    // Return a transparent 1×1 PNG so <img> tags don't break for unauthenticated callers
+    $pixel = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQI12NgAAIABQABNjN9GQAAAAlwSFlzAAALEwAACxMBAJqcGAAAAA1JREFUCNdjYGBg+A8AAQQAAbWJngcAAAAASUVORK5CYII=');
+    header('Content-Type: image/png');
+    header('Cache-Control: no-store');
+    echo $pixel;
+    exit;
+}
 
 // ---------------------------------------------------------------------------
 // Configuration

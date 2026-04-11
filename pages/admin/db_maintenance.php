@@ -1,556 +1,540 @@
 <?php
 /**
- * Database Maintenance Tool
- * Admin page for database cleanup and maintenance
- * Only accessible by board members
+ * Database Maintenance Tool – redesigned
+ * Admin page for database cleanup and maintenance (board members only)
  */
 
 require_once __DIR__ . '/../../src/Auth.php';
 require_once __DIR__ . '/../../src/Database.php';
+require_once __DIR__ . '/../../includes/handlers/CSRFHandler.php';
 
-// Check if user is a board member (board_finance, board_internal, or board_external)
 if (!Auth::check() || !Auth::isBoard()) {
     header('Location: ../auth/login.php');
     exit;
 }
 
-$message = '';
-$error = '';
 $actionResult = [];
 
-// Handle POST actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // CSRF protection for all destructive actions
+    CSRFHandler::verifyToken($_POST['csrf_token'] ?? '');
     try {
         if (isset($_POST['clean_logs'])) {
-            // Clean old logs
-            $userDb = Database::getUserDB();
+            $userDb    = Database::getUserDB();
             $contentDb = Database::getContentDB();
-            
-            // Delete user_sessions older than 30 days
             $stmt = $userDb->prepare("DELETE FROM user_sessions WHERE created_at < DATE_SUB(NOW(), INTERVAL 30 DAY)");
-            $stmt->execute();
-            $sessionsDeleted = $stmt->rowCount();
-            
-            // Delete system_logs older than 1 year
+            $stmt->execute(); $s1 = $stmt->rowCount();
             $stmt = $contentDb->prepare("DELETE FROM system_logs WHERE timestamp < DATE_SUB(NOW(), INTERVAL 1 YEAR)");
-            $stmt->execute();
-            $systemLogsDeleted = $stmt->rowCount();
-            
-            // Delete inventory_history older than 1 year
+            $stmt->execute(); $s2 = $stmt->rowCount();
             $stmt = $contentDb->prepare("DELETE FROM inventory_history WHERE created_at < DATE_SUB(NOW(), INTERVAL 1 YEAR)");
-            $stmt->execute();
-            $inventoryHistoryDeleted = $stmt->rowCount();
-            
-            // Delete event_history older than 1 year
+            $stmt->execute(); $s3 = $stmt->rowCount();
             $stmt = $contentDb->prepare("DELETE FROM event_history WHERE created_at < DATE_SUB(NOW(), INTERVAL 1 YEAR)");
-            $stmt->execute();
-            $eventHistoryDeleted = $stmt->rowCount();
-            
-            $actionResult = [
-                'type' => 'success',
-                'title' => 'Logs bereinigt',
-                'details' => [
-                    "User Sessions gelöscht: $sessionsDeleted",
-                    "System Logs gelöscht: $systemLogsDeleted",
-                    "Inventory History gelöscht: $inventoryHistoryDeleted",
-                    "Event History gelöscht: $eventHistoryDeleted"
-                ]
-            ];
-            
-            // Log the action
-            $stmt = $contentDb->prepare("INSERT INTO system_logs (user_id, action, entity_type, entity_id, details, ip_address, user_agent) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([
-                $_SESSION['user_id'],
-                'cleanup_logs',
-                'maintenance',
-                null,
-                json_encode($actionResult['details']),
-                $_SERVER['REMOTE_ADDR'] ?? null,
-                $_SERVER['HTTP_USER_AGENT'] ?? null
-            ]);
-            
+            $stmt->execute(); $s4 = $stmt->rowCount();
+            $actionResult = ['type'=>'success','title'=>'Logs bereinigt','details'=>["User Sessions gelöscht: $s1","System Logs gelöscht: $s2","Inventory History gelöscht: $s3","Event History gelöscht: $s4"]];
+            $stmt = $contentDb->prepare("INSERT INTO system_logs (user_id, action, entity_type, entity_id, details, ip_address, user_agent) VALUES (?,?,?,?,?,?,?)");
+            $stmt->execute([$_SESSION['user_id'],'cleanup_logs','maintenance',null,json_encode($actionResult['details']),$_SERVER['REMOTE_ADDR']??null,$_SERVER['HTTP_USER_AGENT']??null]);
         } elseif (isset($_POST['clear_cache'])) {
-            // Clear cache folder
             $cacheDir = __DIR__ . '/../../cache';
-            $filesDeleted = 0;
-            $spaceFreed = 0;
-            
+            $filesDeleted = 0; $spaceFreed = 0;
             if (is_dir($cacheDir)) {
-                $files = glob($cacheDir . '/*');
-                foreach ($files as $file) {
-                    if (is_file($file)) {
-                        $spaceFreed += filesize($file);
-                        if (unlink($file)) {
-                            $filesDeleted++;
-                        }
-                    }
+                foreach (glob($cacheDir . '/*') as $file) {
+                    if (is_file($file)) { $spaceFreed += filesize($file); if (unlink($file)) $filesDeleted++; }
                 }
             }
-            
-            $actionResult = [
-                'type' => 'success',
-                'title' => 'Cache geleert',
-                'details' => [
-                    "Dateien gelöscht: $filesDeleted",
-                    "Speicherplatz freigegeben: " . formatBytes($spaceFreed)
-                ]
-            ];
-            
-            // Log the action
+            $actionResult = ['type'=>'success','title'=>'Cache geleert','details'=>["Dateien gelöscht: $filesDeleted","Speicherplatz freigegeben: ".formatBytes($spaceFreed)]];
             $contentDb = Database::getContentDB();
-            $stmt = $contentDb->prepare("INSERT INTO system_logs (user_id, action, entity_type, entity_id, details, ip_address, user_agent) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([
-                $_SESSION['user_id'],
-                'clear_cache',
-                'maintenance',
-                null,
-                json_encode($actionResult['details']),
-                $_SERVER['REMOTE_ADDR'] ?? null,
-                $_SERVER['HTTP_USER_AGENT'] ?? null
-            ]);
+            $stmt = $contentDb->prepare("INSERT INTO system_logs (user_id, action, entity_type, entity_id, details, ip_address, user_agent) VALUES (?,?,?,?,?,?,?)");
+            $stmt->execute([$_SESSION['user_id'],'clear_cache','maintenance',null,json_encode($actionResult['details']),$_SERVER['REMOTE_ADDR']??null,$_SERVER['HTTP_USER_AGENT']??null]);
         }
     } catch (Exception $e) {
-        $actionResult = [
-            'type' => 'error',
-            'title' => 'Fehler',
-            'details' => [$e->getMessage()]
-        ];
+        $actionResult = ['type'=>'error','title'=>'Fehler','details'=>[$e->getMessage()]];
     }
 }
 
-/**
- * Format bytes to human-readable size
- */
 function formatBytes($bytes, $precision = 2) {
-    $units = ['B', 'KB', 'MB', 'GB'];
+    $units = ['B','KB','MB','GB'];
     $bytes = max($bytes, 0);
-    $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
-    $pow = min($pow, count($units) - 1);
-    $bytes /= pow(1024, $pow);
-    return round($bytes, $precision) . ' ' . $units[$pow];
+    $pow   = floor(($bytes ? log($bytes) : 0) / log(1024));
+    $pow   = min($pow, count($units) - 1);
+    return round($bytes / pow(1024, $pow), $precision) . ' ' . $units[$pow];
 }
 
-/**
- * Get database table sizes
- */
 function getTableSizes() {
     try {
-        $userDb = Database::getUserDB();
-        $contentDb = Database::getContentDB();
-        
-        $tables = [];
-        
-        // Get user database tables
-        $stmt = $userDb->prepare("
-            SELECT 
-                table_name as 'table',
-                ROUND((data_length + index_length) / 1024 / 1024, 2) as 'size_mb',
-                table_rows as 'rows'
-            FROM information_schema.TABLES 
-            WHERE table_schema = ?
-            ORDER BY (data_length + index_length) DESC
-        ");
-        $stmt->execute([DB_USER_NAME]);
-        $userTables = $stmt->fetchAll();
-        
-        // Get content database tables
-        $stmt = $contentDb->prepare("
-            SELECT 
-                table_name as 'table',
-                ROUND((data_length + index_length) / 1024 / 1024, 2) as 'size_mb',
-                table_rows as 'rows'
-            FROM information_schema.TABLES 
-            WHERE table_schema = ?
-            ORDER BY (data_length + index_length) DESC
-        ");
-        $stmt->execute([DB_CONTENT_NAME]);
-        $contentTables = $stmt->fetchAll();
-        
-        return [
-            'user' => $userTables,
-            'content' => $contentTables
-        ];
-    } catch (Exception $e) {
-        return [
-            'user' => [],
-            'content' => [],
-            'error' => $e->getMessage()
-        ];
-    }
+        $userDb = Database::getUserDB(); $contentDb = Database::getContentDB();
+        $sql = "SELECT table_name as `table`, ROUND((data_length+index_length)/1024/1024,2) as size_mb, table_rows as `rows` FROM information_schema.TABLES WHERE table_schema = ? ORDER BY (data_length+index_length) DESC";
+        $stmt = $userDb->prepare($sql); $stmt->execute([DB_USER_NAME]); $userTables = $stmt->fetchAll();
+        $stmt = $contentDb->prepare($sql); $stmt->execute([DB_CONTENT_NAME]); $contentTables = $stmt->fetchAll();
+        return ['user'=>$userTables,'content'=>$contentTables];
+    } catch (Exception $e) { return ['user'=>[],'content'=>[],'error'=>$e->getMessage()]; }
 }
 
-$tableSizes = getTableSizes();
-
-// Calculate totals
-$userDbTotal = array_sum(array_column($tableSizes['user'], 'size_mb'));
-$contentDbTotal = array_sum(array_column($tableSizes['content'], 'size_mb'));
-$totalSize = $userDbTotal + $contentDbTotal;
-
-/**
- * Get System Health Metrics
- */
 function getSystemHealth() {
-    $health = [];
-    
+    $h = [];
     try {
-        // Database Connection Status
-        $userDb = Database::getUserDB();
-        $contentDb = Database::getContentDB();
-        
-        $health['database_status'] = 'healthy';
-        $health['database_message'] = 'Beide Datenbanken sind erreichbar';
-        
-        // Check for recent errors in logs
-        $stmt = $contentDb->query("
-            SELECT COUNT(*) as error_count 
-            FROM system_logs 
-            WHERE action LIKE '%error%' 
-            AND timestamp > DATE_SUB(NOW(), INTERVAL 24 HOUR)
-        ");
-        $errorCount = $stmt->fetch()['error_count'] ?? 0;
-        $health['error_count_24h'] = $errorCount;
-        $health['error_status'] = $errorCount > 10 ? 'warning' : 'healthy';
-        
-        // Check disk usage (database size) - using parameterized query
-        $stmt = $userDb->prepare("
-            SELECT ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) as size 
-            FROM information_schema.TABLES 
-            WHERE table_schema IN (?, ?)
-        ");
+        $userDb = Database::getUserDB(); $contentDb = Database::getContentDB();
+        $h['database_status']  = 'healthy';
+        $h['database_message'] = 'Beide Datenbanken sind erreichbar';
+        $stmt = $contentDb->query("SELECT COUNT(*) as c FROM system_logs WHERE action LIKE '%error%' AND timestamp > DATE_SUB(NOW(), INTERVAL 24 HOUR)");
+        $h['error_count_24h'] = $stmt->fetch()['c'] ?? 0;
+        $h['error_status']    = $h['error_count_24h'] > 10 ? 'warning' : 'healthy';
+        $stmt = $userDb->prepare("SELECT ROUND(SUM(data_length+index_length)/1024/1024,2) as size FROM information_schema.TABLES WHERE table_schema IN (?,?)");
         $stmt->execute([DB_USER_NAME, DB_CONTENT_NAME]);
-        $health['disk_usage_mb'] = $stmt->fetch()['size'] ?? 0;
-        
-        // System uptime (based on oldest active session)
-        $stmt = $userDb->query("
-            SELECT TIMESTAMPDIFF(HOUR, MIN(created_at), NOW()) as uptime_hours 
-            FROM user_sessions 
-            WHERE created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)
-        ");
-        $uptimeHours = $stmt->fetch()['uptime_hours'] ?? 0;
-        $health['uptime_days'] = floor($uptimeHours / 24);
-        
-        // Active sessions count
-        $stmt = $userDb->query("
-            SELECT COUNT(*) as active_sessions 
-            FROM user_sessions 
-            WHERE created_at > DATE_SUB(NOW(), INTERVAL 1 DAY)
-        ");
-        $health['active_sessions'] = $stmt->fetch()['active_sessions'] ?? 0;
-        
-        // Recent login attempts (last hour)
-        $stmt = $contentDb->query("
-            SELECT COUNT(*) as recent_logins 
-            FROM system_logs 
-            WHERE action IN ('login', 'login_success') 
-            AND timestamp > DATE_SUB(NOW(), INTERVAL 1 HOUR)
-        ");
-        $health['recent_logins'] = $stmt->fetch()['recent_logins'] ?? 0;
-        
-        // Failed login attempts (last hour)
-        $stmt = $contentDb->query("
-            SELECT COUNT(*) as failed_logins 
-            FROM system_logs 
-            WHERE action = 'login_failed' 
-            AND timestamp > DATE_SUB(NOW(), INTERVAL 1 HOUR)
-        ");
-        $health['failed_logins'] = $stmt->fetch()['failed_logins'] ?? 0;
-        $health['security_status'] = $health['failed_logins'] > 20 ? 'warning' : 'healthy';
-        
-        // Overall system status
-        $health['overall_status'] = ($health['database_status'] === 'healthy' && 
-                                      $health['error_status'] === 'healthy' && 
-                                      $health['security_status'] === 'healthy') 
-                                      ? 'healthy' : 'warning';
-        
+        $h['disk_usage_mb']   = $stmt->fetch()['size'] ?? 0;
+        $stmt = $userDb->query("SELECT TIMESTAMPDIFF(HOUR, MIN(created_at), NOW()) as uptime FROM user_sessions WHERE created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)");
+        $h['uptime_days']     = floor(($stmt->fetch()['uptime'] ?? 0) / 24);
+        $stmt = $userDb->query("SELECT COUNT(*) as c FROM user_sessions WHERE created_at > DATE_SUB(NOW(), INTERVAL 1 DAY)");
+        $h['active_sessions'] = $stmt->fetch()['c'] ?? 0;
+        $stmt = $contentDb->query("SELECT COUNT(*) as c FROM system_logs WHERE action IN ('login','login_success') AND timestamp > DATE_SUB(NOW(), INTERVAL 1 HOUR)");
+        $h['recent_logins']   = $stmt->fetch()['c'] ?? 0;
+        $stmt = $contentDb->query("SELECT COUNT(*) as c FROM system_logs WHERE action='login_failed' AND timestamp > DATE_SUB(NOW(), INTERVAL 1 HOUR)");
+        $h['failed_logins']   = $stmt->fetch()['c'] ?? 0;
+        $h['security_status'] = $h['failed_logins'] > 20 ? 'warning' : 'healthy';
+        $h['overall_status']  = ($h['database_status']==='healthy' && $h['error_status']==='healthy' && $h['security_status']==='healthy') ? 'healthy' : 'warning';
     } catch (Exception $e) {
-        $health['database_status'] = 'error';
-        $health['database_message'] = 'Datenbankverbindung fehlgeschlagen: ' . $e->getMessage();
-        $health['overall_status'] = 'error';
+        $h['database_status']  = 'error';
+        $h['database_message'] = 'Verbindung fehlgeschlagen: ' . $e->getMessage();
+        $h['overall_status']   = 'error';
     }
-    
-    return $health;
+    return $h;
 }
 
-$systemHealth = getSystemHealth();
+$tableSizes    = getTableSizes();
+$userDbTotal   = array_sum(array_column($tableSizes['user'],    'size_mb'));
+$contentDbTotal= array_sum(array_column($tableSizes['content'], 'size_mb'));
+$totalSize     = $userDbTotal + $contentDbTotal;
+$systemHealth  = getSystemHealth();
+
+// Health colors (RGBA — no dark: classes)
+function healthColor(string $status): array {
+    return match($status) {
+        'healthy' => ['bg'=>'rgba(34,197,94,.12)',  'color'=>'rgba(21,128,61,1)',   'border'=>'rgba(34,197,94,.3)',   'icon'=>'check-circle'],
+        'warning' => ['bg'=>'rgba(234,179,8,.12)',  'color'=>'rgba(161,98,7,1)',   'border'=>'rgba(234,179,8,.3)',   'icon'=>'exclamation-circle'],
+        default   => ['bg'=>'rgba(239,68,68,.12)',  'color'=>'rgba(185,28,28,1)',  'border'=>'rgba(239,68,68,.3)',   'icon'=>'times-circle'],
+    };
+}
 
 $title = 'System Health & Wartung - IBC Intranet';
 ob_start();
 ?>
 
-<div class="mb-8">
-    <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">
-        <i class="fas fa-heartbeat text-blue-600 mr-2"></i>
-        System Health & Wartung
-    </h1>
-    <p class="text-gray-600 dark:text-gray-300">Systemüberwachung, Datenbankverwaltung und Wartungsaktionen</p>
+<style>
+/* ── System Health & Wartung ──────────────────────────── */
+@keyframes dbmSlideUp {
+    from { opacity:0; transform:translateY(18px) scale(.98); }
+    to   { opacity:1; transform:translateY(0)    scale(1);   }
+}
+.dbm-page { animation: dbmSlideUp .4s cubic-bezier(.22,.68,0,1.2) both; }
+
+/* Page header */
+.dbm-page-header {
+    display:flex; flex-wrap:wrap; align-items:flex-start;
+    justify-content:space-between; gap:1rem; margin-bottom:1.75rem;
+}
+.dbm-page-header-left { display:flex; align-items:center; gap:.875rem; min-width:0; }
+.dbm-header-icon {
+    width:3rem; height:3rem; border-radius:.875rem; flex-shrink:0;
+    background: linear-gradient(135deg, rgba(37,99,235,1), rgba(99,102,241,1));
+    box-shadow: 0 4px 14px rgba(37,99,235,.35);
+    display:flex; align-items:center; justify-content:center;
+}
+.dbm-page-title { font-size:1.6rem; font-weight:800; color:var(--text-main); margin:0; line-height:1.2; }
+.dbm-page-sub   { font-size:.85rem; color:var(--text-muted); margin:.2rem 0 0; }
+
+/* Action result banner */
+.dbm-result-banner {
+    padding:.875rem 1.25rem; border-radius:.875rem; margin-bottom:1.25rem;
+    display:flex; flex-direction:column; gap:.35rem;
+    animation: dbmSlideUp .35s cubic-bezier(.22,.68,0,1.2) both;
+}
+.dbm-result-banner.ok  { background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.3); color:rgba(21,128,61,1); }
+.dbm-result-banner.err { background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.3); color:rgba(185,28,28,1); }
+.dbm-result-title { display:flex; align-items:center; gap:.5rem; font-weight:700; font-size:.9rem; }
+.dbm-result-detail { font-size:.82rem; padding-left:1.4rem; }
+
+/* Section card */
+.dbm-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius:1rem;
+    overflow:hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,.06);
+    margin-bottom:1.25rem;
+    animation: dbmSlideUp .4s cubic-bezier(.22,.68,0,1.2) both;
+    transition: box-shadow .25s;
+}
+.dbm-card:nth-of-type(1) { animation-delay:.05s; }
+.dbm-card:nth-of-type(2) { animation-delay:.10s; }
+.dbm-card:nth-of-type(3) { animation-delay:.15s; }
+.dbm-card:hover { box-shadow:0 5px 22px rgba(0,0,0,.09); }
+.dbm-card-head {
+    padding:1rem 1.5rem;
+    border-bottom:1px solid var(--border-color);
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.75rem;
+    background:rgba(156,163,175,.04);
+}
+.dbm-card-title {
+    font-size:1rem; font-weight:700; color:var(--text-main);
+    margin:0; display:flex; align-items:center; gap:.5rem;
+}
+.dbm-card-body { padding:1.25rem 1.5rem; }
+
+/* Health metric tiles */
+.dbm-health-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:.875rem; }
+
+.dbm-health-tile {
+    padding:1rem; border-radius:.875rem;
+    border-width:1px; border-style:solid;
+    transition: transform .2s, box-shadow .2s;
+    animation: dbmSlideUp .35s cubic-bezier(.22,.68,0,1.2) both;
+}
+.dbm-health-tile:nth-child(1) { animation-delay:.1s; }
+.dbm-health-tile:nth-child(2) { animation-delay:.15s; }
+.dbm-health-tile:nth-child(3) { animation-delay:.2s; }
+.dbm-health-tile:nth-child(4) { animation-delay:.25s; }
+.dbm-health-tile:hover { transform:translateY(-2px); box-shadow:0 4px 14px rgba(0,0,0,.08); }
+.dbm-health-label { font-size:.72rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); margin:0 0 .3rem; }
+.dbm-health-value { font-size:1.15rem; font-weight:800; margin:.25rem 0 0; }
+.dbm-health-desc  { font-size:.72rem; color:var(--text-muted); margin:.25rem 0 0; }
+
+/* Additional metrics */
+.dbm-mini-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:.75rem; margin-top:1rem; }
+.dbm-mini {
+    padding:.75rem 1rem; border-radius:.75rem;
+    background:rgba(156,163,175,.08); border:1px solid var(--border-color);
+    transition: background .2s;
+}
+.dbm-mini:hover { background:rgba(156,163,175,.14); }
+.dbm-mini-label { font-size:.72rem; font-weight:600; color:var(--text-muted); margin:0 0 .25rem; }
+.dbm-mini-value { font-size:1.05rem; font-weight:700; color:var(--text-main); display:flex; align-items:center; gap:.4rem; }
+
+/* DB overview cards */
+.dbm-db-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:.875rem; margin-bottom:1.25rem; }
+.dbm-db-card {
+    padding:1rem; border-radius:.875rem; border:1px solid var(--border-color);
+    transition: transform .2s, box-shadow .2s;
+}
+.dbm-db-card:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(0,0,0,.07); }
+
+/* Sub-section headings */
+.dbm-sub-title { font-size:.875rem; font-weight:700; color:var(--text-main); margin:0 0 .625rem; }
+
+/* Tables two-col */
+.dbm-tables-wrap { display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; }
+
+/* Table */
+.dbm-table-wrap { overflow-x:auto; }
+.dbm-table { width:100%; border-collapse:collapse; }
+.dbm-table thead tr { background:rgba(156,163,175,.07); border-bottom:1px solid var(--border-color); }
+.dbm-table th { padding:.55rem .875rem; text-align:left; font-size:.68rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em; }
+.dbm-table th.right { text-align:right; }
+.dbm-table td { padding:.65rem .875rem; font-size:.82rem; color:var(--text-main); border-bottom:1px solid var(--border-color); }
+.dbm-table td.right { text-align:right; color:var(--text-muted); }
+.dbm-table tbody tr:last-child td { border-bottom:none; }
+.dbm-table tbody tr { transition:background .15s; }
+.dbm-table tbody tr:hover { background:rgba(37,99,235,.04); }
+
+/* Action cards */
+.dbm-action-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+.dbm-action-card {
+    border:1.5px solid var(--border-color); border-radius:.875rem; padding:1.25rem;
+    transition: border-color .2s, box-shadow .2s;
+}
+.dbm-action-card:hover { border-color:rgba(124,58,237,.25); box-shadow:0 4px 16px rgba(0,0,0,.06); }
+.dbm-action-title { font-size:.95rem; font-weight:700; color:var(--text-main); margin:0 0 .5rem; display:flex; align-items:center; gap:.5rem; }
+.dbm-action-desc  { font-size:.82rem; color:var(--text-muted); margin:0 0 .75rem; }
+.dbm-action-list  { list-style:none; padding:0; margin:0 0 1rem; display:flex; flex-direction:column; gap:.3rem; }
+.dbm-action-list li { font-size:.8rem; color:var(--text-muted); display:flex; align-items:center; gap:.4rem; }
+.dbm-action-list li::before { content:'·'; color:var(--text-muted); font-weight:700; }
+
+.dbm-btn-danger, .dbm-btn-blue {
+    width:100%; padding:.7rem 1.25rem; min-height:44px;
+    border-radius:.75rem; font-size:.875rem; font-weight:700;
+    color:#fff; border:none; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:.5rem;
+    transition: opacity .2s, transform .15s, box-shadow .2s;
+}
+.dbm-btn-danger {
+    background: linear-gradient(135deg, rgba(234,179,8,1), rgba(161,98,7,1));
+    box-shadow: 0 2px 8px rgba(234,179,8,.3);
+}
+.dbm-btn-danger:hover { opacity:.9; transform:translateY(-1px); box-shadow:0 4px 14px rgba(234,179,8,.45); }
+.dbm-btn-blue {
+    background: linear-gradient(135deg, rgba(37,99,235,1), rgba(29,78,216,1));
+    box-shadow: 0 2px 8px rgba(37,99,235,.3);
+}
+.dbm-btn-blue:hover { opacity:.9; transform:translateY(-1px); box-shadow:0 4px 14px rgba(37,99,235,.45); }
+
+/* Warning notice */
+.dbm-warning-notice {
+    padding:1rem 1.25rem; border-radius:.875rem;
+    background:rgba(234,179,8,.12); border:1.5px solid rgba(234,179,8,.4);
+    display:flex; align-items:flex-start; gap:.75rem; margin-top:1.25rem;
+    font-size:.85rem; color:rgba(161,98,7,1); font-weight:500;
+}
+
+/* Status badge */
+.dbm-status-badge {
+    padding:.3rem .875rem; border-radius:9999px;
+    font-size:.8rem; font-weight:700; border:1px solid transparent;
+}
+
+/* ── Responsive ─────────────────────────────────────── */
+@media (max-width:900px) {
+    .dbm-health-grid { grid-template-columns:repeat(2,1fr); }
+    .dbm-tables-wrap { grid-template-columns:1fr; }
+}
+@media (max-width:640px) {
+    .dbm-db-grid { grid-template-columns:1fr; }
+    .dbm-action-grid { grid-template-columns:1fr; }
+    .dbm-card-body { padding:1rem 1.25rem; }
+    .dbm-card-head { padding:.875rem 1.25rem; }
+}
+@media (max-width:480px) {
+    .dbm-health-grid { grid-template-columns:1fr; }
+    .dbm-mini-grid { grid-template-columns:1fr; }
+    .dbm-page-title { font-size:1.35rem; }
+}
+</style>
+
+<div class="dbm-page" style="max-width:72rem;margin:0 auto;">
+
+<!-- Header -->
+<div class="dbm-page-header">
+    <div class="dbm-page-header-left">
+        <div class="dbm-header-icon"><i class="fas fa-heartbeat" style="color:#fff;font-size:1.1rem;"></i></div>
+        <div>
+            <h1 class="dbm-page-title">System Health & Wartung</h1>
+            <p class="dbm-page-sub">Systemüberwachung, Datenbankverwaltung und Wartungsaktionen</p>
+        </div>
+    </div>
 </div>
 
+<!-- Action result banner -->
 <?php if (!empty($actionResult)): ?>
-<div class="mb-6 p-4 rounded-lg border <?php echo $actionResult['type'] === 'success' ? 'bg-green-50 border-green-400 text-green-700' : 'bg-red-50 border-red-400 text-red-700'; ?>">
-    <h3 class="font-semibold mb-2">
-        <i class="fas fa-<?php echo $actionResult['type'] === 'success' ? 'check' : 'exclamation'; ?>-circle mr-2"></i>
+<?php $isOk = $actionResult['type'] === 'success'; ?>
+<div class="dbm-result-banner <?php echo $isOk ? 'ok' : 'err'; ?>">
+    <div class="dbm-result-title">
+        <i class="fas fa-<?php echo $isOk ? 'check-circle' : 'exclamation-circle'; ?>"></i>
         <?php echo htmlspecialchars($actionResult['title']); ?>
-    </h3>
-    <ul class="list-disc list-inside ml-4">
-        <?php foreach ($actionResult['details'] as $detail): ?>
-        <li><?php echo htmlspecialchars($detail); ?></li>
-        <?php endforeach; ?>
-    </ul>
+    </div>
+    <?php foreach ($actionResult['details'] as $d): ?>
+    <span class="dbm-result-detail"><?php echo htmlspecialchars($d); ?></span>
+    <?php endforeach; ?>
 </div>
 <?php endif; ?>
 
 <!-- System Health Status -->
-<div class="card p-6 mb-6 <?php 
-    $statusColor = $systemHealth['overall_status'] === 'healthy' ? 'border-l-4 border-green-500' : 
-                   ($systemHealth['overall_status'] === 'warning' ? 'border-l-4 border-yellow-500' : 'border-l-4 border-red-500'); 
-    echo $statusColor;
-?>">
-    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
-        <h2 class="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100">
-            <i class="fas fa-heartbeat text-<?php echo $systemHealth['overall_status'] === 'healthy' ? 'green' : ($systemHealth['overall_status'] === 'warning' ? 'yellow' : 'red'); ?>-600 mr-2"></i>
-            System Health Status
+<?php
+$oc   = healthColor($systemHealth['overall_status'] ?? 'healthy');
+$statusLabel = match($systemHealth['overall_status'] ?? 'healthy') {
+    'healthy' => '✓ System gesund', 'warning' => '⚠ Warnung', default => '✗ Fehler'
+};
+?>
+<div class="dbm-card" style="border-left:4px solid <?php echo $oc['color']; ?>;">
+    <div class="dbm-card-head">
+        <h2 class="dbm-card-title">
+            <i class="fas fa-heartbeat" style="color:<?php echo $oc['color']; ?>;"></i>System Health Status
         </h2>
-        <div class="flex items-center space-x-2">
-            <span class="px-4 py-2 rounded-full text-sm font-semibold <?php 
-                echo $systemHealth['overall_status'] === 'healthy' ? 'bg-green-100 text-green-800' : 
-                     ($systemHealth['overall_status'] === 'warning' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800');
-            ?>">
-                <?php 
-                    echo $systemHealth['overall_status'] === 'healthy' ? '✓ Systemgesund' : 
-                         ($systemHealth['overall_status'] === 'warning' ? '⚠ Warnung' : '✗ Fehler');
-                ?>
-            </span>
-        </div>
+        <span class="dbm-status-badge" style="background:<?php echo $oc['bg']; ?>;color:<?php echo $oc['color']; ?>;border-color:<?php echo $oc['border']; ?>;">
+            <?php echo $statusLabel; ?>
+        </span>
     </div>
-    
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-        <!-- Database Status -->
-        <div class="bg-<?php echo $systemHealth['database_status'] === 'healthy' ? 'green' : 'red'; ?>-50 dark:bg-<?php echo $systemHealth['database_status'] === 'healthy' ? 'green' : 'red'; ?>-900/20 p-4 rounded-lg border border-<?php echo $systemHealth['database_status'] === 'healthy' ? 'green' : 'red'; ?>-200 dark:border-<?php echo $systemHealth['database_status'] === 'healthy' ? 'green' : 'red'; ?>-800">
-            <div class="flex items-center justify-between mb-2">
-                <i class="fas fa-database text-2xl text-<?php echo $systemHealth['database_status'] === 'healthy' ? 'green' : 'red'; ?>-600"></i>
-                <i class="fas fa-<?php echo $systemHealth['database_status'] === 'healthy' ? 'check-circle' : 'times-circle'; ?> text-<?php echo $systemHealth['database_status'] === 'healthy' ? 'green' : 'red'; ?>-600"></i>
+    <div class="dbm-card-body">
+        <div class="dbm-health-grid">
+            <?php
+            $dbC  = healthColor($systemHealth['database_status']  ?? 'healthy');
+            $errC = healthColor($systemHealth['error_status']      ?? 'healthy');
+            $secC = healthColor($systemHealth['security_status']   ?? 'healthy');
+            $actC = ['bg'=>'rgba(99,102,241,.1)', 'color'=>'rgba(99,102,241,1)', 'border'=>'rgba(99,102,241,.25)', 'icon'=>'chart-line'];
+            ?>
+            <!-- DB status -->
+            <div class="dbm-health-tile" style="background:<?php echo $dbC['bg']; ?>;border-color:<?php echo $dbC['border']; ?>;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;">
+                    <i class="fas fa-database" style="font-size:1.3rem;color:<?php echo $dbC['color']; ?>;"></i>
+                    <i class="fas fa-<?php echo $dbC['icon']; ?>" style="color:<?php echo $dbC['color']; ?>;"></i>
+                </div>
+                <p class="dbm-health-label">Datenbank</p>
+                <p class="dbm-health-value" style="color:<?php echo $dbC['color']; ?>;"><?php echo $systemHealth['database_status']==='healthy' ? 'Verbunden' : 'Fehler'; ?></p>
+                <p class="dbm-health-desc"><?php echo htmlspecialchars($systemHealth['database_message'] ?? ''); ?></p>
             </div>
-            <p class="text-sm text-gray-600 dark:text-gray-300 mb-1">Datenbank</p>
-            <p class="text-lg font-bold text-<?php echo $systemHealth['database_status'] === 'healthy' ? 'green' : 'red'; ?>-700 dark:text-<?php echo $systemHealth['database_status'] === 'healthy' ? 'green' : 'red'; ?>-400">
-                <?php echo $systemHealth['database_status'] === 'healthy' ? 'Verbunden' : 'Fehler'; ?>
-            </p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                <?php echo htmlspecialchars($systemHealth['database_message']); ?>
-            </p>
-        </div>
-        
-        <!-- Error Count -->
-        <div class="bg-<?php echo $systemHealth['error_status'] === 'healthy' ? 'blue' : 'yellow'; ?>-50 dark:bg-<?php echo $systemHealth['error_status'] === 'healthy' ? 'blue' : 'yellow'; ?>-900/20 p-4 rounded-lg border border-<?php echo $systemHealth['error_status'] === 'healthy' ? 'blue' : 'yellow'; ?>-200 dark:border-<?php echo $systemHealth['error_status'] === 'healthy' ? 'blue' : 'yellow'; ?>-800">
-            <div class="flex items-center justify-between mb-2">
-                <i class="fas fa-exclamation-triangle text-2xl text-<?php echo $systemHealth['error_status'] === 'healthy' ? 'blue' : 'yellow'; ?>-600"></i>
-                <i class="fas fa-<?php echo $systemHealth['error_status'] === 'healthy' ? 'check-circle' : 'exclamation-circle'; ?> text-<?php echo $systemHealth['error_status'] === 'healthy' ? 'blue' : 'yellow'; ?>-600"></i>
+            <!-- Error count -->
+            <div class="dbm-health-tile" style="background:<?php echo $errC['bg']; ?>;border-color:<?php echo $errC['border']; ?>;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;">
+                    <i class="fas fa-exclamation-triangle" style="font-size:1.3rem;color:<?php echo $errC['color']; ?>;"></i>
+                    <i class="fas fa-<?php echo $errC['icon']; ?>" style="color:<?php echo $errC['color']; ?>;"></i>
+                </div>
+                <p class="dbm-health-label">Fehler (24h)</p>
+                <p class="dbm-health-value" style="color:<?php echo $errC['color']; ?>;"><?php echo number_format($systemHealth['error_count_24h'] ?? 0); ?></p>
+                <p class="dbm-health-desc"><?php echo $systemHealth['error_status']==='healthy' ? 'Alles OK' : 'Erhöhte Fehlerrate'; ?></p>
             </div>
-            <p class="text-sm text-gray-600 dark:text-gray-300 mb-1">Fehler (24h)</p>
-            <p class="text-lg font-bold text-<?php echo $systemHealth['error_status'] === 'healthy' ? 'blue' : 'yellow'; ?>-700 dark:text-<?php echo $systemHealth['error_status'] === 'healthy' ? 'blue' : 'yellow'; ?>-400">
-                <?php echo number_format($systemHealth['error_count_24h'] ?? 0); ?>
-            </p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                <?php echo $systemHealth['error_status'] === 'healthy' ? 'Alles OK' : 'Erhöhte Fehlerrate'; ?>
-            </p>
-        </div>
-        
-        <!-- Security Status -->
-        <div class="bg-<?php echo $systemHealth['security_status'] === 'healthy' ? 'purple' : 'orange'; ?>-50 dark:bg-<?php echo $systemHealth['security_status'] === 'healthy' ? 'purple' : 'orange'; ?>-900/20 p-4 rounded-lg border border-<?php echo $systemHealth['security_status'] === 'healthy' ? 'purple' : 'orange'; ?>-200 dark:border-<?php echo $systemHealth['security_status'] === 'healthy' ? 'purple' : 'orange'; ?>-800">
-            <div class="flex items-center justify-between mb-2">
-                <i class="fas fa-shield-alt text-2xl text-<?php echo $systemHealth['security_status'] === 'healthy' ? 'purple' : 'orange'; ?>-600"></i>
-                <i class="fas fa-<?php echo $systemHealth['security_status'] === 'healthy' ? 'check-circle' : 'exclamation-circle'; ?> text-<?php echo $systemHealth['security_status'] === 'healthy' ? 'purple' : 'orange'; ?>-600"></i>
+            <!-- Security -->
+            <div class="dbm-health-tile" style="background:<?php echo $secC['bg']; ?>;border-color:<?php echo $secC['border']; ?>;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;">
+                    <i class="fas fa-shield-alt" style="font-size:1.3rem;color:<?php echo $secC['color']; ?>;"></i>
+                    <i class="fas fa-<?php echo $secC['icon']; ?>" style="color:<?php echo $secC['color']; ?>;"></i>
+                </div>
+                <p class="dbm-health-label">Sicherheit</p>
+                <p class="dbm-health-value" style="color:<?php echo $secC['color']; ?>;"><?php echo number_format($systemHealth['failed_logins'] ?? 0); ?> Fehlversuche</p>
+                <p class="dbm-health-desc">Letzte Stunde</p>
             </div>
-            <p class="text-sm text-gray-600 dark:text-gray-300 mb-1">Sicherheit</p>
-            <p class="text-lg font-bold text-<?php echo $systemHealth['security_status'] === 'healthy' ? 'purple' : 'orange'; ?>-700 dark:text-<?php echo $systemHealth['security_status'] === 'healthy' ? 'purple' : 'orange'; ?>-400">
-                <?php echo number_format($systemHealth['failed_logins'] ?? 0); ?> Fehlversuche
-            </p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Letzte Stunde
-            </p>
-        </div>
-        
-        <!-- System Activity -->
-        <div class="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-lg border border-indigo-200 dark:border-indigo-800">
-            <div class="flex items-center justify-between mb-2">
-                <i class="fas fa-chart-line text-2xl text-indigo-600"></i>
-                <i class="fas fa-info-circle text-indigo-600"></i>
+            <!-- Activity -->
+            <div class="dbm-health-tile" style="background:<?php echo $actC['bg']; ?>;border-color:<?php echo $actC['border']; ?>;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;">
+                    <i class="fas fa-chart-line" style="font-size:1.3rem;color:<?php echo $actC['color']; ?>;"></i>
+                    <i class="fas fa-info-circle" style="color:<?php echo $actC['color']; ?>;"></i>
+                </div>
+                <p class="dbm-health-label">Aktivität</p>
+                <p class="dbm-health-value" style="color:<?php echo $actC['color']; ?>;"><?php echo number_format($systemHealth['recent_logins'] ?? 0); ?> Logins</p>
+                <p class="dbm-health-desc">Letzte Stunde</p>
             </div>
-            <p class="text-sm text-gray-600 dark:text-gray-300 mb-1">Aktivität</p>
-            <p class="text-lg font-bold text-indigo-700 dark:text-indigo-400">
-                <?php echo number_format($systemHealth['recent_logins'] ?? 0); ?> Logins
-            </p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Letzte Stunde
-            </p>
         </div>
-    </div>
-    
-    <!-- Additional Metrics -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mt-4">
-        <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-            <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Aktive Sessions (24h)</p>
-            <p class="text-base sm:text-xl font-semibold text-gray-700 dark:text-gray-200">
-                <i class="fas fa-users text-gray-400 mr-2"></i><?php echo number_format($systemHealth['active_sessions'] ?? 0); ?>
-            </p>
-        </div>
-        <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-            <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Datenbank-Größe</p>
-            <p class="text-base sm:text-xl font-semibold text-gray-700 dark:text-gray-200">
-                <i class="fas fa-hdd text-gray-400 mr-2"></i><?php echo number_format($systemHealth['disk_usage_mb'] ?? 0, 2); ?> MB
-            </p>
-        </div>
-        <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-            <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Betriebszeit (geschätzt)</p>
-            <p class="text-base sm:text-xl font-semibold text-gray-700 dark:text-gray-200">
-                <i class="fas fa-clock text-gray-400 mr-2"></i><?php echo number_format($systemHealth['uptime_days'] ?? 0); ?> Tage
-            </p>
+
+        <!-- Mini metrics row -->
+        <div class="dbm-mini-grid">
+            <div class="dbm-mini">
+                <p class="dbm-mini-label">Aktive Sessions (24h)</p>
+                <p class="dbm-mini-value"><i class="fas fa-users" style="color:var(--text-muted);font-size:.8rem;"></i><?php echo number_format($systemHealth['active_sessions'] ?? 0); ?></p>
+            </div>
+            <div class="dbm-mini">
+                <p class="dbm-mini-label">Datenbank-Größe</p>
+                <p class="dbm-mini-value"><i class="fas fa-hdd" style="color:var(--text-muted);font-size:.8rem;"></i><?php echo number_format($systemHealth['disk_usage_mb'] ?? 0, 2); ?> MB</p>
+            </div>
+            <div class="dbm-mini">
+                <p class="dbm-mini-label">Betriebszeit (geschätzt)</p>
+                <p class="dbm-mini-value"><i class="fas fa-clock" style="color:var(--text-muted);font-size:.8rem;"></i><?php echo number_format($systemHealth['uptime_days'] ?? 0); ?> Tage</p>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- Database Overview -->
-<div class="card p-6 mb-6">
-    <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-4">
-        <i class="fas fa-chart-pie text-purple-600 mr-2"></i>
-        Datenbank-Übersicht
-    </h2>
-    
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mb-6">
-        <div class="bg-blue-50 p-4 rounded-lg">
-            <p class="text-blue-800 font-semibold text-sm">User Database</p>
-            <p class="text-2xl font-bold text-blue-600"><?php echo number_format($userDbTotal, 2); ?> MB</p>
-        </div>
-        <div class="bg-green-50 p-4 rounded-lg">
-            <p class="text-green-800 font-semibold text-sm">Content Database</p>
-            <p class="text-2xl font-bold text-green-600"><?php echo number_format($contentDbTotal, 2); ?> MB</p>
-        </div>
-        <div class="bg-purple-50 p-4 rounded-lg">
-            <p class="text-purple-800 font-semibold text-sm">Gesamt</p>
-            <p class="text-2xl font-bold text-purple-600"><?php echo number_format($totalSize, 2); ?> MB</p>
-        </div>
+<div class="dbm-card">
+    <div class="dbm-card-head">
+        <h2 class="dbm-card-title">
+            <i class="fas fa-chart-pie" style="color:rgba(124,58,237,1);"></i>Datenbank-Übersicht
+        </h2>
     </div>
-    
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">
-        <!-- User Database Tables -->
-        <div>
-            <h3 class="text-lg font-semibold text-gray-700 mb-3">User Database Tabellen</h3>
-            <div class="overflow-x-auto w-full">
-                <table class="min-w-full divide-y divide-gray-200 card-table">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tabelle</th>
-                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Zeilen</th>
-                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Größe</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <?php foreach ($tableSizes['user'] as $table): ?>
-                        <tr>
-                            <td class="px-4 py-2 text-sm text-gray-900" data-label="Tabelle"><?php echo htmlspecialchars($table['table']); ?></td>
-                            <td class="px-4 py-2 text-sm text-gray-600 text-right" data-label="Zeilen"><?php echo number_format($table['rows']); ?></td>
-                            <td class="px-4 py-2 text-sm text-gray-600 text-right" data-label="Größe"><?php echo number_format($table['size_mb'], 2); ?> MB</td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+    <div class="dbm-card-body">
+        <div class="dbm-db-grid">
+            <div class="dbm-db-card" style="background:rgba(37,99,235,.06);">
+                <p style="font-size:.72rem;font-weight:700;color:rgba(37,99,235,1);text-transform:uppercase;margin:0 0 .3rem;">User Database</p>
+                <p style="font-size:1.5rem;font-weight:800;color:rgba(37,99,235,1);margin:0;"><?php echo number_format($userDbTotal, 2); ?> MB</p>
+            </div>
+            <div class="dbm-db-card" style="background:rgba(22,163,74,.06);">
+                <p style="font-size:.72rem;font-weight:700;color:rgba(22,163,74,1);text-transform:uppercase;margin:0 0 .3rem;">Content Database</p>
+                <p style="font-size:1.5rem;font-weight:800;color:rgba(22,163,74,1);margin:0;"><?php echo number_format($contentDbTotal, 2); ?> MB</p>
+            </div>
+            <div class="dbm-db-card" style="background:rgba(124,58,237,.06);">
+                <p style="font-size:.72rem;font-weight:700;color:rgba(124,58,237,1);text-transform:uppercase;margin:0 0 .3rem;">Gesamt</p>
+                <p style="font-size:1.5rem;font-weight:800;color:rgba(124,58,237,1);margin:0;"><?php echo number_format($totalSize, 2); ?> MB</p>
             </div>
         </div>
-        
-        <!-- Content Database Tables -->
-        <div>
-            <h3 class="text-lg font-semibold text-gray-700 mb-3">Content Database Tabellen</h3>
-            <div class="overflow-x-auto w-full">
-                <table class="min-w-full divide-y divide-gray-200 card-table">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tabelle</th>
-                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Zeilen</th>
-                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Größe</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <?php foreach ($tableSizes['content'] as $table): ?>
-                        <tr>
-                            <td class="px-4 py-2 text-sm text-gray-900" data-label="Tabelle"><?php echo htmlspecialchars($table['table']); ?></td>
-                            <td class="px-4 py-2 text-sm text-gray-600 text-right" data-label="Zeilen"><?php echo number_format($table['rows']); ?></td>
-                            <td class="px-4 py-2 text-sm text-gray-600 text-right" data-label="Größe"><?php echo number_format($table['size_mb'], 2); ?> MB</td>
-                        </tr>
-                        <?php endforeach; ?>
+
+        <div class="dbm-tables-wrap">
+            <!-- User DB tables -->
+            <div>
+                <h3 class="dbm-sub-title">User Database Tabellen</h3>
+                <div class="dbm-table-wrap">
+                <table class="dbm-table">
+                    <thead><tr>
+                        <th>Tabelle</th><th class="right">Zeilen</th><th class="right">Größe</th>
+                    </tr></thead>
+                    <tbody>
+                    <?php foreach ($tableSizes['user'] as $t): ?>
+                    <tr>
+                        <td data-label="Tabelle" style="font-family:monospace;font-size:.78rem;"><?php echo htmlspecialchars($t['table']); ?></td>
+                        <td data-label="Zeilen" class="right"><?php echo number_format($t['rows']); ?></td>
+                        <td data-label="Größe" class="right"><?php echo number_format($t['size_mb'],2); ?> MB</td>
+                    </tr>
+                    <?php endforeach; ?>
                     </tbody>
                 </table>
+                </div>
+            </div>
+            <!-- Content DB tables -->
+            <div>
+                <h3 class="dbm-sub-title">Content Database Tabellen</h3>
+                <div class="dbm-table-wrap">
+                <table class="dbm-table">
+                    <thead><tr>
+                        <th>Tabelle</th><th class="right">Zeilen</th><th class="right">Größe</th>
+                    </tr></thead>
+                    <tbody>
+                    <?php foreach ($tableSizes['content'] as $t): ?>
+                    <tr>
+                        <td data-label="Tabelle" style="font-family:monospace;font-size:.78rem;"><?php echo htmlspecialchars($t['table']); ?></td>
+                        <td data-label="Zeilen" class="right"><?php echo number_format($t['rows']); ?></td>
+                        <td data-label="Größe" class="right"><?php echo number_format($t['size_mb'],2); ?> MB</td>
+                    </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Maintenance Actions -->
-<div class="card p-6">
-    <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-4">
-        <i class="fas fa-tools text-orange-600 mr-2"></i>
-        Wartungsaktionen
-    </h2>
-    
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">
-        <!-- Clean Logs -->
-        <div class="border border-gray-200 rounded-lg p-4">
-            <div class="mb-4">
-                <h3 class="text-lg font-semibold text-gray-800 mb-2">
-                    <i class="fas fa-broom text-yellow-600 mr-2"></i>
-                    Logs bereinigen
-                </h3>
-                <p class="text-sm text-gray-600 mb-3">
-                    Löscht alte Log-Einträge zur Freigabe von Speicherplatz:
+<div class="dbm-card">
+    <div class="dbm-card-head">
+        <h2 class="dbm-card-title">
+            <i class="fas fa-tools" style="color:rgba(249,115,22,1);"></i>Wartungsaktionen
+        </h2>
+    </div>
+    <div class="dbm-card-body">
+        <div class="dbm-action-grid">
+            <!-- Clean Logs -->
+            <div class="dbm-action-card">
+                <p class="dbm-action-title">
+                    <i class="fas fa-broom" style="color:rgba(234,179,8,1);"></i>Logs bereinigen
                 </p>
-                <ul class="list-disc list-inside text-sm text-gray-600 space-y-1 ml-4">
+                <p class="dbm-action-desc">Löscht alte Log-Einträge zur Freigabe von Speicherplatz:</p>
+                <ul class="dbm-action-list">
                     <li>User Sessions älter als 30 Tage</li>
                     <li>System Logs älter als 1 Jahr</li>
                     <li>Inventory History älter als 1 Jahr</li>
                     <li>Event History älter als 1 Jahr</li>
                 </ul>
+                <form method="POST" onsubmit="return confirm('Alte Logs wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.');">
+                    <?php echo CSRFHandler::getTokenField(); ?>
+                    <button type="submit" name="clean_logs" class="dbm-btn-danger">
+                        <i class="fas fa-trash-alt"></i>Logs bereinigen
+                    </button>
+                </form>
             </div>
-            <form method="POST" onsubmit="return confirm('Möchtest Du wirklich alte Logs löschen? Diese Aktion kann nicht rückgängig gemacht werden.');">
-                <button type="submit" name="clean_logs" class="w-full btn-primary flex items-center justify-center">
-                    <i class="fas fa-trash-alt mr-2"></i>
-                    Logs bereinigen
-                </button>
-            </form>
-        </div>
-        
-        <!-- Clear Cache -->
-        <div class="border border-gray-200 rounded-lg p-4">
-            <div class="mb-4">
-                <h3 class="text-lg font-semibold text-gray-800 mb-2">
-                    <i class="fas fa-sync-alt text-blue-600 mr-2"></i>
-                    Cache leeren
-                </h3>
-                <p class="text-sm text-gray-600 mb-3">
-                    Löscht temporäre Cache-Dateien:
+
+            <!-- Clear Cache -->
+            <div class="dbm-action-card">
+                <p class="dbm-action-title">
+                    <i class="fas fa-sync-alt" style="color:rgba(37,99,235,1);"></i>Cache leeren
                 </p>
-                <ul class="list-disc list-inside text-sm text-gray-600 space-y-1 ml-4">
+                <p class="dbm-action-desc">Löscht temporäre Cache-Dateien:</p>
+                <ul class="dbm-action-list">
                     <li>Alle Dateien im cache/ Ordner</li>
                     <li>Gibt Speicherplatz frei</li>
                     <li>Beeinflusst keine Datenbanken</li>
                 </ul>
+                <form method="POST" onsubmit="return confirm('Cache wirklich leeren?');">
+                    <?php echo CSRFHandler::getTokenField(); ?>
+                    <button type="submit" name="clear_cache" class="dbm-btn-blue">
+                        <i class="fas fa-eraser"></i>Cache leeren
+                    </button>
+                </form>
             </div>
-            <form method="POST" onsubmit="return confirm('Möchtest Du wirklich den Cache leeren?');">
-                <button type="submit" name="clear_cache" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition flex items-center justify-center">
-                    <i class="fas fa-eraser mr-2"></i>
-                    Cache leeren
-                </button>
-            </form>
         </div>
     </div>
 </div>
 
-<!-- Warning Notice -->
-<div class="mt-6 bg-yellow-400 border-4 border-yellow-600 rounded-lg p-4">
-    <p class="text-gray-900 font-bold text-sm">
-        <i class="fas fa-exclamation-triangle mr-2"></i>
-        <strong>Hinweis:</strong> Wartungsaktionen können nicht rückgängig gemacht werden. Stelle sicher, dass Du vor dem Bereinigen wichtiger Daten ein Backup erstellt hast.
-    </p>
+<!-- Warning notice -->
+<div class="dbm-warning-notice">
+    <i class="fas fa-exclamation-triangle" style="flex-shrink:0;margin-top:.1rem;"></i>
+    <span><strong>Hinweis:</strong> Wartungsaktionen können nicht rückgängig gemacht werden. Stelle sicher, dass vor dem Bereinigen wichtiger Daten ein Backup erstellt wurde.</span>
+</div>
+
 </div>
 
 <?php
 $content = ob_get_clean();
 include __DIR__ . '/../../includes/templates/main_layout.php';
-?>

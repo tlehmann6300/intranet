@@ -37,16 +37,16 @@ if ($isEdit) {
         header('Location: manage.php');
         exit;
     }
-    
+
     // Try to acquire lock
     $lockResult = Event::acquireLock($eventId, $_SESSION['user_id']);
-    
+
     if (!$lockResult['success']) {
         $readOnly = true;
         $lockedUser = User::getById($lockResult['locked_by']);
         $lockWarning = 'Dieses Event wird gerade von ' . htmlspecialchars(($lockedUser['first_name'] ?? '') . ' ' . ($lockedUser['last_name'] ?? '')) . ' bearbeitet. Du befindest Dich im Nur-Lesen-Modus.';
     }
-    
+
     // Get history
     $history = Event::getHistory($eventId, 10);
 }
@@ -61,20 +61,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$readOnly) {
     } catch (Exception $e) {
         $errors[] = $e->getMessage();
     }
-    
+
     if (empty($errors)) {
         // Validate times
         $startTime = $_POST['start_time'] ?? '';
         $endTime = $_POST['end_time'] ?? '';
-        
+
         if (empty($startTime) || empty($endTime)) {
             $errors[] = 'Start- und Endzeit sind erforderlich';
         }
-        
+
         if (empty($errors) && strtotime($startTime) >= strtotime($endTime)) {
             $errors[] = 'Die Startzeit muss vor der Endzeit liegen';
         }
-        
+
         // Prepare event data
         $data = [
             'title' => trim($_POST['title'] ?? ''),
@@ -93,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$readOnly) {
             'requires_application' => isset($_POST['requires_application']) ? 1 : 0,
             'allowed_roles' => $_POST['allowed_roles'] ?? []
         ];
-        
+
         // Expand board_roles shortcut to individual Entra roles
         if (in_array('board_roles', $data['allowed_roles'])) {
             $data['allowed_roles'] = array_merge(
@@ -101,34 +101,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$readOnly) {
                 ['vorstand_finanzen', 'vorstand_intern', 'vorstand_extern']
             );
         }
-        
+
         // Determine status based on which button was clicked
         $status = isset($_POST['save_draft']) ? 'draft' : 'published';
         $data['status'] = $status;
-        
+
         // Handle image deletion
         if (isset($_POST['delete_image']) && $_POST['delete_image'] === '1') {
             $data['delete_image'] = true;
         }
-        
+
         // Add helper types if needs_helpers is enabled
         if ($data['needs_helpers']) {
             $data['helper_types'] = json_decode($_POST['helper_types_json'] ?? '[]', true);
         }
-        
+
         if (empty($data['title'])) {
             $errors[] = 'Titel ist erforderlich';
         }
-        
+
         // If no errors, proceed with save
         if (empty($errors)) {
             try {
                 if ($isEdit) {
                     // Update existing event (model handles helper types and slots in transaction)
                     Event::update($eventId, $data, $_SESSION['user_id'], $_FILES);
-                    
+
                     $message = 'Event erfolgreich aktualisiert';
-                    
+
                     // Release lock and reload
                     Event::releaseLock($eventId, $_SESSION['user_id']);
                     header('Location: edit.php?id=' . $eventId . '&success=1');
@@ -136,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$readOnly) {
                 } else {
                     // Create new event (model handles helper types and slots in transaction)
                     $newEventId = Event::create($data, $_SESSION['user_id'], $_FILES);
-                    
+
                     $message = 'Event erfolgreich erstellt';
                     header('Location: edit.php?id=' . $newEventId . '&success=1');
                     exit;
@@ -171,628 +171,1328 @@ ob_start();
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
 <style>
-/* IBC branded colors for this form */
-/* Note: Flatpickr styling is now handled by /assets/css/theme.css with IBC colors */
+/* ============================================================================
+   EVENT EDIT FORM - SCOPED CSS WITH DESIGN SYSTEM VARIABLES
+   Prefix: .eved-*
+   ============================================================================ */
 
-/* Tab styling improvements */
-.tab-button {
-    transition: all 0.25s ease;
-    position: relative;
+:root {
+    --eved-spacing-xs: 0.25rem;
+    --eved-spacing-sm: 0.5rem;
+    --eved-spacing-md: 1rem;
+    --eved-spacing-lg: 1.5rem;
+    --eved-spacing-xl: 2rem;
+    --eved-border-radius: 0.75rem;
+    --eved-transition: all 0.25s ease;
+    --eved-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --eved-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.tab-button:focus {
+.dark-mode {
+    --eved-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --eved-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* ========== Container & Layout ========== */
+.eved-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--eved-spacing-xl);
+}
+
+.eved-header {
+    margin-bottom: var(--eved-spacing-xl);
+}
+
+.eved-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--eved-spacing-sm);
+    color: var(--ibc-blue);
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--eved-transition);
+    margin-bottom: var(--eved-spacing-lg);
+}
+
+.eved-back-link:hover {
+    color: var(--ibc-green);
+    transform: translateX(-2px);
+}
+
+/* ========== Alert Messages ========== */
+.eved-alert {
+    padding: var(--eved-spacing-md);
+    margin-bottom: var(--eved-spacing-lg);
+    border-radius: var(--eved-border-radius);
+    border-left: 4px solid;
+    display: flex;
+    gap: var(--eved-spacing-md);
+    background-color: var(--bg-card);
+    color: var(--text-main);
+    box-shadow: var(--eved-shadow-sm);
+}
+
+.eved-alert-icon {
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.eved-alert-content {
+    flex-grow: 1;
+}
+
+.eved-alert-title {
+    font-weight: 600;
+    margin-bottom: var(--eved-spacing-sm);
+}
+
+.eved-alert-list {
+    list-style: disc;
+    list-style-position: inside;
+    space-y: var(--eved-spacing-sm);
+}
+
+.eved-alert-list li {
+    margin-bottom: 0.25rem;
+}
+
+.eved-alert--success {
+    border-color: var(--ibc-green);
+    background-color: rgba(34, 197, 94, 0.08);
+}
+
+.dark-mode .eved-alert--success {
+    background-color: rgba(34, 197, 94, 0.12);
+}
+
+.eved-alert--error {
+    border-color: #ef4444;
+    background-color: rgba(239, 68, 68, 0.08);
+}
+
+.dark-mode .eved-alert--error {
+    background-color: rgba(239, 68, 68, 0.12);
+}
+
+.eved-alert--warning {
+    border-color: #f59e0b;
+    background-color: rgba(245, 158, 11, 0.08);
+}
+
+.dark-mode .eved-alert--warning {
+    background-color: rgba(245, 158, 11, 0.12);
+}
+
+.eved-alert--info {
+    border-color: var(--ibc-blue);
+    background-color: rgba(0, 102, 179, 0.08);
+}
+
+.dark-mode .eved-alert--info {
+    background-color: rgba(0, 102, 179, 0.12);
+}
+
+/* ========== Card Container ========== */
+.eved-card {
+    background-color: var(--bg-card);
+    border-radius: var(--eved-border-radius);
+    padding: var(--eved-spacing-xl);
+    box-shadow: var(--shadow-card);
+    color: var(--text-main);
+    transition: var(--eved-transition);
+    border: 1px solid var(--border-color);
+}
+
+.eved-card:hover {
+    box-shadow: var(--shadow-card-hover);
+}
+
+/* ========== Page Title ========== */
+.eved-page-title {
+    display: flex;
+    align-items: center;
+    gap: var(--eved-spacing-md);
+    font-size: clamp(1.5rem, 5vw, 2rem);
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: var(--eved-spacing-lg);
+}
+
+.eved-page-title i {
+    color: var(--ibc-blue);
+}
+
+/* ========== Tab Navigation ========== */
+.eved-tab-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--eved-spacing-sm);
+    padding: var(--eved-spacing-sm);
+    background-color: var(--bg-body);
+    border-radius: var(--eved-border-radius);
+    margin-bottom: var(--eved-spacing-lg);
+    border: 1px solid var(--border-color);
+}
+
+.eved-tab-button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--eved-spacing-sm);
+    padding: 0.625rem 1.25rem;
+    border: none;
+    border-radius: calc(var(--eved-border-radius) - 0.125rem);
+    background-color: transparent;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: var(--eved-transition);
+    min-height: 44px;
+    user-select: none;
+}
+
+.eved-tab-button:hover {
+    background-color: var(--border-color);
+    color: var(--ibc-blue);
+}
+
+.eved-tab-button:focus {
     outline: none;
     box-shadow: 0 0 0 3px rgba(0, 102, 179, 0.25);
 }
 
-.tab-button.active {
+.eved-tab-button.active {
+    background-color: var(--ibc-blue);
+    color: white;
     box-shadow: 0 2px 8px rgba(0, 102, 179, 0.25);
 }
 
-/* Helper card styling */
-.helper-card {
-    transition: all 0.3s ease;
-    border: 2px solid #e5e7eb;
+.dark-mode .eved-tab-button {
+    color: var(--text-muted);
 }
 
-.helper-card:hover {
-    border-color: #9ca3af;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+.dark-mode .eved-tab-button:hover {
+    background-color: var(--border-color);
 }
 
-/* Slot styling */
-.slot-item {
-    transition: all 0.2s ease;
+/* ========== Form Controls ========== */
+.eved-form-group {
+    margin-bottom: var(--eved-spacing-lg);
 }
 
-.slot-item:hover {
-    background-color: #f9fafb;
+.eved-form-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--eved-spacing-md);
 }
 
-/* Accordion animation */
-.accordion-content {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease;
+@media (min-width: 640px) {
+    .eved-form-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
-.accordion-content.active {
-    max-height: 2000px;
+@media (min-width: 900px) {
+    .eved-form-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
+
+.eved-form-row.full {
+    grid-column: 1 / -1;
+}
+
+.eved-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: var(--eved-spacing-sm);
+    position: relative;
+}
+
+.eved-required {
+    color: #ef4444;
+    margin-left: 2px;
+}
+
+.eved-label-hint {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--text-muted);
+    margin-left: auto;
+}
+
+.eved-input,
+.eved-textarea,
+.eved-select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: calc(var(--eved-border-radius) - 0.125rem);
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    font-size: 0.875rem;
+    transition: var(--eved-transition);
+    min-height: 44px;
+    font-family: inherit;
+}
+
+.eved-input:focus,
+.eved-textarea:focus,
+.eved-select:focus {
+    outline: none;
+    border-color: var(--ibc-blue);
+    box-shadow: 0 0 0 3px rgba(0, 102, 179, 0.1);
+}
+
+.eved-input:disabled,
+.eved-textarea:disabled,
+.eved-select:disabled {
+    background-color: var(--bg-card);
+    color: var(--text-muted);
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+.eved-textarea {
+    resize: vertical;
+    min-height: 120px;
+    padding-top: 0.75rem;
+}
+
+.eved-input::placeholder,
+.eved-textarea::placeholder {
+    color: var(--text-muted);
+    opacity: 0.7;
+}
+
+.eved-help-text {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: var(--eved-spacing-sm);
+    display: flex;
+    align-items: center;
+    gap: var(--eved-spacing-xs);
+}
+
+/* ========== Checkbox & Radio ========== */
+.eved-checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: var(--eved-spacing-md);
+    min-height: 44px;
+    cursor: pointer;
+}
+
+.eved-checkbox-group input {
+    width: 1.25rem;
+    height: 1.25rem;
+    min-width: 1.25rem;
+    cursor: pointer;
+    accent-color: var(--ibc-blue);
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
+}
+
+.eved-checkbox-group label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-main);
+    cursor: pointer;
+    user-select: none;
+}
+
+.eved-checkbox-group input:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 102, 179, 0.1);
+}
+
+/* ========== Image Preview ========== */
+.eved-image-preview {
+    margin-bottom: var(--eved-spacing-lg);
+}
+
+.eved-image-preview-container {
+    max-width: 300px;
+    margin-bottom: var(--eved-spacing-md);
+}
+
+.eved-image-preview-img {
+    width: 100%;
+    border-radius: var(--eved-border-radius);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--eved-shadow-sm);
+}
+
+/* ========== Info Box ========== */
+.eved-info-box {
+    padding: var(--eved-spacing-md);
+    background-color: var(--bg-body);
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--ibc-blue);
+    border-radius: calc(var(--eved-border-radius) - 0.125rem);
+    display: flex;
+    gap: var(--eved-spacing-md);
+}
+
+.eved-info-box-icon {
+    color: var(--ibc-blue);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.eved-info-box-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: var(--eved-spacing-xs);
+}
+
+.eved-info-box-text {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+/* ========== Helper Card ========== */
+.eved-helper-card {
+    background-color: var(--bg-body);
+    border: 1px solid var(--border-color);
+    border-radius: var(--eved-border-radius);
+    padding: var(--eved-spacing-lg);
+    transition: var(--eved-transition);
+}
+
+.eved-helper-card:hover {
+    border-color: var(--ibc-blue);
+    box-shadow: 0 0 0 3px rgba(0, 102, 179, 0.05);
+}
+
+.eved-helper-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--eved-spacing-lg);
+    padding-bottom: var(--eved-spacing-lg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.eved-helper-card-title {
+    display: flex;
+    align-items: center;
+    gap: var(--eved-spacing-md);
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.eved-helper-card-title i {
+    color: var(--ibc-blue);
+}
+
+.eved-remove-btn {
+    padding: var(--eved-spacing-sm) var(--eved-spacing-md);
+    background-color: transparent;
+    border: 1px solid #ef4444;
+    border-radius: calc(var(--eved-border-radius) - 0.125rem);
+    color: #ef4444;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--eved-transition);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--eved-spacing-sm);
+    white-space: nowrap;
+    min-height: 44px;
+}
+
+.eved-remove-btn:hover {
+    background-color: #ef4444;
+    color: white;
+}
+
+/* ========== Slot Container ========== */
+.eved-slots-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--eved-spacing-md);
+    margin-top: var(--eved-spacing-md);
+}
+
+.eved-slot-item {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--eved-spacing-md);
+    padding: var(--eved-spacing-md);
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: calc(var(--eved-border-radius) - 0.125rem);
+    transition: var(--eved-transition);
+}
+
+@media (min-width: 900px) {
+    .eved-slot-item {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.eved-slot-item:hover {
+    background-color: var(--bg-body);
+    border-color: var(--ibc-blue);
+}
+
+.eved-slot-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.eved-slot-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: var(--eved-spacing-xs);
+}
+
+.eved-slot-input {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.875rem;
+    border: 1px solid var(--border-color);
+    border-radius: calc(var(--eved-border-radius) - 0.125rem);
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    transition: var(--eved-transition);
+    min-height: 40px;
+}
+
+.eved-slot-input:focus {
+    outline: none;
+    border-color: var(--ibc-blue);
+    box-shadow: 0 0 0 2px rgba(0, 102, 179, 0.1);
+}
+
+/* ========== Action Buttons ========== */
+.eved-button-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--eved-spacing-md);
+    margin-top: var(--eved-spacing-xl);
+    padding-top: var(--eved-spacing-xl);
+    border-top: 1px solid var(--border-color);
+}
+
+@media (min-width: 900px) {
+    .eved-button-group {
+        flex-direction: row;
+    }
+}
+
+.eved-button {
+    flex: 1;
+    padding: 0.875rem 1.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: calc(var(--eved-border-radius) - 0.125rem);
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--eved-transition);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--eved-spacing-sm);
+    white-space: nowrap;
+    min-height: 44px;
+    text-decoration: none;
+}
+
+.eved-button:hover {
+    background-color: var(--border-color);
+}
+
+.eved-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 102, 179, 0.25);
+}
+
+.eved-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.eved-button--primary {
+    background-color: var(--ibc-blue);
+    color: white;
+    border-color: var(--ibc-blue);
+}
+
+.eved-button--primary:hover {
+    background-color: #004c99;
+    border-color: #004c99;
+}
+
+.eved-button--secondary {
+    background-color: transparent;
+    color: var(--text-muted);
+    border-color: var(--border-color);
+}
+
+.eved-button--secondary:hover {
+    background-color: var(--bg-body);
+    color: var(--text-main);
+}
+
+.eved-button--draft {
+    background-color: var(--bg-body);
+    border-color: #f59e0b;
+    color: #f59e0b;
+}
+
+.eved-button--draft:hover {
+    background-color: rgba(245, 158, 11, 0.1);
+}
+
+.eved-button--danger {
+    background-color: transparent;
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+.eved-button--danger:hover {
+    background-color: #ef4444;
+    color: white;
+}
+
+.eved-button--sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+}
+
+.eved-button--success {
+    background-color: var(--ibc-green);
+    border-color: var(--ibc-green);
+    color: white;
+}
+
+.eved-button--success:hover {
+    background-color: #1a9d4e;
+    border-color: #1a9d4e;
+}
+
+/* ========== History Section ========== */
+.eved-history {
+    margin-top: var(--eved-spacing-xl);
+}
+
+.eved-history-title {
+    display: flex;
+    align-items: center;
+    gap: var(--eved-spacing-md);
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: var(--eved-spacing-lg);
+}
+
+.eved-history-title i {
+    color: var(--ibc-blue);
+}
+
+.eved-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--eved-spacing-md);
+}
+
+.eved-history-item {
+    display: flex;
+    gap: var(--eved-spacing-md);
+    padding: var(--eved-spacing-md);
+    background-color: var(--bg-body);
+    border: 1px solid var(--border-color);
+    border-radius: calc(var(--eved-border-radius) - 0.125rem);
+}
+
+.eved-history-item-icon {
+    flex-shrink: 0;
+    color: var(--ibc-blue);
+    margin-top: 2px;
+}
+
+.eved-history-item-content {
+    flex-grow: 1;
+}
+
+.eved-history-item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--eved-spacing-xs);
+}
+
+.eved-history-item-user {
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.eved-history-item-date {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.eved-history-item-text {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+.eved-history-item-type {
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+/* ========== Responsive Adjustments ========== */
+@media (max-width: 640px) {
+    .eved-container {
+        padding: var(--eved-spacing-lg);
+    }
+
+    .eved-card {
+        padding: var(--eved-spacing-lg);
+    }
+
+    .eved-tab-nav {
+        gap: var(--eved-spacing-xs);
+    }
+
+    .eved-tab-button {
+        padding: 0.625rem 1rem;
+        font-size: 0.8125rem;
+    }
+
+    .eved-slot-item {
+        grid-template-columns: 1fr;
+    }
+
+    .eved-button-group {
+        flex-direction: column;
+    }
+}
+
+/* ========== Dark Mode Overrides ========== */
+.dark-mode .eved-input,
+.dark-mode .eved-textarea,
+.dark-mode .eved-select {
+    background-color: var(--bg-body);
+    border-color: var(--border-color);
+    color: var(--text-main);
+}
+
+.dark-mode .eved-slot-input {
+    background-color: var(--bg-body);
+    border-color: var(--border-color);
+    color: var(--text-main);
+}
+
+.dark-mode .eved-button {
+    background-color: var(--bg-body);
+    border-color: var(--border-color);
+    color: var(--text-main);
+}
+
+.dark-mode .eved-button:hover {
+    background-color: var(--border-color);
+}
+
 </style>
 
-<div class="mb-6">
-    <a href="manage.php" class="text-purple-600 hover:text-purple-700 inline-flex items-center mb-4">
-        <i class="fas fa-arrow-left mr-2"></i>Zurück zur Übersicht
-    </a>
-</div>
+<div class="eved-container">
+    <div class="eved-header">
+        <a href="manage.php" class="eved-back-link">
+            <i class="fas fa-arrow-left"></i>Zurück zur Übersicht
+        </a>
+    </div>
 
-<?php if ($lockWarning): ?>
-<div class="mb-6 p-4 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded-lg">
-    <i class="fas fa-lock mr-2"></i><?php echo $lockWarning; ?>
-</div>
-<?php endif; ?>
+    <?php if ($lockWarning): ?>
+    <div class="eved-alert eved-alert--warning">
+        <div class="eved-alert-icon">
+            <i class="fas fa-lock"></i>
+        </div>
+        <div class="eved-alert-content">
+            <div><?php echo $lockWarning; ?></div>
+        </div>
+    </div>
+    <?php endif; ?>
 
-<?php if ($message): ?>
-<div class="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
-    <i class="fas fa-check-circle mr-2"></i><?php echo htmlspecialchars($message); ?>
-</div>
-<?php endif; ?>
+    <?php if ($message): ?>
+    <div class="eved-alert eved-alert--success">
+        <div class="eved-alert-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="eved-alert-content">
+            <div><?php echo htmlspecialchars($message); ?></div>
+        </div>
+    </div>
+    <?php endif; ?>
 
-<?php if (!empty($errors)): ?>
-<div class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-xl shadow-premium">
-    <div class="flex items-start">
-        <i class="fas fa-exclamation-circle text-xl mr-3"></i>
-        <div class="flex-1">
-            <h3 class="font-bold mb-2">Fehler beim Speichern:</h3>
-            <ul class="list-disc list-inside space-y-1">
+    <?php if (!empty($errors)): ?>
+    <div class="eved-alert eved-alert--error">
+        <div class="eved-alert-icon">
+            <i class="fas fa-exclamation-circle"></i>
+        </div>
+        <div class="eved-alert-content">
+            <div class="eved-alert-title">Fehler beim Speichern:</div>
+            <ul class="eved-alert-list">
                 <?php foreach ($errors as $error): ?>
                 <li><?php echo htmlspecialchars($error); ?></li>
                 <?php endforeach; ?>
             </ul>
         </div>
     </div>
-</div>
-<?php endif; ?>
+    <?php endif; ?>
 
-<div class="glass-card shadow-premium rounded-xl p-6">
-    <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">
-        <i class="fas fa-<?php echo $isEdit ? 'edit' : 'plus'; ?> text-ibc-blue mr-2"></i>
-        <?php echo $isEdit ? 'Event bearbeiten' : 'Neues Event erstellen'; ?>
-    </h1>
+    <div class="eved-card">
+        <div class="eved-page-title">
+            <i class="fas fa-<?php echo $isEdit ? 'edit' : 'plus'; ?>"></i>
+            <?php echo $isEdit ? 'Event bearbeiten' : 'Neues Event erstellen'; ?>
+        </div>
 
-    <!-- Modern Tab Navigation -->
-    <div class="mb-6">
-        <nav class="flex flex-wrap gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-xl" aria-label="Tabs">
-            <button 
-                class="tab-button active bg-ibc-blue text-white rounded-lg px-5 py-2.5 font-semibold text-sm shadow-md whitespace-nowrap"
+        <!-- Tab Navigation -->
+        <nav class="eved-tab-nav" aria-label="Event Tabs">
+            <button
+                class="eved-tab-button active"
                 data-tab="basic"
                 type="button"
             >
-                <i class="fas fa-info-circle mr-2"></i>
+                <i class="fas fa-info-circle"></i>
                 Basisdaten
             </button>
-            <button 
-                class="tab-button text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700 hover:text-ibc-blue dark:hover:text-ibc-blue-light rounded-lg px-5 py-2.5 font-semibold text-sm whitespace-nowrap"
+            <button
+                class="eved-tab-button"
                 data-tab="time"
                 type="button"
             >
-                <i class="fas fa-clock mr-2"></i>
+                <i class="fas fa-clock"></i>
                 Zeit &amp; Einstellungen
             </button>
-            <button 
+            <button
                 id="helper-tab-button"
-                class="tab-button text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700 hover:text-ibc-blue dark:hover:text-ibc-blue-light rounded-lg px-5 py-2.5 font-semibold text-sm whitespace-nowrap <?php echo (!$isEdit || !$event['needs_helpers']) ? 'hidden' : ''; ?>"
+                class="eved-tab-button <?php echo (!$isEdit || !$event['needs_helpers']) ? 'hidden' : ''; ?>"
                 data-tab="helpers"
                 type="button"
             >
-                <i class="fas fa-hands-helping mr-2"></i>
+                <i class="fas fa-hands-helping"></i>
                 Helfer-Planung
             </button>
         </nav>
-    </div>
 
-    <form method="POST" enctype="multipart/form-data" id="eventForm" class="space-y-6">
-        <input type="hidden" name="csrf_token" value="<?php echo CSRFHandler::getToken(); ?>">
-        <input type="hidden" name="helper_types_json" id="helper_types_json" value="">
+        <form method="POST" enctype="multipart/form-data" id="eventForm" class="eved-form-group">
+            <input type="hidden" name="csrf_token" value="<?php echo CSRFHandler::getToken(); ?>">
+            <input type="hidden" name="helper_types_json" id="helper_types_json" value="">
 
-        <!-- Tab 1: Basisdaten -->
-        <div id="tab-basic" class="tab-content">
-            <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4">
-                <i class="fas fa-info-circle text-purple-600 mr-2"></i>
-                Basisdaten
-            </h2>
-            
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">
-                <!-- Title -->
-                <div class="md:col-span-2">
-                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Titel <span class="text-red-500">*</span>
-                    </label>
-                    <input 
-                        type="text" 
-                        name="title" 
-                        value="<?php echo htmlspecialchars($_POST['title'] ?? $event['title'] ?? ''); ?>"
-                        required 
-                        <?php echo $readOnly ? 'readonly' : ''; ?>
-                        class="w-full px-4 py-2 bg-white border-gray-300 text-gray-900 rounded-xl focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 <?php echo $readOnly ? 'bg-gray-100' : ''; ?>"
-                        placeholder="Event-Titel"
-                    >
+            <!-- Tab 1: Basisdaten -->
+            <div id="tab-basic" class="eved-tab-content">
+                <h2 class="eved-page-title" style="font-size: 1.25rem; margin-bottom: var(--eved-spacing-lg);">
+                    <i class="fas fa-info-circle"></i>
+                    Basisdaten
+                </h2>
+
+                <div class="eved-form-row full">
+                    <div class="eved-form-group">
+                        <label class="eved-label">
+                            Titel
+                            <span class="eved-required">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="title"
+                            value="<?php echo htmlspecialchars($_POST['title'] ?? $event['title'] ?? ''); ?>"
+                            required
+                            <?php echo $readOnly ? 'readonly' : ''; ?>
+                            class="eved-input"
+                            placeholder="Event-Titel"
+                        >
+                    </div>
                 </div>
 
-                <!-- Description -->
-                <div class="md:col-span-2">
-                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Beschreibung</label>
-                    <textarea 
-                        name="description" 
-                        rows="4"
-                        <?php echo $readOnly ? 'readonly' : ''; ?>
-                        class="w-full px-4 py-2 bg-white border-gray-300 text-gray-900 rounded-xl focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 <?php echo $readOnly ? 'bg-gray-100' : ''; ?>"
-                        placeholder="Event-Beschreibung..."
-                    ><?php echo htmlspecialchars($_POST['description'] ?? $event['description'] ?? ''); ?></textarea>
+                <div class="eved-form-row full">
+                    <div class="eved-form-group">
+                        <label class="eved-label">Beschreibung</label>
+                        <textarea
+                            name="description"
+                            rows="4"
+                            <?php echo $readOnly ? 'readonly' : ''; ?>
+                            class="eved-textarea"
+                            placeholder="Event-Beschreibung..."
+                        ><?php echo htmlspecialchars($_POST['description'] ?? $event['description'] ?? ''); ?></textarea>
+                    </div>
                 </div>
 
-                <!-- Location / Room -->
-                <div>
-                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Veranstaltungsort / Raum</label>
-                    <input 
-                        type="text" 
-                        name="location"
-                        value="<?php echo htmlspecialchars($_POST['location'] ?? $event['location'] ?? ''); ?>"
-                        <?php echo $readOnly ? 'readonly' : ''; ?>
-                        class="w-full px-4 py-2 bg-white border-gray-300 text-gray-900 rounded-xl focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 <?php echo $readOnly ? 'bg-gray-100' : ''; ?>"
-                        placeholder="z.B. H-1.88 Aula"
-                    >
-                </div>
+                <div class="eved-form-row">
+                    <div class="eved-form-group">
+                        <label class="eved-label">Veranstaltungsort / Raum</label>
+                        <input
+                            type="text"
+                            name="location"
+                            value="<?php echo htmlspecialchars($_POST['location'] ?? $event['location'] ?? ''); ?>"
+                            <?php echo $readOnly ? 'readonly' : ''; ?>
+                            class="eved-input"
+                            placeholder="z.B. H-1.88 Aula"
+                        >
+                    </div>
 
-                <!-- Google Maps Link -->
-                <div>
-                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Google Maps Link
-                        <span class="text-xs text-gray-500 ml-2">(Optional)</span>
-                    </label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fas fa-map-marked-alt text-gray-400"></i>
-                        </div>
-                        <input 
-                            type="url" 
+                    <div class="eved-form-group">
+                        <label class="eved-label">
+                            Google Maps Link
+                            <span class="eved-label-hint">(Optional)</span>
+                        </label>
+                        <input
+                            type="url"
                             name="maps_link"
                             value="<?php echo htmlspecialchars($_POST['maps_link'] ?? $event['maps_link'] ?? ''); ?>"
                             <?php echo $readOnly ? 'readonly' : ''; ?>
-                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ibc-blue <?php echo $readOnly ? 'bg-gray-100' : ''; ?>"
+                            class="eved-input"
                             placeholder="https://maps.google.com/..."
                         >
                     </div>
                 </div>
 
-                <!-- Event Image Upload -->
-                <div class="md:col-span-2">
-                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Event-Bild
-                        <span class="text-xs text-gray-500 ml-2">(Optional)</span>
-                    </label>
-                    
-                    <?php if ($isEdit && !empty($event['image_path'])): ?>
-                    <div class="mb-3">
-                        <p class="text-sm text-gray-600 mb-2">Aktuelles Bild:</p>
-                        <img 
-                            src="<?php echo htmlspecialchars(rtrim(BASE_URL, '/') . '/' . ltrim($event['image_path'], '/')); ?>" 
-                            alt="Event Bild"
-                            class="max-w-xs rounded-xl border border-gray-300 shadow-sm"
+                <div class="eved-form-row full">
+                    <div class="eved-form-group">
+                        <label class="eved-label">
+                            Event-Bild
+                            <span class="eved-label-hint">(Optional)</span>
+                        </label>
+
+                        <?php if ($isEdit && !empty($event['image_path'])): ?>
+                        <div class="eved-image-preview">
+                            <div class="eved-image-preview-container">
+                                <img
+                                    src="<?php echo htmlspecialchars(rtrim(BASE_URL, '/') . '/' . ltrim($event['image_path'], '/')); ?>"
+                                    alt="Event Bild"
+                                    class="eved-image-preview-img"
+                                >
+                            </div>
+                            <label class="eved-checkbox-group">
+                                <input
+                                    type="checkbox"
+                                    name="delete_image"
+                                    id="delete_image"
+                                    value="1"
+                                    <?php echo $readOnly ? 'disabled' : ''; ?>
+                                >
+                                <span>Bild löschen</span>
+                            </label>
+                        </div>
+                        <?php endif; ?>
+
+                        <input
+                            type="file"
+                            name="event_image"
+                            accept="image/*"
+                            <?php echo $readOnly ? 'disabled' : ''; ?>
+                            class="eved-input"
                         >
-                        <div class="mt-2 flex items-center min-h-[44px]">
-                            <input 
-                                type="checkbox" 
-                                name="delete_image" 
-                                id="delete_image" 
-                                value="1" 
-                                <?php echo $readOnly ? 'disabled' : ''; ?>
-                                class="form-checkbox h-4 w-4 text-red-600 transition duration-150 ease-in-out"
-                            >
-                            <label for="delete_image" class="ml-2 text-sm text-gray-700">Bild löschen</label>
+                        <div class="eved-help-text">
+                            <i class="fas fa-info-circle"></i>
+                            Unterstützte Formate: JPG, PNG, GIF. Max. 5MB.
                         </div>
                     </div>
-                    <?php endif; ?>
-                    
-                    <input 
-                        type="file" 
-                        name="event_image"
-                        accept="image/*"
-                        <?php echo $readOnly ? 'disabled' : ''; ?>
-                        class="w-full px-4 py-2 bg-white border-gray-300 text-gray-900 rounded-xl focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 <?php echo $readOnly ? 'bg-gray-100' : ''; ?>"
-                    >
-                    <p class="text-xs text-gray-500 mt-1">Unterstützte Formate: JPG, PNG, GIF. Max. 5MB.</p>
                 </div>
             </div>
-        </div>
 
-        <!-- Tab 2: Zeit & Einstellungen -->
-        <div id="tab-time" class="tab-content hidden">
-            <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4">
-                <i class="fas fa-clock text-ibc-blue mr-2"></i>
-                Zeit & Einstellungen
-            </h2>
-            
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">
-                <!-- Start Time with Flatpickr -->
-                <div>
-                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Startzeit <span class="text-red-500">*</span>
-                    </label>
-                    <input 
-                        type="text" 
-                        name="start_time"
-                        id="start_time"
-                        value="<?php 
-                            if (!empty($_POST['start_time'])) {
-                                echo htmlspecialchars($_POST['start_time']);
-                            } elseif ($isEdit && !empty($event['start_time'])) {
-                                echo date('Y-m-d H:i', strtotime($event['start_time']));
-                            }
-                        ?>"
-                        required
-                        <?php echo $readOnly ? 'readonly' : ''; ?>
-                        class="flatpickr-input w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ibc-blue <?php echo $readOnly ? 'bg-gray-100' : ''; ?>"
-                        placeholder="Datum und Uhrzeit wählen"
-                    >
+            <!-- Tab 2: Zeit & Einstellungen -->
+            <div id="tab-time" class="eved-tab-content hidden">
+                <h2 class="eved-page-title" style="font-size: 1.25rem; margin-bottom: var(--eved-spacing-lg);">
+                    <i class="fas fa-clock"></i>
+                    Zeit & Einstellungen
+                </h2>
+
+                <div class="eved-form-row">
+                    <div class="eved-form-group">
+                        <label class="eved-label">
+                            Startzeit
+                            <span class="eved-required">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="start_time"
+                            id="start_time"
+                            value="<?php
+                                if (!empty($_POST['start_time'])) {
+                                    echo htmlspecialchars($_POST['start_time']);
+                                } elseif ($isEdit && !empty($event['start_time'])) {
+                                    echo date('Y-m-d H:i', strtotime($event['start_time']));
+                                }
+                            ?>"
+                            required
+                            <?php echo $readOnly ? 'readonly' : ''; ?>
+                            class="eved-input flatpickr-input"
+                            placeholder="Datum und Uhrzeit wählen"
+                        >
+                    </div>
+
+                    <div class="eved-form-group">
+                        <label class="eved-label">
+                            Endzeit
+                            <span class="eved-required">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="end_time"
+                            id="end_time"
+                            value="<?php
+                                if (!empty($_POST['end_time'])) {
+                                    echo htmlspecialchars($_POST['end_time']);
+                                } elseif ($isEdit && !empty($event['end_time'])) {
+                                    echo date('Y-m-d H:i', strtotime($event['end_time']));
+                                }
+                            ?>"
+                            required
+                            <?php echo $readOnly ? 'readonly' : ''; ?>
+                            class="eved-input flatpickr-input"
+                            placeholder="Datum und Uhrzeit wählen"
+                        >
+                    </div>
                 </div>
 
-                <!-- End Time with Flatpickr -->
-                <div>
-                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Endzeit <span class="text-red-500">*</span>
-                    </label>
-                    <input 
-                        type="text" 
-                        name="end_time"
-                        id="end_time"
-                        value="<?php 
-                            if (!empty($_POST['end_time'])) {
-                                echo htmlspecialchars($_POST['end_time']);
-                            } elseif ($isEdit && !empty($event['end_time'])) {
-                                echo date('Y-m-d H:i', strtotime($event['end_time']));
-                            }
-                        ?>"
-                        required
-                        <?php echo $readOnly ? 'readonly' : ''; ?>
-                        class="flatpickr-input w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ibc-blue <?php echo $readOnly ? 'bg-gray-100' : ''; ?>"
-                        placeholder="Datum und Uhrzeit wählen"
-                    >
+                <div class="eved-form-row">
+                    <div class="eved-form-group">
+                        <label class="eved-label">
+                            Anmeldung Start
+                            <span class="eved-label-hint">(Optional)</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="registration_start"
+                            id="registration_start"
+                            value="<?php
+                                if (!empty($_POST['registration_start'])) {
+                                    echo htmlspecialchars($_POST['registration_start']);
+                                } elseif ($isEdit && !empty($event['registration_start'])) {
+                                    echo date('Y-m-d H:i', strtotime($event['registration_start']));
+                                }
+                            ?>"
+                            <?php echo $readOnly ? 'readonly' : ''; ?>
+                            class="eved-input flatpickr-input"
+                            placeholder="Anmeldebeginn wählen"
+                        >
+                    </div>
+
+                    <div class="eved-form-group">
+                        <label class="eved-label">
+                            Anmeldung Ende
+                            <span class="eved-label-hint">(Optional)</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="registration_end"
+                            id="registration_end"
+                            value="<?php
+                                if (!empty($_POST['registration_end'])) {
+                                    echo htmlspecialchars($_POST['registration_end']);
+                                } elseif ($isEdit && !empty($event['registration_end'])) {
+                                    echo date('Y-m-d H:i', strtotime($event['registration_end']));
+                                }
+                            ?>"
+                            <?php echo $readOnly ? 'readonly' : ''; ?>
+                            class="eved-input flatpickr-input"
+                            placeholder="Anmeldeende wählen"
+                        >
+                    </div>
                 </div>
 
-                <!-- Registration Start Time -->
-                <div>
-                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Anmeldung Start
-                        <span class="text-xs text-gray-500 ml-2">(Optional)</span>
-                    </label>
-                    <input 
-                        type="text" 
-                        name="registration_start"
-                        id="registration_start"
-                        value="<?php 
-                            if (!empty($_POST['registration_start'])) {
-                                echo htmlspecialchars($_POST['registration_start']);
-                            } elseif ($isEdit && !empty($event['registration_start'])) {
-                                echo date('Y-m-d H:i', strtotime($event['registration_start']));
-                            }
-                        ?>"
-                        <?php echo $readOnly ? 'readonly' : ''; ?>
-                        class="flatpickr-input w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ibc-blue <?php echo $readOnly ? 'bg-gray-100' : ''; ?>"
-                        placeholder="Anmeldebeginn wählen"
-                    >
-                </div>
-
-                <!-- Registration End Time -->
-                <div>
-                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Anmeldung Ende
-                        <span class="text-xs text-gray-500 ml-2">(Optional)</span>
-                    </label>
-                    <input 
-                        type="text" 
-                        name="registration_end"
-                        id="registration_end"
-                        value="<?php 
-                            if (!empty($_POST['registration_end'])) {
-                                echo htmlspecialchars($_POST['registration_end']);
-                            } elseif ($isEdit && !empty($event['registration_end'])) {
-                                echo date('Y-m-d H:i', strtotime($event['registration_end']));
-                            }
-                        ?>"
-                        <?php echo $readOnly ? 'readonly' : ''; ?>
-                        class="flatpickr-input w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ibc-blue <?php echo $readOnly ? 'bg-gray-100' : ''; ?>"
-                        placeholder="Anmeldeende wählen"
-                    >
-                </div>
-
-                <!-- Status Info Badge -->
-                <div class="md:col-span-2">
-                    <div class="p-4 bg-ibc-blue/10 border border-ibc-blue/20 rounded-xl">
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0">
-                                <i class="fas fa-info-circle text-ibc-blue text-lg"></i>
-                            </div>
-                            <div class="ml-3">
-                                <h4 class="text-sm font-semibold text-ibc-blue">Automatischer Status</h4>
-                                <p class="text-sm text-ibc-blue mt-1">
-                                    Der Status wird automatisch basierend auf dem Datum gesetzt.
-                                </p>
+                <!-- Status Info Box -->
+                <div class="eved-form-row full">
+                    <div class="eved-info-box">
+                        <div class="eved-info-box-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div>
+                            <div class="eved-info-box-title">Automatischer Status</div>
+                            <div class="eved-info-box-text">
+                                Der Status wird automatisch basierend auf dem Datum gesetzt.
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- External Link -->
-                <div>
-                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Externer Link</label>
-                    <input 
-                        type="url" 
-                        name="external_link"
-                        value="<?php echo htmlspecialchars($_POST['external_link'] ?? $event['external_link'] ?? ''); ?>"
-                        <?php echo $readOnly ? 'readonly' : ''; ?>
-                        class="w-full px-4 py-2 bg-white border-gray-300 text-gray-900 rounded-xl focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 <?php echo $readOnly ? 'bg-gray-100' : ''; ?>"
-                        placeholder="https://..."
-                    >
-                </div>
+                <div class="eved-form-row">
+                    <div class="eved-form-group">
+                        <label class="eved-label">Externer Link</label>
+                        <input
+                            type="url"
+                            name="external_link"
+                            value="<?php echo htmlspecialchars($_POST['external_link'] ?? $event['external_link'] ?? ''); ?>"
+                            <?php echo $readOnly ? 'readonly' : ''; ?>
+                            class="eved-input"
+                            placeholder="https://..."
+                        >
+                    </div>
 
-                <!-- Registration Link (External Forms) -->
-                <div>
-                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Externe Anmeldung (Microsoft Forms Link)
-                    </label>
-                    <input 
-                        type="url" 
-                        name="registration_link"
-                        value="<?php echo htmlspecialchars($_POST['registration_link'] ?? $event['registration_link'] ?? ''); ?>"
-                        <?php echo $readOnly ? 'readonly' : ''; ?>
-                        class="w-full px-4 py-2 bg-white border-gray-300 text-gray-900 rounded-xl focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 <?php echo $readOnly ? 'bg-gray-100' : ''; ?>"
-                        placeholder="https://forms.office.com/..."
-                    >
-                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                        <i class="fas fa-info-circle mr-1"></i>
-                        Wenn gesetzt, öffnet der "Anmelden" Button diesen Link statt der internen Anmeldung.
-                    </p>
+                    <div class="eved-form-group">
+                        <label class="eved-label">
+                            Externe Anmeldung (Microsoft Forms Link)
+                        </label>
+                        <input
+                            type="url"
+                            name="registration_link"
+                            value="<?php echo htmlspecialchars($_POST['registration_link'] ?? $event['registration_link'] ?? ''); ?>"
+                            <?php echo $readOnly ? 'readonly' : ''; ?>
+                            class="eved-input"
+                            placeholder="https://forms.office.com/..."
+                        >
+                        <div class="eved-help-text">
+                            <i class="fas fa-info-circle"></i>
+                            Wenn gesetzt, öffnet der "Anmelden" Button diesen Link statt der internen Anmeldung.
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Checkboxes -->
-                <div class="md:col-span-2 space-y-4">
-                    <label class="flex items-center space-x-2 min-h-[44px]">
-                        <input 
-                            type="checkbox" 
-                            name="is_external"
-                            <?php 
-                            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                                echo isset($_POST['is_external']) ? 'checked' : '';
-                            } else {
-                                echo ($event['is_external'] ?? false) ? 'checked' : '';
-                            }
-                            ?>
-                            <?php echo $readOnly ? 'disabled' : ''; ?>
-                            class="w-5 h-5 text-purple-600 bg-white border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:focus:ring-blue-500"
-                        >
-                        <span class="text-sm font-medium text-gray-700">Externes Event</span>
-                    </label>
+                <div class="eved-form-row full">
+                    <div class="eved-form-group">
+                        <label class="eved-checkbox-group">
+                            <input
+                                type="checkbox"
+                                name="is_external"
+                                <?php
+                                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                                    echo isset($_POST['is_external']) ? 'checked' : '';
+                                } else {
+                                    echo ($event['is_external'] ?? false) ? 'checked' : '';
+                                }
+                                ?>
+                                <?php echo $readOnly ? 'disabled' : ''; ?>
+                            >
+                            <span>Externes Event</span>
+                        </label>
 
-                    <label class="flex items-center space-x-2 min-h-[44px]">
-                        <input 
-                            type="checkbox" 
-                            name="needs_helpers"
-                            id="needs_helpers"
-                            <?php 
-                            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                                echo isset($_POST['needs_helpers']) ? 'checked' : '';
-                            } else {
-                                echo ($event['needs_helpers'] ?? false) ? 'checked' : '';
-                            }
-                            ?>
-                            <?php echo $readOnly ? 'disabled' : ''; ?>
-                            class="w-5 h-5 text-purple-600 bg-white border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:focus:ring-blue-500"
-                        >
-                        <span class="text-sm font-medium text-gray-700">Helfer benötigt</span>
-                    </label>
+                        <label class="eved-checkbox-group">
+                            <input
+                                type="checkbox"
+                                name="needs_helpers"
+                                id="needs_helpers"
+                                <?php
+                                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                                    echo isset($_POST['needs_helpers']) ? 'checked' : '';
+                                } else {
+                                    echo ($event['needs_helpers'] ?? false) ? 'checked' : '';
+                                }
+                                ?>
+                                <?php echo $readOnly ? 'disabled' : ''; ?>
+                            >
+                            <span>Helfer benötigt</span>
+                        </label>
 
-                    <label class="flex items-center space-x-2 min-h-[44px]">
-                        <input 
-                            type="checkbox" 
-                            name="is_internal_project"
-                            id="is_internal_project"
-                            <?php 
-                            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                                echo isset($_POST['is_internal_project']) ? 'checked' : '';
-                            } else {
-                                echo ($event['is_internal_project'] ?? false) ? 'checked' : '';
-                            }
-                            ?>
-                            <?php echo $readOnly ? 'disabled' : ''; ?>
-                            class="w-5 h-5 text-purple-600 bg-white border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:focus:ring-blue-500"
-                        >
-                        <span class="text-sm font-medium text-gray-700">Internes Projekt</span>
-                    </label>
+                        <label class="eved-checkbox-group">
+                            <input
+                                type="checkbox"
+                                name="is_internal_project"
+                                id="is_internal_project"
+                                <?php
+                                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                                    echo isset($_POST['is_internal_project']) ? 'checked' : '';
+                                } else {
+                                    echo ($event['is_internal_project'] ?? false) ? 'checked' : '';
+                                }
+                                ?>
+                                <?php echo $readOnly ? 'disabled' : ''; ?>
+                            >
+                            <span>Internes Projekt</span>
+                        </label>
 
-                    <label id="requires_application_wrapper" class="flex items-center space-x-2 min-h-[44px] <?php
-                        $showRequiresApplication = ($_SERVER['REQUEST_METHOD'] === 'POST')
-                            ? isset($_POST['is_internal_project'])
-                            : ($event['is_internal_project'] ?? false);
-                        echo $showRequiresApplication ? '' : 'hidden';
-                    ?>">
-                        <input 
-                            type="checkbox" 
-                            name="requires_application"
-                            id="requires_application"
-                            <?php 
-                            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                                echo isset($_POST['requires_application']) ? 'checked' : '';
-                            } else {
-                                echo ($event['requires_application'] ?? false) ? 'checked' : '';
-                            }
-                            ?>
-                            <?php echo $readOnly ? 'disabled' : ''; ?>
-                            class="w-5 h-5 text-purple-600 bg-white border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:focus:ring-blue-500"
-                        >
-                        <span class="text-sm font-medium text-gray-700">Bewerbung erforderlich</span>
-                    </label>
-
+                        <label id="requires_application_wrapper" class="eved-checkbox-group <?php
+                            $showRequiresApplication = ($_SERVER['REQUEST_METHOD'] === 'POST')
+                                ? isset($_POST['is_internal_project'])
+                                : ($event['is_internal_project'] ?? false);
+                            echo $showRequiresApplication ? '' : 'hidden';
+                        ?>">
+                            <input
+                                type="checkbox"
+                                name="requires_application"
+                                id="requires_application"
+                                <?php
+                                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                                    echo isset($_POST['requires_application']) ? 'checked' : '';
+                                } else {
+                                    echo ($event['requires_application'] ?? false) ? 'checked' : '';
+                                }
+                                ?>
+                                <?php echo $readOnly ? 'disabled' : ''; ?>
+                            >
+                            <span>Bewerbung erforderlich</span>
+                        </label>
+                    </div>
                 </div>
 
                 <!-- Visibility: Role Checkboxes -->
-                <div class="md:col-span-2">
-                    <label class="block w-full text-sm font-medium text-gray-700 mb-3">
-                        Sichtbarkeit (Rollen)
-                        <span class="text-xs text-gray-500 ml-2">Wenn keine Rolle ausgewählt ist, ist das Event für alle sichtbar</span>
-                    </label>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                        <?php 
-                        // Use Microsoft Entra groups if available, otherwise fall back to hardcoded roles
-                        if (!empty($entraGroups)) {
-                            // Display groups from Microsoft Entra
-                            $allowedRoles = $_POST['allowed_roles'] ?? $event['allowed_roles'] ?? [];
-                            foreach ($entraGroups as $groupIndex => $group): 
-                            $groupIdSafe = 'group_' . $groupIndex;
+                <div class="eved-form-row full">
+                    <div class="eved-form-group">
+                        <label class="eved-label">
+                            Sichtbarkeit (Rollen)
+                            <span class="eved-label-hint">Wenn keine Rolle ausgewählt ist, ist das Event für alle sichtbar</span>
+                        </label>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--eved-spacing-md);">
+                            <?php
+                            // Use Microsoft Entra groups if available, otherwise fall back to hardcoded roles
+                            if (!empty($entraGroups)) {
+                                // Display groups from Microsoft Entra
+                                $allowedRoles = $_POST['allowed_roles'] ?? $event['allowed_roles'] ?? [];
+                                foreach ($entraGroups as $groupIndex => $group):
+                                $groupIdSafe = 'group_' . $groupIndex;
+                                ?>
+                                <label for="<?php echo $groupIdSafe; ?>" class="eved-checkbox-group">
+                                    <input
+                                        type="checkbox"
+                                        id="<?php echo $groupIdSafe; ?>"
+                                        name="allowed_roles[]"
+                                        value="<?php echo htmlspecialchars($group['id']); ?>"
+                                        <?php echo in_array($group['id'], $allowedRoles) ? 'checked' : ''; ?>
+                                        <?php echo $readOnly ? 'disabled' : ''; ?>
+                                    >
+                                    <span><?php echo htmlspecialchars($group['displayName']); ?></span>
+                                </label>
+                                <?php
+                                endforeach;
+                            } else {
+                                // Fallback: Use AuthHandler mapping keys as role options
+                                $roles = [
+                                    'Anwaerter' => 'Anwärter',
+                                    'Mitglied' => 'Mitglied',
+                                    'Ehrenmitglied' => 'Ehrenmitglied',
+                                    'Ressortleiter' => 'Ressortleiter',
+                                    'Alumni' => 'Alumni',
+                                    'Alumni_Vorstand' => 'Alumni-Vorstand',
+                                    'Alumni_Finanz' => 'Alumni-Finanzprüfer',
+                                    'board_roles' => 'Vorstand'
+                                ];
+                                $allowedRoles = $_POST['allowed_roles'] ?? $event['allowed_roles'] ?? [];
+                                $boardEntraRoles = ['vorstand_finanzen', 'vorstand_intern', 'vorstand_extern'];
+                                foreach ($roles as $roleValue => $roleLabel):
+                                $roleIdSafe = 'role_' . $roleValue;
+                                $isChecked = ($roleValue === 'board_roles')
+                                    ? (!empty(array_intersect($boardEntraRoles, $allowedRoles)) || in_array('board_roles', $allowedRoles))
+                                    : in_array($roleValue, $allowedRoles);
+                                ?>
+                                <label for="<?php echo $roleIdSafe; ?>" class="eved-checkbox-group">
+                                    <input
+                                        type="checkbox"
+                                        id="<?php echo $roleIdSafe; ?>"
+                                        name="allowed_roles[]"
+                                        value="<?php echo $roleValue; ?>"
+                                        <?php echo $isChecked ? 'checked' : ''; ?>
+                                        <?php echo $readOnly ? 'disabled' : ''; ?>
+                                    >
+                                    <span><?php echo $roleLabel; ?></span>
+                                </label>
+                                <?php
+                                endforeach;
+                            }
                             ?>
-                            <label for="<?php echo $groupIdSafe; ?>" class="flex items-center space-x-2 min-h-[44px]">
-                                <input 
-                                    type="checkbox" 
-                                    id="<?php echo $groupIdSafe; ?>"
-                                    name="allowed_roles[]"
-                                    value="<?php echo htmlspecialchars($group['id']); ?>"
-                                    <?php echo in_array($group['id'], $allowedRoles) ? 'checked' : ''; ?>
-                                    <?php echo $readOnly ? 'disabled' : ''; ?>
-                                    class="w-4 h-4 text-purple-600 bg-white border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:focus:ring-blue-500"
-                                >
-                                <span class="text-sm text-gray-700"><?php echo htmlspecialchars($group['displayName']); ?></span>
-                            </label>
-                            <?php 
-                            endforeach;
-                        } else {
-                            // Fallback: Use AuthHandler mapping keys as role options
-                            $roles = [
-                                'Anwaerter' => 'Anwärter',
-                                'Mitglied' => 'Mitglied',
-                                'Ehrenmitglied' => 'Ehrenmitglied',
-                                'Ressortleiter' => 'Ressortleiter',
-                                'Alumni' => 'Alumni',
-                                'Alumni_Vorstand' => 'Alumni-Vorstand',
-                                'Alumni_Finanz' => 'Alumni-Finanzprüfer',
-                                'board_roles' => 'Vorstand'
-                            ];
-                            $allowedRoles = $_POST['allowed_roles'] ?? $event['allowed_roles'] ?? [];
-                            $boardEntraRoles = ['vorstand_finanzen', 'vorstand_intern', 'vorstand_extern'];
-                            foreach ($roles as $roleValue => $roleLabel): 
-                            $roleIdSafe = 'role_' . $roleValue;
-                            $isChecked = ($roleValue === 'board_roles')
-                                ? (!empty(array_intersect($boardEntraRoles, $allowedRoles)) || in_array('board_roles', $allowedRoles))
-                                : in_array($roleValue, $allowedRoles);
-                            ?>
-                            <label for="<?php echo $roleIdSafe; ?>" class="flex items-center space-x-2 min-h-[44px]">
-                                <input 
-                                    type="checkbox" 
-                                    id="<?php echo $roleIdSafe; ?>"
-                                    name="allowed_roles[]"
-                                    value="<?php echo $roleValue; ?>"
-                                    <?php echo $isChecked ? 'checked' : ''; ?>
-                                    <?php echo $readOnly ? 'disabled' : ''; ?>
-                                    class="w-4 h-4 text-purple-600 bg-white border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:focus:ring-blue-500"
-                                >
-                                <span class="text-sm text-gray-700"><?php echo $roleLabel; ?></span>
-                            </label>
-                            <?php 
-                            endforeach;
-                        }
-                        ?>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Tab 3: Helfer-Planung -->
-        <div id="tab-helpers" class="tab-content hidden">
-            <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4">
-                <i class="fas fa-hands-helping text-purple-600 mr-2"></i>
-                Helfer-Planung
-            </h2>
-            
-            <div class="mb-4">
-                <p class="text-sm text-gray-600">
-                    Definiere die verschiedenen Helfer-Rollen und deren Zeitslots für dieses Event.
-                    Jede Rolle kann mehrere Zeitslots haben, und für jeden Slot kannst Du die benötigte Anzahl an Helfern festlegen.
-                </p>
-                <div class="mt-3 p-3 bg-ibc-blue/5 border border-ibc-blue/15 rounded-xl flex items-start gap-2">
-                    <i class="fas fa-info-circle text-ibc-blue mt-0.5 flex-shrink-0"></i>
-                    <p class="text-sm text-ibc-blue">
-                        <strong>Aufbau &amp; Abbau:</strong> Zeitslots dürfen auch <em>vor</em> dem Event-Start (Aufbau) oder <em>nach</em> dem Event-Ende (Abbau) liegen. Das Datum wird in diesem Fall automatisch angezeigt.
+            <!-- Tab 3: Helfer-Planung -->
+            <div id="tab-helpers" class="eved-tab-content hidden">
+                <h2 class="eved-page-title" style="font-size: 1.25rem; margin-bottom: var(--eved-spacing-lg);">
+                    <i class="fas fa-hands-helping"></i>
+                    Helfer-Planung
+                </h2>
+
+                <div class="eved-form-group">
+                    <p style="color: var(--text-muted); margin-bottom: var(--eved-spacing-md); font-size: 0.875rem;">
+                        Definiere die verschiedenen Helfer-Rollen und deren Zeitslots für dieses Event.
+                        Jede Rolle kann mehrere Zeitslots haben, und für jeden Slot kannst Du die benötigte Anzahl an Helfern festlegen.
                     </p>
+                    <div class="eved-info-box">
+                        <div class="eved-info-box-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div>
+                            <div class="eved-info-box-title">Aufbau & Abbau</div>
+                            <div class="eved-info-box-text">
+                                Zeitslots dürfen auch <em>vor</em> dem Event-Start (Aufbau) oder <em>nach</em> dem Event-Ende (Abbau) liegen. Das Datum wird in diesem Fall automatisch angezeigt.
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
+                <div id="helper-types-container" style="display: flex; flex-direction: column; gap: var(--eved-spacing-lg);">
+                    <!-- Helper types will be added here dynamically -->
+                </div>
+
+                <?php if (!$readOnly): ?>
+                <button
+                    type="button"
+                    id="addHelperTypeBtn"
+                    class="eved-button eved-button--success eved-button--sm"
+                    style="margin-top: var(--eved-spacing-lg); align-self: flex-start;"
+                >
+                    <i class="fas fa-plus"></i>Helfer-Rolle hinzufügen
+                </button>
+                <?php endif; ?>
             </div>
 
-            <div id="helper-types-container" class="space-y-6">
-                <!-- Helper types will be added here dynamically -->
-            </div>
-
+            <!-- Form Actions -->
             <?php if (!$readOnly): ?>
-            <button 
-                type="button" 
-                id="addHelperTypeBtn"
-                class="mt-4 px-4 py-2 bg-ibc-green text-white rounded-xl hover:shadow-glow-green ease-premium inline-flex items-center"
-            >
-                <i class="fas fa-plus mr-2"></i>Helfer-Rolle hinzufügen
-            </button>
+            <div class="eved-button-group">
+                <a href="manage.php" class="eved-button eved-button--secondary">
+                    <i class="fas fa-times"></i>Abbrechen
+                </a>
+                <button type="submit" name="save_draft" class="eved-button eved-button--draft">
+                    <i class="fas fa-file-alt"></i>Als Entwurf speichern
+                </button>
+                <button type="submit" name="publish_event" class="eved-button eved-button--primary">
+                    <i class="fas fa-paper-plane"></i>Veröffentlichen
+                </button>
+            </div>
             <?php endif; ?>
-        </div>
-
-        <!-- Form Actions -->
-        <?php if (!$readOnly): ?>
-        <div class="flex flex-col md:flex-row gap-3 pt-6 border-t">
-            <a href="manage.php" class="w-full sm:flex-1 px-6 py-3 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 text-center no-underline font-medium inline-flex items-center justify-center">
-                <i class="fas fa-times mr-2"></i>Abbrechen
-            </a>
-            <button type="submit" name="save_draft" class="w-full sm:flex-1 px-6 py-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50 text-amber-700 dark:text-amber-400 rounded-xl hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-all duration-200 font-medium inline-flex items-center justify-center">
-                <i class="fas fa-file-alt mr-2"></i>Als Entwurf speichern
-            </button>
-            <button type="submit" name="publish_event" class="w-full sm:flex-1 btn-primary inline-flex items-center justify-center">
-                <i class="fas fa-paper-plane mr-2"></i>Veröffentlichen
-            </button>
-        </div>
-        <?php endif; ?>
-    </form>
-</div>
-
-<!-- History Section -->
-<?php if ($isEdit && !empty($history)): ?>
-<div class="glass-card shadow-soft rounded-xl p-6 mt-6">
-    <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4">
-        <i class="fas fa-history text-ibc-blue mr-2"></i>
-        Änderungshistorie (letzte 10 Einträge)
-    </h2>
-    <div class="space-y-3">
-        <?php foreach ($history as $entry): 
-            $user = User::getById($entry['user_id']);
-            $details = json_decode($entry['change_details'], true);
-        ?>
-        <div class="flex items-start space-x-3 p-3 bg-gray-50 rounded-xl">
-            <div class="flex-shrink-0">
-                <i class="fas fa-circle text-ibc-blue text-xs mt-1"></i>
-            </div>
-            <div class="flex-1">
-                <div class="flex items-center justify-between mb-1">
-                    <span class="font-medium text-gray-800">
-                        <?php echo htmlspecialchars(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? '')); ?>
-                    </span>
-                    <span class="text-xs text-gray-500">
-                        <?php echo date('d.m.Y H:i', strtotime($entry['created_at'])); ?>
-                    </span>
-                </div>
-                <div class="text-sm text-gray-600">
-                    <span class="font-semibold"><?php echo htmlspecialchars($entry['change_type']); ?>:</span>
-                    <?php echo htmlspecialchars($details['action'] ?? 'Änderung durchgeführt'); ?>
-                </div>
-            </div>
-        </div>
-        <?php endforeach; ?>
+        </form>
     </div>
+
+    <!-- History Section -->
+    <?php if ($isEdit && !empty($history)): ?>
+    <div class="eved-card eved-history">
+        <h2 class="eved-history-title">
+            <i class="fas fa-history"></i>
+            Änderungshistorie (letzte 10 Einträge)
+        </h2>
+        <div class="eved-history-list">
+            <?php foreach ($history as $entry):
+                $user = User::getById($entry['user_id']);
+                $details = json_decode($entry['change_details'], true);
+            ?>
+            <div class="eved-history-item">
+                <div class="eved-history-item-icon">
+                    <i class="fas fa-circle"></i>
+                </div>
+                <div class="eved-history-item-content">
+                    <div class="eved-history-item-header">
+                        <span class="eved-history-item-user">
+                            <?php echo htmlspecialchars(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? '')); ?>
+                        </span>
+                        <span class="eved-history-item-date">
+                            <?php echo date('d.m.Y H:i', strtotime($entry['created_at'])); ?>
+                        </span>
+                    </div>
+                    <div class="eved-history-item-text">
+                        <span class="eved-history-item-type"><?php echo htmlspecialchars($entry['change_type']); ?>:</span>
+                        <?php echo htmlspecialchars($details['action'] ?? 'Änderung durchgeführt'); ?>
+                    </div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php endif; ?>
 </div>
-<?php endif; ?>
 
 <!-- Flatpickr JavaScript -->
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -848,20 +1548,18 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Tab switching
-document.querySelectorAll('.tab-button').forEach(button => {
+document.querySelectorAll('.eved-tab-button').forEach(button => {
     button.addEventListener('click', function() {
         const targetTab = this.getAttribute('data-tab');
-        
+
         // Update buttons
-        document.querySelectorAll('.tab-button').forEach(btn => {
-            btn.classList.remove('active', 'bg-ibc-blue', 'text-white', 'shadow-md');
-            btn.classList.add('text-gray-600', 'dark:text-gray-300');
+        document.querySelectorAll('.eved-tab-button').forEach(btn => {
+            btn.classList.remove('active');
         });
-        this.classList.add('active', 'bg-ibc-blue', 'text-white', 'shadow-md');
-        this.classList.remove('text-gray-600', 'dark:text-gray-300');
-        
+        this.classList.add('active');
+
         // Update content
-        document.querySelectorAll('.tab-content').forEach(content => {
+        document.querySelectorAll('.eved-tab-content').forEach(content => {
             content.classList.add('hidden');
         });
         document.getElementById('tab-' + targetTab).classList.remove('hidden');
@@ -914,68 +1612,68 @@ function addHelperType() {
     const container = document.getElementById('helper-types-container');
     const currentIndex = helperTypeIndex++;
     slotCounters[currentIndex] = 0;
-    
+
     const helperTypeHtml = `
-        <div id="helper-type-${currentIndex}" class="helper-card p-6 rounded-xl bg-white shadow-soft" data-index="${currentIndex}">
-            <div class="flex items-center justify-between mb-4">
-                <h4 class="text-lg font-bold text-gray-800">
-                    <i class="fas fa-users mr-2 text-ibc-blue"></i>
+        <div id="helper-type-${currentIndex}" class="eved-helper-card" data-index="${currentIndex}">
+            <div class="eved-helper-card-header">
+                <h4 class="eved-helper-card-title">
+                    <i class="fas fa-users"></i>
                     Helfer-Rolle #${currentIndex + 1}
                 </h4>
-                <button 
-                    type="button" 
-                    class="remove-helper-type-btn text-red-600 hover:text-red-700 ease-premium px-3 py-1 rounded-xl hover:bg-red-50"
+                <button
+                    type="button"
+                    class="remove-helper-type-btn eved-remove-btn"
                     data-index="${currentIndex}"
                     title="Rolle entfernen"
                 >
-                    <i class="fas fa-trash mr-1"></i> Entfernen
+                    <i class="fas fa-trash"></i> Entfernen
                 </button>
             </div>
-            
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 mb-6">
-                <div>
-                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Titel der Rolle <span class="text-red-500">*</span>
+
+            <div class="eved-form-row">
+                <div class="eved-form-group">
+                    <label class="eved-label">
+                        Titel der Rolle
+                        <span class="eved-required">*</span>
                     </label>
-                    <input 
-                        type="text" 
-                        class="helper-type-title w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ibc-blue"
+                    <input
+                        type="text"
+                        class="helper-type-title eved-input"
                         placeholder="z.B. Aufbau-Team, Bar-Service, Technik"
                         data-index="${currentIndex}"
                     >
                 </div>
-                <div>
-                    <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Beschreibung (optional)</label>
-                    <input 
-                        type="text" 
-                        class="helper-type-description w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ibc-blue"
+                <div class="eved-form-group">
+                    <label class="eved-label">Beschreibung (optional)</label>
+                    <input
+                        type="text"
+                        class="helper-type-description eved-input"
                         placeholder="Kurze Beschreibung der Aufgaben"
                         data-index="${currentIndex}"
                     >
                 </div>
             </div>
-            
-            <div class="border-t pt-4">
-                <div class="flex items-center justify-between mb-3">
-                    <h5 class="text-sm font-bold text-gray-700">
-                        <i class="fas fa-clock mr-2 text-ibc-blue"></i>
-                        Zeitslots
-                    </h5>
-                </div>
-                <div class="slots-container space-y-3" data-type-index="${currentIndex}">
+
+            <div style="border-top: 1px solid var(--border-color); margin-top: var(--eved-spacing-lg); padding-top: var(--eved-spacing-lg);">
+                <h5 style="font-size: 0.875rem; font-weight: 700; color: var(--text-main); margin-bottom: var(--eved-spacing-md); display: flex; align-items: center; gap: var(--eved-spacing-sm);">
+                    <i class="fas fa-clock" style="color: var(--ibc-blue);"></i>
+                    Zeitslots
+                </h5>
+                <div class="eved-slots-container" data-type-index="${currentIndex}">
                     <!-- Slots will be added here -->
                 </div>
-                <button 
-                    type="button" 
-                    class="add-slot-btn mt-3 px-3 py-2 bg-ibc-blue text-white text-sm rounded-xl hover:bg-ibc-blue-dark ease-premium inline-flex items-center"
+                <button
+                    type="button"
+                    class="add-slot-btn eved-button eved-button--success eved-button--sm"
                     data-type-index="${currentIndex}"
+                    style="margin-top: var(--eved-spacing-md);"
                 >
-                    <i class="fas fa-plus mr-1"></i>Zeitslot hinzufügen
+                    <i class="fas fa-plus"></i>Zeitslot hinzufügen
                 </button>
             </div>
         </div>
     `;
-    
+
     container.insertAdjacentHTML('beforeend', helperTypeHtml);
 }
 
@@ -998,64 +1696,65 @@ function removeHelperType(typeIndex) {
 function addSlot(typeIndex) {
     const slotsContainer = document.querySelector(`[data-type-index="${typeIndex}"]`);
     if (!slotsContainer) return;
-    
+
     const slotIndex = slotCounters[typeIndex]++;
-    
+
     const slotHtml = `
-        <div id="slot-${typeIndex}-${slotIndex}" class="slot-item grid grid-cols-1 md:grid-cols-4 gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200" data-type-index="${typeIndex}" data-slot-index="${slotIndex}">
-            <div>
-                <label class="block text-xs font-medium text-gray-700 mb-1">
-                    Startzeit <span class="text-red-500">*</span>
+        <div id="slot-${typeIndex}-${slotIndex}" class="eved-slot-item" data-type-index="${typeIndex}" data-slot-index="${slotIndex}">
+            <div class="eved-slot-field">
+                <label class="eved-slot-label">
+                    Startzeit <span class="eved-required">*</span>
                 </label>
-                <input 
-                    type="text" 
-                    class="slot-start flatpickr-slot w-full px-3 py-2 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ibc-blue"
+                <input
+                    type="text"
+                    class="slot-start flatpickr-slot eved-slot-input"
                     placeholder="Wählen..."
                     data-type-index="${typeIndex}"
                     data-slot-index="${slotIndex}"
                 >
             </div>
-            <div>
-                <label class="block text-xs font-medium text-gray-700 mb-1">
-                    Endzeit <span class="text-red-500">*</span>
+            <div class="eved-slot-field">
+                <label class="eved-slot-label">
+                    Endzeit <span class="eved-required">*</span>
                 </label>
-                <input 
-                    type="text" 
-                    class="slot-end flatpickr-slot w-full px-3 py-2 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ibc-blue"
+                <input
+                    type="text"
+                    class="slot-end flatpickr-slot eved-slot-input"
                     placeholder="Wählen..."
                     data-type-index="${typeIndex}"
                     data-slot-index="${slotIndex}"
                 >
             </div>
-            <div>
-                <label class="block text-xs font-medium text-gray-700 mb-1">
-                    Anzahl Helfer <span class="text-red-500">*</span>
+            <div class="eved-slot-field">
+                <label class="eved-slot-label">
+                    Anzahl Helfer <span class="eved-required">*</span>
                 </label>
-                <input 
-                    type="number" 
-                    class="slot-quantity w-full px-3 py-2 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ibc-blue"
+                <input
+                    type="number"
+                    class="slot-quantity eved-slot-input"
                     min="1"
                     value="1"
                     data-type-index="${typeIndex}"
                     data-slot-index="${slotIndex}"
                 >
             </div>
-            <div class="flex items-end">
-                <button 
-                    type="button" 
-                    class="remove-slot-btn w-full px-3 py-2 bg-red-600 text-white text-sm rounded-xl hover:bg-red-700 ease-premium"
+            <div class="eved-slot-field" style="display: flex; align-items: flex-end;">
+                <button
+                    type="button"
+                    class="remove-slot-btn eved-button eved-button--danger"
                     data-type-index="${typeIndex}"
                     data-slot-index="${slotIndex}"
                     title="Slot entfernen"
+                    style="width: 100%; margin: 0;"
                 >
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
         </div>
     `;
-    
+
     slotsContainer.insertAdjacentHTML('beforeend', slotHtml);
-    
+
     // Initialize Flatpickr for the new slot inputs
     initializeSlotFlatpickr(typeIndex, slotIndex);
 }
@@ -1066,7 +1765,7 @@ function addSlot(typeIndex) {
 function initializeSlotFlatpickr(typeIndex, slotIndex) {
     const startInput = document.querySelector(`.slot-start[data-type-index="${typeIndex}"][data-slot-index="${slotIndex}"]`);
     const endInput = document.querySelector(`.slot-end[data-type-index="${typeIndex}"][data-slot-index="${slotIndex}"]`);
-    
+
     if (startInput && endInput) {
         const slotFlatpickrOptions = {
             enableTime: true,
@@ -1075,7 +1774,7 @@ function initializeSlotFlatpickr(typeIndex, slotIndex) {
             locale: "de",
             minuteIncrement: 15,
         };
-        
+
         const startPicker = flatpickr(startInput, {
             ...slotFlatpickrOptions,
             onChange: function(selectedDates, dateStr) {
@@ -1085,7 +1784,7 @@ function initializeSlotFlatpickr(typeIndex, slotIndex) {
                 }
             }
         });
-        
+
         const endPicker = flatpickr(endInput, slotFlatpickrOptions);
     }
 }
@@ -1106,7 +1805,7 @@ function removeSlot(typeIndex, slotIndex) {
 document.getElementById('eventForm')?.addEventListener('submit', function(e) {
     const startTime = document.getElementById('start_time').value;
     const endTime = document.getElementById('end_time').value;
-    
+
     // Helper function to format dates for user-friendly display
     const formatDateTime = (dateStr) => {
         const date = new Date(dateStr);
@@ -1117,32 +1816,32 @@ document.getElementById('eventForm')?.addEventListener('submit', function(e) {
         const minutes = String(date.getMinutes()).padStart(2, '0');
         return `${day}.${month}.${year} ${hours}:${minutes}`;
     };
-    
+
     // Validate main event times
     if (startTime && endTime) {
         const startDate = new Date(startTime);
         const endDate = new Date(endTime);
-        
+
         if (startDate >= endDate) {
             e.preventDefault();
             alert('Die Startzeit muss vor der Endzeit liegen!');
             return false;
         }
     }
-    
+
     // Collect helper types data and validate
     const helperTypes = [];
-    const helperTypeElements = document.querySelectorAll('#helper-types-container > .helper-card');
+    const helperTypeElements = document.querySelectorAll('#helper-types-container > .eved-helper-card');
     let validationFailed = false;
-    
+
     for (let typeDiv of helperTypeElements) {
         const typeIndex = typeDiv.getAttribute('data-index');
         const titleInput = typeDiv.querySelector(`.helper-type-title[data-index="${typeIndex}"]`);
         const descriptionInput = typeDiv.querySelector(`.helper-type-description[data-index="${typeIndex}"]`);
-        
+
         const title = titleInput?.value.trim();
         const description = descriptionInput?.value.trim();
-        
+
         if (!title) {
             e.preventDefault();
             alert('Bitte gib einen Titel für alle Helfer-Rollen ein!');
@@ -1150,25 +1849,25 @@ document.getElementById('eventForm')?.addEventListener('submit', function(e) {
             validationFailed = true;
             break;
         }
-        
+
         // Collect slots for this helper type
         const slots = [];
-        const slotElements = typeDiv.querySelectorAll(`.slot-item[data-type-index="${typeIndex}"]`);
-        
+        const slotElements = typeDiv.querySelectorAll(`.eved-slot-item[data-type-index="${typeIndex}"]`);
+
         for (let slotDiv of slotElements) {
             const slotIndex = slotDiv.getAttribute('data-slot-index');
             const startInput = slotDiv.querySelector(`.slot-start[data-slot-index="${slotIndex}"]`);
             const endInput = slotDiv.querySelector(`.slot-end[data-slot-index="${slotIndex}"]`);
             const quantityInput = slotDiv.querySelector(`.slot-quantity[data-slot-index="${slotIndex}"]`);
-            
+
             const slotStart = startInput?.value;
             const slotEnd = endInput?.value;
             const quantity = parseInt(quantityInput?.value) || 1;
-            
+
             if (slotStart && slotEnd) {
                 const slotStartDate = new Date(slotStart);
                 const slotEndDate = new Date(slotEnd);
-                
+
                 // Validate that slot start is before slot end.
                 // Slots may be before the event start (Aufbau) or after the event end (Abbau).
                 if (slotStartDate >= slotEndDate) {
@@ -1177,7 +1876,7 @@ document.getElementById('eventForm')?.addEventListener('submit', function(e) {
                     validationFailed = true;
                     break;
                 }
-                
+
                 slots.push({
                     start_time: slotStart,
                     end_time: slotEnd,
@@ -1185,23 +1884,23 @@ document.getElementById('eventForm')?.addEventListener('submit', function(e) {
                 });
             }
         }
-        
+
         if (validationFailed) break;
-        
+
         helperTypes.push({
             title: title,
             description: description,
             slots: slots
         });
     }
-    
+
     if (validationFailed) {
         return false;
     }
-    
+
     // Set the JSON data
     document.getElementById('helper_types_json').value = JSON.stringify(helperTypes);
-    
+
     // Validate that helpers are configured if checkbox is checked
     if (document.getElementById('needs_helpers')?.checked) {
         if (helperTypes.length === 0) {
@@ -1221,28 +1920,28 @@ window.addEventListener('DOMContentLoaded', function() {
     setTimeout(function() {
         existingHelperTypes.forEach(helperType => {
             addHelperType();
-            const lastType = document.querySelector('#helper-types-container > .helper-card:last-child');
+            const lastType = document.querySelector('#helper-types-container > .eved-helper-card:last-child');
             const typeIndex = lastType.getAttribute('data-index');
-            
+
             // Set title and description
             const titleInput = lastType.querySelector(`.helper-type-title[data-index="${typeIndex}"]`);
             const descriptionInput = lastType.querySelector(`.helper-type-description[data-index="${typeIndex}"]`);
-            
+
             if (titleInput) titleInput.value = helperType.title || '';
             if (descriptionInput) descriptionInput.value = helperType.description || '';
-            
+
             // Add slots
             if (helperType.slots && helperType.slots.length > 0) {
                 helperType.slots.forEach(slot => {
                     addSlot(typeIndex);
-                    const lastSlot = lastType.querySelector(`.slot-item[data-type-index="${typeIndex}"]:last-child`);
+                    const lastSlot = lastType.querySelector(`.eved-slot-item[data-type-index="${typeIndex}"]:last-child`);
                     const slotIndex = lastSlot.getAttribute('data-slot-index');
-                    
+
                     // Set slot values using local time formatting
                     const startInput = lastSlot.querySelector(`.slot-start[data-slot-index="${slotIndex}"]`);
                     const endInput = lastSlot.querySelector(`.slot-end[data-slot-index="${slotIndex}"]`);
                     const quantityInput = lastSlot.querySelector(`.slot-quantity[data-slot-index="${slotIndex}"]`);
-                    
+
                     if (startInput) {
                         const slotStart = new Date(slot.start_time);
                         // Format as local time: YYYY-MM-DD HH:mm
@@ -1257,7 +1956,7 @@ window.addEventListener('DOMContentLoaded', function() {
                             startInput._flatpickr.setDate(slotStart);
                         }
                     }
-                    
+
                     if (endInput) {
                         const slotEnd = new Date(slot.end_time);
                         // Format as local time: YYYY-MM-DD HH:mm
@@ -1272,7 +1971,7 @@ window.addEventListener('DOMContentLoaded', function() {
                             endInput._flatpickr.setDate(slotEnd);
                         }
                     }
-                    
+
                     if (quantityInput) {
                         quantityInput.value = slot.quantity_needed || 1;
                     }
@@ -1290,7 +1989,7 @@ document.addEventListener('click', function(e) {
         e.preventDefault();
         addHelperType();
     }
-    
+
     // Remove helper type button
     if (e.target.closest('.remove-helper-type-btn')) {
         e.preventDefault();
@@ -1298,7 +1997,7 @@ document.addEventListener('click', function(e) {
         const typeIndex = btn.getAttribute('data-index');
         removeHelperType(typeIndex);
     }
-    
+
     // Add slot button
     if (e.target.closest('.add-slot-btn')) {
         e.preventDefault();
@@ -1306,7 +2005,7 @@ document.addEventListener('click', function(e) {
         const typeIndex = btn.getAttribute('data-type-index');
         addSlot(typeIndex);
     }
-    
+
     // Remove slot button
     if (e.target.closest('.remove-slot-btn')) {
         e.preventDefault();

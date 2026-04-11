@@ -528,4 +528,81 @@ class User {
             @unlink($tmpFile);
         }
     }
+
+    /**
+     * Import an Entra user into the local database.
+     * If a user with the given azure_oid or email already exists, an exception is thrown.
+     *
+     * @param string $azureOid    Microsoft Object ID (OID) from Entra
+     * @param string $displayName Display name from Entra
+     * @param string $email       Primary e-mail address
+     * @param string $role        Internal role key (e.g. 'mitglied', 'ressortleiter')
+     * @param string $userType    'member' or 'guest'
+     * @return int                New user's database ID
+     * @throws Exception          If user already exists or INSERT fails
+     */
+    public static function importFromEntra(
+        string $azureOid,
+        string $displayName,
+        string $email,
+        string $role,
+        string $userType = 'member'
+    ): int {
+        $db = Database::getUserDB();
+
+        // Duplicate check by azure_oid
+        $chk = $db->prepare("SELECT id FROM users WHERE azure_oid = ? LIMIT 1");
+        $chk->execute([$azureOid]);
+        if ($chk->fetchColumn()) {
+            throw new Exception('Benutzer mit dieser Entra-ID existiert bereits im Intranet.');
+        }
+
+        // Duplicate check by e-mail
+        $chk = $db->prepare("SELECT id FROM users WHERE email = ? LIMIT 1");
+        $chk->execute([$email]);
+        if ($chk->fetchColumn()) {
+            throw new Exception('Ein Benutzer mit dieser E-Mail-Adresse existiert bereits.');
+        }
+
+        // Split display name into first / last
+        $parts     = explode(' ', trim($displayName), 2);
+        $firstName = $parts[0] ?? '';
+        $lastName  = $parts[1] ?? '';
+
+        // Random placeholder password (user will always log in via Entra SSO)
+        $randomPassword = password_hash(bin2hex(random_bytes(32)), PASSWORD_DEFAULT);
+
+        $stmt = $db->prepare("
+            INSERT INTO users
+                (email, password, role, azure_oid, user_type,
+                 first_name, last_name, profile_complete, is_alumni_validated)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 0, 0)
+        ");
+        $stmt->execute([$email, $randomPassword, $role, $azureOid, $userType, $firstName, $lastName]);
+        $userId = (int) $db->lastInsertId();
+
+        if ($userId === 0) {
+            throw new Exception('Benutzer konnte nicht in der Datenbank angelegt werden.');
+        }
+
+        return $userId;
+    }
+
+    /**
+     * Reset 2FA for a user
+     */
+    public static function reset2FA(int $userId): bool {
+        $db   = Database::getUserDB();
+        $stmt = $db->prepare("UPDATE users SET tfa_secret = NULL, tfa_enabled = 0, tfa_failed_attempts = 0, tfa_locked_until = NULL WHERE id = ?");
+        return $stmt->execute([$userId]);
+    }
+
+    /**
+     * Set alumni validation status
+     */
+    public static function setAlumniValidated(int $userId, int $isValidated): bool {
+        $db   = Database::getUserDB();
+        $stmt = $db->prepare("UPDATE users SET is_alumni_validated = ? WHERE id = ?");
+        return $stmt->execute([$isValidated, $userId]);
+    }
 }

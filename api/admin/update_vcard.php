@@ -69,6 +69,10 @@ if (isset($_POST['rolle'])) {
     $data['rolle'] = trim(strip_tags($_POST['rolle']));
 }
 
+if (isset($_POST['funktion'])) {
+    $data['funktion'] = trim(strip_tags($_POST['funktion']));
+}
+
 if (isset($_POST['telefon'])) {
     $data['telefon'] = trim(strip_tags($_POST['telefon']));
 }
