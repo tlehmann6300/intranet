@@ -92,6 +92,8 @@ ob_start();
     display: flex;
     align-items: center;
     gap: 0.875rem;
+    flex: 1;
+    min-width: 0;
 }
 
 .inv-header-icon {
@@ -109,7 +111,7 @@ ob_start();
 }
 
 .inv-page-title {
-    font-size: 1.75rem;
+    font-size: clamp(1.25rem, 4vw, 1.75rem);
     font-weight: 800;
     color: var(--text-main);
     margin: 0;
@@ -119,7 +121,10 @@ ob_start();
 .inv-page-subtitle {
     color: var(--text-muted);
     margin: 0.2rem 0 0;
-    font-size: 0.9rem;
+    font-size: 0.8125rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .inv-submit-btn {

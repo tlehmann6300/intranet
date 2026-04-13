@@ -249,20 +249,22 @@ ob_start();
 }
 .idea-form-input {
     width: 100%;
-    background: var(--bg-body);
+    background: var(--bg-card);
     border: 1.5px solid var(--border-color);
     border-radius: 0.625rem;
     padding: 0.625rem 0.875rem;
     font-size: 0.875rem;
     color: var(--text-main);
     outline: none;
-    transition: border-color 0.18s, box-shadow 0.18s;
+    transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
     -webkit-appearance: none;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.04);
 }
 .idea-form-input::placeholder { color: var(--text-muted); opacity: 0.7; }
 .idea-form-input:focus {
     border-color: #f59e0b;
-    box-shadow: 0 0 0 3px rgba(245,158,11,0.12);
+    box-shadow: 0 0 0 3px rgba(245,158,11,0.12), inset 0 1px 3px rgba(0,0,0,0.04);
+    background: var(--bg-card);
 }
 .idea-form-error {
     display: none;
@@ -317,9 +319,9 @@ ob_start();
         <div style="width:3rem;height:3rem;border-radius:0.875rem;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(245,158,11,0.35);flex-shrink:0;">
             <i class="fas fa-lightbulb" style="color:#fff;font-size:1.2rem;" aria-hidden="true"></i>
         </div>
-        <div>
-            <h1 style="font-size:1.625rem;font-weight:800;color:var(--text-main);letter-spacing:-0.02em;line-height:1.2;margin:0;">Ideenbox</h1>
-            <p style="font-size:0.875rem;color:var(--text-muted);margin:0.125rem 0 0;">Teile Deine Ideen – stimme ab, was umgesetzt werden soll</p>
+        <div style="min-width:0;">
+            <h1 style="font-size:clamp(1.25rem,4vw,1.625rem);font-weight:800;color:var(--text-main);letter-spacing:-0.02em;line-height:1.2;margin:0;">Ideenbox</h1>
+            <p style="font-size:0.8125rem;color:var(--text-muted);margin:0.125rem 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Teile Deine Ideen – stimme ab, was umgesetzt werden soll</p>
         </div>
     </div>
     <button id="openIdeaModalBtn"
@@ -388,7 +390,7 @@ ob_start();
             <div style="flex:1;padding:0.875rem 1rem;min-width:0;display:flex;flex-direction:column;">
                 <!-- Title row + status + menu -->
                 <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;margin-bottom:0.5rem;">
-                    <h3 style="font-size:0.9375rem;font-weight:800;color:var(--text-main);line-height:1.3;margin:0;word-break:break-word;hyphens:auto;">
+                    <h3 style="font-size:0.9375rem;font-weight:800;color:var(--text-main);line-height:1.3;margin:0;word-break:break-word;hyphens:manual;">
                         <?php echo htmlspecialchars($idea['title']); ?>
                     </h3>
                     <div style="display:flex;align-items:center;gap:0.25rem;flex-shrink:0;">
@@ -417,7 +419,7 @@ ob_start();
                 </div>
 
                 <!-- Description -->
-                <p style="font-size:0.8125rem;color:var(--text-muted);line-height:1.6;margin:0;flex:1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;word-break:break-word;hyphens:auto;">
+                <p style="font-size:0.8125rem;color:var(--text-muted);line-height:1.6;margin:0;flex:1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;word-break:break-word;hyphens:manual;">
                     <?php echo nl2br(htmlspecialchars($idea['description'])); ?>
                 </p>
             </div>
@@ -516,9 +518,9 @@ ob_start();
         <!-- Modal Footer -->
         <div style="padding:0.875rem 1.5rem 1.5rem;display:flex;gap:0.625rem;flex-wrap:wrap;">
             <button id="cancelIdeaBtn"
-                    style="padding:0.625rem 1rem;background:var(--bg-body);border:1.5px solid var(--border-color);border-radius:0.625rem;font-size:0.875rem;font-weight:600;color:var(--text-muted);cursor:pointer;transition:border-color 0.15s,color 0.15s;flex:1;min-width:7rem;"
-                    onmouseover="this.style.borderColor='var(--text-muted)'"
-                    onmouseout="this.style.borderColor='var(--border-color)'">
+                    style="padding:0.625rem 1rem;background:var(--bg-card);border:1.5px solid var(--border-color);border-radius:0.625rem;font-size:0.875rem;font-weight:600;color:var(--text-main);cursor:pointer;transition:border-color 0.15s,color 0.15s,background 0.15s;flex:1;min-width:7rem;"
+                    onmouseover="this.style.background='var(--bg-body)';this.style.borderColor='var(--text-muted)'"
+                    onmouseout="this.style.background='var(--bg-card)';this.style.borderColor='var(--border-color)'">
                 Abbrechen
             </button>
             <button id="submitIdeaBtn"
@@ -554,14 +556,25 @@ if (titleInput) {
     });
 }
 
+let _ideaScrollY = 0;
 function openIdeaModal() {
-    ideaModal.classList.add('open');
+    _ideaScrollY = window.scrollY;
+    document.body.style.position = 'fixed';
+    document.body.style.top      = '-' + _ideaScrollY + 'px';
+    document.body.style.left     = '0';
+    document.body.style.right    = '0';
     document.body.style.overflow = 'hidden';
+    ideaModal.classList.add('open');
     if (titleInput) titleInput.focus();
 }
 function closeIdeaModal() {
     ideaModal.classList.remove('open');
+    document.body.style.position = '';
+    document.body.style.top      = '';
+    document.body.style.left     = '';
+    document.body.style.right    = '';
     document.body.style.overflow = '';
+    window.scrollTo(0, _ideaScrollY);
     if (titleInput) titleInput.value = '';
     if (descInput)  descInput.value  = '';
     if (titleCount) titleCount.textContent = '0 / 200';

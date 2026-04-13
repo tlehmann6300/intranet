@@ -165,7 +165,7 @@ ob_start();
     min-height: 2.4rem;
     margin-bottom: 0.75rem;
     word-break: break-word;
-    hyphens: auto;
+    hyphens: manual;
 }
 .dir-contact-icons {
     display: flex;
@@ -271,9 +271,9 @@ ob_start();
         <div style="width:3rem;height:3rem;border-radius:0.875rem;background:linear-gradient(135deg,#7c3aed,#4f46e5);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(124,58,237,0.32);flex-shrink:0;">
             <i class="fas fa-user-graduate" style="color:#fff;font-size:1.2rem;" aria-hidden="true"></i>
         </div>
-        <div>
-            <h1 style="font-size:1.625rem;font-weight:800;color:var(--text-main);letter-spacing:-0.02em;line-height:1.2;margin:0;">Alumni-Verzeichnis</h1>
-            <p style="font-size:0.875rem;color:var(--text-muted);margin:0.125rem 0 0;">Entdecke und vernetze dich mit unserem Alumni-Netzwerk</p>
+        <div style="min-width:0;">
+            <h1 style="font-size:clamp(1.25rem,4vw,1.625rem);font-weight:800;color:var(--text-main);letter-spacing:-0.02em;line-height:1.2;margin:0;">Alumni-Verzeichnis</h1>
+            <p style="font-size:0.8125rem;color:var(--text-muted);margin:0.125rem 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Entdecke und vernetze dich mit unserem Alumni-Netzwerk</p>
         </div>
     </div>
     <?php if (in_array($user['role'], ['alumni','alumni_vorstand','alumni_finanz','ehrenmitglied'])): ?>
@@ -290,9 +290,9 @@ ob_start();
 <!-- ── Search & Filter ────────────────────────────────────────── -->
 <div style="background:var(--bg-card);border:1.5px solid var(--border-color);border-radius:0.875rem;padding:1rem 1.125rem;margin-bottom:1.5rem;">
     <form method="GET" action="">
-        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:0.75rem;">
+        <div style="display:flex;flex-direction:column;gap:0.75rem;">
             <!-- Keyword search -->
-            <div style="position:relative;flex:2;min-width:10rem;">
+            <div style="position:relative;">
                 <i class="fas fa-search" style="position:absolute;left:0.875rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.75rem;pointer-events:none;" aria-hidden="true"></i>
                 <input type="text" name="search"
                        value="<?php echo htmlspecialchars($searchKeyword); ?>"
@@ -301,9 +301,9 @@ ob_start();
                        aria-label="Alumni suchen">
             </div>
             <!-- Industry select -->
-            <div style="position:relative;flex:1;min-width:9rem;">
+            <div style="position:relative;">
                 <i class="fas fa-industry" style="position:absolute;left:0.875rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.75rem;pointer-events:none;z-index:1;" aria-hidden="true"></i>
-                <select name="industry" class="dir-select" style="padding-left:2.25rem;" aria-label="Branche filtern">
+                <select name="industry" class="dir-select" style="padding-left:2.25rem;width:100%;" aria-label="Branche filtern">
                     <option value="">Alle Branchen</option>
                     <?php foreach ($industries as $ind): ?>
                     <option value="<?php echo htmlspecialchars($ind); ?>" <?php echo $industryFilter === $ind ? 'selected' : ''; ?>>
@@ -315,13 +315,13 @@ ob_start();
             <!-- Buttons -->
             <div style="display:flex;gap:0.5rem;flex-shrink:0;">
                 <button type="submit"
-                        style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.55rem 1.1rem;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;border:none;border-radius:9999px;font-size:0.8125rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:opacity 0.18s;min-height:2.5rem;">
+                        style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.55rem 1.1rem;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;border:none;border-radius:9999px;font-size:0.8125rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:opacity 0.18s;min-height:2.5rem;flex-shrink:0;">
                     <i class="fas fa-search" style="font-size:0.7rem;" aria-hidden="true"></i>
                     Suchen
                 </button>
                 <?php if (!empty($searchKeyword) || !empty($industryFilter)): ?>
                 <a href="index.php"
-                   style="display:inline-flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;background:var(--bg-body);border:1.5px solid var(--border-color);border-radius:50%;color:var(--text-muted);text-decoration:none;font-size:0.75rem;transition:border-color 0.15s,color 0.15s;"
+                   style="display:inline-flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;background:var(--bg-body);border:1.5px solid var(--border-color);border-radius:50%;color:var(--text-muted);text-decoration:none;font-size:0.75rem;transition:border-color 0.15s,color 0.15s;flex-shrink:0;"
                    title="Filter zurücksetzen"
                    onmouseover="this.style.borderColor='#ef4444';this.style.color='#ef4444'"
                    onmouseout="this.style.borderColor='var(--border-color)';this.style.color='var(--text-muted)'">

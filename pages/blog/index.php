@@ -306,8 +306,8 @@ ob_start();
             <i class="fas fa-newspaper" style="color:#fff;font-size:1.2rem;" aria-hidden="true"></i>
         </div>
         <div>
-            <h1 style="font-size:1.625rem;font-weight:800;color:var(--text-main);letter-spacing:-0.02em;line-height:1.2;margin:0;">News &amp; Updates</h1>
-            <p style="font-size:0.875rem;color:var(--text-muted);margin:0.125rem 0 0;">Neuigkeiten und Beiträge aus dem IBC</p>
+            <h1 style="font-size:clamp(1.25rem,4vw,1.625rem);font-weight:800;color:var(--text-main);letter-spacing:-0.02em;line-height:1.2;margin:0;">News &amp; Updates</h1>
+            <p style="font-size:0.8125rem;color:var(--text-muted);margin:0.125rem 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Neuigkeiten und Beiträge aus dem IBC</p>
         </div>
     </div>
     <?php if (BlogPost::canAuth($userRole)): ?>

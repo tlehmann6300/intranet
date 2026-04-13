@@ -305,9 +305,9 @@ ob_start();
         <div style="width:3rem;height:3rem;border-radius:0.875rem;background:linear-gradient(135deg,#22c55e,#16a34a);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(34,197,94,0.28);flex-shrink:0;">
             <i class="fas fa-briefcase" style="color:#fff;font-size:1.2rem;" aria-hidden="true"></i>
         </div>
-        <div>
-            <h1 style="font-size:1.625rem;font-weight:800;color:var(--text-main);letter-spacing:-0.02em;line-height:1.2;margin:0;">Job- &amp; Praktikumsbörse</h1>
-            <p style="font-size:0.875rem;color:var(--text-muted);margin:0.125rem 0 0;">Stelle dein Profil vor oder finde Talente</p>
+        <div style="min-width:0;">
+            <h1 style="font-size:clamp(1.25rem,4vw,1.625rem);font-weight:800;color:var(--text-main);letter-spacing:-0.02em;line-height:1.2;margin:0;">Job- &amp; Praktikumsbörse</h1>
+            <p style="font-size:0.8125rem;color:var(--text-muted);margin:0.125rem 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Stelle dein Profil vor oder finde Talente</p>
         </div>
     </div>
     <a href="create.php"

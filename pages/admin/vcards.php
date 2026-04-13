@@ -303,13 +303,15 @@ ob_start();
 .vc-field-input {
     width:100%; padding:.625rem .9rem;
     border-radius:.625rem; border:1.5px solid var(--border-color);
-    background:var(--bg-body); color:var(--text-main);
+    background:var(--bg-card); color:var(--text-main);
     font-size:.875rem; outline:none; box-sizing:border-box;
-    transition:border-color .2s, box-shadow .2s;
+    transition:border-color .2s, box-shadow .2s, background .2s;
+    box-shadow:inset 0 1px 3px rgba(0,0,0,.04);
 }
 .vc-field-input:focus {
     border-color:rgba(13,148,136,.6);
-    box-shadow:0 0 0 3px rgba(13,148,136,.14);
+    box-shadow:0 0 0 3px rgba(13,148,136,.14), inset 0 1px 3px rgba(0,0,0,.04);
+    background:var(--bg-card);
 }
 .vc-field-input::placeholder { color:var(--text-muted); }
 .vc-field-hint {
@@ -342,11 +344,11 @@ ob_start();
 }
 .vc-modal-cancel {
     flex:1; padding:.65rem 1rem; border-radius:.75rem;
-    border:1.5px solid var(--border-color); background:var(--bg-body);
-    color:var(--text-muted); font-weight:600; cursor:pointer;
+    border:1.5px solid var(--border-color); background:var(--bg-card);
+    color:var(--text-main); font-weight:600; cursor:pointer;
     font-size:.875rem; transition:background .2s, border-color .2s;
 }
-.vc-modal-cancel:hover { background:rgba(156,163,175,.1); border-color:rgba(156,163,175,.4); }
+.vc-modal-cancel:hover { background:var(--bg-body); border-color:rgba(156,163,175,.4); }
 .vc-modal-save {
     flex:2; padding:.65rem 1rem; border-radius:.75rem;
     background:linear-gradient(135deg,rgba(13,148,136,1),rgba(5,150,105,1));
@@ -388,11 +390,11 @@ ob_start();
 }
 .vc-confirm-cancel {
     flex:1; padding:.625rem; border-radius:.75rem;
-    border:1.5px solid var(--border-color); background:var(--bg-body);
-    color:var(--text-muted); font-weight:600; cursor:pointer; font-size:.875rem;
+    border:1.5px solid var(--border-color); background:var(--bg-card);
+    color:var(--text-main); font-weight:600; cursor:pointer; font-size:.875rem;
     transition:background .2s;
 }
-.vc-confirm-cancel:hover { background:rgba(156,163,175,.1); }
+.vc-confirm-cancel:hover { background:var(--bg-body); }
 .vc-confirm-delete {
     flex:1; padding:.625rem; border-radius:.75rem;
     background:linear-gradient(135deg,rgba(239,68,68,1),rgba(220,38,38,1));
@@ -908,6 +910,25 @@ function updateEditInitials() {
     wrap.style.display = 'block';
 }
 
+/* ── Scroll lock helpers (prevent page jump on modal open) ─── */
+let _vcScrollY = 0;
+function _lockScroll() {
+    _vcScrollY = window.scrollY;
+    document.body.style.position = 'fixed';
+    document.body.style.top      = '-' + _vcScrollY + 'px';
+    document.body.style.left     = '0';
+    document.body.style.right    = '0';
+    document.body.style.overflow = 'hidden';
+}
+function _unlockScroll() {
+    document.body.style.position = '';
+    document.body.style.top      = '';
+    document.body.style.left     = '';
+    document.body.style.right    = '';
+    document.body.style.overflow = '';
+    window.scrollTo(0, _vcScrollY);
+}
+
 /* ── Edit Modal ────────────────────────── */
 let _currentEditId = null;
 
@@ -941,11 +962,13 @@ function openEditModal(id, vorname, nachname, rolle, funktion, email, telefon, l
         initWrap.style.display = 'block';
     }
 
+    _lockScroll();
     document.getElementById('editModal').classList.add('open');
 }
 
 function closeEditModal() {
     document.getElementById('editModal').classList.remove('open');
+    _unlockScroll();
 }
 
 document.getElementById('editModal').addEventListener('click', e => {
@@ -955,12 +978,14 @@ document.getElementById('editModal').addEventListener('click', e => {
 /* ── Create Modal ──────────────────────── */
 function openCreateModal() {
     document.getElementById('createForm').reset();
+    _lockScroll();
     document.getElementById('createModal').classList.add('open');
     document.getElementById('createVorname').focus();
 }
 
 function closeCreateModal() {
     document.getElementById('createModal').classList.remove('open');
+    _unlockScroll();
 }
 
 document.getElementById('createModal').addEventListener('click', e => {
@@ -976,11 +1001,13 @@ function openConfirm(id, name) {
     _pendingDeleteCard = document.querySelector(`.vc-card[data-id="${id}"]`);
     document.getElementById('confirmMsg').textContent =
         `„${name}" wird dauerhaft gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.`;
+    _lockScroll();
     document.getElementById('confirmModal').classList.add('open');
 }
 
 function closeConfirm() {
     document.getElementById('confirmModal').classList.remove('open');
+    _unlockScroll();
     _pendingDeleteId   = null;
     _pendingDeleteCard = null;
 }

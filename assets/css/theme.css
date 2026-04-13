@@ -5469,46 +5469,44 @@ body:not(.dark-mode) .card:hover {
    IMPROVED TYPOGRAPHY ACROSS BROWSERS
    ============================================================ */
 
-/* Refined heading styles */
+/* Refined heading styles — NO hyphens for UI labels */
 h1, h2, h3, h4, h5, h6 {
     font-feature-settings: "kern" 1, "liga" 1;
     -webkit-font-smoothing: antialiased;
     overflow-wrap: break-word;
     word-break: break-word;
-    -webkit-hyphens: auto;
-    -ms-hyphens: auto;
-    hyphens: auto;
+    hyphens: manual;   /* only explicit &shy; hyphens, never automatic */
 }
 
-/* Better paragraph spacing */
+/* Better paragraph spacing — hyphens only in long-form content */
 p {
     overflow-wrap: break-word;
     word-break: break-word;
-    -webkit-hyphens: auto;
-    -ms-hyphens: auto;
-    hyphens: auto;
+    hyphens: manual;   /* prevent auto-hyphenation in UI text */
     orphans: 3;
     widows: 3;
-    line-height: 1.6; /* leading-relaxed equivalent for mobile readability */
+    line-height: 1.6;
 }
 
-/* Prevent long unbreakable strings (URLs, hashes) from overflowing any element */
+/* Prevent long unbreakable strings (URLs, hashes) from overflowing */
 * {
     overflow-wrap: break-word;
     min-width: 0;
 }
 
-/* Anchors and inline elements must also wrap */
+/* Anchors and inline elements: wrap on character boundaries, no hyphens */
 a, span, label, li {
     overflow-wrap: break-word;
     word-break: break-word;
+    hyphens: manual;
 }
 
-/* Long-text content areas: event descriptions, blog posts, profile "About me" */
+/* Long-text content areas: only here auto-hyphenation is acceptable */
 .event-description,
 .profile-about,
 .blog-content,
-.long-text {
+.long-text,
+.prose {
     overflow-wrap: break-word;
     word-break: break-word;
     -webkit-hyphens: auto;
@@ -11562,14 +11560,30 @@ body:not(.dark-mode) .rounded-xl.bg-indigo-100 { background-color: #e0e7ff !impo
     border-radius: var(--radius-sm) !important;
     color: rgba(255, 255, 255, 0.88) !important;
     text-decoration: none !important;
-    font-size: 0.9rem !important;
+    font-size: 0.875rem !important;
     font-weight: 500 !important;
     transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.18s ease !important;
-    line-height: 1.4 !important;
+    line-height: 1.35 !important;
     position: relative;
     border-left: 3px solid transparent;
     transform: none !important;
     overflow: hidden;
+    /* Prevent hyphens/ugly breaks in nav labels */
+    hyphens: none !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+}
+
+/* Inner span must also override global span word-break rule */
+.sidebar nav .sidebar-nav-item span,
+.sidebar .sidebar-nav-item span {
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
 }
 
 .sidebar nav .sidebar-nav-item:hover,
@@ -12830,16 +12844,32 @@ body:not(.dark-mode) .mobile-bottom-nav-item.open span {
     border-radius: 10px !important;
     color: rgba(255, 255, 255, 0.85) !important;
     text-decoration: none !important;
-    font-size: 0.9rem !important;
+    font-size: 0.875rem !important;
     font-weight: 500 !important;
     transition:
         background 0.2s var(--animation-smooth),
         color 0.2s var(--animation-smooth),
         transform 0.2s var(--animation-spring) !important;
-    line-height: 1.4 !important;
+    line-height: 1.35 !important;
     border-left: 3px solid transparent !important;
     overflow: hidden;
     -webkit-tap-highlight-color: transparent;
+    /* Prevent auto-hyphenation in nav labels */
+    hyphens: none !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+}
+
+/* Inner span must also override global span word-break rule */
+.sidebar nav .sidebar-nav-item span,
+.sidebar .sidebar-nav-item span {
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
 }
 
 /* Hover state */
@@ -16911,6 +16941,14 @@ body:not(.dark-mode) .vc-btn-edit {
     border-color: rgba(255,255,255,.12) !important;
     color: var(--text-main) !important;
 }
+/* Blog category badges – Tailwind dark: prefix doesn't work */
+.dark-mode .bv-card [class*="bg-gray-100"] { background: rgba(255,255,255,.09) !important; color: var(--text-main) !important; }
+.dark-mode .bv-card [class*="bg-blue-100"] { background: rgba(59,130,246,.2) !important; color: #93c5fd !important; }
+.dark-mode .bv-card [class*="bg-purple-100"] { background: rgba(139,92,246,.2) !important; color: #c4b5fd !important; }
+.dark-mode .bv-card [class*="bg-green-100"] { background: rgba(16,185,129,.2) !important; color: #6ee7b7 !important; }
+.dark-mode .bv-card [class*="bg-yellow-100"] { background: rgba(245,158,11,.2) !important; color: #fcd34d !important; }
+.dark-mode .bv-card [class*="bg-red-100"] { background: rgba(239,68,68,.2) !important; color: #fca5a5 !important; }
+.dark-mode .bv-card [class*="bg-indigo-100"] { background: rgba(99,102,241,.2) !important; color: #a5b4fc !important; }
 
 /* ── Blog Edit (be-*) ─────────────────────────────────────────── */
 .dark-mode .be-card {
@@ -16994,6 +17032,21 @@ body:not(.dark-mode) .vc-btn-edit {
 .dark-mode .emg-status-planned { background: rgba(59,130,246,.18)  !important; color: #93c5fd !important; border-color: rgba(59,130,246,.3)  !important; }
 .dark-mode .emg-status-open    { background: rgba(34,197,94,.18)   !important; color: #86efac !important; border-color: rgba(34,197,94,.3)   !important; }
 .dark-mode .emg-status-cancelled { background: rgba(239,68,68,.18) !important; color: #fca5a5 !important; border-color: rgba(239,68,68,.3)  !important; }
+/* Events manage – Tailwind modal dark: overrides */
+.dark-mode [id$="Modal"] .bg-white,
+.dark-mode [id$="ModalOverlay"] .bg-white,
+.dark-mode [class*="modal-overlay"] .bg-white { background: var(--bg-card) !important; }
+.dark-mode [id$="Modal"] [class*="bg-gray-800"],
+.dark-mode [id$="ModalOverlay"] [class*="bg-gray-800"] { background: var(--bg-card) !important; }
+.dark-mode [id$="Modal"] [class*="text-gray-8"],
+.dark-mode [id$="Modal"] [class*="text-gray-9"] { color: var(--text-main) !important; }
+.dark-mode [id$="Modal"] [class*="text-gray-6"],
+.dark-mode [id$="Modal"] [class*="text-gray-3"] { color: var(--text-muted) !important; }
+.dark-mode [id$="Modal"] input,
+.dark-mode [id$="Modal"] select,
+.dark-mode [id$="Modal"] textarea { background: rgba(255,255,255,.05) !important; border-color: rgba(255,255,255,.12) !important; color: var(--text-main) !important; }
+.dark-mode [id$="Modal"] [class*="bg-gray-200"],
+.dark-mode [id$="Modal"] [class*="bg-gray-700"] { background: rgba(255,255,255,.07) !important; color: var(--text-muted) !important; }
 
 /* ── Events Statistics (est-*) ────────────────────────────────── */
 .dark-mode .est-card {
@@ -17072,6 +17125,55 @@ body:not(.dark-mode) .vc-btn-edit {
     border-color: rgba(239,68,68,.3) !important;
     color: #fca5a5 !important;
 }
+/* Tailwind-based elements inside project cards (dark: prefix doesn't work) */
+.dark-mode .prv-card .bg-gray-50,
+.dark-mode .prv-card [class*="bg-gray-50"],
+.dark-mode .prv-card [class*="bg-gray-800/50"] {
+    background: rgba(255,255,255,.05) !important;
+}
+.dark-mode .prv-card [class*="border-gray-100"],
+.dark-mode .prv-card [class*="border-gray-700"] {
+    border-color: rgba(255,255,255,.07) !important;
+}
+.dark-mode .prv-card .text-gray-900,
+.dark-mode .prv-card .text-gray-800,
+.dark-mode .prv-card .text-gray-700,
+.dark-mode .prv-card [class*="text-gray-9"],
+.dark-mode .prv-card [class*="text-gray-8"],
+.dark-mode .prv-card [class*="text-gray-7"] {
+    color: var(--text-main) !important;
+}
+.dark-mode .prv-card .text-gray-600,
+.dark-mode .prv-card .text-gray-500,
+.dark-mode .prv-card .text-gray-400,
+.dark-mode .prv-card [class*="text-gray-6"],
+.dark-mode .prv-card [class*="text-gray-5"],
+.dark-mode .prv-card [class*="text-gray-4"] {
+    color: var(--text-muted) !important;
+}
+.dark-mode .prv-card .bg-white,
+.dark-mode .prv-card [class*="bg-white"] {
+    background: var(--bg-card) !important;
+}
+.dark-mode .prv-card [class*="bg-gray-800"],
+.dark-mode .prv-card [class*="dark:bg-gray-800"] {
+    background: rgba(255,255,255,.05) !important;
+}
+.dark-mode .prv-card [class*="bg-purple-100"] {
+    background: rgba(139,92,246,.18) !important;
+}
+.dark-mode .prv-card [class*="text-purple-600"],
+.dark-mode .prv-card [class*="text-purple-400"] {
+    color: #c4b5fd !important;
+}
+.dark-mode .prv-card textarea,
+.dark-mode .prv-card input[type="text"],
+.dark-mode .prv-card input[type="number"],
+.dark-mode .prv-card select {
+    background: rgba(255,255,255,.05) !important;
+    border-color: rgba(255,255,255,.12) !important;
+    color: var(--text-main) !important;
+}
 
 /* ── Members View (memv-*) ────────────────────────────────────── */
 .dark-mode .memv-card {
@@ -17087,6 +17189,23 @@ body:not(.dark-mode) .vc-btn-edit {
 .dark-mode .memv-profile-header {
     box-shadow: 0 8px 32px rgba(0,0,0,.5) !important;
 }
+/* Tailwind-based info rows inside member profile (dark: prefix doesn't work) */
+.dark-mode .memv-card .bg-gray-50,
+.dark-mode .memv-card [class*="bg-gray-50"] {
+    background: rgba(255,255,255,.05) !important;
+}
+.dark-mode .memv-card .text-gray-800,
+.dark-mode .memv-card .text-gray-700,
+.dark-mode .memv-card [class*="text-gray-8"],
+.dark-mode .memv-card [class*="text-gray-7"] {
+    color: var(--text-main) !important;
+}
+.dark-mode .memv-card .text-gray-500,
+.dark-mode .memv-card .text-gray-400,
+.dark-mode .memv-card [class*="text-gray-5"],
+.dark-mode .memv-card [class*="text-gray-4"] {
+    color: var(--text-muted) !important;
+}
 
 /* ── Alumni View (almv-*) & Edit (alme-*) ─────────────────────── */
 .dark-mode .almv-card,
@@ -17099,6 +17218,23 @@ body:not(.dark-mode) .vc-btn-edit {
     background: rgba(139,92,246,.18) !important;
     border-color: rgba(139,92,246,.3) !important;
     color: #c4b5fd !important;
+}
+/* Tailwind-based info rows inside alumni profile (dark: prefix doesn't work) */
+.dark-mode .almv-card .bg-gray-50,
+.dark-mode .almv-card [class*="bg-gray-50"] {
+    background: rgba(255,255,255,.05) !important;
+}
+.dark-mode .almv-card .text-gray-800,
+.dark-mode .almv-card .text-gray-700,
+.dark-mode .almv-card [class*="text-gray-8"],
+.dark-mode .almv-card [class*="text-gray-7"] {
+    color: var(--text-main) !important;
+}
+.dark-mode .almv-card .text-gray-500,
+.dark-mode .almv-card .text-gray-400,
+.dark-mode .almv-card [class*="text-gray-5"],
+.dark-mode .almv-card [class*="text-gray-4"] {
+    color: var(--text-muted) !important;
 }
 .dark-mode .alme-input,
 .dark-mode .alme-textarea,
@@ -17122,10 +17258,20 @@ body:not(.dark-mode) .vc-btn-edit {
 }
 .dark-mode .nl-input,
 .dark-mode .nl-textarea,
-.dark-mode .nl-select {
+.dark-mode .nl-select,
+.dark-mode .nl-form-input {
     background: rgba(255,255,255,.05) !important;
     border-color: rgba(255,255,255,.12) !important;
     color: var(--text-main) !important;
+}
+.dark-mode .nl-file-zone {
+    background: rgba(255,255,255,.03) !important;
+    border-color: rgba(255,255,255,.12) !important;
+    color: var(--text-muted) !important;
+}
+.dark-mode .nl-upload-card {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
 }
 .dark-mode .nl-toggle-label {
     color: var(--text-main) !important;
@@ -17376,3 +17522,83 @@ body:not(.dark-mode) .vc-btn-edit {
 .dark-mode .dir-empty { background: var(--gradient-card-dark) !important; border-color: rgba(255,255,255,.07) !important; }
 .dark-mode .dir-search-input, .dark-mode .dir-select { background: rgba(255,255,255,.05) !important; border-color: rgba(255,255,255,.1) !important; color: var(--text-main) !important; }
 .dark-mode .dir-flash--success { background: rgba(16,185,129,.14) !important; border-color: rgba(16,185,129,.3) !important; color: #6ee7b7 !important; }
+
+/* ── vCards modal dark mode (pages/admin/vcards.php) ─────────── */
+.dark-mode .vc-modal,
+.dark-mode .vc-confirm-modal {
+    background: var(--bg-card) !important;
+    border-color: rgba(255,255,255,.08) !important;
+    box-shadow: 0 24px 64px rgba(0,0,0,.7), 0 8px 20px rgba(0,0,0,.5) !important;
+}
+.dark-mode .vc-modal-header {
+    background: rgba(13,148,136,.06) !important;
+    border-bottom-color: rgba(255,255,255,.08) !important;
+}
+.dark-mode .vc-modal-footer,
+.dark-mode .vc-confirm-footer {
+    background: rgba(255,255,255,.02) !important;
+    border-top-color: rgba(255,255,255,.08) !important;
+}
+.dark-mode .vc-field-input {
+    background: rgba(255,255,255,.05) !important;
+    border-color: rgba(255,255,255,.12) !important;
+    color: var(--text-main) !important;
+}
+.dark-mode .vc-field-input:focus {
+    border-color: rgba(13,148,136,.7) !important;
+    box-shadow: 0 0 0 3px rgba(13,148,136,.2) !important;
+    background: rgba(255,255,255,.07) !important;
+}
+.dark-mode .vc-modal-cancel,
+.dark-mode .vc-confirm-cancel {
+    background: rgba(255,255,255,.05) !important;
+    border-color: rgba(255,255,255,.12) !important;
+    color: var(--text-muted) !important;
+}
+.dark-mode .vc-modal-cancel:hover,
+.dark-mode .vc-confirm-cancel:hover {
+    background: rgba(255,255,255,.09) !important;
+    border-color: rgba(255,255,255,.2) !important;
+}
+.dark-mode .vc-modal-overlay { background: rgba(0,0,0,.72) !important; }
+.dark-mode .vc-card {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+}
+.dark-mode .vc-card-footer {
+    background: rgba(255,255,255,.02) !important;
+    border-top-color: rgba(255,255,255,.07) !important;
+}
+.dark-mode .vc-card-divider { background: rgba(255,255,255,.07) !important; }
+.dark-mode .vc-search-input {
+    background: rgba(255,255,255,.05) !important;
+    border-color: rgba(255,255,255,.1) !important;
+    color: var(--text-main) !important;
+}
+.dark-mode .vc-empty {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+}
+
+/* ── Inventory modal dark mode (pages/inventory/index.php) ─── */
+.dark-mode .inv-modal-dialog {
+    background: var(--bg-card) !important;
+    border: 1.5px solid rgba(255,255,255,.08) !important;
+    box-shadow: 0 20px 60px rgba(0,0,0,.7) !important;
+}
+.dark-mode .inv-form-input {
+    background: rgba(255,255,255,.05) !important;
+    border-color: rgba(255,255,255,.12) !important;
+    color: var(--text-main) !important;
+}
+.dark-mode .inv-form-input:focus {
+    border-color: rgba(124,58,237,.7) !important;
+    box-shadow: 0 0 0 3px rgba(124,58,237,.2) !important;
+    background: rgba(255,255,255,.07) !important;
+}
+.dark-mode .inv-modal-overlay { background: rgba(0,0,0,.72) !important; }
+.dark-mode .inv-search-input {
+    background: rgba(255,255,255,.05) !important;
+    border-color: rgba(255,255,255,.1) !important;
+    color: var(--text-main) !important;
+}

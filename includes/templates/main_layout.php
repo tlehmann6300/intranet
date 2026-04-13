@@ -148,7 +148,7 @@ if ($currentUser && isset($currentUser['id'])) {
         /* ════════════════════════════════════════════════════════════════
            GLOBAL BASE
            ════════════════════════════════════════════════════════════════ */
-        p, span, li, h1, h2, h3 { overflow-wrap: break-word; word-break: break-word; }
+        p, span, li, h1, h2, h3 { overflow-wrap: break-word; word-break: break-word; hyphens: manual; }
 
         ::selection { background-color: rgba(0,102,179,0.2); color: inherit; }
         .dark-mode ::selection { background-color: rgba(51,133,196,0.3); }

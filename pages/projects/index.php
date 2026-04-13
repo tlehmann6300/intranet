@@ -333,9 +333,9 @@ ob_start();
         <div style="width:3rem;height:3rem;border-radius:0.875rem;background:linear-gradient(135deg,#7c3aed,#4f46e5);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(124,58,237,0.3);flex-shrink:0;">
             <i class="fas fa-folder-open" style="color:#fff;font-size:1.2rem;" aria-hidden="true"></i>
         </div>
-        <div>
-            <h1 style="font-size:1.625rem;font-weight:800;color:var(--text-main);letter-spacing:-0.02em;line-height:1.2;margin:0;">Projekte</h1>
-            <p style="font-size:0.875rem;color:var(--text-muted);margin:0.125rem 0 0;">Entdecke aktuelle Projekte und bewirb Dich</p>
+        <div style="min-width:0;">
+            <h1 style="font-size:clamp(1.25rem,4vw,1.625rem);font-weight:800;color:var(--text-main);letter-spacing:-0.02em;line-height:1.2;margin:0;">Projekte</h1>
+            <p style="font-size:0.8125rem;color:var(--text-muted);margin:0.125rem 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Entdecke aktuelle Projekte und bewirb Dich</p>
         </div>
     </div>
     <?php if (Auth::hasPermission('manage_projects') || Auth::isBoard() || Auth::hasRole(['ressortleiter','alumni_vorstand'])): ?>
@@ -351,8 +351,8 @@ ob_start();
 
 <!-- ── Filter + Search ────────────────────────────────────────── -->
 <div style="background:var(--bg-card);border:1.5px solid var(--border-color);border-radius:0.875rem;padding:0.875rem 1rem;margin-bottom:1.75rem;">
-    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:0.75rem;">
-        <div class="proj-filter-bar" role="navigation" aria-label="Projekttyp filtern" style="flex-shrink:0;">
+    <div style="display:flex;flex-direction:column;gap:0.75rem;">
+        <div class="proj-filter-bar" role="navigation" aria-label="Projekttyp filtern" style="flex-shrink:0;overflow-x:auto;">
             <?php
             $chips = [
                 'all'      => ['icon'=>'fa-th-large',  'label'=>'Alle'],
@@ -368,7 +368,7 @@ ob_start();
             </a>
             <?php endforeach; ?>
         </div>
-        <form method="get" action="index.php" style="flex:1;min-width:10rem;">
+        <form method="get" action="index.php" style="width:100%;">
             <input type="hidden" name="type" value="<?php echo htmlspecialchars($typeFilter); ?>">
             <div class="proj-search-wrap">
                 <i class="fas fa-search proj-search-icon" aria-hidden="true"></i>

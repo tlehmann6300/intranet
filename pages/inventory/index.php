@@ -294,11 +294,12 @@ ob_start();
     width: 100%; padding: 0.625rem 0.875rem;
     border: 1.5px solid var(--border-color);
     border-radius: 0.625rem;
-    background-color: var(--bg-body);
+    background-color: var(--bg-card);
     color: var(--text-main);
     font-size: 0.9375rem;
-    transition: border-color .2s, box-shadow .2s;
+    transition: border-color .2s, box-shadow .2s, background .2s;
     outline: none;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,.04);
 }
 .inv-form-input:focus {
     border-color: #7c3aed;
@@ -507,12 +508,8 @@ ob_start();
             <i class="fas fa-box-open inv-img-placeholder" aria-label="Kein Bild"></i>
             <?php endif; ?>
 
-            <!-- Availability Badge -->
-            <?php if ($hasStock): ?>
-            <span class="inv-avail-badge inv-avail-badge--ok">
-                <i class="fas fa-check-circle"></i><?php echo $itemAvailable; ?> verfügbar
-            </span>
-            <?php else: ?>
+            <!-- Availability Badge (only show when out of stock) -->
+            <?php if (!$hasStock): ?>
             <span class="inv-avail-badge inv-avail-badge--none">
                 <i class="fas fa-times-circle"></i>Vergriffen
             </span>
@@ -669,6 +666,8 @@ ob_start();
         return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
     }
 
+    var _scrollY = 0;
+
     window.openInvModal = function (item) {
         var overlay  = document.getElementById('invModalOverlay');
         var nameEl   = document.getElementById('invModalItemName');
@@ -693,14 +692,27 @@ ob_start();
         if (purposeEl) purposeEl.value = '';
         if (destEl)    destEl.value    = '';
 
-        overlay.classList.add('open');
+        /* Lock scroll WITHOUT jumping to top */
+        _scrollY = window.scrollY;
+        document.body.style.position = 'fixed';
+        document.body.style.top      = '-' + _scrollY + 'px';
+        document.body.style.left     = '0';
+        document.body.style.right    = '0';
         document.body.style.overflow = 'hidden';
+
+        overlay.classList.add('open');
         setTimeout(function () { qtyInput.focus(); }, 280);
     };
 
     window.closeInvModal = function () {
         document.getElementById('invModalOverlay').classList.remove('open');
+        /* Restore scroll position exactly where user was */
+        document.body.style.position = '';
+        document.body.style.top      = '';
+        document.body.style.left     = '';
+        document.body.style.right    = '';
         document.body.style.overflow = '';
+        window.scrollTo(0, _scrollY);
     };
 
     document.addEventListener('keydown', function (e) {

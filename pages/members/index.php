@@ -202,7 +202,7 @@ ob_start();
     min-height: 2.4rem;
     margin-bottom: 0.75rem;
     word-break: break-word;
-    hyphens: auto;
+    hyphens: manual;
 }
 .dir-contact-icons {
     display: flex;
@@ -301,19 +301,19 @@ ob_start();
 <?php endif; ?>
 
 <!-- ── Page Header ────────────────────────────────────────────── -->
-<div style="display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.75rem;">
-    <div style="display:flex;align-items:center;gap:1rem;flex:1;min-width:0;">
-        <div style="width:3rem;height:3rem;border-radius:0.875rem;background:linear-gradient(135deg,var(--ibc-green),#15803d);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,166,81,0.3);flex-shrink:0;">
-            <i class="fas fa-users" style="color:#fff;font-size:1.2rem;" aria-hidden="true"></i>
+<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:0.875rem;margin-bottom:1.75rem;">
+    <div style="display:flex;align-items:center;gap:0.875rem;flex:1;min-width:0;">
+        <div style="width:2.75rem;height:2.75rem;border-radius:0.875rem;background:linear-gradient(135deg,var(--ibc-green),#15803d);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,166,81,0.3);flex-shrink:0;">
+            <i class="fas fa-users" style="color:#fff;font-size:1.1rem;" aria-hidden="true"></i>
         </div>
-        <div>
-            <h1 style="font-size:1.625rem;font-weight:800;color:var(--text-main);letter-spacing:-0.02em;line-height:1.2;margin:0;">Mitgliederverzeichnis</h1>
-            <p style="font-size:0.875rem;color:var(--text-muted);margin:0.125rem 0 0;">Entdecke und vernetze dich mit unseren aktiven Mitgliedern</p>
+        <div style="min-width:0;">
+            <h1 style="font-size:clamp(1.25rem,4vw,1.625rem);font-weight:800;color:var(--text-main);letter-spacing:-0.02em;line-height:1.2;margin:0;">Mitgliederverzeichnis</h1>
+            <p style="font-size:0.8125rem;color:var(--text-muted);margin:0.125rem 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Entdecke und vernetze dich mit unseren aktiven Mitgliedern</p>
         </div>
     </div>
     <?php if (Auth::isBoard() || Auth::hasRole(['ressortleiter','mitglied','anwaerter'])): ?>
     <a href="../auth/profile.php"
-       style="display:inline-flex;align-items:center;gap:0.45rem;padding:0.6rem 1.1rem;background:linear-gradient(135deg,var(--ibc-green),#15803d);color:#fff;border-radius:0.75rem;font-size:0.875rem;font-weight:700;text-decoration:none;white-space:nowrap;box-shadow:0 3px 12px rgba(0,166,81,0.3);transition:opacity 0.18s,transform 0.18s;flex-shrink:0;"
+       style="display:inline-flex;align-items:center;gap:0.45rem;padding:0.575rem 1rem;background:linear-gradient(135deg,var(--ibc-green),#15803d);color:#fff;border-radius:0.75rem;font-size:0.8125rem;font-weight:700;text-decoration:none;white-space:nowrap;box-shadow:0 3px 12px rgba(0,166,81,0.3);transition:opacity 0.18s,transform 0.18s;flex-shrink:0;min-height:2.5rem;"
        onmouseover="this.style.opacity='0.9';this.style.transform='translateY(-1px)'"
        onmouseout="this.style.opacity='1';this.style.transform='none'">
         <i class="fas fa-user-edit" aria-hidden="true"></i>

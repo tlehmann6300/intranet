@@ -104,6 +104,7 @@ krsort($grouped);
     align-items: center;
     gap: 1rem;
     margin-bottom: 2rem;
+    flex-wrap: wrap;
 }
 
 .nl-header-icon {
@@ -121,7 +122,7 @@ krsort($grouped);
 }
 
 .nl-page-title {
-    font-size: 1.625rem;
+    font-size: clamp(1.25rem, 4vw, 1.625rem);
     font-weight: 800;
     color: var(--text-main);
     letter-spacing: -0.02em;
@@ -130,9 +131,12 @@ krsort($grouped);
 }
 
 .nl-page-subtitle {
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     color: var(--text-muted);
     margin: 0.125rem 0 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .nl-page-count {
@@ -248,16 +252,17 @@ krsort($grouped);
 
 .nl-form-input {
     width: 100%;
-    background: var(--bg-body);
+    background: var(--bg-card);
     border: 1.5px solid var(--border-color);
     border-radius: 0.625rem;
     padding: 0.625rem 0.875rem;
     font-size: 0.875rem;
     color: var(--text-main);
-    transition: border-color 0.18s, box-shadow 0.18s;
+    transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
     outline: none;
     -webkit-appearance: none;
     min-height: 44px;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,.04);
 }
 
 .nl-form-input:focus {
@@ -272,7 +277,7 @@ krsort($grouped);
 
 .nl-file-zone {
     width: 100%;
-    background: var(--bg-body);
+    background: var(--bg-card);
     border: 2px dashed var(--border-color);
     border-radius: 0.75rem;
     padding: 1.125rem 1rem;

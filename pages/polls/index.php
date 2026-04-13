@@ -267,13 +267,13 @@ ob_start();
 
     <!-- Page Header -->
     <div style="margin-bottom:2rem; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1rem;">
-        <div style="display:flex; align-items:center; gap:0.875rem;">
+        <div style="display:flex; align-items:center; gap:0.875rem; flex:1; min-width:0;">
             <div class="plls-header-icon">
                 <i class="fas fa-poll" style="color:#fff; font-size:1.1875rem;"></i>
             </div>
-            <div>
-                <h1 style="font-size:1.75rem; font-weight:800; color:var(--text-main); margin:0; line-height:1.2;">Umfragen</h1>
-                <p style="color:var(--text-muted); margin:0.2rem 0 0; font-size:0.9rem;">Aktive Umfragen für deine Rolle</p>
+            <div style="min-width:0;">
+                <h1 style="font-size:clamp(1.25rem,4vw,1.75rem); font-weight:800; color:var(--text-main); margin:0; line-height:1.2;">Umfragen</h1>
+                <p style="color:var(--text-muted); margin:0.2rem 0 0; font-size:0.8125rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Aktive Umfragen für deine Rolle</p>
             </div>
         </div>
 
