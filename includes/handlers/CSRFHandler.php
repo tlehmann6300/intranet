@@ -93,7 +93,7 @@ class CSRFHandler {
         // Check if token is empty
         if (empty($token)) {
             self::logCSRFFailure('Empty token');
-            die('CSRF validation failed: Invalid token');
+            self::abortWithError('CSRF validation failed: Invalid token');
         }
         
         // Check if current token matches
@@ -114,7 +114,7 @@ class CSRFHandler {
         
         // Token not found or invalid
         self::logCSRFFailure('Token mismatch');
-        die('CSRF validation failed: Invalid or expired token');
+        self::abortWithError('CSRF validation failed: Invalid or expired token');
     }
     
     /**
@@ -141,6 +141,25 @@ class CSRFHandler {
             $userAgent,
             $requestUri
         ));
+    }
+    
+    /**
+     * Abort the request with an appropriate error response.
+     * Returns JSON if the Content-Type header is set to application/json,
+     * otherwise outputs plain text.
+     * 
+     * @param string $message Error message
+     * @return never
+     */
+    private static function abortWithError($message) {
+        foreach (headers_list() as $header) {
+            if (stripos($header, 'Content-Type:') === 0 && stripos($header, 'application/json') !== false) {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'message' => $message]);
+                exit;
+            }
+        }
+        die($message);
     }
     
     /**
