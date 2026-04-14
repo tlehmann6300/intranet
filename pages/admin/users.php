@@ -11,18 +11,6 @@ if (!Auth::check() || !Auth::isBoard()) {
     exit;
 }
 
-define('ROLE_MAPPING', [
-    'vorstand_finanzen' => '1',
-    'vorstand_intern'   => '2',
-    'vorstand_extern'   => '3',
-    'ressortleiter'     => '4',
-    'member'            => '5',
-    'alumni'            => '6',
-    'alumni_finanz'     => '7',
-    'alumni_vorstand'   => '8',
-    'guest'             => '9',
-]);
-
 $message = '';
 $error   = '';
 $warning = '';
@@ -450,7 +438,6 @@ ob_start();
         </thead>
         <tbody>
           <?php
-          $roleIdToKey = array_flip(ROLE_MAPPING);
           foreach ($users as $user):
           ?>
           <tr class="usr-row"

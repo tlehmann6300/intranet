@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => '__root__',
-        'pretty_version' => 'dev-main',
-        'version' => 'dev-main',
-        'reference' => '94ccce35635880ef4a8ea963d43618a5611a7391',
+        'pretty_version' => 'dev-copilot/fix-popup-functionality-issues',
+        'version' => 'dev-copilot/fix-popup-functionality-issues',
+        'reference' => '5572c476648395ad35723ebfd13556cb259142cc',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -11,9 +11,9 @@
     ),
     'versions' => array(
         '__root__' => array(
-            'pretty_version' => 'dev-main',
-            'version' => 'dev-main',
-            'reference' => '94ccce35635880ef4a8ea963d43618a5611a7391',
+            'pretty_version' => 'dev-copilot/fix-popup-functionality-issues',
+            'version' => 'dev-copilot/fix-popup-functionality-issues',
+            'reference' => '5572c476648395ad35723ebfd13556cb259142cc',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
