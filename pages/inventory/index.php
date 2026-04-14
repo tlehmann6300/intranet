@@ -245,82 +245,162 @@ ob_start();
 .inv-sync-btn:hover { opacity: .9; transform: scale(1.03); color: #fff; }
 
 /* ── Lending Modal ── */
+/* ═══ Ausleihen / Entnehmen – Modal (Premium Redesign) ══════
+   Accent colour: purple/indigo  prefix: inv-modal-
+══════════════════════════════════════════════════════════ */
 .inv-modal-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 1000;
-    opacity: 0; pointer-events: none;
-    transition: opacity .25s;
+    position: fixed; inset: 0; z-index: 1080;
+    background: rgba(15,23,42,.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     display: flex; align-items: center; justify-content: center;
+    padding: 1.25rem;
+    opacity: 0; pointer-events: none;
+    transition: opacity .22s ease;
 }
 .inv-modal-overlay.open { opacity: 1; pointer-events: auto; }
+
 .inv-modal-dialog {
-    background-color: var(--bg-card);
-    border-radius: 1.25rem;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
-    width: min(32rem, calc(100vw - 2rem));
-    max-height: 90vh; overflow-y: auto;
-    transform: translateY(12px) scale(.97);
-    transition: transform .25s ease, opacity .25s;
-    padding: 1.75rem;
+    background: #fff;
+    border-radius: 1.375rem;
+    width: min(30rem, calc(100vw - 2rem));
+    max-height: 92dvh;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    box-shadow:
+        0 0 0 1px rgba(0,0,0,.07),
+        0 4px 6px rgba(0,0,0,.04),
+        0 16px 48px rgba(0,0,0,.16);
+    transform: translateY(20px) scale(.97);
+    transition: transform .32s cubic-bezier(.22,.68,0,1.2), opacity .22s;
     opacity: 0;
 }
 .inv-modal-overlay.open .inv-modal-dialog {
     transform: translateY(0) scale(1);
     opacity: 1;
 }
-@media (max-width: 599px) {
-    .inv-modal-overlay { align-items: flex-end; }
-    .inv-modal-dialog {
-        width: 100%; border-radius: 1.25rem 1.25rem 0 0;
-        max-height: 88vh;
-    }
+/* Top accent stripe */
+.inv-modal-dialog::before {
+    content: ''; display: block; height: 4px; flex-shrink: 0;
+    background: linear-gradient(90deg, #7c3aed, #2563eb);
+    border-radius: 1.375rem 1.375rem 0 0;
+}
+
+/* Header */
+.inv-modal-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.125rem 1.5rem 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    gap: .75rem; flex-shrink: 0;
+}
+.inv-modal-head-left { display: flex; align-items: center; gap: .75rem; min-width: 0; }
+.inv-modal-head-icon {
+    width: 2.375rem; height: 2.375rem; border-radius: .75rem; flex-shrink: 0;
+    background: linear-gradient(135deg, #7c3aed, #2563eb);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 12px rgba(124,58,237,.35);
+}
+.inv-modal-head-title {
+    font-size: 1.0625rem; font-weight: 800;
+    color: #0f172a !important; margin: 0; line-height: 1.25;
+    letter-spacing: -.01em;
+}
+.inv-modal-head-sub {
+    font-size: .8rem; color: #64748b !important;
+    margin: .125rem 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .inv-modal-close {
-    width: 2.25rem; height: 2.25rem; border-radius: 50%;
-    border: none; cursor: pointer;
-    background-color: rgba(100,116,139,0.12);
-    color: var(--text-muted);
+    width: 2.25rem; height: 2.25rem; border-radius: .625rem;
+    background: transparent; border: 1.5px solid #e2e8f0;
+    color: #94a3b8; cursor: pointer; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
-    transition: background .2s, color .2s;
-    flex-shrink: 0;
+    transition: background .15s, color .15s, border-color .15s;
+    font-size: .9rem;
 }
-.inv-modal-close:hover { background-color: rgba(220,38,38,0.12); color: #dc2626; }
+.inv-modal-close:hover { background: #fef2f2; border-color: #fca5a5; color: #ef4444; }
+
+/* Body */
+.inv-modal-body {
+    padding: 1.25rem 1.5rem;
+    overflow-y: auto; flex: 1;
+    display: flex; flex-direction: column; gap: 1rem;
+    scrollbar-width: thin;
+}
+
+/* Form label */
 .inv-form-label {
-    display: block; font-size: 0.8125rem; font-weight: 600;
-    color: var(--text-main); margin-bottom: 0.4375rem;
+    display: block; font-size: .75rem; font-weight: 700;
+    color: #475569 !important;
+    text-transform: uppercase; letter-spacing: .055em;
+    margin-bottom: .3rem; line-height: 1.3;
 }
+/* Form input */
 .inv-form-input {
-    width: 100%; padding: 0.625rem 0.875rem;
-    border: 1.5px solid var(--border-color);
-    border-radius: 0.625rem;
-    background-color: var(--bg-card);
-    color: var(--text-main);
-    font-size: 0.9375rem;
-    transition: border-color .2s, box-shadow .2s, background .2s;
-    outline: none;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,.04);
+    width: 100%; padding: .6875rem .9375rem;
+    border: 1.5px solid #e2e8f0; border-radius: .625rem;
+    background: #fff; color: #0f172a;
+    font-size: .9rem; outline: none; box-sizing: border-box;
+    transition: border-color .18s, box-shadow .18s;
+    -webkit-appearance: none; line-height: 1.45;
 }
-.inv-form-input:focus {
-    border-color: #7c3aed;
-    box-shadow: 0 0 0 3px rgba(124,58,237,0.15);
+.inv-form-input::placeholder { color: #94a3b8; }
+.inv-form-input:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,.14); }
+.inv-form-input:hover:not(:focus) { border-color: #cbd5e1; }
+
+/* Date row */
+.inv-date-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+@media (max-width: 420px) { .inv-date-grid { grid-template-columns: 1fr; } }
+
+/* Footer */
+.inv-modal-foot {
+    padding: .875rem 1.5rem 1.25rem;
+    border-top: 1px solid #f1f5f9;
+    display: flex; gap: .625rem; flex-shrink: 0;
 }
 .inv-modal-cancel {
-    flex: 1; padding: 0.75rem; border: none; border-radius: 0.75rem;
-    background-color: rgba(100,116,139,0.12);
-    color: var(--text-muted); font-weight: 600; cursor: pointer;
-    transition: background .2s;
+    flex: 1; padding: .6875rem 1rem; border-radius: .75rem;
+    border: 1.5px solid #e2e8f0; background: #fff;
+    color: #475569 !important; font-weight: 600; cursor: pointer;
+    font-size: .875rem; transition: background .15s, border-color .15s;
+    text-align: center;
 }
-.inv-modal-cancel:hover { background-color: rgba(100,116,139,0.22); }
+.inv-modal-cancel:hover { background: #f8fafc; border-color: #cbd5e1; }
 .inv-modal-submit {
-    flex: 1; padding: 0.75rem; border: none; border-radius: 0.75rem;
+    flex: 2; padding: .6875rem 1rem; border-radius: .75rem;
     background: linear-gradient(135deg, #7c3aed, #2563eb);
-    color: #fff; font-weight: 700; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
-    transition: opacity .2s;
-    box-shadow: 0 3px 10px rgba(124,58,237,0.3);
+    color: #fff !important; font-weight: 700; cursor: pointer;
+    font-size: .875rem; border: none;
+    display: flex; align-items: center; justify-content: center; gap: .425rem;
+    box-shadow: 0 2px 12px rgba(124,58,237,.35);
+    transition: opacity .18s, transform .15s, box-shadow .18s;
 }
-.inv-modal-submit:hover { opacity: .9; }
+.inv-modal-submit:hover { opacity: .93; transform: translateY(-1px); box-shadow: 0 4px 18px rgba(124,58,237,.5); }
+.inv-modal-submit:active { transform: none; opacity: 1; }
+
+/* Responsive: bottom sheet */
+@media (max-width: 599px) {
+    .inv-modal-overlay { align-items: flex-end; padding: 0; }
+    .inv-modal-dialog { width: 100%; border-radius: 1.375rem 1.375rem 0 0; max-height: 92dvh; }
+    .inv-modal-dialog::before { border-radius: 1.375rem 1.375rem 0 0; }
+}
+
+/* Dark mode */
+.dark-mode .inv-modal-dialog {
+    background: var(--bg-card) !important;
+    box-shadow: 0 0 0 1px rgba(255,255,255,.06), 0 24px 64px rgba(0,0,0,.7) !important;
+}
+.dark-mode .inv-modal-head { border-bottom-color: rgba(255,255,255,.07) !important; }
+.dark-mode .inv-modal-head-title { color: var(--text-main) !important; }
+.dark-mode .inv-modal-head-sub   { color: var(--text-muted) !important; }
+.dark-mode .inv-modal-close { border-color: rgba(255,255,255,.1) !important; color: var(--text-muted) !important; }
+.dark-mode .inv-modal-close:hover { background: rgba(239,68,68,.15) !important; border-color: rgba(239,68,68,.4) !important; color: #f87171 !important; }
+.dark-mode .inv-form-label  { color: #94a3b8 !important; }
+.dark-mode .inv-form-input  { background: rgba(255,255,255,.06) !important; border-color: rgba(255,255,255,.12) !important; color: var(--text-main) !important; }
+.dark-mode .inv-form-input:focus { border-color: #7c3aed !important; box-shadow: 0 0 0 3px rgba(124,58,237,.22) !important; }
+.dark-mode .inv-form-input::placeholder { color: #475569 !important; }
+.dark-mode .inv-modal-foot { border-top-color: rgba(255,255,255,.07) !important; }
+.dark-mode .inv-modal-cancel { background: rgba(255,255,255,.05) !important; border-color: rgba(255,255,255,.1) !important; color: var(--text-muted) !important; }
+.dark-mode .inv-modal-cancel:hover { background: rgba(255,255,255,.09) !important; }
 
 /* Sync banner */
 .inv-sync-banner {
@@ -576,50 +656,53 @@ ob_start();
 
 </div><!-- /#inventoryContent -->
 
-<!-- ── Lending Modal ── -->
+<!-- ── Lending Modal ─────────────────────────────────────────── -->
 <div id="invModalOverlay" class="inv-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="invModalTitle"
      onclick="if(event.target===this)closeInvModal()">
     <div class="inv-modal-dialog" id="invModalDialog">
-        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; margin-bottom:1.25rem;">
-            <div>
-                <h2 id="invModalTitle" style="font-size:1.125rem; font-weight:800; color:var(--text-main); margin:0 0 0.2rem;">
-                    Ausleihen / Entnehmen
-                </h2>
-                <p id="invModalItemName" style="font-size:0.875rem; color:var(--text-muted); margin:0;"></p>
+
+        <!-- Header -->
+        <div class="inv-modal-head">
+            <div class="inv-modal-head-left">
+                <div class="inv-modal-head-icon">
+                    <i class="fas fa-hand-holding" style="color:#fff;font-size:.9rem;" aria-hidden="true"></i>
+                </div>
+                <div style="min-width:0;">
+                    <p class="inv-modal-head-title" id="invModalTitle">Ausleihen / Entnehmen</p>
+                    <p class="inv-modal-head-sub" id="invModalItemName"></p>
+                </div>
             </div>
             <button class="inv-modal-close" onclick="closeInvModal()" aria-label="Schließen">
                 <i class="fas fa-times"></i>
             </button>
         </div>
 
-        <form id="invLendForm" method="POST" action="">
-            <input type="hidden" name="checkout" value="1">
-            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(CSRFHandler::getToken()); ?>">
-            <input type="hidden" name="return_to" value="index">
+        <!-- Body -->
+        <form id="invLendForm" method="POST" action="" style="display:contents;">
+            <div class="inv-modal-body">
+                <input type="hidden" name="checkout" value="1">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(CSRFHandler::getToken()); ?>">
+                <input type="hidden" name="return_to" value="index">
 
-            <div style="display:flex; flex-direction:column; gap:1rem;">
                 <!-- Quantity -->
                 <div>
                     <label for="invQty" class="inv-form-label">
-                        <i class="fas fa-hashtag" style="color:#7c3aed; margin-right:0.375rem;"></i>Menge <span style="color:#dc2626;">*</span>
+                        Menge <span style="color:#ef4444;">*</span>
                     </label>
-                    <input type="number" id="invQty" name="quantity" min="1" value="1" required class="inv-form-input">
+                    <input type="number" id="invQty" name="quantity" min="1" value="1" required
+                           class="inv-form-input" placeholder="1">
                 </div>
 
                 <!-- Date Range -->
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+                <div class="inv-date-grid">
                     <div>
-                        <label for="invStartDate" class="inv-form-label">
-                            <i class="fas fa-calendar-alt" style="color:#7c3aed; margin-right:0.375rem;"></i>Von <span style="color:#dc2626;">*</span>
-                        </label>
+                        <label for="invStartDate" class="inv-form-label">Von <span style="color:#ef4444;">*</span></label>
                         <input type="date" id="invStartDate" name="start_date" required
                                min="<?php echo date('Y-m-d'); ?>" value="<?php echo date('Y-m-d'); ?>"
                                class="inv-form-input">
                     </div>
                     <div>
-                        <label for="invEndDate" class="inv-form-label">
-                            <i class="fas fa-calendar-alt" style="color:#7c3aed; margin-right:0.375rem;"></i>Bis <span style="color:#dc2626;">*</span>
-                        </label>
+                        <label for="invEndDate" class="inv-form-label">Bis <span style="color:#ef4444;">*</span></label>
                         <input type="date" id="invEndDate" name="end_date" required
                                min="<?php echo date('Y-m-d', strtotime('+1 day')); ?>"
                                value="<?php echo date('Y-m-d', strtotime('+1 day')); ?>"
@@ -629,33 +712,32 @@ ob_start();
 
                 <!-- Purpose -->
                 <div>
-                    <label for="invPurpose" class="inv-form-label">
-                        <i class="fas fa-info-circle" style="color:#7c3aed; margin-right:0.375rem;"></i>Verwendungszweck
-                    </label>
+                    <label for="invPurpose" class="inv-form-label">Verwendungszweck</label>
                     <input type="text" id="invPurpose" name="purpose" maxlength="255"
-                           placeholder="z. B. Veranstaltung, Projekt..."
+                           placeholder="z. B. Veranstaltung, Projekt …"
                            class="inv-form-input">
                 </div>
 
                 <!-- Destination -->
                 <div>
                     <label for="invDest" class="inv-form-label">
-                        <i class="fas fa-map-marker-alt" style="color:#7c3aed; margin-right:0.375rem;"></i>Zielort
-                        <span style="color:var(--text-muted); font-weight:400;">(optional)</span>
+                        Zielort <span style="font-size:.7rem;font-weight:400;text-transform:none;color:#94a3b8;">(optional)</span>
                     </label>
                     <input type="text" id="invDest" name="destination" maxlength="255"
-                           placeholder="z. B. Gemeindehaus, Außenlager..."
+                           placeholder="z. B. Gemeindehaus, Außenlager …"
                            class="inv-form-input">
                 </div>
             </div>
 
-            <div style="display:flex; gap:0.75rem; margin-top:1.5rem;">
+            <!-- Footer -->
+            <div class="inv-modal-foot">
                 <button type="button" class="inv-modal-cancel" onclick="closeInvModal()">Abbrechen</button>
                 <button type="submit" class="inv-modal-submit">
-                    <i class="fas fa-paper-plane"></i>Anfrage senden
+                    <i class="fas fa-paper-plane" aria-hidden="true"></i>Anfrage senden
                 </button>
             </div>
         </form>
+
     </div>
 </div>
 

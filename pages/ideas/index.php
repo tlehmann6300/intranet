@@ -204,92 +204,182 @@ ob_start();
     font-weight: 600;
 }
 
-/* Modal overlay */
+/* ═══ Neue Idee – Modal (Premium Redesign) ═══════════════════
+   Accent colour: amber/yellow  prefix: idea-modal-
+═══════════════════════════════════════════════════════════ */
 .idea-modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.55);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    z-index: 1060;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    padding: 0;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.22s ease;
+    position: fixed; inset: 0; z-index: 1080;
+    background: rgba(15,23,42,.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex; align-items: flex-end; justify-content: center;
+    padding: 0; opacity: 0; pointer-events: none;
+    transition: opacity .22s ease;
 }
 .idea-modal-overlay.open { opacity: 1; pointer-events: auto; }
+
 .idea-modal-card {
-    background: var(--bg-card);
-    border: 1.5px solid var(--border-color);
-    border-radius: 1.25rem 1.25rem 0 0;
-    width: 100%;
-    max-width: 34rem;
+    background: #fff;
+    border-radius: 1.375rem 1.375rem 0 0;
+    width: 100%; max-width: 36rem;
     max-height: 92dvh;
-    overflow-y: auto;
-    transform: translateY(32px);
-    transition: transform 0.28s cubic-bezier(0.32,0.72,0,1);
-    box-shadow: 0 -8px 40px rgba(0,0,0,0.18);
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    box-shadow:
+        0 0 0 1px rgba(0,0,0,.07),
+        0 -4px 12px rgba(0,0,0,.06),
+        0 -16px 48px rgba(0,0,0,.14);
+    transform: translateY(28px);
+    transition: transform .32s cubic-bezier(.22,.68,0,1.2), opacity .22s;
+    opacity: 0;
 }
-.idea-modal-overlay.open .idea-modal-card { transform: translateY(0); }
+/* Top accent stripe (shown only on desktop centered version) */
+.idea-modal-card::before {
+    content: ''; display: none; height: 4px; flex-shrink: 0;
+    background: linear-gradient(90deg, #f59e0b, #d97706);
+    border-radius: 1.375rem 1.375rem 0 0;
+}
+.idea-modal-overlay.open .idea-modal-card { transform: translateY(0); opacity: 1; }
+
+/* Desktop: centered dialog */
 @media (min-width: 600px) {
-    .idea-modal-overlay { align-items: center; padding: 1.5rem; }
-    .idea-modal-card { border-radius: 1.25rem; }
+    .idea-modal-overlay { align-items: center; padding: 1.25rem; }
+    .idea-modal-card {
+        border-radius: 1.375rem;
+        box-shadow:
+            0 0 0 1px rgba(0,0,0,.07),
+            0 4px 6px rgba(0,0,0,.04),
+            0 16px 48px rgba(0,0,0,.16);
+    }
+    .idea-modal-card::before { display: block; }
 }
 
-/* Modal form elements */
+/* Modal header */
+.idea-modal-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.125rem 1.5rem 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    gap: .75rem; flex-shrink: 0;
+}
+.idea-modal-head-left { display: flex; align-items: center; gap: .75rem; }
+.idea-modal-head-icon {
+    width: 2.375rem; height: 2.375rem; border-radius: .75rem; flex-shrink: 0;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 12px rgba(245,158,11,.35);
+}
+.idea-modal-head-title {
+    font-size: 1.0625rem; font-weight: 800;
+    color: #0f172a !important; margin: 0; line-height: 1.25; letter-spacing: -.01em;
+}
+.idea-modal-head-sub {
+    font-size: .78rem; color: #64748b !important; margin: .1rem 0 0;
+}
+.idea-modal-close-btn {
+    width: 2.25rem; height: 2.25rem; border-radius: .625rem;
+    background: transparent; border: 1.5px solid #e2e8f0;
+    color: #94a3b8; cursor: pointer; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .15s, color .15s, border-color .15s;
+    font-size: .9rem;
+}
+.idea-modal-close-btn:hover { background: #fef2f2; border-color: #fca5a5; color: #ef4444; }
+
+/* Modal body */
+.idea-modal-body {
+    padding: 1.25rem 1.5rem;
+    overflow-y: auto; flex: 1;
+    display: flex; flex-direction: column; gap: 1rem;
+    scrollbar-width: thin;
+}
+
+/* Form label */
 .idea-form-label {
     display: block;
-    font-size: 0.8125rem;
-    font-weight: 700;
-    color: var(--text-main);
-    margin-bottom: 0.375rem;
+    font-size: .75rem; font-weight: 700;
+    color: #475569 !important;
+    text-transform: uppercase; letter-spacing: .055em;
+    margin-bottom: .3rem; line-height: 1.3;
 }
+/* Form input */
 .idea-form-input {
-    width: 100%;
-    background: var(--bg-card);
-    border: 1.5px solid var(--border-color);
-    border-radius: 0.625rem;
-    padding: 0.625rem 0.875rem;
-    font-size: 0.875rem;
-    color: var(--text-main);
-    outline: none;
-    transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
-    -webkit-appearance: none;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.04);
+    width: 100%; padding: .6875rem .9375rem;
+    border: 1.5px solid #e2e8f0; border-radius: .625rem;
+    background: #fff; color: #0f172a;
+    font-size: .9rem; outline: none; box-sizing: border-box;
+    transition: border-color .18s, box-shadow .18s;
+    -webkit-appearance: none; line-height: 1.45;
 }
-.idea-form-input::placeholder { color: var(--text-muted); opacity: 0.7; }
-.idea-form-input:focus {
-    border-color: #f59e0b;
-    box-shadow: 0 0 0 3px rgba(245,158,11,0.12), inset 0 1px 3px rgba(0,0,0,0.04);
-    background: var(--bg-card);
-}
+.idea-form-input::placeholder { color: #94a3b8; }
+.idea-form-input:focus { border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,.14); }
+.idea-form-input:hover:not(:focus) { border-color: #cbd5e1; }
+
+/* Char counter */
+.idea-char-count { font-size: .73rem; color: #94a3b8; }
+
+/* Error box */
 .idea-form-error {
-    display: none;
-    align-items: flex-start;
-    gap: 0.5rem;
-    padding: 0.75rem 0.875rem;
-    background: rgba(239,68,68,0.08);
-    border: 1.5px solid rgba(239,68,68,0.2);
-    border-radius: 0.625rem;
-    font-size: 0.8125rem;
-    color: #ef4444;
-    margin-bottom: 0.875rem;
+    display: none; align-items: flex-start; gap: .5rem;
+    padding: .75rem .9rem;
+    background: rgba(239,68,68,.06); border: 1.5px solid rgba(239,68,68,.2);
+    border-radius: .625rem; font-size: .8125rem; color: #ef4444;
 }
 .idea-form-error.visible { display: flex; }
+
+/* Info box */
 .idea-info-box {
-    display: flex;
-    gap: 0.625rem;
-    padding: 0.875rem 1rem;
-    background: rgba(0,102,179,0.07);
-    border: 1.5px solid rgba(0,102,179,0.15);
-    border-radius: 0.75rem;
-    font-size: 0.8125rem;
-    color: var(--ibc-blue);
+    display: flex; gap: .625rem;
+    padding: .875rem 1rem;
+    background: rgba(0,102,179,.06); border: 1.5px solid rgba(0,102,179,.15);
+    border-radius: .75rem; font-size: .8125rem; color: #1d4ed8 !important;
     line-height: 1.55;
 }
+
+/* Modal footer */
+.idea-modal-foot {
+    padding: .875rem 1.5rem 1.25rem;
+    border-top: 1px solid #f1f5f9;
+    display: flex; gap: .625rem; flex-shrink: 0;
+}
+.idea-modal-cancel-btn {
+    flex: 1; padding: .6875rem 1rem; border-radius: .75rem;
+    border: 1.5px solid #e2e8f0; background: #fff;
+    color: #475569 !important; font-weight: 600; cursor: pointer;
+    font-size: .875rem; transition: background .15s, border-color .15s;
+    text-align: center;
+}
+.idea-modal-cancel-btn:hover { background: #f8fafc; border-color: #cbd5e1; }
+.idea-modal-submit-btn {
+    flex: 2; padding: .6875rem 1rem; border-radius: .75rem;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #fff !important; font-weight: 700; cursor: pointer;
+    font-size: .875rem; border: none;
+    display: flex; align-items: center; justify-content: center; gap: .425rem;
+    box-shadow: 0 2px 12px rgba(245,158,11,.35);
+    transition: opacity .18s, transform .15s, box-shadow .18s;
+}
+.idea-modal-submit-btn:hover { opacity: .93; transform: translateY(-1px); box-shadow: 0 4px 18px rgba(245,158,11,.5); }
+.idea-modal-submit-btn:active { transform: none; opacity: 1; }
+.idea-modal-submit-btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+/* Dark mode */
+.dark-mode .idea-modal-card {
+    background: var(--bg-card) !important;
+    box-shadow: 0 0 0 1px rgba(255,255,255,.06), 0 24px 64px rgba(0,0,0,.7) !important;
+}
+.dark-mode .idea-modal-head { border-bottom-color: rgba(255,255,255,.07) !important; }
+.dark-mode .idea-modal-head-title { color: var(--text-main) !important; }
+.dark-mode .idea-modal-head-sub { color: var(--text-muted) !important; }
+.dark-mode .idea-modal-close-btn { border-color: rgba(255,255,255,.1) !important; color: var(--text-muted) !important; }
+.dark-mode .idea-modal-close-btn:hover { background: rgba(239,68,68,.15) !important; border-color: rgba(239,68,68,.4) !important; color: #f87171 !important; }
+.dark-mode .idea-form-label { color: #94a3b8 !important; }
+.dark-mode .idea-form-input { background: rgba(255,255,255,.06) !important; border-color: rgba(255,255,255,.12) !important; color: var(--text-main) !important; }
+.dark-mode .idea-form-input:focus { border-color: #f59e0b !important; box-shadow: 0 0 0 3px rgba(245,158,11,.2) !important; }
+.dark-mode .idea-form-input::placeholder { color: #475569 !important; }
+.dark-mode .idea-info-box { background: rgba(0,102,179,.1) !important; border-color: rgba(0,102,179,.25) !important; color: #93c5fd !important; }
+.dark-mode .idea-modal-foot { border-top-color: rgba(255,255,255,.07) !important; }
+.dark-mode .idea-modal-cancel-btn { background: rgba(255,255,255,.05) !important; border-color: rgba(255,255,255,.1) !important; color: var(--text-muted) !important; }
+.dark-mode .idea-modal-cancel-btn:hover { background: rgba(255,255,255,.09) !important; }
 
 /* Stagger animations */
 @keyframes ideaCardIn {
@@ -456,44 +546,41 @@ ob_start();
 <!-- ── New Idea Modal ─────────────────────────────────────────── -->
 <div id="ideaModal" class="idea-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="ideaModalTitle">
     <div class="idea-modal-card">
-        <!-- Modal Header -->
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1.25rem 1.5rem;border-bottom:1px solid var(--border-color);">
-            <div style="display:flex;align-items:center;gap:0.75rem;">
-                <div style="width:2.5rem;height:2.5rem;border-radius:0.75rem;background:rgba(245,158,11,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                    <i class="fas fa-lightbulb" style="color:#f59e0b;font-size:1rem;" aria-hidden="true"></i>
+
+        <!-- Header -->
+        <div class="idea-modal-head">
+            <div class="idea-modal-head-left">
+                <div class="idea-modal-head-icon">
+                    <i class="fas fa-lightbulb" style="color:#fff;font-size:.9rem;" aria-hidden="true"></i>
                 </div>
                 <div>
-                    <h2 id="ideaModalTitle" style="font-size:1rem;font-weight:800;color:var(--text-main);line-height:1.25;margin:0;">Neue Idee einreichen</h2>
-                    <p style="font-size:0.75rem;color:var(--text-muted);margin:0.1rem 0 0;">Dein Vorschlag zählt!</p>
+                    <p class="idea-modal-head-title" id="ideaModalTitle">Neue Idee einreichen</p>
+                    <p class="idea-modal-head-sub">Dein Vorschlag zählt!</p>
                 </div>
             </div>
-            <button id="closeIdeaModalBtn"
-                    style="width:2.25rem;height:2.25rem;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;background:transparent;border:1.5px solid var(--border-color);color:var(--text-muted);cursor:pointer;transition:background 0.15s,color 0.15s;flex-shrink:0;"
-                    onmouseover="this.style.background='var(--bg-body)';this.style.color='var(--text-main)'"
-                    onmouseout="this.style.background='transparent';this.style.color='var(--text-muted)'"
-                    aria-label="Schließen">
-                <i class="fas fa-times" style="font-size:0.8rem;" aria-hidden="true"></i>
+            <button id="closeIdeaModalBtn" class="idea-modal-close-btn" aria-label="Schließen">
+                <i class="fas fa-times" style="font-size:.85rem;" aria-hidden="true"></i>
             </button>
         </div>
 
-        <!-- Modal Body -->
-        <div style="padding:1.375rem 1.5rem;display:flex;flex-direction:column;gap:1rem;">
+        <!-- Body -->
+        <div class="idea-modal-body">
             <!-- Error box -->
             <div id="ideaFormError" class="idea-form-error" role="alert">
-                <i class="fas fa-exclamation-circle" style="flex-shrink:0;margin-top:0.1rem;" aria-hidden="true"></i>
+                <i class="fas fa-exclamation-circle" style="flex-shrink:0;margin-top:.1rem;" aria-hidden="true"></i>
                 <span id="ideaFormErrorText"></span>
             </div>
 
             <!-- Title -->
             <div>
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.375rem;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.3rem;">
                     <label for="ideaTitle" class="idea-form-label" style="margin:0;">
                         Titel <span style="color:#ef4444;">*</span>
                     </label>
-                    <span id="titleCount" style="font-size:0.75rem;color:var(--text-muted);">0 / 200</span>
+                    <span id="titleCount" class="idea-char-count">0 / 200</span>
                 </div>
                 <input type="text" id="ideaTitle" maxlength="200" required
-                       placeholder="Kurzer, aussagekräftiger Titel…"
+                       placeholder="Kurzer, aussagekräftiger Titel …"
                        class="idea-form-input">
             </div>
 
@@ -503,32 +590,26 @@ ob_start();
                     Beschreibung <span style="color:#ef4444;">*</span>
                 </label>
                 <textarea id="ideaDescription" rows="5" required
-                          placeholder="Beschreibe Deine Idee so detailliert wie möglich…"
+                          placeholder="Beschreibe deine Idee so detailliert wie möglich …"
                           class="idea-form-input"
                           style="resize:vertical;min-height:7rem;"></textarea>
             </div>
 
             <!-- Info note -->
             <div class="idea-info-box">
-                <i class="fas fa-info-circle" style="flex-shrink:0;margin-top:0.1rem;" aria-hidden="true"></i>
+                <i class="fas fa-info-circle" style="flex-shrink:0;margin-top:.15rem;" aria-hidden="true"></i>
                 <span>Deine Idee wird an den IBC-Vorstand und ERW weitergeleitet und sorgfältig geprüft.</span>
             </div>
         </div>
 
-        <!-- Modal Footer -->
-        <div style="padding:0.875rem 1.5rem 1.5rem;display:flex;gap:0.625rem;flex-wrap:wrap;">
-            <button id="cancelIdeaBtn"
-                    style="padding:0.625rem 1rem;background:var(--bg-card);border:1.5px solid var(--border-color);border-radius:0.625rem;font-size:0.875rem;font-weight:600;color:var(--text-main);cursor:pointer;transition:border-color 0.15s,color 0.15s,background 0.15s;flex:1;min-width:7rem;"
-                    onmouseover="this.style.background='var(--bg-body)';this.style.borderColor='var(--text-muted)'"
-                    onmouseout="this.style.background='var(--bg-card)';this.style.borderColor='var(--border-color)'">
-                Abbrechen
-            </button>
-            <button id="submitIdeaBtn"
-                    style="display:inline-flex;align-items:center;justify-content:center;gap:0.45rem;padding:0.625rem 1.25rem;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border:none;border-radius:0.625rem;font-size:0.875rem;font-weight:700;cursor:pointer;box-shadow:0 2px 10px rgba(245,158,11,0.3);transition:opacity 0.18s;flex:2;min-width:10rem;">
-                <i class="fas fa-paper-plane" aria-hidden="true"></i>
-                Einreichen
+        <!-- Footer -->
+        <div class="idea-modal-foot">
+            <button id="cancelIdeaBtn" class="idea-modal-cancel-btn">Abbrechen</button>
+            <button id="submitIdeaBtn" class="idea-modal-submit-btn">
+                <i class="fas fa-paper-plane" aria-hidden="true"></i>Einreichen
             </button>
         </div>
+
     </div>
 </div>
 

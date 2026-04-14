@@ -8662,12 +8662,18 @@ body:not(.dark-mode) .mobile-bottom-nav-item.open span {
    and that heading weights establish a clear visual hierarchy.
    ──────────────────────────────────────────────────────────── */
 
-body:not(.dark-mode) h1:not(.sidebar *) { color: #0c1a2e !important; font-weight: 800; }
-body:not(.dark-mode) h2:not(.sidebar *) { color: #0f2040 !important; font-weight: 700; }
-body:not(.dark-mode) h3:not(.sidebar *) { color: #1a2f4a !important; font-weight: 700; }
-body:not(.dark-mode) h4:not(.sidebar *) { color: #1e3a5f !important; font-weight: 600; }
-body:not(.dark-mode) h5:not(.sidebar *) { color: #243d5c !important; font-weight: 600; }
-body:not(.dark-mode) h6:not(.sidebar *) { color: #2d4a6b !important; font-weight: 600; }
+/* Headings get dark colors in light mode — but NOT inside hero/banner/modal-header areas
+   that intentionally have colored/dark backgrounds with white text. */
+body:not(.dark-mode) h1:not(.sidebar *):not(.d-hero *):not(.modal-white-text *):not([class*="-hero"] *):not([class*="modal-header"] *) { color: #0c1a2e !important; font-weight: 800; }
+body:not(.dark-mode) h2:not(.sidebar *):not(.d-hero *):not(.modal-white-text *):not([class*="-hero"] *):not([class*="modal-header"] *) { color: #0f2040 !important; font-weight: 700; }
+body:not(.dark-mode) h3:not(.sidebar *):not(.d-hero *):not(.modal-white-text *):not([class*="-hero"] *):not([class*="modal-header"] *) { color: #1a2f4a !important; font-weight: 700; }
+body:not(.dark-mode) h4:not(.sidebar *):not(.d-hero *):not(.modal-white-text *):not([class*="-hero"] *):not([class*="modal-header"] *) { color: #1e3a5f !important; font-weight: 600; }
+body:not(.dark-mode) h5:not(.sidebar *):not(.d-hero *):not(.modal-white-text *):not([class*="-hero"] *):not([class*="modal-header"] *) { color: #243d5c !important; font-weight: 600; }
+body:not(.dark-mode) h6:not(.sidebar *):not(.d-hero *):not(.modal-white-text *):not([class*="-hero"] *):not([class*="modal-header"] *) { color: #2d4a6b !important; font-weight: 600; }
+
+/* Dashboard hero – always white text regardless of mode */
+.d-hero h1, .d-hero h2, .d-hero h3, .d-hero .d-hero-title { color: #fff !important; }
+.d-hero p, .d-hero .d-hero-subtitle { color: rgba(255,255,255,0.82) !important; }
 
 /* ── 4. LIGHT MODE: MUTED / SECONDARY TEXT ─────────────────
    Refine --text-muted so secondary labels are clearly readable

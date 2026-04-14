@@ -244,166 +244,293 @@ ob_start();
 }
 #vc-no-results i { display:block; font-size:2rem; margin-bottom:.625rem; opacity:.35; }
 
-/* ── Modal overlay ────────────────────────────────────────────── */
+/* ═══ MODAL SYSTEM – Premium redesign ══════════════════════════
+   Clean, accessible, polished modals for all vCard actions.
+   Light mode: white card, teal accents.  Dark: var(--bg-card).
+══════════════════════════════════════════════════════════════ */
+
+/* Overlay */
 .vc-modal-overlay {
-    position:fixed; inset:0;
-    background:rgba(0,0,0,.45); backdrop-filter:blur(5px);
-    z-index:500; display:flex; align-items:center; justify-content:center;
-    padding:1rem; opacity:0; pointer-events:none; transition:opacity .25s;
+    position:fixed; inset:0; z-index:1080;
+    background:rgba(15,23,42,.55);
+    backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);
+    display:flex; align-items:center; justify-content:center;
+    padding:1.25rem;
+    opacity:0; pointer-events:none;
+    transition:opacity .22s ease;
 }
 .vc-modal-overlay.open { opacity:1; pointer-events:auto; }
+
+/* Modal card */
 .vc-modal {
-    background-color:var(--bg-card); border-radius:1.25rem;
-    width:100%; max-width:540px; max-height:90vh;
-    overflow:hidden; display:flex; flex-direction:column;
-    box-shadow:0 24px 64px rgba(0,0,0,.3), 0 8px 20px rgba(0,0,0,.18);
-    border:1px solid var(--border-color);
-    transform:translateY(22px) scale(.97);
-    transition:transform .32s cubic-bezier(.22,.68,0,1.2);
+    background:#fff;
+    border-radius:1.375rem;
+    width:100%; max-width:520px;
+    max-height:92dvh;
+    overflow:hidden;
+    display:flex; flex-direction:column;
+    box-shadow:
+        0 0 0 1px rgba(0,0,0,.07),
+        0 4px 6px rgba(0,0,0,.04),
+        0 16px 48px rgba(0,0,0,.16),
+        0 32px 72px rgba(0,0,0,.10);
+    transform:translateY(20px) scale(.97);
+    transition:transform .32s cubic-bezier(.22,.68,0,1.2), opacity .22s ease;
+    opacity:0;
 }
-.vc-modal-overlay.open .vc-modal { transform:translateY(0) scale(1); }
+.vc-modal-overlay.open .vc-modal {
+    transform:translateY(0) scale(1);
+    opacity:1;
+}
+
+/* Colored top accent stripe */
+.vc-modal::before {
+    content:''; display:block; height:4px; flex-shrink:0;
+    background:linear-gradient(90deg, #0d9488, #059669);
+    border-radius:1.375rem 1.375rem 0 0;
+}
 
 /* Modal header */
 .vc-modal-header {
     display:flex; align-items:center; justify-content:space-between;
-    padding:1.125rem 1.5rem; border-bottom:1px solid var(--border-color);
-    background:rgba(13,148,136,.04);
+    padding:1.125rem 1.5rem 1rem;
+    border-bottom:1px solid #f1f5f9;
+    gap:.75rem;
 }
-.vc-modal-header-left { display:flex; align-items:center; gap:.75rem; }
+.vc-modal-header-left { display:flex; align-items:center; gap:.75rem; min-width:0; }
 .vc-modal-header-icon {
-    width:2.25rem; height:2.25rem; border-radius:.625rem; flex-shrink:0;
-    background:linear-gradient(135deg,rgba(13,148,136,1),rgba(5,150,105,1));
+    width:2.375rem; height:2.375rem; border-radius:.75rem; flex-shrink:0;
+    background:linear-gradient(135deg,#0d9488,#059669);
     display:flex; align-items:center; justify-content:center;
-    box-shadow:0 3px 10px rgba(13,148,136,.4);
+    box-shadow:0 4px 12px rgba(13,148,136,.35);
 }
-.vc-modal-title  { font-size:1rem; font-weight:700; color:var(--text-main); margin:0; }
-.vc-modal-close  {
-    background:none; border:none; cursor:pointer; color:var(--text-muted);
-    font-size:1.1rem; padding:.35rem .45rem; border-radius:.5rem;
-    transition:background .15s, color .15s;
+.vc-modal-title {
+    font-size:1.0625rem; font-weight:800;
+    color:#0f172a !important;   /* Always dark regardless of mode */
+    margin:0; line-height:1.25;
+    letter-spacing:-.01em;
+}
+.vc-modal-close {
+    width:2.25rem; height:2.25rem; border-radius:.625rem;
+    background:transparent; border:1.5px solid #e2e8f0;
+    color:#94a3b8; cursor:pointer; flex-shrink:0;
     display:flex; align-items:center; justify-content:center;
+    transition:background .15s, color .15s, border-color .15s;
+    font-size:.9rem;
 }
-.vc-modal-close:hover { background:rgba(239,68,68,.1); color:rgba(185,28,28,1); }
+.vc-modal-close:hover { background:#fef2f2; border-color:#fca5a5; color:#ef4444; }
 
 /* Modal body */
 .vc-modal-body {
-    padding:1.375rem 1.5rem; overflow-y:auto; flex:1;
-    display:flex; flex-direction:column; gap:.875rem;
+    padding:1.25rem 1.5rem;
+    overflow-y:auto; flex:1;
+    display:flex; flex-direction:column; gap:1rem;
+    scrollbar-width:thin;
 }
+
+/* Field group */
+.vc-field-group { display:flex; flex-direction:column; gap:.3rem; }
 
 /* Field label */
 .vc-field-label {
-    display:block; font-size:.775rem; font-weight:700;
-    color:var(--text-muted); text-transform:uppercase;
-    letter-spacing:.05em; margin-bottom:.35rem;
+    display:block; font-size:.75rem; font-weight:700;
+    color:#475569 !important;   /* Always slate, never blue-black */
+    text-transform:uppercase; letter-spacing:.06em; margin-bottom:.3rem;
+    line-height:1.3;
 }
-.vc-field-required { color:rgba(239,68,68,.8); }
+.vc-field-required { color:#ef4444; margin-left:.15rem; }
 
 /* Field input */
 .vc-field-input {
-    width:100%; padding:.625rem .9rem;
-    border-radius:.625rem; border:1.5px solid var(--border-color);
-    background:var(--bg-card); color:var(--text-main);
-    font-size:.875rem; outline:none; box-sizing:border-box;
-    transition:border-color .2s, box-shadow .2s, background .2s;
-    box-shadow:inset 0 1px 3px rgba(0,0,0,.04);
+    width:100%; padding:.6875rem .9375rem;
+    border-radius:.625rem; border:1.5px solid #e2e8f0;
+    background:#fff; color:#0f172a;
+    font-size:.9rem; outline:none; box-sizing:border-box;
+    transition:border-color .18s, box-shadow .18s, background .18s;
+    line-height:1.45;
+    -webkit-appearance:none;
 }
+.vc-field-input::placeholder { color:#94a3b8; }
 .vc-field-input:focus {
-    border-color:rgba(13,148,136,.6);
-    box-shadow:0 0 0 3px rgba(13,148,136,.14), inset 0 1px 3px rgba(0,0,0,.04);
-    background:var(--bg-card);
+    border-color:#0d9488;
+    box-shadow:0 0 0 3px rgba(13,148,136,.14);
+    background:#fff;
 }
-.vc-field-input::placeholder { color:var(--text-muted); }
-.vc-field-hint {
-    font-size:.72rem; color:var(--text-muted); margin:.3rem 0 0;
+.vc-field-input:hover:not(:focus) { border-color:#cbd5e1; }
+
+/* Select arrow */
+select.vc-field-input {
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%2394a3b8' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right .875rem center;
+    padding-right:2.25rem; cursor:pointer;
 }
+
+/* Field hint */
+.vc-field-hint { font-size:.72rem; color:#94a3b8; margin-top:.25rem; line-height:1.45; }
 
 /* Grid for name pair */
 .vc-field-grid { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; }
 @media (max-width:440px) { .vc-field-grid { grid-template-columns:1fr; } }
 
+/* ── Custom file input ──────────────────────────────────────── */
+.vc-file-zone {
+    display:flex; align-items:stretch; border-radius:.625rem;
+    border:1.5px solid #e2e8f0; overflow:hidden; cursor:pointer;
+    transition:border-color .18s;
+}
+.vc-file-zone:hover { border-color:#0d9488; }
+.vc-file-zone:focus-within { border-color:#0d9488; box-shadow:0 0 0 3px rgba(13,148,136,.14); }
+.vc-file-btn {
+    display:flex; align-items:center; gap:.4rem;
+    padding:.6rem .9rem; background:#0d9488; color:#fff;
+    font-size:.8125rem; font-weight:700; flex-shrink:0;
+    white-space:nowrap; letter-spacing:.01em;
+    pointer-events:none;
+}
+.vc-file-name {
+    display:flex; align-items:center;
+    padding:.6rem .875rem; font-size:.825rem; color:#64748b;
+    flex:1; overflow:hidden;
+}
+.vc-file-name span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.vc-file-zone input[type="file"] {
+    position:absolute; inset:0; width:100%; height:100%;
+    opacity:0; cursor:pointer; z-index:1;
+}
+.vc-file-wrap { position:relative; }
+
 /* Photo preview */
 .vc-photo-preview-wrap {
-    display:flex; align-items:center; gap:1rem; margin-bottom:.5rem;
+    display:flex; align-items:center; gap:.875rem;
+    padding:.75rem; background:#f8fafc; border-radius:.75rem;
+    border:1.5px solid #e2e8f0;
 }
 .vc-photo-preview {
-    width:3.5rem; height:3.5rem; border-radius:50%; object-fit:cover;
-    border:2px solid var(--border-color); flex-shrink:0;
+    width:3.25rem; height:3.25rem; border-radius:50%; object-fit:cover;
+    border:2px solid #e2e8f0; flex-shrink:0;
 }
 .vc-photo-initials-preview {
-    width:3.5rem; height:3.5rem; border-radius:50%; flex-shrink:0;
+    width:3.25rem; height:3.25rem; border-radius:50%; flex-shrink:0;
     display:flex; align-items:center; justify-content:center;
-    font-size:1.1rem; font-weight:800; color:#fff;
-    border:2px solid rgba(255,255,255,.3);
+    font-size:1.05rem; font-weight:800; color:#fff;
+    box-shadow:0 2px 8px rgba(0,0,0,.15);
 }
 
 /* Modal footer */
 .vc-modal-footer {
-    padding:1rem 1.5rem; border-top:1px solid var(--border-color);
-    display:flex; gap:.75rem; background:rgba(156,163,175,.03);
+    padding:.875rem 1.5rem 1.25rem;
+    border-top:1px solid #f1f5f9;
+    display:flex; gap:.625rem;
 }
 .vc-modal-cancel {
-    flex:1; padding:.65rem 1rem; border-radius:.75rem;
-    border:1.5px solid var(--border-color); background:var(--bg-card);
-    color:var(--text-main); font-weight:600; cursor:pointer;
-    font-size:.875rem; transition:background .2s, border-color .2s;
+    flex:1; padding:.6875rem 1rem; border-radius:.75rem;
+    border:1.5px solid #e2e8f0; background:#fff;
+    color:#475569 !important; font-weight:600; cursor:pointer;
+    font-size:.875rem; transition:background .15s, border-color .15s;
+    text-align:center;
 }
-.vc-modal-cancel:hover { background:var(--bg-body); border-color:rgba(156,163,175,.4); }
+.vc-modal-cancel:hover { background:#f8fafc; border-color:#cbd5e1; color:#334155 !important; }
 .vc-modal-save {
-    flex:2; padding:.65rem 1rem; border-radius:.75rem;
-    background:linear-gradient(135deg,rgba(13,148,136,1),rgba(5,150,105,1));
-    color:#fff; font-weight:700; cursor:pointer;
+    flex:2; padding:.6875rem 1rem; border-radius:.75rem;
+    background:linear-gradient(135deg,#0d9488,#059669);
+    color:#fff !important; font-weight:700; cursor:pointer;
     font-size:.875rem; border:none;
-    display:flex; align-items:center; justify-content:center; gap:.4rem;
-    box-shadow:0 2px 10px rgba(13,148,136,.35);
-    transition:opacity .2s, transform .15s, box-shadow .2s;
+    display:flex; align-items:center; justify-content:center; gap:.425rem;
+    box-shadow:0 2px 12px rgba(13,148,136,.35);
+    transition:opacity .18s, transform .15s, box-shadow .18s;
 }
-.vc-modal-save:hover { opacity:.92; transform:translateY(-1px); box-shadow:0 4px 16px rgba(13,148,136,.5); }
-.vc-modal-save:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+.vc-modal-save:hover { opacity:.93; transform:translateY(-1px); box-shadow:0 4px 18px rgba(13,148,136,.5); }
+.vc-modal-save:active { transform:none; opacity:1; }
+.vc-modal-save:disabled { opacity:.45; cursor:not-allowed; transform:none; }
 
 /* ── Delete-confirm modal ─────────────────────────────────────── */
 .vc-confirm-modal {
-    background-color:var(--bg-card); border-radius:1.25rem;
-    width:100%; max-width:380px;
+    background:#fff;
+    border-radius:1.375rem;
+    width:100%; max-width:400px;
     overflow:hidden; display:flex; flex-direction:column;
-    box-shadow:0 24px 64px rgba(0,0,0,.35);
-    border:1px solid var(--border-color);
-    transform:translateY(22px) scale(.97);
-    transition:transform .32s cubic-bezier(.22,.68,0,1.2);
+    box-shadow:
+        0 0 0 1px rgba(0,0,0,.07),
+        0 16px 48px rgba(0,0,0,.18);
+    border:none;
+    transform:translateY(20px) scale(.97);
+    transition:transform .32s cubic-bezier(.22,.68,0,1.2), opacity .22s;
+    opacity:0;
 }
-.vc-modal-overlay.open .vc-confirm-modal { transform:translateY(0) scale(1); }
+.vc-confirm-modal::before {
+    content:''; display:block; height:4px; flex-shrink:0;
+    background:linear-gradient(90deg, #ef4444, #dc2626);
+}
+.vc-modal-overlay.open .vc-confirm-modal { transform:translateY(0) scale(1); opacity:1; }
 .vc-confirm-body {
-    padding:1.75rem 1.5rem 1.25rem;
-    display:flex; flex-direction:column; align-items:center; text-align:center; gap:.625rem;
+    padding:1.625rem 1.5rem 1rem;
+    display:flex; flex-direction:column; align-items:center; text-align:center; gap:.5rem;
 }
 .vc-confirm-icon {
-    width:3.25rem; height:3.25rem; border-radius:50%;
-    background:rgba(239,68,68,.12); border:1px solid rgba(239,68,68,.3);
+    width:3.5rem; height:3.5rem; border-radius:50%;
+    background:rgba(239,68,68,.1); border:1.5px solid rgba(239,68,68,.25);
     display:flex; align-items:center; justify-content:center;
-    font-size:1.3rem; color:rgba(239,68,68,1); margin-bottom:.25rem;
+    font-size:1.4rem; color:#ef4444; margin-bottom:.375rem;
 }
-.vc-confirm-title { font-size:1.05rem; font-weight:700; color:var(--text-main); margin:0; }
-.vc-confirm-msg   { font-size:.875rem; color:var(--text-muted); margin:0; line-height:1.5; }
-.vc-confirm-footer {
-    padding:.875rem 1.5rem 1.25rem;
-    display:flex; gap:.625rem;
-}
+.vc-confirm-title { font-size:1.0625rem; font-weight:800; color:#0f172a !important; margin:0; }
+.vc-confirm-msg   { font-size:.875rem; color:#64748b !important; margin:0; line-height:1.55; max-width:28ch; }
+.vc-confirm-footer { padding:.875rem 1.5rem 1.375rem; display:flex; gap:.625rem; }
 .vc-confirm-cancel {
-    flex:1; padding:.625rem; border-radius:.75rem;
-    border:1.5px solid var(--border-color); background:var(--bg-card);
-    color:var(--text-main); font-weight:600; cursor:pointer; font-size:.875rem;
-    transition:background .2s;
+    flex:1; padding:.6875rem; border-radius:.75rem;
+    border:1.5px solid #e2e8f0; background:#fff;
+    color:#475569 !important; font-weight:600; cursor:pointer; font-size:.875rem;
+    transition:background .15s, border-color .15s; text-align:center;
 }
-.vc-confirm-cancel:hover { background:var(--bg-body); }
+.vc-confirm-cancel:hover { background:#f8fafc; border-color:#cbd5e1; }
 .vc-confirm-delete {
-    flex:1; padding:.625rem; border-radius:.75rem;
-    background:linear-gradient(135deg,rgba(239,68,68,1),rgba(220,38,38,1));
-    color:#fff; font-weight:700; cursor:pointer; font-size:.875rem; border:none;
-    box-shadow:0 2px 8px rgba(239,68,68,.35);
+    flex:1; padding:.6875rem; border-radius:.75rem;
+    background:linear-gradient(135deg,#ef4444,#dc2626);
+    color:#fff !important; font-weight:700; cursor:pointer; font-size:.875rem; border:none;
+    box-shadow:0 2px 10px rgba(239,68,68,.35);
     display:flex; align-items:center; justify-content:center; gap:.4rem;
-    transition:opacity .2s, transform .15s, box-shadow .2s;
+    transition:opacity .18s, transform .15s, box-shadow .18s;
 }
-.vc-confirm-delete:hover { opacity:.9; transform:translateY(-1px); box-shadow:0 4px 14px rgba(239,68,68,.5); }
+.vc-confirm-delete:hover { opacity:.9; transform:translateY(-1px); box-shadow:0 4px 16px rgba(239,68,68,.5); }
+.vc-confirm-delete:active { transform:none; }
+
+/* ── Responsive: bottom sheet on mobile ─────────────────────── */
+@media (max-width:600px) {
+    .vc-modal-overlay { align-items:flex-end; padding:0; }
+    .vc-modal, .vc-confirm-modal {
+        border-radius:1.375rem 1.375rem 0 0; max-width:100%; max-height:92dvh;
+    }
+    .vc-modal::before, .vc-confirm-modal::before { border-radius:1.375rem 1.375rem 0 0; }
+}
+
+/* ── Dark mode overrides ─────────────────────────────────────── */
+.dark-mode .vc-modal,
+.dark-mode .vc-confirm-modal {
+    background:var(--bg-card) !important;
+    box-shadow:0 0 0 1px rgba(255,255,255,.06), 0 24px 64px rgba(0,0,0,.7) !important;
+}
+.dark-mode .vc-modal-header { border-bottom-color:rgba(255,255,255,.07) !important; }
+.dark-mode .vc-modal-title  { color:var(--text-main) !important; }
+.dark-mode .vc-modal-close  { border-color:rgba(255,255,255,.1) !important; color:var(--text-muted) !important; background:transparent !important; }
+.dark-mode .vc-modal-close:hover { background:rgba(239,68,68,.15) !important; border-color:rgba(239,68,68,.4) !important; color:#f87171 !important; }
+.dark-mode .vc-field-label  { color:#94a3b8 !important; }
+.dark-mode .vc-field-input  { background:rgba(255,255,255,.06) !important; border-color:rgba(255,255,255,.12) !important; color:var(--text-main) !important; }
+.dark-mode .vc-field-input:focus { border-color:#0d9488 !important; box-shadow:0 0 0 3px rgba(13,148,136,.22) !important; }
+.dark-mode .vc-field-input:hover:not(:focus) { border-color:rgba(255,255,255,.18) !important; }
+.dark-mode .vc-field-input::placeholder { color:#475569 !important; }
+.dark-mode .vc-photo-preview-wrap { background:rgba(255,255,255,.04) !important; border-color:rgba(255,255,255,.09) !important; }
+.dark-mode .vc-photo-preview { border-color:rgba(255,255,255,.12) !important; }
+.dark-mode .vc-file-zone { border-color:rgba(255,255,255,.12) !important; }
+.dark-mode .vc-file-zone:hover { border-color:#0d9488 !important; }
+.dark-mode .vc-file-name { color:#64748b !important; }
+.dark-mode .vc-modal-footer { border-top-color:rgba(255,255,255,.07) !important; }
+.dark-mode .vc-modal-cancel { background:rgba(255,255,255,.05) !important; border-color:rgba(255,255,255,.1) !important; color:var(--text-muted) !important; }
+.dark-mode .vc-modal-cancel:hover { background:rgba(255,255,255,.09) !important; border-color:rgba(255,255,255,.18) !important; color:var(--text-main) !important; }
+.dark-mode .vc-confirm-title { color:var(--text-main) !important; }
+.dark-mode .vc-confirm-msg { color:var(--text-muted) !important; }
+.dark-mode .vc-confirm-footer { border-top:none !important; }
+.dark-mode .vc-confirm-cancel { background:rgba(255,255,255,.05) !important; border-color:rgba(255,255,255,.1) !important; color:var(--text-muted) !important; }
+.dark-mode .vc-confirm-cancel:hover { background:rgba(255,255,255,.09) !important; }
 
 /* ── Toast ────────────────────────────────────────────────────── */
 #vc-toast {
@@ -421,11 +548,7 @@ ob_start();
     #vc-toast { left:1rem; right:1rem; min-width:0; bottom:1rem; }
 }
 
-/* ── Responsive modal bottom-sheet on mobile ─────────────────── */
-@media (max-width:600px) {
-    .vc-modal-overlay { align-items:flex-end; padding:0; }
-    .vc-modal, .vc-confirm-modal { border-radius:1.25rem 1.25rem 0 0; max-height:92vh; max-width:100%; }
-}
+
 @media (max-width:480px) {
     .vc-page-title { font-size:1.35rem; }
     .vc-page-header { flex-direction:column; }
@@ -717,10 +840,16 @@ ob_start();
         <!-- Profilbild -->
         <div>
           <label class="vc-field-label">Profilbild austauschen</label>
-          <input type="file" id="editProfilbild" name="profilbild"
-                 accept="image/jpeg,image/png,image/webp,image/gif"
-                 class="vc-field-input" style="padding:.4rem .75rem;cursor:pointer;">
-          <p class="vc-field-hint">JPG, PNG, WebP oder GIF – max. 5 MB. Leer lassen, um das aktuelle Bild zu behalten.</p>
+          <div class="vc-file-wrap">
+            <label class="vc-file-zone" for="editProfilbild">
+              <span class="vc-file-btn"><i class="fas fa-cloud-upload-alt"></i> Datei wählen</span>
+              <span class="vc-file-name"><span id="editFileName">Kein Bild gewählt</span></span>
+              <input type="file" id="editProfilbild" name="profilbild"
+                     accept="image/jpeg,image/png,image/webp,image/gif"
+                     onchange="document.getElementById('editFileName').textContent = this.files[0] ? this.files[0].name : 'Kein Bild gewählt'">
+            </label>
+          </div>
+          <p class="vc-field-hint"><i class="fas fa-info-circle" style="margin-right:.25rem;"></i>JPG, PNG, WebP oder GIF – max. 5 MB. Leer lassen, um Bild beizubehalten.</p>
         </div>
 
       </div>
@@ -805,11 +934,17 @@ ob_start();
 
         <!-- Profilbild -->
         <div>
-          <label class="vc-field-label">Profilbild <span style="font-size:.7rem;font-weight:400;text-transform:none;">(optional)</span></label>
-          <input type="file" id="createProfilbild" name="profilbild"
-                 accept="image/jpeg,image/png,image/webp,image/gif"
-                 class="vc-field-input" style="padding:.4rem .75rem;cursor:pointer;">
-          <p class="vc-field-hint">JPG, PNG, WebP oder GIF – max. 5 MB</p>
+          <label class="vc-field-label">Profilbild <span style="font-size:.7rem;font-weight:400;text-transform:none;color:#94a3b8;">(optional)</span></label>
+          <div class="vc-file-wrap">
+            <label class="vc-file-zone" for="createProfilbild">
+              <span class="vc-file-btn"><i class="fas fa-cloud-upload-alt"></i> Datei wählen</span>
+              <span class="vc-file-name"><span id="createFileName">Kein Bild gewählt</span></span>
+              <input type="file" id="createProfilbild" name="profilbild"
+                     accept="image/jpeg,image/png,image/webp,image/gif"
+                     onchange="document.getElementById('createFileName').textContent = this.files[0] ? this.files[0].name : 'Kein Bild gewählt'">
+            </label>
+          </div>
+          <p class="vc-field-hint"><i class="fas fa-info-circle" style="margin-right:.25rem;"></i>JPG, PNG, WebP oder GIF – max. 5 MB</p>
         </div>
 
       </div>
