@@ -165,26 +165,34 @@ body {
     transition: background-color var(--transition-slow), color var(--transition-slow);
 }
 
-.card,
-.bg-white {
+/* Bootstrap .card and Tailwind .bg-white: fix background for dark mode.
+   IMPORTANT: we only fix the background, NOT the text color, because
+   setting color:var(--text-main) here would cascade to white-text children
+   and override them in light mode (making them dark when they should stay white). */
+.card {
     background-color: var(--bg-card) !important;
     color: var(--text-main) !important;
 }
+.bg-white {
+    background-color: var(--bg-card) !important;
+    /* No color override here – let children inherit from body or set their own */
+}
 
-/* Fix Input Fields in Dark Mode - Perfect Contrast */
-.dark-mode input,
-.dark-mode select,
-.dark-mode textarea {
-    background-color: var(--bg-input) !important; /* Ultra dark for maximum contrast */
-    color: var(--text-main) !important; /* Ultra white text */
-    border: 1.5px solid var(--border-light) !important; /* Stronger border */
+/* Fix Input Fields in Dark Mode - Perfect Contrast
+   Excludes modal-specific inputs (they have their own scoped overrides) */
+.dark-mode input:not(.inv-form-input):not(.idea-form-input):not(.vc-field-input):not(.emg-form-input):not(.jb-form-input),
+.dark-mode select:not(.inv-form-input):not(.idea-form-input):not(.vc-field-input):not(.emg-form-input):not(.jb-form-input),
+.dark-mode textarea:not(.inv-form-input):not(.idea-form-input):not(.vc-field-input):not(.emg-form-input):not(.jb-form-input) {
+    background-color: var(--bg-input) !important;
+    color: var(--text-main) !important;
+    border: 1.5px solid var(--border-light) !important;
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3) !important;
     transition: all 0.3s ease !important;
 }
 
-.dark-mode input:focus,
-.dark-mode select:focus,
-.dark-mode textarea:focus {
+.dark-mode input:not(.inv-form-input):not(.idea-form-input):not(.vc-field-input):not(.emg-form-input):not(.jb-form-input):focus,
+.dark-mode select:not(.inv-form-input):not(.idea-form-input):not(.vc-field-input):not(.emg-form-input):not(.jb-form-input):focus,
+.dark-mode textarea:not(.inv-form-input):not(.idea-form-input):not(.vc-field-input):not(.emg-form-input):not(.jb-form-input):focus {
     border-color: var(--ibc-blue-light) !important;
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3), 0 0 0 3px rgba(51, 133, 196, 0.4) !important;
     outline: none;
@@ -192,7 +200,7 @@ body {
 
 .dark-mode input::placeholder,
 .dark-mode textarea::placeholder {
-    color: var(--text-muted) !important; /* Consistent with light mode */
+    color: var(--text-muted) !important;
     opacity: 1;
 }
 
@@ -5469,46 +5477,44 @@ body:not(.dark-mode) .card:hover {
    IMPROVED TYPOGRAPHY ACROSS BROWSERS
    ============================================================ */
 
-/* Refined heading styles */
+/* Refined heading styles — NO hyphens for UI labels */
 h1, h2, h3, h4, h5, h6 {
     font-feature-settings: "kern" 1, "liga" 1;
     -webkit-font-smoothing: antialiased;
     overflow-wrap: break-word;
     word-break: break-word;
-    -webkit-hyphens: auto;
-    -ms-hyphens: auto;
-    hyphens: auto;
+    hyphens: manual;   /* only explicit &shy; hyphens, never automatic */
 }
 
-/* Better paragraph spacing */
+/* Better paragraph spacing — hyphens only in long-form content */
 p {
     overflow-wrap: break-word;
     word-break: break-word;
-    -webkit-hyphens: auto;
-    -ms-hyphens: auto;
-    hyphens: auto;
+    hyphens: manual;   /* prevent auto-hyphenation in UI text */
     orphans: 3;
     widows: 3;
-    line-height: 1.6; /* leading-relaxed equivalent for mobile readability */
+    line-height: 1.6;
 }
 
-/* Prevent long unbreakable strings (URLs, hashes) from overflowing any element */
+/* Prevent long unbreakable strings (URLs, hashes) from overflowing */
 * {
     overflow-wrap: break-word;
     min-width: 0;
 }
 
-/* Anchors and inline elements must also wrap */
+/* Anchors and inline elements: wrap on character boundaries, no hyphens */
 a, span, label, li {
     overflow-wrap: break-word;
     word-break: break-word;
+    hyphens: manual;
 }
 
-/* Long-text content areas: event descriptions, blog posts, profile "About me" */
+/* Long-text content areas: only here auto-hyphenation is acceptable */
 .event-description,
 .profile-about,
 .blog-content,
-.long-text {
+.long-text,
+.prose {
     overflow-wrap: break-word;
     word-break: break-word;
     -webkit-hyphens: auto;
@@ -8664,12 +8670,25 @@ body:not(.dark-mode) .mobile-bottom-nav-item.open span {
    and that heading weights establish a clear visual hierarchy.
    ──────────────────────────────────────────────────────────── */
 
-body:not(.dark-mode) h1:not(.sidebar *) { color: #0c1a2e !important; font-weight: 800; }
-body:not(.dark-mode) h2:not(.sidebar *) { color: #0f2040 !important; font-weight: 700; }
-body:not(.dark-mode) h3:not(.sidebar *) { color: #1a2f4a !important; font-weight: 700; }
-body:not(.dark-mode) h4:not(.sidebar *) { color: #1e3a5f !important; font-weight: 600; }
-body:not(.dark-mode) h5:not(.sidebar *) { color: #243d5c !important; font-weight: 600; }
-body:not(.dark-mode) h6:not(.sidebar *) { color: #2d4a6b !important; font-weight: 600; }
+/* Headings get dark colors in light mode — but NOT inside hero/banner/modal-header areas.
+   Use simple :not() selectors (CSS3 compatible) to exclude known white-text contexts. */
+/* Light mode heading colors — exclude classes that intentionally sit on dark backgrounds */
+body:not(.dark-mode) h1:not(.d-hero-title):not(.d-hero-subtitle):not(.welcome-title):not(.modal-white-text *) { color: #0c1a2e !important; font-weight: 800; }
+body:not(.dark-mode) h2:not(.welcome-subtitle) { color: #0f2040 !important; font-weight: 700; }
+body:not(.dark-mode) h3 { color: #1a2f4a !important; font-weight: 700; }
+body:not(.dark-mode) h4 { color: #1e3a5f !important; font-weight: 600; }
+body:not(.dark-mode) h5 { color: #243d5c !important; font-weight: 600; }
+body:not(.dark-mode) h6 { color: #2d4a6b !important; font-weight: 600; }
+
+/* Dashboard hero, sidebar, and modal headers — always white text (dark background context) */
+.d-hero h1, .d-hero h2, .d-hero h3, .d-hero h4, .d-hero h5, .d-hero h6,
+.d-hero .d-hero-title, .d-hero-title { color: #fff !important; }
+.d-hero p, .d-hero .d-hero-subtitle, .d-hero-subtitle { color: rgba(255,255,255,0.82) !important; }
+.d-hero .d-role-badge { color: rgba(255,255,255,0.95) !important; }
+.d-hero .d-quick-action { color: #fff !important; }
+/* Modal card headers always use CSS vars (dark bg in light mode too) */
+.idea-modal-head-title, .inv-modal-head-title,
+.vc-modal-title, .emg-modal-title { color: var(--text-main) !important; }
 
 /* ── 4. LIGHT MODE: MUTED / SECONDARY TEXT ─────────────────
    Refine --text-muted so secondary labels are clearly readable
@@ -8912,7 +8931,28 @@ body:not(.dark-mode) p.text-secondary {
     color: #6b7280 !important; /* gray-500 – clear muted text */
 }
 
-/* ── 17. MOBILE: CARD LABEL AND VALUE SIZING ───────────────
+/* ── 17. FOOTER TEXT COLOR ──────────────────────────────────
+   Footer text in dark mode should be readable (light gray).
+   Light mode keeps default gray-500 colour.
+   ──────────────────────────────────────────────────────────── */
+.dark-mode footer,
+.dark-mode footer p,
+.dark-mode footer span,
+.dark-mode footer a {
+    color: var(--text-muted) !important;
+}
+.dark-mode footer a:hover {
+    color: var(--text-main) !important;
+}
+
+/* ── 18. SIDEBAR: fix h2 dark override ─────────────────────
+   Sidebar headings always stay white in dark mode.
+   ──────────────────────────────────────────────────────────── */
+.dark-mode .sidebar h2,
+.dark-mode .sidebar h3,
+.dark-mode .sidebar h4 { color: var(--text-main) !important; }
+
+/* ── 19. MOBILE: CARD LABEL AND VALUE SIZING ───────────────
    Mobile card-table data-label values need correct font size.
    ──────────────────────────────────────────────────────────── */
 
@@ -11562,14 +11602,30 @@ body:not(.dark-mode) .rounded-xl.bg-indigo-100 { background-color: #e0e7ff !impo
     border-radius: var(--radius-sm) !important;
     color: rgba(255, 255, 255, 0.88) !important;
     text-decoration: none !important;
-    font-size: 0.9rem !important;
+    font-size: 0.875rem !important;
     font-weight: 500 !important;
     transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.18s ease !important;
-    line-height: 1.4 !important;
+    line-height: 1.35 !important;
     position: relative;
     border-left: 3px solid transparent;
     transform: none !important;
     overflow: hidden;
+    /* Prevent hyphens/ugly breaks in nav labels */
+    hyphens: none !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+}
+
+/* Inner span must also override global span word-break rule */
+.sidebar nav .sidebar-nav-item span,
+.sidebar .sidebar-nav-item span {
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
 }
 
 .sidebar nav .sidebar-nav-item:hover,
@@ -12830,16 +12886,32 @@ body:not(.dark-mode) .mobile-bottom-nav-item.open span {
     border-radius: 10px !important;
     color: rgba(255, 255, 255, 0.85) !important;
     text-decoration: none !important;
-    font-size: 0.9rem !important;
+    font-size: 0.875rem !important;
     font-weight: 500 !important;
     transition:
         background 0.2s var(--animation-smooth),
         color 0.2s var(--animation-smooth),
         transform 0.2s var(--animation-spring) !important;
-    line-height: 1.4 !important;
+    line-height: 1.35 !important;
     border-left: 3px solid transparent !important;
     overflow: hidden;
     -webkit-tap-highlight-color: transparent;
+    /* Prevent auto-hyphenation in nav labels */
+    hyphens: none !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+}
+
+/* Inner span must also override global span word-break rule */
+.sidebar nav .sidebar-nav-item span,
+.sidebar .sidebar-nav-item span {
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
 }
 
 /* Hover state */
@@ -16281,3 +16353,1286 @@ body:not(.dark-mode) .navbar-profile-chevron {
 }
 
 /* ── END BUG-FIX PATCH v1.0 ──────────────────────────────────────────────── */
+
+/* ══════════════════════════════════════════════════════════════════
+   DARK MODE — ADMIN MODULE ENHANCEMENTS
+   Per-module (evs-, st-, aud-, dbm-, usr-, invd-) dark mode fixes
+   that go beyond the global CSS variable overrides.
+   Added to ensure every module looks breathtaking in both modes.
+══════════════════════════════════════════════════════════════════ */
+
+/* ── Elevated card shadows in dark mode ─────────────────────────── */
+.dark-mode .evs-stat,
+.dark-mode .evs-doc-card,
+.dark-mode .st-metric,
+.dark-mode .st-card,
+.dark-mode .st-db-card,
+.dark-mode .dbm-card,
+.dark-mode .dbm-db-card,
+.dark-mode .dbm-action-card,
+.dark-mode .dbm-health-tile,
+.dark-mode .aud-filter,
+.dark-mode .aud-wrap,
+.dark-mode .invd-stat,
+.dark-mode .invd-filter-bar,
+.dark-mode .invd-section,
+.dark-mode .usr-card,
+.dark-mode .usr-entra-card {
+    box-shadow: 0 4px 16px rgba(0,0,0,.45), 0 1px 4px rgba(0,0,0,.35) !important;
+}
+
+.dark-mode .evs-stat:hover,
+.dark-mode .evs-doc-card:hover,
+.dark-mode .st-metric:hover,
+.dark-mode .st-card:hover,
+.dark-mode .st-db-card:hover,
+.dark-mode .dbm-card:hover,
+.dark-mode .dbm-db-card:hover,
+.dark-mode .dbm-action-card:hover,
+.dark-mode .dbm-health-tile:hover,
+.dark-mode .invd-stat:hover {
+    box-shadow: 0 8px 28px rgba(0,0,0,.55), 0 2px 8px rgba(0,0,0,.4) !important;
+}
+
+/* ── Card gradient backgrounds (dark mode depth) ─────────────────── */
+.dark-mode .evs-doc-card,
+.dark-mode .st-card,
+.dark-mode .dbm-card,
+.dark-mode .usr-card,
+.dark-mode .usr-entra-card,
+.dark-mode .invd-section {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+}
+
+/* ── Card header backgrounds — visible contrast in dark mode ─────── */
+.dark-mode .st-card-head,
+.dark-mode .dbm-card-head,
+.dark-mode .usr-filter-bar,
+.dark-mode .usr-entra-header {
+    background: rgba(255,255,255,.045) !important;
+    border-bottom-color: rgba(255,255,255,.07) !important;
+}
+.dark-mode .aud-legend,
+.dark-mode .aud-pagination {
+    background: rgba(255,255,255,.03) !important;
+    border-color: rgba(255,255,255,.07) !important;
+}
+.dark-mode .aud-filter,
+.dark-mode .invd-filter-bar {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+}
+
+/* ── Table headers — visible in dark mode ────────────────────────── */
+.dark-mode .evs-table thead tr,
+.dark-mode .st-table thead tr,
+.dark-mode .dbm-table thead tr,
+.dark-mode .invd-table thead tr,
+.dark-mode .usr-table thead tr {
+    background: rgba(255,255,255,.06) !important;
+    border-bottom-color: rgba(255,255,255,.1) !important;
+}
+
+/* ── Table row hover — punchy in dark mode ───────────────────────── */
+.dark-mode .evs-table tbody tr:hover,
+.dark-mode .st-table tbody tr:hover,
+.dark-mode .dbm-table tbody tr:hover,
+.dark-mode .invd-table tbody tr:hover,
+.dark-mode .usr-row:hover {
+    background: rgba(124,58,237,.14) !important;
+}
+.dark-mode .aud-row:hover {
+    background: rgba(124,58,237,.12) !important;
+}
+.dark-mode .usr-row {
+    border-bottom-color: rgba(255,255,255,.06) !important;
+}
+.dark-mode .aud-row {
+    border-bottom-color: rgba(255,255,255,.06) !important;
+}
+
+/* ── Status / flash message text — must be light in dark mode ───── */
+.dark-mode .usr-flash-ok,
+.dark-mode .dbm-result-banner.ok {
+    background: rgba(34,197,94,.12) !important;
+    border-color: rgba(34,197,94,.35) !important;
+    color: #86efac !important;
+}
+.dark-mode .usr-flash-err,
+.dark-mode .dbm-result-banner.err {
+    background: rgba(239,68,68,.13) !important;
+    border-color: rgba(239,68,68,.35) !important;
+    color: #fca5a5 !important;
+}
+.dark-mode .usr-flash-warn,
+.dark-mode .dbm-warning-notice {
+    background: rgba(234,179,8,.11) !important;
+    border-color: rgba(234,179,8,.35) !important;
+    color: #fcd34d !important;
+}
+.dark-mode .usr-info-banner {
+    background: rgba(59,130,246,.1) !important;
+    border-color: rgba(59,130,246,.3) !important;
+}
+
+/* ── Semantic button text — readable in dark mode ────────────────── */
+.dark-mode .usr-btn-del,
+.dark-mode .invd-btn-rej {
+    color: #fca5a5 !important;
+    background: rgba(239,68,68,.16) !important;
+    border-color: rgba(239,68,68,.35) !important;
+}
+.dark-mode .usr-btn-del:hover,
+.dark-mode .invd-btn-rej:hover {
+    background: rgba(239,68,68,.28) !important;
+}
+.dark-mode .usr-btn-2fa {
+    color: #fcd34d !important;
+    background: rgba(234,179,8,.16) !important;
+    border-color: rgba(234,179,8,.35) !important;
+}
+.dark-mode .usr-btn-2fa:hover {
+    background: rgba(234,179,8,.28) !important;
+}
+.dark-mode .usr-btn-entra-role,
+.dark-mode .evs-calc-link {
+    color: #93c5fd !important;
+    background: rgba(59,130,246,.16) !important;
+    border-color: rgba(59,130,246,.35) !important;
+}
+.dark-mode .usr-btn-entra-role:hover,
+.dark-mode .evs-calc-link:hover {
+    background: rgba(59,130,246,.28) !important;
+}
+.dark-mode .usr-export-btn,
+.dark-mode .invd-btn-ok {
+    color: #86efac !important;
+    background: rgba(34,197,94,.16) !important;
+    border-color: rgba(34,197,94,.35) !important;
+}
+.dark-mode .usr-export-btn:hover,
+.dark-mode .invd-btn-ok:hover {
+    background: rgba(34,197,94,.28) !important;
+}
+
+/* ── Sub-section backgrounds — visible in dark mode ─────────────── */
+.dark-mode .dbm-mini {
+    background: rgba(255,255,255,.06) !important;
+    border-color: rgba(255,255,255,.08) !important;
+}
+.dark-mode .dbm-mini:hover {
+    background: rgba(255,255,255,.1) !important;
+}
+.dark-mode .evs-sale-item {
+    background: rgba(124,58,237,.14) !important;
+    border-color: rgba(124,58,237,.28) !important;
+}
+.dark-mode .evs-sale-item:hover {
+    background: rgba(124,58,237,.22) !important;
+}
+.dark-mode .st-quick-link:hover {
+    background: rgba(124,58,237,.12) !important;
+}
+.dark-mode .st-status-row,
+.dark-mode .st-sub-stat {
+    background: rgba(255,255,255,.04) !important;
+}
+
+/* ── Progress bar track — visible in dark mode ───────────────────── */
+.dark-mode .st-progress-track {
+    background: rgba(255,255,255,.14) !important;
+}
+
+/* ── Audit / filter inputs ───────────────────────────────────────── */
+.dark-mode .aud-input {
+    background-color: var(--bg-input) !important;
+    border-color: var(--border-light) !important;
+    color: var(--text-main) !important;
+}
+.dark-mode .aud-input:focus {
+    border-color: rgba(124,58,237,.7) !important;
+    box-shadow: 0 0 0 3px rgba(124,58,237,.2) !important;
+}
+.dark-mode .aud-reset-btn {
+    background: rgba(255,255,255,.07) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-muted) !important;
+}
+.dark-mode .aud-reset-btn:hover {
+    background: rgba(255,255,255,.12) !important;
+}
+
+/* ── Pagination buttons ──────────────────────────────────────────── */
+.dark-mode .aud-page-btn {
+    background: rgba(255,255,255,.06) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-main) !important;
+}
+.dark-mode .aud-page-btn:hover {
+    background: rgba(124,58,237,.15) !important;
+    border-color: rgba(124,58,237,.4) !important;
+}
+
+/* ── Back link ───────────────────────────────────────────────────── */
+.dark-mode .evs-back {
+    background: rgba(255,255,255,.06) !important;
+    border-color: rgba(255,255,255,.1) !important;
+    color: var(--text-muted) !important;
+}
+.dark-mode .evs-back:hover {
+    background: rgba(124,58,237,.16) !important;
+    border-color: rgba(124,58,237,.4) !important;
+    color: #c4b5fd !important;
+}
+
+/* ── Health tiles border ─────────────────────────────────────────── */
+.dark-mode .dbm-health-tile {
+    border-color: rgba(255,255,255,.1) !important;
+}
+.dark-mode .dbm-action-card:hover {
+    border-color: rgba(124,58,237,.35) !important;
+}
+
+/* ── Metric footer divider ───────────────────────────────────────── */
+.dark-mode .st-metric-foot {
+    border-top-color: rgba(255,255,255,.08) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   DARK MODE — GLASSMORPHISM & WOW-FACTOR POLISH
+   Modern depth, glow effects, and premium feel for dark mode.
+══════════════════════════════════════════════════════════════════ */
+
+/* ── Header icon glows ───────────────────────────────────────────── */
+.dark-mode .evs-header-icon,
+.dark-mode .st-header-icon,
+.dark-mode .aud-header-icon,
+.dark-mode .dbm-header-icon {
+    box-shadow: 0 6px 22px rgba(124,58,237,.55), 0 2px 8px rgba(124,58,237,.3) !important;
+}
+.dark-mode .dbm-header-icon {
+    box-shadow: 0 6px 22px rgba(37,99,235,.55), 0 2px 8px rgba(37,99,235,.3) !important;
+}
+
+/* ── Stat cards with border-glow on hover ────────────────────────── */
+.dark-mode .evs-stat:hover,
+.dark-mode .st-metric:hover {
+    border-color: rgba(124,58,237,.35) !important;
+}
+.dark-mode .st-db-card:hover {
+    border-color: rgba(124,58,237,.3) !important;
+}
+.dark-mode .invd-stat:hover {
+    border-color: rgba(124,58,237,.28) !important;
+}
+
+/* ── Tab navigation glass effect ─────────────────────────────────── */
+.dark-mode .usr-tabs {
+    background: rgba(255,255,255,.03) !important;
+    border-color: rgba(255,255,255,.08) !important;
+    backdrop-filter: blur(8px);
+}
+.dark-mode .usr-tab {
+    background: transparent !important;
+    color: var(--text-muted) !important;
+}
+.dark-mode .usr-tab:hover {
+    background: rgba(124,58,237,.12) !important;
+    color: var(--text-main) !important;
+}
+.dark-mode .usr-tab--active {
+    box-shadow: 0 2px 14px rgba(124,58,237,.5) !important;
+}
+
+/* ── Filter bars — frosted glass in dark mode ────────────────────── */
+.dark-mode .usr-filter-bar {
+    border-color: rgba(255,255,255,.07) !important;
+}
+
+/* ── Export / action buttons extra glow ─────────────────────────── */
+.dark-mode .st-export-btn {
+    box-shadow: 0 4px 16px rgba(37,99,235,.5) !important;
+}
+.dark-mode .aud-filter-btn {
+    box-shadow: 0 3px 14px rgba(124,58,237,.5) !important;
+}
+.dark-mode .dbm-btn-danger {
+    box-shadow: 0 3px 14px rgba(234,179,8,.45) !important;
+}
+.dark-mode .dbm-btn-blue {
+    box-shadow: 0 3px 14px rgba(37,99,235,.45) !important;
+}
+
+/* ── View button purple glow ─────────────────────────────────────── */
+.dark-mode .evs-view-btn {
+    box-shadow: 0 2px 10px rgba(124,58,237,.45) !important;
+}
+
+/* ── invd csv button in dark mode ────────────────────────────────── */
+.dark-mode .invd-stat {
+    border-color: rgba(255,255,255,.07) !important;
+}
+
+/* ── Light mode — ensure module cards have crisp borders ─────────── */
+body:not(.dark-mode) .evs-stat,
+body:not(.dark-mode) .st-metric,
+body:not(.dark-mode) .st-card,
+body:not(.dark-mode) .st-db-card,
+body:not(.dark-mode) .dbm-card,
+body:not(.dark-mode) .evs-doc-card,
+body:not(.dark-mode) .invd-stat,
+body:not(.dark-mode) .invd-section,
+body:not(.dark-mode) .aud-filter,
+body:not(.dark-mode) .aud-wrap,
+body:not(.dark-mode) .usr-card,
+body:not(.dark-mode) .usr-entra-card {
+    box-shadow: var(--shadow-card) !important;
+}
+body:not(.dark-mode) .evs-stat:hover,
+body:not(.dark-mode) .st-metric:hover,
+body:not(.dark-mode) .st-card:hover,
+body:not(.dark-mode) .evs-doc-card:hover,
+body:not(.dark-mode) .invd-stat:hover {
+    box-shadow: 0 6px 22px rgba(0,0,0,.1) !important;
+}
+
+/* ── Light mode calc link ────────────────────────────────────────── */
+body:not(.dark-mode) .evs-calc-link {
+    color: rgba(37,99,235,1) !important;
+}
+
+/* ── Light mode status button colors ─────────────────────────────── */
+body:not(.dark-mode) .usr-btn-del,
+body:not(.dark-mode) .invd-btn-rej {
+    color: rgba(185,28,28,1) !important;
+}
+body:not(.dark-mode) .usr-btn-2fa {
+    color: rgba(161,98,7,1) !important;
+}
+body:not(.dark-mode) .usr-btn-entra-role {
+    color: rgba(37,99,235,1) !important;
+}
+body:not(.dark-mode) .usr-export-btn,
+body:not(.dark-mode) .invd-btn-ok {
+    color: rgba(21,128,61,1) !important;
+}
+body:not(.dark-mode) .usr-flash-ok,
+body:not(.dark-mode) .dbm-result-banner.ok {
+    color: rgba(21,128,61,1) !important;
+}
+body:not(.dark-mode) .usr-flash-err,
+body:not(.dark-mode) .dbm-result-banner.err {
+    color: rgba(185,28,28,1) !important;
+}
+body:not(.dark-mode) .usr-flash-warn,
+body:not(.dark-mode) .dbm-warning-notice {
+    color: rgba(161,98,7,1) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   DARK MODE — REMAINING ADMIN MODULES
+   Covers: appl-, alm-, nalm-, vc-, set-, cat-, loc-, rr-
+══════════════════════════════════════════════════════════════════ */
+
+/* ── Status / alert message text ─────────────────────────────────── */
+.dark-mode .appl-flash-ok,
+.dark-mode .alm-flash-ok,
+.dark-mode .nalm-flash-ok,
+.dark-mode .set-flash-ok,
+.dark-mode .cat-alert-ok,
+.dark-mode .loc-alert-ok,
+.dark-mode .rr-alert-ok {
+    background: rgba(34,197,94,.12) !important;
+    border-color: rgba(34,197,94,.35) !important;
+    color: #86efac !important;
+}
+.dark-mode .appl-flash-err,
+.dark-mode .alm-flash-err,
+.dark-mode .nalm-flash-err,
+.dark-mode .set-flash-err,
+.dark-mode .cat-alert-err,
+.dark-mode .loc-alert-err,
+.dark-mode .rr-alert-err,
+.dark-mode .vc-flash-err {
+    background: rgba(239,68,68,.13) !important;
+    border-color: rgba(239,68,68,.35) !important;
+    color: #fca5a5 !important;
+}
+
+/* ── Semantic action buttons ─────────────────────────────────────── */
+/* Accept / Approve buttons */
+.dark-mode .appl-btn-accept,
+.dark-mode .alm-btn-approve,
+.dark-mode .nalm-btn-approve {
+    color: #86efac !important;
+    background: rgba(34,197,94,.16) !important;
+    border-color: rgba(34,197,94,.35) !important;
+}
+.dark-mode .appl-btn-accept:hover,
+.dark-mode .alm-btn-approve:hover,
+.dark-mode .nalm-btn-approve:hover {
+    background: rgba(34,197,94,.28) !important;
+    box-shadow: 0 4px 14px rgba(34,197,94,.3) !important;
+}
+
+/* Reject / Delete buttons */
+.dark-mode .appl-btn-reject,
+.dark-mode .alm-btn-reject,
+.dark-mode .nalm-btn-reject,
+.dark-mode .vc-btn-delete {
+    color: #fca5a5 !important;
+    background: rgba(239,68,68,.16) !important;
+    border-color: rgba(239,68,68,.35) !important;
+}
+.dark-mode .appl-btn-reject:hover,
+.dark-mode .alm-btn-reject:hover,
+.dark-mode .nalm-btn-reject:hover,
+.dark-mode .vc-btn-delete:hover {
+    background: rgba(239,68,68,.28) !important;
+    box-shadow: 0 4px 14px rgba(239,68,68,.3) !important;
+}
+
+/* Edit buttons (blue) */
+.dark-mode .vc-btn-edit {
+    color: #93c5fd !important;
+    background: rgba(59,130,246,.16) !important;
+    border-color: rgba(59,130,246,.35) !important;
+}
+.dark-mode .vc-btn-edit:hover {
+    background: rgba(59,130,246,.28) !important;
+    box-shadow: 0 4px 14px rgba(59,130,246,.3) !important;
+}
+
+/* ── Table row hover ─────────────────────────────────────────────── */
+.dark-mode .alm-table tbody tr:hover,
+.dark-mode .nalm-table tbody tr:hover,
+.dark-mode .vc-table tbody tr:hover,
+.dark-mode .rr-table tbody tr:hover {
+    background: rgba(124,58,237,.14) !important;
+}
+
+/* ── Vcards error notice ─────────────────────────────────────────── */
+.dark-mode .vc-error-notice {
+    background: rgba(239,68,68,.12) !important;
+    border-color: rgba(239,68,68,.35) !important;
+    color: #fca5a5 !important;
+}
+
+/* ── Rental returns tab hover ────────────────────────────────────── */
+.dark-mode .rr-tab:hover {
+    background: rgba(124,58,237,.12) !important;
+    color: #93c5fd !important;
+}
+
+/* ── Header icon glows ───────────────────────────────────────────── */
+.dark-mode .appl-header-icon,
+.dark-mode .alm-header-icon,
+.dark-mode .nalm-header-icon,
+.dark-mode .vc-header-icon,
+.dark-mode .set-header-icon,
+.dark-mode .cat-header-icon,
+.dark-mode .loc-header-icon,
+.dark-mode .rr-header-icon {
+    box-shadow: 0 6px 22px rgba(124,58,237,.55), 0 2px 8px rgba(124,58,237,.3) !important;
+}
+
+/* ── Light mode — status colors preserved ────────────────────────── */
+body:not(.dark-mode) .appl-flash-ok,
+body:not(.dark-mode) .alm-flash-ok,
+body:not(.dark-mode) .nalm-flash-ok,
+body:not(.dark-mode) .set-flash-ok,
+body:not(.dark-mode) .cat-alert-ok,
+body:not(.dark-mode) .loc-alert-ok,
+body:not(.dark-mode) .rr-alert-ok {
+    color: rgba(21,128,61,1) !important;
+}
+body:not(.dark-mode) .appl-flash-err,
+body:not(.dark-mode) .alm-flash-err,
+body:not(.dark-mode) .nalm-flash-err,
+body:not(.dark-mode) .set-flash-err,
+body:not(.dark-mode) .cat-alert-err,
+body:not(.dark-mode) .loc-alert-err,
+body:not(.dark-mode) .rr-alert-err,
+body:not(.dark-mode) .vc-flash-err {
+    color: rgba(185,28,28,1) !important;
+}
+body:not(.dark-mode) .appl-btn-accept,
+body:not(.dark-mode) .alm-btn-approve,
+body:not(.dark-mode) .nalm-btn-approve {
+    color: rgba(21,128,61,1) !important;
+}
+body:not(.dark-mode) .appl-btn-reject,
+body:not(.dark-mode) .alm-btn-reject,
+body:not(.dark-mode) .nalm-btn-reject,
+body:not(.dark-mode) .vc-btn-delete {
+    color: rgba(185,28,28,1) !important;
+}
+body:not(.dark-mode) .vc-btn-edit {
+    color: rgba(37,99,235,1) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   DARK MODE — INLINE STYLE COLOR OVERRIDES
+   Inline style= colors that are too dark on dark backgrounds.
+   We use attribute substring selectors + !important to override them.
+   Targets: rgba(21,128,61) dark-green, rgba(185,28,28) dark-red,
+            rgba(161,98,7) dark-amber
+══════════════════════════════════════════════════════════════════ */
+.dark-mode [style*="color:rgba(21,128,61"] {
+    color: #86efac !important;
+}
+.dark-mode [style*="color:rgba(185,28,28"] {
+    color: #fca5a5 !important;
+}
+.dark-mode [style*="color:rgba(161,98,7"] {
+    color: #fcd34d !important;
+}
+/* Medium-dark blue: rgba(37,99,235,1) — readable but improve contrast */
+.dark-mode [style*="color:rgba(37,99,235"] {
+    color: #93c5fd !important;
+}
+/* Medium-dark green: rgba(22,163,74) — readable but improve contrast */
+.dark-mode [style*="color:rgba(22,163,74"] {
+    color: #86efac !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   DARK MODE — ADMIN DASHBOARD INDEX (adm-)
+══════════════════════════════════════════════════════════════════ */
+.dark-mode .adm-metric {
+    box-shadow: 0 4px 16px rgba(0,0,0,.45), 0 1px 4px rgba(0,0,0,.35) !important;
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+}
+.dark-mode .adm-metric:hover {
+    box-shadow: 0 8px 28px rgba(0,0,0,.55), 0 2px 8px rgba(0,0,0,.4) !important;
+    border-color: rgba(124,58,237,.3) !important;
+}
+.dark-mode .adm-header-icon {
+    box-shadow: 0 6px 22px rgba(124,58,237,.55), 0 2px 8px rgba(124,58,237,.3) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   DARK MODE — GLOBAL COMPACT INLINE-ICON COLORS
+   Ensure icon-only inline colors (fa-bolt, fa-info etc.) remain
+   visible in dark mode using broader attribute selector patterns.
+══════════════════════════════════════════════════════════════════ */
+/* Icons that use font-size + color inline — only target font-size elements where color would be problem */
+.dark-mode [style*="color:rgba(21,128"] {
+    color: #86efac !important;
+}
+.dark-mode [style*="color:rgba(185,28"] {
+    color: #fca5a5 !important;
+}
+.dark-mode [style*="color:rgba(161,98"] {
+    color: #fcd34d !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   DARK MODE — NON-ADMIN USER PAGES (blog, events, jobs, polls,
+   projects, members, alumni, newsletter, invoices, dashboard)
+══════════════════════════════════════════════════════════════════ */
+
+/* ── Blog Index (blog-*) ───────────────────────────────────────── */
+.dark-mode .blog-card {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,.45) !important;
+}
+.dark-mode .blog-card:hover {
+    box-shadow: 0 8px 28px rgba(0,0,0,.55) !important;
+    border-color: rgba(99,102,241,.35) !important;
+}
+.dark-mode .blog-pagination-btn {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.09) !important;
+    color: var(--text-main) !important;
+}
+.dark-mode .blog-pagination-btn:hover {
+    border-color: rgba(99,102,241,.45) !important;
+    color: #a5b4fc !important;
+}
+.dark-mode .blog-sub-banner {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+    border-left-color: var(--ibc-blue) !important;
+}
+.dark-mode .blog-page-indicator {
+    background: rgba(99,102,241,.16) !important;
+    border-color: rgba(99,102,241,.3) !important;
+}
+
+/* ── Blog View (bv-*) ─────────────────────────────────────────── */
+.dark-mode .bv-card {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,.5) !important;
+}
+.dark-mode .bv-comment-card {
+    background: rgba(255,255,255,.03) !important;
+    border-color: rgba(255,255,255,.06) !important;
+}
+.dark-mode .bv-like-btn {
+    background: rgba(239,68,68,.14) !important;
+    border-color: rgba(239,68,68,.3) !important;
+}
+.dark-mode .bv-comment-form textarea,
+.dark-mode .bv-comment-form input {
+    background: rgba(255,255,255,.05) !important;
+    border-color: rgba(255,255,255,.12) !important;
+    color: var(--text-main) !important;
+}
+/* Blog category badges – Tailwind dark: prefix doesn't work */
+.dark-mode .bv-card [class*="bg-gray-100"] { background: rgba(255,255,255,.09) !important; color: var(--text-main) !important; }
+.dark-mode .bv-card [class*="bg-blue-100"] { background: rgba(59,130,246,.2) !important; color: #93c5fd !important; }
+.dark-mode .bv-card [class*="bg-purple-100"] { background: rgba(139,92,246,.2) !important; color: #c4b5fd !important; }
+.dark-mode .bv-card [class*="bg-green-100"] { background: rgba(16,185,129,.2) !important; color: #6ee7b7 !important; }
+.dark-mode .bv-card [class*="bg-yellow-100"] { background: rgba(245,158,11,.2) !important; color: #fcd34d !important; }
+.dark-mode .bv-card [class*="bg-red-100"] { background: rgba(239,68,68,.2) !important; color: #fca5a5 !important; }
+.dark-mode .bv-card [class*="bg-indigo-100"] { background: rgba(99,102,241,.2) !important; color: #a5b4fc !important; }
+
+/* ── Blog Edit (be-*) ─────────────────────────────────────────── */
+.dark-mode .be-card {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+}
+.dark-mode .be-form input,
+.dark-mode .be-form textarea,
+.dark-mode .be-form select {
+    background: rgba(255,255,255,.05) !important;
+    border-color: rgba(255,255,255,.12) !important;
+    color: var(--text-main) !important;
+}
+.dark-mode .be-form input:focus,
+.dark-mode .be-form textarea:focus,
+.dark-mode .be-form select:focus {
+    border-color: rgba(99,102,241,.5) !important;
+    box-shadow: 0 0 0 3px rgba(99,102,241,.15) !important;
+}
+
+/* ── Events View (evv-*) ──────────────────────────────────────── */
+.dark-mode .evv-card {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+    box-shadow: 0 4px 18px rgba(0,0,0,.45) !important;
+}
+.dark-mode .evv-card:hover {
+    box-shadow: 0 8px 28px rgba(0,0,0,.55) !important;
+    border-color: rgba(59,130,246,.3) !important;
+}
+.dark-mode .evv-sidebar-card {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+}
+.dark-mode .evv-stat-card {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+}
+.dark-mode .evv-btn-primary {
+    box-shadow: 0 4px 14px rgba(59,130,246,.3) !important;
+}
+.dark-mode .evv-status-planned { background: rgba(59,130,246,.18) !important; color: #93c5fd !important; }
+.dark-mode .evv-status-open    { background: rgba(34,197,94,.18)  !important; color: #86efac !important; }
+.dark-mode .evv-status-closed  { background: rgba(239,68,68,.18)  !important; color: #fca5a5 !important; }
+.dark-mode .evv-status-done    { background: rgba(107,114,128,.18)!important; color: #cbd5e1 !important; }
+
+/* ── Events Edit (eved-*) ─────────────────────────────────────── */
+.dark-mode .eved-card {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+}
+.dark-mode .eved-input,
+.dark-mode .eved-select,
+.dark-mode .eved-textarea {
+    background: rgba(255,255,255,.05) !important;
+    border-color: rgba(255,255,255,.12) !important;
+    color: var(--text-main) !important;
+}
+.dark-mode .eved-input:focus,
+.dark-mode .eved-select:focus,
+.dark-mode .eved-textarea:focus {
+    border-color: rgba(59,130,246,.5) !important;
+    box-shadow: 0 0 0 3px rgba(59,130,246,.15) !important;
+}
+
+/* ── Events Manage (emg-*) ────────────────────────────────────── */
+.dark-mode .emg-card {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,.45) !important;
+}
+.dark-mode .emg-card:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,.5) !important;
+}
+.dark-mode .emg-table thead tr {
+    background: rgba(255,255,255,.04) !important;
+}
+.dark-mode .emg-table tbody tr:hover {
+    background: rgba(255,255,255,.03) !important;
+}
+.dark-mode .emg-status-planned { background: rgba(59,130,246,.18)  !important; color: #93c5fd !important; border-color: rgba(59,130,246,.3)  !important; }
+.dark-mode .emg-status-open    { background: rgba(34,197,94,.18)   !important; color: #86efac !important; border-color: rgba(34,197,94,.3)   !important; }
+.dark-mode .emg-status-cancelled { background: rgba(239,68,68,.18) !important; color: #fca5a5 !important; border-color: rgba(239,68,68,.3)  !important; }
+/* Events manage – Tailwind modal dark: overrides */
+.dark-mode [id$="Modal"] .bg-white,
+.dark-mode [id$="ModalOverlay"] .bg-white,
+.dark-mode [class*="modal-overlay"] .bg-white { background: var(--bg-card) !important; }
+.dark-mode [id$="Modal"] [class*="bg-gray-800"],
+.dark-mode [id$="ModalOverlay"] [class*="bg-gray-800"] { background: var(--bg-card) !important; }
+.dark-mode [id$="Modal"] [class*="text-gray-8"],
+.dark-mode [id$="Modal"] [class*="text-gray-9"] { color: var(--text-main) !important; }
+.dark-mode [id$="Modal"] [class*="text-gray-6"],
+.dark-mode [id$="Modal"] [class*="text-gray-3"] { color: var(--text-muted) !important; }
+.dark-mode [id$="Modal"] input,
+.dark-mode [id$="Modal"] select,
+.dark-mode [id$="Modal"] textarea { background: rgba(255,255,255,.05) !important; border-color: rgba(255,255,255,.12) !important; color: var(--text-main) !important; }
+.dark-mode [id$="Modal"] [class*="bg-gray-200"],
+.dark-mode [id$="Modal"] [class*="bg-gray-700"] { background: rgba(255,255,255,.07) !important; color: var(--text-muted) !important; }
+
+/* ── Events Statistics (est-*) ────────────────────────────────── */
+.dark-mode .est-card {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,.45) !important;
+}
+.dark-mode .est-stat-card {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+}
+.dark-mode .est-table thead tr {
+    background: rgba(255,255,255,.04) !important;
+}
+.dark-mode .est-table tbody tr:hover {
+    background: rgba(255,255,255,.03) !important;
+}
+
+/* ── Jobs Create (jcr-*) & Edit (jed-*) ──────────────────────── */
+.dark-mode .jcr-card,
+.dark-mode .jed-card {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+}
+.dark-mode .jcr-input, .dark-mode .jcr-textarea, .dark-mode .jcr-select,
+.dark-mode .jed-input, .dark-mode .jed-textarea, .dark-mode .jed-select {
+    background: rgba(255,255,255,.05) !important;
+    border-color: rgba(255,255,255,.12) !important;
+    color: var(--text-main) !important;
+}
+.dark-mode .jcr-input:focus, .dark-mode .jcr-textarea:focus, .dark-mode .jcr-select:focus,
+.dark-mode .jed-input:focus, .dark-mode .jed-textarea:focus, .dark-mode .jed-select:focus {
+    border-color: rgba(0,102,179,.5) !important;
+    box-shadow: 0 0 0 3px rgba(0,102,179,.15) !important;
+}
+
+/* ── Polls Create (pcr-*) & View (pv-*) ──────────────────────── */
+.dark-mode .pcr-card,
+.dark-mode .pv-card {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+}
+.dark-mode .pcr-input, .dark-mode .pcr-textarea, .dark-mode .pcr-select,
+.dark-mode .pv-option-row {
+    background: rgba(255,255,255,.05) !important;
+    border-color: rgba(255,255,255,.12) !important;
+}
+.dark-mode .pv-progress-bar {
+    background: rgba(255,255,255,.08) !important;
+}
+.dark-mode .pv-voted-badge {
+    background: rgba(0,102,179,.2) !important;
+    color: #93c5fd !important;
+}
+
+/* ── Projects View (prv-*) / Manage (prm-*) / Applications (pra-*) */
+.dark-mode .prv-card,
+.dark-mode .prm-card,
+.dark-mode .pra-card {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,.45) !important;
+}
+.dark-mode .prv-card:hover,
+.dark-mode .prm-card:hover,
+.dark-mode .pra-card:hover {
+    box-shadow: 0 8px 28px rgba(0,0,0,.55) !important;
+}
+.dark-mode .pra-btn-approve {
+    background: rgba(16,185,129,.18) !important;
+    border-color: rgba(16,185,129,.35) !important;
+    color: #6ee7b7 !important;
+}
+.dark-mode .pra-btn-reject {
+    background: rgba(239,68,68,.15) !important;
+    border-color: rgba(239,68,68,.3) !important;
+    color: #fca5a5 !important;
+}
+/* Tailwind-based elements inside project cards (dark: prefix doesn't work) */
+.dark-mode .prv-card .bg-gray-50,
+.dark-mode .prv-card [class*="bg-gray-50"],
+.dark-mode .prv-card [class*="bg-gray-800/50"] {
+    background: rgba(255,255,255,.05) !important;
+}
+.dark-mode .prv-card [class*="border-gray-100"],
+.dark-mode .prv-card [class*="border-gray-700"] {
+    border-color: rgba(255,255,255,.07) !important;
+}
+.dark-mode .prv-card .text-gray-900,
+.dark-mode .prv-card .text-gray-800,
+.dark-mode .prv-card .text-gray-700,
+.dark-mode .prv-card [class*="text-gray-9"],
+.dark-mode .prv-card [class*="text-gray-8"],
+.dark-mode .prv-card [class*="text-gray-7"] {
+    color: var(--text-main) !important;
+}
+.dark-mode .prv-card .text-gray-600,
+.dark-mode .prv-card .text-gray-500,
+.dark-mode .prv-card .text-gray-400,
+.dark-mode .prv-card [class*="text-gray-6"],
+.dark-mode .prv-card [class*="text-gray-5"],
+.dark-mode .prv-card [class*="text-gray-4"] {
+    color: var(--text-muted) !important;
+}
+.dark-mode .prv-card .bg-white,
+.dark-mode .prv-card [class*="bg-white"] {
+    background: var(--bg-card) !important;
+}
+.dark-mode .prv-card [class*="bg-gray-800"],
+.dark-mode .prv-card [class*="dark:bg-gray-800"] {
+    background: rgba(255,255,255,.05) !important;
+}
+.dark-mode .prv-card [class*="bg-purple-100"] {
+    background: rgba(139,92,246,.18) !important;
+}
+.dark-mode .prv-card [class*="text-purple-600"],
+.dark-mode .prv-card [class*="text-purple-400"] {
+    color: #c4b5fd !important;
+}
+.dark-mode .prv-card textarea,
+.dark-mode .prv-card input[type="text"],
+.dark-mode .prv-card input[type="number"],
+.dark-mode .prv-card select {
+    background: rgba(255,255,255,.05) !important;
+    border-color: rgba(255,255,255,.12) !important;
+    color: var(--text-main) !important;
+}
+
+/* ── Members View (memv-*) ────────────────────────────────────── */
+.dark-mode .memv-card {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,.45) !important;
+}
+.dark-mode .memv-skill-badge {
+    background: rgba(0,102,179,.18) !important;
+    border-color: rgba(0,102,179,.3) !important;
+    color: #93c5fd !important;
+}
+.dark-mode .memv-profile-header {
+    box-shadow: 0 8px 32px rgba(0,0,0,.5) !important;
+}
+/* Tailwind-based info rows inside member profile (dark: prefix doesn't work) */
+.dark-mode .memv-card .bg-gray-50,
+.dark-mode .memv-card [class*="bg-gray-50"] {
+    background: rgba(255,255,255,.05) !important;
+}
+.dark-mode .memv-card .text-gray-800,
+.dark-mode .memv-card .text-gray-700,
+.dark-mode .memv-card [class*="text-gray-8"],
+.dark-mode .memv-card [class*="text-gray-7"] {
+    color: var(--text-main) !important;
+}
+.dark-mode .memv-card .text-gray-500,
+.dark-mode .memv-card .text-gray-400,
+.dark-mode .memv-card [class*="text-gray-5"],
+.dark-mode .memv-card [class*="text-gray-4"] {
+    color: var(--text-muted) !important;
+}
+
+/* ── Alumni View (almv-*) & Edit (alme-*) ─────────────────────── */
+.dark-mode .almv-card,
+.dark-mode .alme-card {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,.45) !important;
+}
+.dark-mode .almv-skill-badge {
+    background: rgba(139,92,246,.18) !important;
+    border-color: rgba(139,92,246,.3) !important;
+    color: #c4b5fd !important;
+}
+/* Tailwind-based info rows inside alumni profile (dark: prefix doesn't work) */
+.dark-mode .almv-card .bg-gray-50,
+.dark-mode .almv-card [class*="bg-gray-50"] {
+    background: rgba(255,255,255,.05) !important;
+}
+.dark-mode .almv-card .text-gray-800,
+.dark-mode .almv-card .text-gray-700,
+.dark-mode .almv-card [class*="text-gray-8"],
+.dark-mode .almv-card [class*="text-gray-7"] {
+    color: var(--text-main) !important;
+}
+.dark-mode .almv-card .text-gray-500,
+.dark-mode .almv-card .text-gray-400,
+.dark-mode .almv-card [class*="text-gray-5"],
+.dark-mode .almv-card [class*="text-gray-4"] {
+    color: var(--text-muted) !important;
+}
+.dark-mode .alme-input,
+.dark-mode .alme-textarea,
+.dark-mode .alme-select {
+    background: rgba(255,255,255,.05) !important;
+    border-color: rgba(255,255,255,.12) !important;
+    color: var(--text-main) !important;
+}
+.dark-mode .alme-input:focus,
+.dark-mode .alme-textarea:focus,
+.dark-mode .alme-select:focus {
+    border-color: rgba(139,92,246,.5) !important;
+    box-shadow: 0 0 0 3px rgba(139,92,246,.15) !important;
+}
+
+/* ── Newsletter (nl-*) ────────────────────────────────────────── */
+.dark-mode .nl-card {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,.45) !important;
+}
+.dark-mode .nl-input,
+.dark-mode .nl-textarea,
+.dark-mode .nl-select,
+.dark-mode .nl-form-input {
+    background: rgba(255,255,255,.05) !important;
+    border-color: rgba(255,255,255,.12) !important;
+    color: var(--text-main) !important;
+}
+.dark-mode .nl-file-zone {
+    background: rgba(255,255,255,.03) !important;
+    border-color: rgba(255,255,255,.12) !important;
+    color: var(--text-muted) !important;
+}
+.dark-mode .nl-upload-card {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+}
+.dark-mode .nl-toggle-label {
+    color: var(--text-main) !important;
+}
+
+/* ── Invoices (inv-*) ─────────────────────────────────────────── */
+.dark-mode .inv-card {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,.45) !important;
+}
+.dark-mode .inv-table thead tr {
+    background: rgba(255,255,255,.04) !important;
+}
+.dark-mode .inv-table tbody tr:hover {
+    background: rgba(255,255,255,.03) !important;
+}
+.dark-mode .inv-status-pending  { background: rgba(245,158,11,.18) !important; color: #fde68a !important; border-color: rgba(245,158,11,.3) !important; }
+.dark-mode .inv-status-approved { background: rgba(16,185,129,.18) !important; color: #6ee7b7 !important; border-color: rgba(16,185,129,.3) !important; }
+.dark-mode .inv-status-rejected { background: rgba(239,68,68,.18)  !important; color: #fca5a5 !important; border-color: rgba(239,68,68,.3)  !important; }
+.dark-mode .inv-modal-card {
+    background: var(--bg-card) !important;
+    border-color: rgba(255,255,255,.07) !important;
+}
+.dark-mode .inv-input,
+.dark-mode .inv-select,
+.dark-mode .inv-textarea {
+    background: rgba(255,255,255,.05) !important;
+    border-color: rgba(255,255,255,.12) !important;
+    color: var(--text-main) !important;
+}
+
+/* ── Auth Settings (set-*) ────────────────────────────────────── */
+.dark-mode .set-card {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,.45) !important;
+}
+.dark-mode .set-input,
+.dark-mode .set-select {
+    background: rgba(255,255,255,.05) !important;
+    border-color: rgba(255,255,255,.12) !important;
+    color: var(--text-main) !important;
+}
+.dark-mode .set-input:focus,
+.dark-mode .set-select:focus {
+    border-color: rgba(0,102,179,.5) !important;
+    box-shadow: 0 0 0 3px rgba(0,102,179,.15) !important;
+}
+.dark-mode .set-section-header {
+    background: rgba(255,255,255,.03) !important;
+    border-bottom-color: rgba(255,255,255,.07) !important;
+}
+.dark-mode .set-theme-option--active {
+    border-color: var(--ibc-blue) !important;
+    background: rgba(0,102,179,.12) !important;
+}
+.dark-mode .set-toggle-track {
+    background: rgba(255,255,255,.12) !important;
+}
+.dark-mode .set-toggle-track--on {
+    background: var(--ibc-blue) !important;
+}
+
+/* ── Dashboard Cards (d-*) ────────────────────────────────────── */
+.dark-mode .d-card {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+    box-shadow: 0 4px 18px rgba(0,0,0,.45) !important;
+}
+.dark-mode .d-card:hover,
+.dark-mode .d-card--hover:hover {
+    box-shadow: 0 8px 28px rgba(0,0,0,.55) !important;
+    border-color: rgba(255,255,255,.12) !important;
+}
+.dark-mode .d-stat-card {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,.45) !important;
+}
+.dark-mode .d-stat-card:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,.5) !important;
+}
+.dark-mode .d-blog-card {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,.45) !important;
+}
+.dark-mode .d-blog-card:hover {
+    box-shadow: 0 8px 28px rgba(0,0,0,.55) !important;
+    border-color: rgba(0,102,179,.3) !important;
+}
+.dark-mode .d-event-date-chip {
+    background: rgba(0,102,179,.14) !important;
+    border-color: rgba(0,102,179,.25) !important;
+}
+.dark-mode .d-invoice-icon {
+    box-shadow: 0 2px 10px rgba(16,185,129,.2) !important;
+}
+.dark-mode .d-profile-ring-wrap circle:first-child {
+    stroke: rgba(255,255,255,.08) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   DARK MODE — EVENTS INDEX (ev-*)
+══════════════════════════════════════════════════════════════════ */
+.dark-mode .ev-card {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,.45) !important;
+}
+.dark-mode .ev-card:hover {
+    box-shadow: 0 8px 28px rgba(0,0,0,.55) !important;
+    border-color: rgba(59,130,246,.3) !important;
+}
+.dark-mode .ev-badge--open      { background: rgba(34,197,94,.18)  !important; color: #86efac !important; border-color: rgba(34,197,94,.3)  !important; }
+.dark-mode .ev-badge--closed    { background: rgba(239,68,68,.15)  !important; color: #fca5a5 !important; border-color: rgba(239,68,68,.3)  !important; }
+.dark-mode .ev-badge--past      { background: rgba(107,114,128,.15)!important; color: #94a3b8 !important; border-color: rgba(107,114,128,.3)!important; }
+.dark-mode .ev-badge--running   { background: rgba(59,130,246,.18) !important; color: #93c5fd !important; border-color: rgba(59,130,246,.3) !important; }
+.dark-mode .ev-badge--registered{ background: rgba(16,185,129,.18) !important; color: #6ee7b7 !important; }
+.dark-mode .ev-badge--countdown { background: rgba(245,158,11,.18) !important; color: #fde68a !important; }
+.dark-mode .ev-badge--draft     { background: rgba(107,114,128,.15)!important; color: #94a3b8 !important; }
+.dark-mode .ev-badge--extern    { background: rgba(139,92,246,.18) !important; color: #c4b5fd !important; }
+.dark-mode .ev-chip { background: rgba(255,255,255,.05) !important; border-color: rgba(255,255,255,.1) !important; color: var(--text-muted) !important; }
+.dark-mode .ev-chip--active { background: rgba(59,130,246,.2) !important; border-color: rgba(59,130,246,.4) !important; color: #93c5fd !important; }
+.dark-mode .ev-filter-bar { background: var(--gradient-card-dark) !important; border-color: rgba(255,255,255,.07) !important; }
+.dark-mode .ev-placeholder { background: rgba(255,255,255,.04) !important; }
+.dark-mode .ev-img-wrap { background: rgba(255,255,255,.04) !important; }
+.dark-mode .ev-empty { background: var(--gradient-card-dark) !important; border-color: rgba(255,255,255,.07) !important; }
+
+/* ══════════════════════════════════════════════════════════════════
+   DARK MODE — JOBS INDEX (job-*)
+══════════════════════════════════════════════════════════════════ */
+.dark-mode .job-card {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,.45) !important;
+}
+.dark-mode .job-card:hover {
+    box-shadow: 0 8px 28px rgba(0,0,0,.55) !important;
+    border-color: rgba(0,102,179,.3) !important;
+}
+.dark-mode .job-chip { background: rgba(255,255,255,.05) !important; border-color: rgba(255,255,255,.1) !important; color: var(--text-muted) !important; }
+.dark-mode .job-chip--active, .dark-mode .job-chip[style*="background:var(--ibc-blue)"] { background: rgba(0,102,179,.2) !important; }
+.dark-mode .job-type-badge { background: rgba(0,102,179,.15) !important; color: #93c5fd !important; border-color: rgba(0,102,179,.3) !important; }
+.dark-mode .job-pagination-btn { background: var(--gradient-card-dark) !important; border-color: rgba(255,255,255,.09) !important; color: var(--text-main) !important; }
+.dark-mode .job-pagination-btn:hover { border-color: rgba(0,102,179,.4) !important; color: #93c5fd !important; }
+.dark-mode .job-flash--success { background: rgba(16,185,129,.14) !important; border-color: rgba(16,185,129,.3) !important; color: #6ee7b7 !important; }
+.dark-mode .job-flash--error   { background: rgba(239,68,68,.14)  !important; border-color: rgba(239,68,68,.3)  !important; color: #fca5a5 !important; }
+.dark-mode .jb-modal-card { background: var(--bg-card) !important; border-color: rgba(255,255,255,.07) !important; box-shadow: 0 12px 48px rgba(0,0,0,.6) !important; }
+.dark-mode .jb-modal-header { border-bottom-color: rgba(255,255,255,.07) !important; }
+.dark-mode .jb-form-input { background: rgba(255,255,255,.05) !important; border-color: rgba(255,255,255,.12) !important; color: var(--text-main) !important; }
+
+/* ══════════════════════════════════════════════════════════════════
+   DARK MODE — IDEAS INDEX (idea-*)
+══════════════════════════════════════════════════════════════════ */
+.dark-mode .idea-card {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,.45) !important;
+}
+.dark-mode .idea-card:hover {
+    box-shadow: 0 8px 28px rgba(0,0,0,.55) !important;
+}
+.dark-mode .idea-status-badge { background: rgba(16,185,129,.16) !important; color: #6ee7b7 !important; border-color: rgba(16,185,129,.3) !important; }
+.dark-mode .idea-vote-col { border-color: rgba(255,255,255,.07) !important; }
+.dark-mode .idea-modal-card { background: var(--bg-card) !important; border-color: rgba(255,255,255,.07) !important; box-shadow: 0 12px 48px rgba(0,0,0,.6) !important; }
+.dark-mode .idea-modal-overlay { background: rgba(0,0,0,.7) !important; }
+.dark-mode .idea-form-input { background: rgba(255,255,255,.05) !important; border-color: rgba(255,255,255,.12) !important; color: var(--text-main) !important; }
+.dark-mode .idea-status-menu { background: var(--bg-card) !important; border-color: rgba(255,255,255,.1) !important; box-shadow: 0 8px 24px rgba(0,0,0,.5) !important; }
+.dark-mode .idea-status-menu-item:hover { background: rgba(255,255,255,.06) !important; }
+.dark-mode .idea-info-box { background: rgba(0,102,179,.1) !important; border-color: rgba(0,102,179,.2) !important; }
+.dark-mode .idea-empty { background: var(--gradient-card-dark) !important; border-color: rgba(255,255,255,.07) !important; }
+
+/* ══════════════════════════════════════════════════════════════════
+   DARK MODE — POLLS INDEX (poll-*)
+══════════════════════════════════════════════════════════════════ */
+.dark-mode .poll-card {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,.45) !important;
+}
+.dark-mode .poll-card:hover {
+    box-shadow: 0 8px 28px rgba(0,0,0,.55) !important;
+}
+.dark-mode .poll-card--voted { border-color: rgba(16,185,129,.3) !important; }
+.dark-mode .poll-card-badge--open   { background: rgba(34,197,94,.18)  !important; color: #86efac !important; }
+.dark-mode .poll-card-badge--voted  { background: rgba(16,185,129,.18) !important; color: #6ee7b7 !important; }
+.dark-mode .poll-card-badge--msforms{ background: rgba(0,102,179,.18)  !important; color: #93c5fd !important; }
+.dark-mode .poll-card-badge--left, .dark-mode .poll-card-badge--right { background: rgba(245,158,11,.18) !important; color: #fde68a !important; }
+.dark-mode .poll-card-placeholder { background: rgba(255,255,255,.04) !important; }
+.dark-mode .poll-arrow-btn--blue  { background: rgba(59,130,246,.18) !important; border-color: rgba(59,130,246,.3) !important; }
+.dark-mode .poll-arrow-btn--green { background: rgba(16,185,129,.18) !important; border-color: rgba(16,185,129,.3) !important; }
+.dark-mode .plls-header-icon { box-shadow: 0 6px 22px rgba(249,115,22,.45) !important; }
+
+/* ══════════════════════════════════════════════════════════════════
+   DARK MODE — PROJECTS INDEX (proj-*)
+══════════════════════════════════════════════════════════════════ */
+.dark-mode .proj-card {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,.45) !important;
+}
+.dark-mode .proj-card:hover {
+    box-shadow: 0 8px 28px rgba(0,0,0,.55) !important;
+    border-color: rgba(0,102,179,.3) !important;
+}
+.dark-mode .proj-badge { background: rgba(255,255,255,.08) !important; color: var(--text-muted) !important; }
+.dark-mode .proj-chip { background: rgba(255,255,255,.05) !important; border-color: rgba(255,255,255,.1) !important; }
+.dark-mode .proj-chip--active { background: rgba(0,102,179,.2) !important; border-color: rgba(0,102,179,.4) !important; color: #93c5fd !important; }
+.dark-mode .proj-flash--success { background: rgba(16,185,129,.14) !important; border-color: rgba(16,185,129,.3) !important; color: #6ee7b7 !important; }
+.dark-mode .proj-flash--error   { background: rgba(239,68,68,.14)  !important; border-color: rgba(239,68,68,.3)  !important; color: #fca5a5 !important; }
+.dark-mode .proj-empty { background: var(--gradient-card-dark) !important; border-color: rgba(255,255,255,.07) !important; }
+.dark-mode .proj-search-wrap { background: rgba(255,255,255,.05) !important; border-color: rgba(255,255,255,.1) !important; }
+.dark-mode .proj-search-input { background: transparent !important; color: var(--text-main) !important; }
+.dark-mode .proj-img-wrap { background: rgba(255,255,255,.04) !important; }
+.dark-mode .proj-placeholder { background: rgba(255,255,255,.04) !important; }
+
+/* ══════════════════════════════════════════════════════════════════
+   DARK MODE — MEMBERS INDEX (mem-*)
+══════════════════════════════════════════════════════════════════ */
+.dark-mode .mem-role-chip { background: rgba(0,102,179,.16) !important; border-color: rgba(0,102,179,.3) !important; color: #93c5fd !important; }
+.dark-mode .mem-search-input { background: rgba(255,255,255,.05) !important; border-color: rgba(255,255,255,.1) !important; color: var(--text-main) !important; }
+.dark-mode .mem-select { background: rgba(255,255,255,.05) !important; border-color: rgba(255,255,255,.1) !important; color: var(--text-main) !important; }
+
+/* ══════════════════════════════════════════════════════════════════
+   DARK MODE — ALUMNI / DIRECTORY INDEX (dir-*)
+══════════════════════════════════════════════════════════════════ */
+.dark-mode .dir-card {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,.45) !important;
+}
+.dark-mode .dir-card:hover {
+    box-shadow: 0 8px 28px rgba(0,0,0,.55) !important;
+    border-color: rgba(139,92,246,.3) !important;
+}
+.dark-mode .dir-card--alumni { border-top-color: rgba(139,92,246,.5) !important; }
+.dark-mode .dir-card-banner { opacity: 0.65 !important; }
+.dark-mode .dir-role-badge { background: rgba(139,92,246,.18) !important; color: #c4b5fd !important; border-color: rgba(139,92,246,.3) !important; }
+.dark-mode .dir-icon-btn { background: rgba(255,255,255,.07) !important; border-color: rgba(255,255,255,.1) !important; color: var(--text-muted) !important; }
+.dark-mode .dir-icon-btn:hover { background: rgba(255,255,255,.12) !important; color: var(--text-main) !important; }
+.dark-mode .dir-icon-btn--mail:hover     { background: rgba(0,102,179,.2)  !important; color: #93c5fd !important; }
+.dark-mode .dir-icon-btn--linkedin:hover { background: rgba(0,119,181,.2)  !important; color: #93c5fd !important; }
+.dark-mode .dir-icon-btn--xing:hover     { background: rgba(0,166,121,.2)  !important; color: #6ee7b7 !important; }
+.dark-mode .dir-view-btn { background: rgba(139,92,246,.18) !important; border-color: rgba(139,92,246,.3) !important; color: #c4b5fd !important; }
+.dark-mode .dir-view-btn:hover { background: rgba(139,92,246,.28) !important; color: #ddd6fe !important; }
+.dark-mode .dir-empty { background: var(--gradient-card-dark) !important; border-color: rgba(255,255,255,.07) !important; }
+.dark-mode .dir-search-input, .dark-mode .dir-select { background: rgba(255,255,255,.05) !important; border-color: rgba(255,255,255,.1) !important; color: var(--text-main) !important; }
+.dark-mode .dir-flash--success { background: rgba(16,185,129,.14) !important; border-color: rgba(16,185,129,.3) !important; color: #6ee7b7 !important; }
+
+/* ── vCards modal dark mode — handled in pages/admin/vcards.php ── */
+.dark-mode .vc-card {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+}
+.dark-mode .vc-card-footer {
+    background: rgba(255,255,255,.02) !important;
+    border-top-color: rgba(255,255,255,.07) !important;
+}
+.dark-mode .vc-card-divider { background: rgba(255,255,255,.07) !important; }
+.dark-mode .vc-search-input {
+    background: rgba(255,255,255,.05) !important;
+    border-color: rgba(255,255,255,.1) !important;
+    color: var(--text-main) !important;
+}
+.dark-mode .vc-empty {
+    background: var(--gradient-card-dark) !important;
+    border-color: rgba(255,255,255,.07) !important;
+}
+
+/* ── Inventory modal dark mode — handled in pages/inventory/index.php ── */
+
+/* ══ Global Tailwind dark: overrides ════════════════════════════
+   Since Tailwind JIT isn't used here, dark: prefix classes don't
+   activate automatically. This block handles them site-wide.
+══════════════════════════════════════════════════════════════ */
+
+/* Backgrounds */
+.dark-mode .dark\:bg-gray-800,
+.dark-mode .dark\:bg-gray-900,
+.dark-mode .dark\:bg-slate-800,
+.dark-mode .dark\:bg-slate-900 { background-color: var(--bg-card) !important; }
+.dark-mode .dark\:bg-gray-700,
+.dark-mode .dark\:bg-slate-700 { background-color: var(--bg-body) !important; }
+.dark-mode .dark\:bg-gray-600,
+.dark-mode .dark\:bg-slate-600 { background-color: rgba(255,255,255,.1) !important; }
+
+/* Text */
+.dark-mode .dark\:text-white,
+.dark-mode .dark\:text-gray-100,
+.dark-mode .dark\:text-gray-200,
+.dark-mode .dark\:text-slate-100,
+.dark-mode .dark\:text-slate-200 { color: var(--text-main) !important; }
+.dark-mode .dark\:text-gray-300,
+.dark-mode .dark\:text-gray-400,
+.dark-mode .dark\:text-slate-300,
+.dark-mode .dark\:text-slate-400 { color: var(--text-muted) !important; }
+
+/* Borders */
+.dark-mode .dark\:border-gray-600,
+.dark-mode .dark\:border-gray-700,
+.dark-mode .dark\:border-slate-600,
+.dark-mode .dark\:border-slate-700 { border-color: var(--border-color) !important; }
+
+/* Hover states — these need explicit .dark-mode scoping */
+.dark-mode .dark\:hover\:bg-gray-600:hover,
+.dark-mode .dark\:hover\:bg-gray-700:hover,
+.dark-mode .dark\:hover\:bg-slate-600:hover,
+.dark-mode .dark\:hover\:bg-slate-700:hover { background-color: rgba(255,255,255,.1) !important; }
+
+/* Inputs, selects, textareas with Tailwind dark: classes */
+.dark-mode input.dark\:bg-gray-700,
+.dark-mode select.dark\:bg-gray-700,
+.dark-mode textarea.dark\:bg-gray-700,
+.dark-mode input.dark\:bg-slate-700,
+.dark-mode select.dark\:bg-slate-700,
+.dark-mode textarea.dark\:bg-slate-700 {
+    background: rgba(255,255,255,.06) !important;
+    border-color: rgba(255,255,255,.12) !important;
+    color: var(--text-main) !important;
+}

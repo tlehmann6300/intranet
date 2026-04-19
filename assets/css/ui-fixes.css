@@ -1,0 +1,2202 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   IBC INTRANET – UI-FIXES PATCH  (v2)
+   Behebt:
+   • Popups/Modals werden zu weit oben angezeigt bzw. abgeschnitten
+     (Ursache: transform-Animation im Parent erzeugt containing block
+      für fixed-positionierte Nachkommen → in main_layout.php gefixt.
+      Hier: zusätzliche Defensiv-Overrides, robuste max-heights, Overlay-Scroll)
+   • Desktop-Navbar verdeckt Inhalt → garantiertes #main-content padding-top
+   • Responsive-Navbar zu groß / überläuft → Breakpoint-Feinschliff
+   • Lightmode Kontraste / Textfarben
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+
+/* ══ 1.  FIXED-POSITIONIERUNG SICHERN ─────────────────────────────────
+   Jede Modal-Overlay-Variante MUSS relativ zum Viewport sitzen.
+   ─────────────────────────────────────────────────────────────────────── */
+[class$="-modal-overlay"],
+[class*="-modal-overlay "],
+.vc-modal-overlay,
+.inv-modal-overlay,
+.idea-modal-overlay,
+.evv-modal-overlay,
+.emg-modal-overlay,
+.jb-modal-overlay,
+.appl-modal-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    inset: 0 !important;
+    transform: none !important;        /* NIE transform erben */
+    animation: none !important;        /* Page-Entrance überspringen */
+    z-index: 1080;
+
+    /* Flex-Layout fürs Zentrieren */
+    display: flex !important;
+    align-items: flex-start !important; /* von oben, damit nichts abgeschnitten wird */
+    justify-content: center !important;
+
+    /* Scroll im Overlay falls Modal größer als Viewport */
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+
+    /* Padding (Safe-Area + Luft oben/unten) */
+    padding:
+        calc(clamp(1rem, 4vh, 2.5rem) + env(safe-area-inset-top, 0px))
+        clamp(0.75rem, 2vw, 1.5rem)
+        calc(clamp(1rem, 4vh, 2.5rem) + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+
+/* ══ 2.  MODAL-KARTE: robuste max-height + margin auto ─────────────────── */
+.vc-modal,
+.vc-confirm-modal,
+.inv-modal-dialog,
+.idea-modal-card,
+.evv-modal,
+.emg-modal-card,
+.jb-modal-card,
+.appl-modal {
+    /* dvh-Fallback für ältere Browser */
+    max-height: calc(100vh - 6rem);
+    max-height: min(calc(100vh - 6rem), calc(100dvh - 6rem));
+
+    /* horizontal zentriert, vertikal am Flexstart – mit auto-Margin
+       "magisch zentriert" wenn es passt, sonst oben verankert */
+    margin: auto !important;
+
+    /* Wichtig: Flex-Children dürfen auf min-height 0 schrumpfen
+       damit interner Scroll funktioniert */
+    min-height: 0;
+}
+
+
+/* ══ 3.  MODAL-BODY: Content scrollt, NICHT das Modal ──────────────────── */
+.vc-modal-body,
+.inv-modal-body,
+.idea-modal-body,
+.evv-modal-body,
+.emg-modal-body,
+.jb-modal-body,
+.appl-modal-body {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    min-height: 0;
+    flex: 1 1 auto;
+}
+
+
+/* ══ 4.  SCROLL-LOCK AUF BODY WENN MODAL OFFEN ─────────────────────────── */
+body:has(.vc-modal-overlay.open),
+body:has(.inv-modal-overlay.open),
+body:has(.idea-modal-overlay.open),
+body:has(.evv-modal-overlay.open),
+body:has(.emg-modal-overlay.open),
+body:has(.jb-modal-overlay.open),
+body:has(.appl-modal-overlay.open) {
+    overflow: hidden !important;
+}
+
+
+/* ══ 5.  BOTTOM-SHEET AUF KLEINSTEN BILDSCHIRMEN ─────────────────────── */
+@media (max-width: 600px) {
+    [class$="-modal-overlay"],
+    .vc-modal-overlay,
+    .inv-modal-overlay,
+    .idea-modal-overlay,
+    .evv-modal-overlay,
+    .emg-modal-overlay,
+    .jb-modal-overlay,
+    .appl-modal-overlay {
+        align-items: flex-end !important;
+        padding: 0 !important;
+    }
+    .vc-modal,
+    .vc-confirm-modal,
+    .inv-modal-dialog,
+    .idea-modal-card,
+    .evv-modal,
+    .emg-modal-card,
+    .jb-modal-card,
+    .appl-modal {
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 1.5rem 1.5rem 0 0 !important;
+        max-height: 92vh;
+        max-height: 92dvh;
+        margin: 0 !important;
+    }
+}
+
+
+/* ══ 6.  DESKTOP-NAVBAR: Inhalt nicht mehr verdeckt ────────────────────── */
+@media (min-width: 768px) {
+    #main-content {
+        padding-top: calc(var(--topbar-height, 60px) + 1.75rem) !important;
+    }
+}
+@media (min-width: 1024px) {
+    #main-content {
+        padding-top: calc(var(--topbar-height, 60px) + 2rem) !important;
+    }
+}
+@media (min-width: 1536px) {
+    #main-content {
+        padding-top: calc(var(--topbar-height, 60px) + 2.5rem) !important;
+    }
+}
+
+
+/* ══ 7.  NAVBAR RESPONSIVE ─────────────────────────────────────────────── */
+@media (max-width: 767.98px) {
+    .desktop-navbar { display: none !important; }
+}
+@media (min-width: 768px) and (max-width: 1023.98px) {
+    .desktop-navbar {
+        left: var(--sidebar-width-md, 16rem) !important;
+        padding: 0 1rem !important;
+        gap: 0.5rem !important;
+    }
+    .navbar-profile-name { max-width: 6.5rem !important; font-size: 0.75rem !important; }
+    .navbar-profile-btn { max-width: 11rem !important; }
+}
+@media (min-width: 1024px) {
+    .desktop-navbar { left: var(--sidebar-width-lg, 18rem) !important; }
+}
+.desktop-navbar {
+    overflow: visible;
+    max-width: 100%;
+}
+.desktop-navbar > * { flex-shrink: 0; }
+
+/* Mobile-Topbar: Name nicht abschneiden, aber nicht überlaufen */
+@media (max-width: 767.98px) {
+    #mobile-header,
+    .mobile-topbar {
+        overflow: hidden;
+        gap: 0.5rem !important;
+        padding-left: 0.6rem !important;
+        padding-right: 0.6rem !important;
+    }
+    /* Das IBC-Logo in der mobilen Topbar ist redundant, weil die Sidebar
+       ihr eigenes Logo trägt. Mobile-Topbar = Burger + (Theme) + Profil.
+       Logo daher aus dem Center entfernen, Hamburger + rechte Controls
+       bleiben sauber auf einer Linie. */
+    #mobile-header > .flex-1 {
+        display: none !important;
+    }
+    /* Stattdessen die Kernfunktionen zentrieren/auseinanderziehen */
+    #mobile-header {
+        justify-content: space-between !important;
+    }
+    .mob-profile-btn {
+        max-width: min(11rem, 48vw) !important;
+    }
+    .mob-profile-btn .mob-name {
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    /* Wenn die Sidebar als Overlay offen ist, blenden wir die Topbar
+       ganz aus – sonst sieht man den IBC-Schriftzug doppelt. */
+    body.sidebar-open #mobile-header,
+    body.sidebar-open .mobile-topbar {
+        visibility: hidden !important;
+        pointer-events: none !important;
+    }
+}
+
+
+/* ══ 8.  LIGHTMODE – konsistenter Kontrast & Akzente ──────────────────── */
+body:not(.dark-mode) {
+    --bg-body: #f4f6fb;
+    --bg-card: #ffffff;
+    --text-main: #0f172a;
+    --text-muted: #475569;
+    --border-color: #e2e8f0;
+}
+
+/* Text auf dunklem Hero-Gradient muss weiß bleiben.
+   WICHTIG: Spezifität muss >= (0,3,X) sein, weil theme.css Zeile 1561
+   "body:not(.dark-mode) h1:not(.sidebar *)" mit (0,2,3) !important hat. */
+body:not(.dark-mode) .d-hero .d-hero-title,
+body:not(.dark-mode) .d-hero h1.d-hero-title,
+body:not(.dark-mode) .d-hero .d-role-badge,
+body:not(.dark-mode) .d-hero .d-quick-action,
+body:not(.dark-mode) .d-hero .d-hero-avatar,
+body:not(.dark-mode) .dash-hero .dash-hero-title,
+body:not(.dark-mode) .welcome-hero .welcome-title {
+    color: #ffffff !important;
+}
+body:not(.dark-mode) .d-hero .d-hero-subtitle,
+body:not(.dark-mode) .d-hero p.d-hero-subtitle,
+body:not(.dark-mode) .dash-hero .dash-hero-subtitle,
+body:not(.dark-mode) .welcome-hero .welcome-subtitle {
+    color: rgba(255,255,255,0.82) !important;
+}
+/* Fallback: jede Überschrift/Paragraph innerhalb von .d-hero/.dash-hero/.welcome-hero */
+body:not(.dark-mode) .d-hero h1,
+body:not(.dark-mode) .d-hero h2,
+body:not(.dark-mode) .d-hero h3,
+body:not(.dark-mode) .d-hero h4,
+body:not(.dark-mode) .d-hero p,
+body:not(.dark-mode) .d-hero span,
+body:not(.dark-mode) .d-hero a,
+body:not(.dark-mode) .dash-hero h1,
+body:not(.dark-mode) .dash-hero h2,
+body:not(.dark-mode) .dash-hero p,
+body:not(.dark-mode) .welcome-hero h1,
+body:not(.dark-mode) .welcome-hero h2,
+body:not(.dark-mode) .welcome-hero p {
+    color: #ffffff !important;
+}
+
+/* Desktop-Navbar im Lightmode */
+body:not(.dark-mode) .desktop-navbar {
+    background: rgba(255,255,255,0.92) !important;
+    -webkit-backdrop-filter: blur(14px) saturate(1.6);
+    backdrop-filter: blur(14px) saturate(1.6);
+    border-bottom: 1px solid rgba(15,23,42,0.08) !important;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.95) inset,
+                0 2px 10px rgba(15,23,42,0.05) !important;
+}
+body:not(.dark-mode) .navbar-theme-btn {
+    border-color: rgba(15,23,42,0.14) !important;
+    color: #0f172a !important;
+    background: transparent !important;
+}
+body:not(.dark-mode) .navbar-theme-btn:hover {
+    background: rgba(0,102,179,0.08) !important;
+    border-color: #0066b3 !important;
+    color: #0066b3 !important;
+}
+body:not(.dark-mode) .navbar-profile-btn {
+    border-color: rgba(15,23,42,0.14) !important;
+    background: transparent !important;
+}
+body:not(.dark-mode) .navbar-profile-btn:hover {
+    background: rgba(0,102,179,0.06) !important;
+    border-color: #0066b3 !important;
+}
+body:not(.dark-mode) .navbar-profile-name { color: #0f172a !important; }
+body:not(.dark-mode) .navbar-profile-chevron { color: #64748b !important; }
+body:not(.dark-mode) .navbar-profile-dropdown {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    color: #0f172a !important;
+    box-shadow: 0 4px 6px rgba(15,23,42,0.04),
+                0 12px 28px rgba(15,23,42,0.10),
+                0 24px 60px rgba(15,23,42,0.08) !important;
+}
+body:not(.dark-mode) .navbar-dropdown-item {
+    color: #0f172a !important;
+}
+body:not(.dark-mode) .navbar-dropdown-item:hover {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+}
+body:not(.dark-mode) .navbar-dropdown-role {
+    color: #475569 !important;
+    background: #f8fafc !important;
+}
+body:not(.dark-mode) .navbar-dropdown-divider { background: #e2e8f0 !important; }
+body:not(.dark-mode) .navbar-dropdown-logout { color: #ef4444 !important; }
+
+
+/* ══ 9.  DARKMODE – tiefe Hintergründe, klarer Kontrast ───────────────── */
+.dark-mode {
+    --bg-body: #0b1220;
+    --bg-card: #131c2e;
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+    --border-color: rgba(255,255,255,0.10);
+}
+.dark-mode .navbar-theme-btn {
+    border-color: rgba(255,255,255,0.14) !important;
+    color: #f1f5f9 !important;
+}
+.dark-mode .navbar-theme-btn:hover {
+    background: rgba(51,133,196,0.15) !important;
+    border-color: #3385c4 !important;
+    color: #3385c4 !important;
+}
+.dark-mode .navbar-profile-btn { border-color: rgba(255,255,255,0.14) !important; }
+.dark-mode .navbar-profile-btn:hover {
+    background: rgba(51,133,196,0.10) !important;
+    border-color: #3385c4 !important;
+}
+.dark-mode .navbar-profile-name { color: #f1f5f9 !important; }
+.dark-mode .navbar-profile-chevron { color: #94a3b8 !important; }
+.dark-mode .navbar-profile-dropdown {
+    background: #131c2e !important;
+    border-color: rgba(255,255,255,0.10) !important;
+    color: #f1f5f9 !important;
+}
+.dark-mode .navbar-dropdown-item { color: #f1f5f9 !important; }
+.dark-mode .navbar-dropdown-item:hover {
+    background: rgba(255,255,255,0.06) !important;
+    color: #f1f5f9 !important;
+}
+.dark-mode .navbar-dropdown-role {
+    color: #94a3b8 !important;
+    background: rgba(255,255,255,0.03) !important;
+}
+
+
+/* ══ 10. FORM-INPUTS IN MODALS – konsistenter Kontrast ─────────────────── */
+body:not(.dark-mode) .vc-field-input,
+body:not(.dark-mode) .inv-field-input,
+body:not(.dark-mode) .idea-field-input,
+body:not(.dark-mode) [class*="modal-body"] input[type="text"],
+body:not(.dark-mode) [class*="modal-body"] input[type="email"],
+body:not(.dark-mode) [class*="modal-body"] input[type="tel"],
+body:not(.dark-mode) [class*="modal-body"] input[type="url"],
+body:not(.dark-mode) [class*="modal-body"] input[type="number"],
+body:not(.dark-mode) [class*="modal-body"] input[type="date"],
+body:not(.dark-mode) [class*="modal-body"] textarea,
+body:not(.dark-mode) [class*="modal-body"] select {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    border-color: #cbd5e1 !important;
+    box-shadow: inset 0 1px 2px rgba(15,23,42,0.04);
+}
+body:not(.dark-mode) .vc-field-input::placeholder,
+body:not(.dark-mode) .inv-field-input::placeholder,
+body:not(.dark-mode) .idea-field-input::placeholder {
+    color: #94a3b8 !important;
+}
+body:not(.dark-mode) .vc-field-input:focus,
+body:not(.dark-mode) .inv-field-input:focus,
+body:not(.dark-mode) .idea-field-input:focus {
+    border-color: #0d9488 !important;
+    box-shadow: 0 0 0 3px rgba(13,148,136,0.18) !important;
+}
+
+.dark-mode .vc-field-input,
+.dark-mode .inv-field-input,
+.dark-mode .idea-field-input {
+    background: rgba(255,255,255,0.06) !important;
+    color: #f1f5f9 !important;
+    border-color: rgba(255,255,255,0.12) !important;
+}
+.dark-mode .vc-field-input::placeholder,
+.dark-mode .inv-field-input::placeholder,
+.dark-mode .idea-field-input::placeholder {
+    color: rgba(241,245,249,0.45) !important;
+}
+
+
+/* ══ 11. SCROLLBAR-STIL IM MODAL ──────────────────────────────────────── */
+.vc-modal-body::-webkit-scrollbar,
+.inv-modal-body::-webkit-scrollbar,
+.idea-modal-body::-webkit-scrollbar,
+[class*="modal-body"]::-webkit-scrollbar { width: 8px; }
+.vc-modal-body::-webkit-scrollbar-thumb,
+.inv-modal-body::-webkit-scrollbar-thumb,
+.idea-modal-body::-webkit-scrollbar-thumb,
+[class*="modal-body"]::-webkit-scrollbar-thumb {
+    background: rgba(100,116,139,0.35);
+    border-radius: 999px;
+}
+.dark-mode .vc-modal-body::-webkit-scrollbar-thumb,
+.dark-mode .inv-modal-body::-webkit-scrollbar-thumb,
+.dark-mode .idea-modal-body::-webkit-scrollbar-thumb,
+.dark-mode [class*="modal-body"]::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.18);
+}
+
+
+/* ══ 12. KEINE ABGESCHNITTENEN TEXTE IN DROPDOWNS / BUTTONS ──────────── */
+.navbar-dropdown-role span,
+.navbar-dropdown-item span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+/* ══ 13. LIGHTMODE – zusätzliche Kontrast-Fixes ────────────────────────
+   Das Theme hat viele "!important"-Farben auf Überschriften im Lightmode
+   (theme.css Z.1561 usw.). Hier werden die wichtigsten Komponenten
+   explizit mit höherer Spezifität auf den gewünschten Wert gezogen. */
+
+/* Body/Hintergrund sauber */
+body:not(.dark-mode) {
+    background-color: #f4f6fb !important;
+    color: #0f172a;
+}
+
+/* Cards / Tiles / Stat-Widgets */
+body:not(.dark-mode) .card,
+body:not(.dark-mode) .dash-stat-card,
+body:not(.dark-mode) .dash-helper-card,
+body:not(.dark-mode) .dash-poll-card,
+body:not(.dark-mode) .d-card,
+body:not(.dark-mode) .d-stat-card,
+body:not(.dark-mode) .d-event-item,
+body:not(.dark-mode) .d-invoice-item,
+body:not(.dark-mode) .d-blog-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #0f172a !important;
+    box-shadow: 0 1px 2px rgba(15,23,42,0.04),
+                0 2px 8px rgba(15,23,42,0.04);
+}
+
+/* Stat-Zahlen und Labels klar lesbar */
+body:not(.dark-mode) .d-stat-value,
+body:not(.dark-mode) .d-stat-number,
+body:not(.dark-mode) .dash-stat-value {
+    color: #0f172a !important;
+}
+body:not(.dark-mode) .d-stat-label,
+body:not(.dark-mode) .d-stat-caption,
+body:not(.dark-mode) .dash-stat-label {
+    color: #475569 !important;
+}
+
+/* Sections / Panel-Titel */
+body:not(.dark-mode) .d-section-title,
+body:not(.dark-mode) .d-section-subtitle,
+body:not(.dark-mode) .dash-section-title {
+    color: #0f172a !important;
+}
+
+/* Tabellen: klarer Kontrast, Zebra, Header */
+body:not(.dark-mode) table { color: #0f172a; }
+body:not(.dark-mode) table thead th {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+}
+body:not(.dark-mode) table tbody tr {
+    background: #ffffff;
+    border-bottom: 1px solid #eef2f7;
+}
+body:not(.dark-mode) table tbody tr:nth-child(even) {
+    background: #fafbfd;
+}
+body:not(.dark-mode) table tbody tr:hover {
+    background: #eef4fb;
+}
+
+/* Buttons sekundär / Outline im Lightmode lesbar machen */
+body:not(.dark-mode) .btn-secondary,
+body:not(.dark-mode) .btn-outline,
+body:not(.dark-mode) .vc-btn-secondary,
+body:not(.dark-mode) .inv-btn-secondary,
+body:not(.dark-mode) .idea-btn-secondary {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    border: 1px solid #cbd5e1 !important;
+}
+body:not(.dark-mode) .btn-secondary:hover,
+body:not(.dark-mode) .btn-outline:hover,
+body:not(.dark-mode) .vc-btn-secondary:hover,
+body:not(.dark-mode) .inv-btn-secondary:hover,
+body:not(.dark-mode) .idea-btn-secondary:hover {
+    background: #f1f5f9 !important;
+    border-color: #94a3b8 !important;
+}
+
+/* Links im Text-Kontext */
+body:not(.dark-mode) a:not(.sidebar-nav-item):not(.navbar-dropdown-item):not(.mob-dd-item):not(.btn):not(.d-quick-action) {
+    color: #0066b3;
+}
+body:not(.dark-mode) a:not(.sidebar-nav-item):not(.navbar-dropdown-item):not(.mob-dd-item):not(.btn):not(.d-quick-action):hover {
+    color: #004f8a;
+}
+
+/* Labels und Hilfetexte auf Formularen */
+body:not(.dark-mode) label,
+body:not(.dark-mode) .form-label,
+body:not(.dark-mode) .vc-field-label,
+body:not(.dark-mode) .inv-field-label,
+body:not(.dark-mode) .idea-field-label {
+    color: #0f172a !important;
+}
+body:not(.dark-mode) .form-help,
+body:not(.dark-mode) .text-muted,
+body:not(.dark-mode) small,
+body:not(.dark-mode) .vc-field-hint {
+    color: #64748b !important;
+}
+
+/* Badges im Lightmode nicht unleserlich werden lassen */
+body:not(.dark-mode) .badge,
+body:not(.dark-mode) .d-badge {
+    color: #0f172a;
+}
+body:not(.dark-mode) .badge-primary,
+body:not(.dark-mode) .role-badge {
+    color: #ffffff;
+}
+
+
+/* Footer, Impressum, Copyright im Lightmode */
+body:not(.dark-mode) footer,
+body:not(.dark-mode) footer p,
+body:not(.dark-mode) footer a,
+body:not(.dark-mode) footer span,
+body:not(.dark-mode) .footer,
+body:not(.dark-mode) .footer p,
+body:not(.dark-mode) .footer a,
+body:not(.dark-mode) .site-footer,
+body:not(.dark-mode) .site-footer p,
+body:not(.dark-mode) .site-footer a {
+    color: #334155 !important;
+}
+body:not(.dark-mode) footer a:hover,
+body:not(.dark-mode) .footer a:hover,
+body:not(.dark-mode) .site-footer a:hover {
+    color: #0066b3 !important;
+}
+
+/* Platzhaltertexte / Placeholders in Search/Inputs */
+body:not(.dark-mode) input::placeholder,
+body:not(.dark-mode) textarea::placeholder,
+body:not(.dark-mode) .search-input::placeholder {
+    color: #64748b !important;
+    opacity: 1 !important;
+}
+
+/* Page-Header Titel und Subtitles (Events/Projekte/Ideenbox usw.) */
+body:not(.dark-mode) h1,
+body:not(.dark-mode) h2,
+body:not(.dark-mode) h3,
+body:not(.dark-mode) h4 {
+    color: #0f172a;
+}
+body:not(.dark-mode) p,
+body:not(.dark-mode) li,
+body:not(.dark-mode) span.text-muted,
+body:not(.dark-mode) .description,
+body:not(.dark-mode) .subtitle {
+    color: inherit;
+}
+
+/* Filter-Chips (Alle / Intern / Extern / Aktuell usw.): unausgewählt klar */
+body:not(.dark-mode) .ev-chip,
+body:not(.dark-mode) .proj-chip,
+body:not(.dark-mode) .filter-chip {
+    color: #0f172a !important;
+    background: #ffffff !important;
+    border: 1.5px solid #e2e8f0 !important;
+}
+body:not(.dark-mode) .ev-chip--active,
+body:not(.dark-mode) .proj-chip--active,
+body:not(.dark-mode) .filter-chip--active {
+    color: #ffffff !important;
+    background: linear-gradient(135deg, var(--ibc-blue, #0066b3), #0044aa) !important;
+    border-color: transparent !important;
+}
+
+/* Empty-State (Keine Events / Keine Projekte): nicht zu blass */
+body:not(.dark-mode) .empty-state,
+body:not(.dark-mode) .empty-state *,
+body:not(.dark-mode) .ev-empty,
+body:not(.dark-mode) .ev-empty *,
+body:not(.dark-mode) .proj-empty,
+body:not(.dark-mode) .proj-empty * {
+    color: #0f172a;
+}
+body:not(.dark-mode) .empty-state .muted,
+body:not(.dark-mode) .empty-state small,
+body:not(.dark-mode) .ev-empty .muted,
+body:not(.dark-mode) .proj-empty .muted {
+    color: #475569 !important;
+}
+
+/* Event-/Projekt-Karten Detail-Meta */
+body:not(.dark-mode) .ev-card-meta,
+body:not(.dark-mode) .ev-card-meta *,
+body:not(.dark-mode) .proj-card-meta,
+body:not(.dark-mode) .proj-card-meta * {
+    color: #334155 !important;
+}
+
+
+/* ══ 14. DARKMODE – kleinere Kontrast-Auffrischungen ─────────────────── */
+.dark-mode {
+    background-color: #0b1220 !important;
+}
+.dark-mode .card,
+.dark-mode .dash-stat-card,
+.dark-mode .d-card,
+.dark-mode .d-stat-card,
+.dark-mode .d-event-item,
+.dark-mode .d-invoice-item,
+.dark-mode .d-blog-card {
+    background: #131c2e !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    color: #f1f5f9 !important;
+}
+.dark-mode table thead th {
+    background: rgba(255,255,255,0.04) !important;
+    color: #f1f5f9 !important;
+    border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+}
+.dark-mode table tbody tr {
+    background: transparent;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.dark-mode table tbody tr:hover {
+    background: rgba(255,255,255,0.04);
+}
+
+
+/* ══ 15. LIGHTMODE – Sidebar / Navigation (v2) ──────────────────────────
+   Design-Update: Im Lightmode ist die Seitenleiste hell (weiss) mit
+   dunkler Schrift – nicht mehr blau. Dunkelmodus bleibt unverändert.
+   Die endgültigen Regeln stehen weiter unten in Section 28 und in der
+   neuen Section 40 am Dateiende (höhere Kaskaden-Priorität). Hier wird
+   der frühere "sidebar immer blau"-Block bewusst entfernt, damit keine
+   konkurrierenden !important-Regeln mehr wirken. */
+
+/* Topbar / mobile-header — light */
+body:not(.dark-mode) #mobile-header,
+body:not(.dark-mode) .topbar,
+body:not(.dark-mode) header.topbar {
+    background: #ffffff !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    color: #0f172a !important;
+}
+body:not(.dark-mode) #mobile-header *,
+body:not(.dark-mode) .topbar * {
+    color: inherit;
+}
+
+/* User-dropdown in topbar — light */
+body:not(.dark-mode) .user-menu,
+body:not(.dark-mode) .user-dropdown,
+body:not(.dark-mode) .topbar .dropdown-menu {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 10px 30px rgba(15,23,42,0.12) !important;
+    color: #0f172a !important;
+}
+body:not(.dark-mode) .user-menu a,
+body:not(.dark-mode) .user-dropdown a,
+body:not(.dark-mode) .topbar .dropdown-menu a {
+    color: #0f172a !important;
+}
+body:not(.dark-mode) .user-menu a:hover,
+body:not(.dark-mode) .user-dropdown a:hover,
+body:not(.dark-mode) .topbar .dropdown-menu a:hover {
+    background: #f1f5f9 !important;
+    color: #0044aa !important;
+}
+
+
+/* ══ 16. LIGHTMODE – Modals / Overlays ───────────────────────────── */
+body:not(.dark-mode) .modal,
+body:not(.dark-mode) .modal-content,
+body:not(.dark-mode) .modal-card,
+body:not(.dark-mode) .popup,
+body:not(.dark-mode) .dialog,
+body:not(.dark-mode) [role="dialog"] > *:not(.modal-overlay):not(.popup-overlay) {
+    background: #ffffff !important;
+    color: #0f172a !important;
+}
+body:not(.dark-mode) .modal h1,
+body:not(.dark-mode) .modal h2,
+body:not(.dark-mode) .modal h3,
+body:not(.dark-mode) .modal h4,
+body:not(.dark-mode) .modal-title,
+body:not(.dark-mode) .popup h1,
+body:not(.dark-mode) .popup h2,
+body:not(.dark-mode) .popup h3 {
+    color: #0f172a !important;
+}
+body:not(.dark-mode) .modal p,
+body:not(.dark-mode) .modal label,
+body:not(.dark-mode) .popup p,
+body:not(.dark-mode) .popup label {
+    color: #334155 !important;
+}
+body:not(.dark-mode) .modal-overlay,
+body:not(.dark-mode) .popup-overlay,
+body:not(.dark-mode) .dialog-overlay {
+    background: rgba(15,23,42,0.45) !important;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+
+/* ══ 17. LIGHTMODE – Status-Badges / Pills ───────────────────────── */
+body:not(.dark-mode) .badge,
+body:not(.dark-mode) .status-badge,
+body:not(.dark-mode) .status-pill {
+    font-weight: 700;
+    border: 1px solid transparent;
+}
+body:not(.dark-mode) .badge-draft,
+body:not(.dark-mode) .status-draft {
+    background: #f1f5f9 !important;
+    color: #334155 !important;
+    border-color: #cbd5e1 !important;
+}
+body:not(.dark-mode) .badge-open,
+body:not(.dark-mode) .status-open,
+body:not(.dark-mode) .status-active {
+    background: rgba(59,130,246,0.10) !important;
+    color: #1d4ed8 !important;
+    border-color: rgba(59,130,246,0.25) !important;
+}
+body:not(.dark-mode) .badge-in_progress,
+body:not(.dark-mode) .status-in_progress,
+body:not(.dark-mode) .status-in-progress {
+    background: rgba(249,115,22,0.10) !important;
+    color: #c2410c !important;
+    border-color: rgba(249,115,22,0.25) !important;
+}
+body:not(.dark-mode) .badge-completed,
+body:not(.dark-mode) .status-completed,
+body:not(.dark-mode) .status-done {
+    background: rgba(16,185,129,0.10) !important;
+    color: #047857 !important;
+    border-color: rgba(16,185,129,0.25) !important;
+}
+body:not(.dark-mode) .badge-cancelled,
+body:not(.dark-mode) .status-cancelled,
+body:not(.dark-mode) .status-canceled {
+    background: rgba(239,68,68,0.10) !important;
+    color: #b91c1c !important;
+    border-color: rgba(239,68,68,0.25) !important;
+}
+
+
+/* ══ 18. LIGHTMODE – Links & Breadcrumbs ──────────────────────────── */
+body:not(.dark-mode) a:not(.btn):not(.button):not([class*="chip"]):not([class*="badge"]):not(.nav-link):not(.vc-btn-preview) {
+    color: #0044aa;
+}
+body:not(.dark-mode) a:not(.btn):not(.button):not([class*="chip"]):not([class*="badge"]):not(.nav-link):hover {
+    color: #00337f;
+}
+body:not(.dark-mode) .breadcrumb,
+body:not(.dark-mode) .breadcrumbs {
+    color: #475569 !important;
+}
+body:not(.dark-mode) .breadcrumb a,
+body:not(.dark-mode) .breadcrumbs a {
+    color: #0044aa !important;
+}
+
+
+/* ══ 19. RESPONSIVE – Mobil-Feinschliff (≤ 768px / ≤ 480px) ────── */
+@media (max-width: 768px) {
+    /* Verhindere horizontalen Scroll durch unerwünschten Overflow */
+    html, body {
+        overflow-x: hidden;
+        max-width: 100vw;
+    }
+
+    /* Page-Header sollte auf Mobile immer 1-spaltig sein */
+    .page-header,
+    .events-header,
+    .projects-header,
+    .dash-header {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.75rem !important;
+    }
+
+    /* Button-Gruppen im Header auf Mobile full-width stapeln */
+    .page-header .actions,
+    .events-header .actions,
+    .projects-header .actions,
+    .page-header > div:last-child {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+        width: 100% !important;
+    }
+    .page-header .actions > a,
+    .page-header .actions > button,
+    .events-header .actions > a,
+    .events-header .actions > button,
+    .projects-header .actions > a,
+    .projects-header .actions > button {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+
+    /* Tabellen scrollbar machen */
+    .table-wrap,
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    table {
+        min-width: 600px;
+    }
+
+    /* Main-Content Padding anpassen */
+    main,
+    .main-content,
+    .page-wrapper {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+
+    /* Modals auf Mobile als Bottom-Sheet */
+    .modal-content,
+    .popup,
+    .dialog:not(.vc-confirm-modal) {
+        border-radius: 1.25rem 1.25rem 0 0 !important;
+        max-width: 100% !important;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Titel etwas kleiner */
+    h1 { font-size: 1.4rem !important; }
+    h2 { font-size: 1.15rem !important; }
+
+    /* Karten weniger Padding */
+    .card,
+    .d-card {
+        padding: 1rem !important;
+    }
+
+    /* Filter-Chip-Bar darf umbrechen */
+    .filter-row,
+    .chip-row,
+    .ev-chips,
+    .proj-chips {
+        flex-wrap: wrap !important;
+        gap: 0.4rem !important;
+    }
+
+    /* Stat-Grid immer 2-spaltig, nie kleiner */
+    .stat-grid,
+    .d-stat-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.75rem !important;
+    }
+}
+
+@media (max-width: 360px) {
+    /* Sehr kleine Geräte: Stat-Grid 1-spaltig */
+    .stat-grid,
+    .d-stat-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+
+/* ══ 20. RESPONSIVE – Sidebar-Overlay Finetuning ────────────────── */
+@media (max-width: 1024px) {
+    /* Wenn Sidebar offen, weich dahinter dimmen */
+    body.sidebar-open::after {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background: rgba(15,23,42,0.45);
+        backdrop-filter: blur(2px);
+        -webkit-backdrop-filter: blur(2px);
+        z-index: 40;
+        pointer-events: none;
+        animation: ui-fix-fade-in 0.2s ease-out;
+    }
+    @keyframes ui-fix-fade-in {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+    }
+}
+
+
+/* ══ 21. LIGHTMODE – Buttons / Inputs / Cards polish ────────────── */
+
+/* Primär-Buttons: konsistente Gradient + Hover-Lift */
+body:not(.dark-mode) .btn-primary,
+body:not(.dark-mode) .button-primary,
+body:not(.dark-mode) button[type="submit"]:not(.vc-modal-save):not(.vc-confirm-delete),
+body:not(.dark-mode) .btn.btn-blue,
+body:not(.dark-mode) .btn-create {
+    background: linear-gradient(135deg, #0066b3 0%, #0044aa 100%) !important;
+    color: #ffffff !important;
+    border: none !important;
+    font-weight: 600 !important;
+    box-shadow: 0 4px 12px -4px rgba(0,102,179,0.45) !important;
+    transition: transform 0.15s, box-shadow 0.2s, filter 0.2s !important;
+}
+body:not(.dark-mode) .btn-primary:hover,
+body:not(.dark-mode) .button-primary:hover,
+body:not(.dark-mode) button[type="submit"]:not(.vc-modal-save):not(.vc-confirm-delete):hover,
+body:not(.dark-mode) .btn.btn-blue:hover,
+body:not(.dark-mode) .btn-create:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px -6px rgba(0,102,179,0.55) !important;
+    filter: brightness(1.05);
+}
+
+/* Sekundär-Buttons */
+body:not(.dark-mode) .btn-secondary,
+body:not(.dark-mode) .button-secondary,
+body:not(.dark-mode) .btn-outline {
+    background: #ffffff !important;
+    color: #0044aa !important;
+    border: 1.5px solid #cbd5e1 !important;
+    font-weight: 600 !important;
+    transition: border-color 0.2s, color 0.2s, background 0.2s !important;
+}
+body:not(.dark-mode) .btn-secondary:hover,
+body:not(.dark-mode) .button-secondary:hover,
+body:not(.dark-mode) .btn-outline:hover {
+    border-color: #0066b3 !important;
+    background: #f1f5f9 !important;
+}
+
+/* Gefährliche Aktionen (Löschen) */
+body:not(.dark-mode) .btn-danger,
+body:not(.dark-mode) .button-danger,
+body:not(.dark-mode) .btn-delete {
+    background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+    color: #ffffff !important;
+    border: none !important;
+    font-weight: 600 !important;
+    box-shadow: 0 4px 12px -4px rgba(239,68,68,0.45) !important;
+}
+
+/* Text-Inputs / Selects / Textareas im Lightmode einheitlich */
+body:not(.dark-mode) input[type="text"],
+body:not(.dark-mode) input[type="email"],
+body:not(.dark-mode) input[type="url"],
+body:not(.dark-mode) input[type="tel"],
+body:not(.dark-mode) input[type="search"],
+body:not(.dark-mode) input[type="password"],
+body:not(.dark-mode) input[type="number"],
+body:not(.dark-mode) input[type="date"],
+body:not(.dark-mode) input[type="datetime-local"],
+body:not(.dark-mode) select,
+body:not(.dark-mode) textarea {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    border: 1.5px solid #e2e8f0 !important;
+    border-radius: 10px;
+    transition: border-color 0.18s, box-shadow 0.18s !important;
+}
+body:not(.dark-mode) input[type="text"]:focus,
+body:not(.dark-mode) input[type="email"]:focus,
+body:not(.dark-mode) input[type="url"]:focus,
+body:not(.dark-mode) input[type="tel"]:focus,
+body:not(.dark-mode) input[type="search"]:focus,
+body:not(.dark-mode) input[type="password"]:focus,
+body:not(.dark-mode) input[type="number"]:focus,
+body:not(.dark-mode) input[type="date"]:focus,
+body:not(.dark-mode) input[type="datetime-local"]:focus,
+body:not(.dark-mode) select:focus,
+body:not(.dark-mode) textarea:focus {
+    border-color: #0066b3 !important;
+    box-shadow: 0 0 0 3px rgba(0,102,179,0.12) !important;
+    outline: none !important;
+}
+
+/* Card-Schatten dezent statt plakativ */
+body:not(.dark-mode) .card,
+body:not(.dark-mode) .dashboard-card,
+body:not(.dark-mode) .d-card,
+body:not(.dark-mode) .d-stat-card,
+body:not(.dark-mode) .ev-card,
+body:not(.dark-mode) .proj-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 1px 3px rgba(15,23,42,0.04), 0 4px 12px -6px rgba(15,23,42,0.06) !important;
+}
+body:not(.dark-mode) .card:hover,
+body:not(.dark-mode) .ev-card:hover,
+body:not(.dark-mode) .proj-card:hover {
+    box-shadow: 0 6px 20px -8px rgba(0,102,179,0.18), 0 2px 6px rgba(15,23,42,0.06) !important;
+}
+
+
+/* ══ 22. SCROLLBAR Polish (Browser-übergreifend dezent) ────────── */
+body:not(.dark-mode) {
+    scrollbar-color: #cbd5e1 #f1f5f9;
+    scrollbar-width: thin;
+}
+body:not(.dark-mode) ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+body:not(.dark-mode) ::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+body:not(.dark-mode) ::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 6px;
+    border: 2px solid #f1f5f9;
+}
+body:not(.dark-mode) ::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+.dark-mode {
+    scrollbar-color: rgba(255,255,255,0.15) rgba(255,255,255,0.03);
+    scrollbar-width: thin;
+}
+.dark-mode ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+.dark-mode ::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.03);
+}
+.dark-mode ::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.15);
+    border-radius: 6px;
+}
+.dark-mode ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.25);
+}
+
+
+/* ══ 23. MICRO-ANIMATIONEN – Cards & Buttons Einblenden ────────── */
+@keyframes ui-fix-card-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0);   }
+}
+.card, .ev-card, .proj-card, .d-card, .d-stat-card, .vc-card {
+    animation: ui-fix-card-in 0.4s cubic-bezier(0.22, 0.68, 0, 1.2) both;
+}
+/* Staffelung für erste Elemente */
+.card:nth-child(1), .ev-card:nth-child(1), .proj-card:nth-child(1), .d-card:nth-child(1), .d-stat-card:nth-child(1) { animation-delay: 0.03s; }
+.card:nth-child(2), .ev-card:nth-child(2), .proj-card:nth-child(2), .d-card:nth-child(2), .d-stat-card:nth-child(2) { animation-delay: 0.06s; }
+.card:nth-child(3), .ev-card:nth-child(3), .proj-card:nth-child(3), .d-card:nth-child(3), .d-stat-card:nth-child(3) { animation-delay: 0.09s; }
+.card:nth-child(4), .ev-card:nth-child(4), .proj-card:nth-child(4), .d-card:nth-child(4), .d-stat-card:nth-child(4) { animation-delay: 0.12s; }
+
+
+/* ══ 24. RESPONSIVE – Tablet-Breakpoint (769 – 1024 px) ────────── */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .stat-grid,
+    .d-stat-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+    .vc-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+    /* Page-Padding etwas reduzieren */
+    main, .main-content, .page-wrapper {
+        padding-left: 1.25rem !important;
+        padding-right: 1.25rem !important;
+    }
+}
+
+
+/* ══ 25. REDUCED MOTION – Respekt für Accessibility ───────────── */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   26. LIGHT-/DARKMODE POLISH – weitere Feinschliffe (Runde 2)
+       - Inhalts-Kontrast in Cards verbessert
+       - Tabellen-Header / -Zellen konsistent
+       - Form-Feld-Fokus bündig über Theme
+       - Dropdown-Menü & Tooltip-Kontrast
+       - Sticky-Header Glasmorphism in beiden Modi
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Lightmode: Card-Inhalte lesbarer ─────────────────────────── */
+body:not(.dark-mode) .card,
+body:not(.dark-mode) .d-card,
+body:not(.dark-mode) .ev-card,
+body:not(.dark-mode) .proj-card,
+body:not(.dark-mode) .vc-card {
+    background: #ffffff !important;
+    border: 1px solid rgba(15, 23, 42, 0.08) !important;
+    box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.06),
+                0 8px 24px -12px rgba(15, 23, 42, 0.08) !important;
+    color: #0f172a;
+}
+body:not(.dark-mode) .card:hover,
+body:not(.dark-mode) .d-card:hover,
+body:not(.dark-mode) .ev-card:hover,
+body:not(.dark-mode) .proj-card:hover,
+body:not(.dark-mode) .vc-card:hover {
+    border-color: rgba(79, 70, 229, 0.25) !important;
+    box-shadow: 0 6px 14px -4px rgba(15, 23, 42, 0.10),
+                0 16px 40px -16px rgba(15, 23, 42, 0.14) !important;
+    transform: translateY(-2px);
+}
+
+/* ── Darkmode: Card-Inhalte mit dezenterer Trennung ───────────── */
+body.dark-mode .card,
+body.dark-mode .d-card,
+body.dark-mode .ev-card,
+body.dark-mode .proj-card,
+body.dark-mode .vc-card {
+    background: #1e293b !important;
+    border: 1px solid rgba(255, 255, 255, 0.07) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25),
+                0 12px 30px -14px rgba(0, 0, 0, 0.5) !important;
+}
+body.dark-mode .card:hover,
+body.dark-mode .d-card:hover,
+body.dark-mode .ev-card:hover,
+body.dark-mode .proj-card:hover,
+body.dark-mode .vc-card:hover {
+    border-color: rgba(147, 197, 253, 0.25) !important;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35),
+                0 18px 40px -16px rgba(0, 0, 0, 0.55) !important;
+}
+
+/* ── Tabellen: beide Modi ─────────────────────────────────────── */
+body:not(.dark-mode) table thead th {
+    background: #f1f5f9 !important;
+    color: #1e293b !important;
+    border-bottom: 2px solid #cbd5e1 !important;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+}
+body:not(.dark-mode) table tbody tr:nth-child(even) td {
+    background: #fafbfc !important;
+}
+body:not(.dark-mode) table tbody tr:hover td {
+    background: #eef2ff !important;
+}
+body.dark-mode table thead th {
+    background: #0f172a !important;
+    color: #e2e8f0 !important;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.08) !important;
+}
+body.dark-mode table tbody tr:nth-child(even) td {
+    background: rgba(255, 255, 255, 0.02) !important;
+}
+body.dark-mode table tbody tr:hover td {
+    background: rgba(59, 130, 246, 0.08) !important;
+}
+
+/* ── Form-Feld-Fokus konsistent ───────────────────────────────── */
+body:not(.dark-mode) input:focus,
+body:not(.dark-mode) textarea:focus,
+body:not(.dark-mode) select:focus,
+body:not(.dark-mode) .form-control:focus,
+body:not(.dark-mode) .vc-field-input:focus {
+    outline: none !important;
+    border-color: #4f46e5 !important;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.18) !important;
+}
+body.dark-mode input:focus,
+body.dark-mode textarea:focus,
+body.dark-mode select:focus,
+body.dark-mode .form-control:focus,
+body.dark-mode .vc-field-input:focus {
+    outline: none !important;
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
+    background: #0f172a !important;
+}
+
+/* ── Dropdown & Tooltip Kontrast ──────────────────────────────── */
+body:not(.dark-mode) .dropdown-menu,
+body:not(.dark-mode) .context-menu,
+body:not(.dark-mode) .menu {
+    background: #ffffff !important;
+    border: 1px solid rgba(15, 23, 42, 0.10) !important;
+    box-shadow: 0 12px 40px -10px rgba(15, 23, 42, 0.18) !important;
+    color: #1e293b !important;
+}
+body.dark-mode .dropdown-menu,
+body.dark-mode .context-menu,
+body.dark-mode .menu {
+    background: #1e293b !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 12px 40px -10px rgba(0, 0, 0, 0.55) !important;
+    color: #e2e8f0 !important;
+}
+
+body:not(.dark-mode) [data-tooltip]::after,
+body:not(.dark-mode) .tooltip {
+    background: #1e293b !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 20px -4px rgba(0, 0, 0, 0.4);
+}
+body.dark-mode [data-tooltip]::after,
+body.dark-mode .tooltip {
+    background: #f8fafc !important;
+    color: #0f172a !important;
+    box-shadow: 0 6px 20px -4px rgba(0, 0, 0, 0.6);
+}
+
+/* ── Sticky-Header / Topbar Glasmorphism ──────────────────────── */
+body:not(.dark-mode) .topbar,
+body:not(.dark-mode) .page-header,
+body:not(.dark-mode) header.app-header {
+    background: rgba(255, 255, 255, 0.82) !important;
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border-bottom: 1px solid rgba(15, 23, 42, 0.07) !important;
+}
+body.dark-mode .topbar,
+body.dark-mode .page-header,
+body.dark-mode header.app-header {
+    background: rgba(15, 23, 42, 0.75) !important;
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+/* ── Selection-Farben angleichen ──────────────────────────────── */
+body:not(.dark-mode) ::selection {
+    background: rgba(79, 70, 229, 0.25);
+    color: #0f172a;
+}
+body.dark-mode ::selection {
+    background: rgba(99, 102, 241, 0.45);
+    color: #f1f5f9;
+}
+
+/* ── Buttons im Lightmode: etwas mehr Tiefe + smoother Hover ──── */
+body:not(.dark-mode) .btn,
+body:not(.dark-mode) button.btn-primary,
+body:not(.dark-mode) .btn-primary {
+    box-shadow: 0 4px 12px -4px rgba(79, 70, 229, 0.35);
+    transition: transform 0.15s ease, box-shadow 0.25s ease, filter 0.2s ease;
+}
+body:not(.dark-mode) .btn:hover,
+body:not(.dark-mode) button.btn-primary:hover,
+body:not(.dark-mode) .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px -6px rgba(79, 70, 229, 0.45);
+    filter: brightness(1.02);
+}
+
+/* ── Secondary-Text im Lightmode lesbarer ─────────────────────── */
+body:not(.dark-mode) .text-muted,
+body:not(.dark-mode) .muted,
+body:not(.dark-mode) small {
+    color: #475569 !important;
+}
+body.dark-mode .text-muted,
+body.dark-mode .muted,
+body.dark-mode small {
+    color: #94a3b8 !important;
+}
+
+/* ── Fokus-Ring global sichtbar (Accessibility) ──────────────── */
+:focus-visible {
+    outline-offset: 3px;
+}
+body:not(.dark-mode) a:focus-visible,
+body:not(.dark-mode) button:focus-visible {
+    outline: 3px solid rgba(79, 70, 229, 0.45);
+}
+body.dark-mode a:focus-visible,
+body.dark-mode button:focus-visible {
+    outline: 3px solid rgba(147, 197, 253, 0.55);
+}
+
+/* ── Empty-States / No-Results mit dezentem Background ───────── */
+body:not(.dark-mode) .empty-state,
+body:not(.dark-mode) .no-results,
+body:not(.dark-mode) #vc-no-results {
+    background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%) !important;
+    border: 1px dashed rgba(79, 70, 229, 0.25) !important;
+    color: #475569 !important;
+}
+body.dark-mode .empty-state,
+body.dark-mode .no-results,
+body.dark-mode #vc-no-results {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.6) 100%) !important;
+    border: 1px dashed rgba(147, 197, 253, 0.25) !important;
+    color: #cbd5e1 !important;
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   27. BREITE RESPONSIVE-ERWEITERUNG – 4K / Ultra-Wide
+   ══════════════════════════════════════════════════════════════ */
+@media (min-width: 1600px) {
+    .vc-grid,
+    .d-stat-grid,
+    .stat-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+    }
+    main, .main-content, .page-wrapper {
+        max-width: 1560px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+@media (min-width: 2200px) {
+    main, .main-content, .page-wrapper {
+        max-width: 1800px;
+    }
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   28. LIGHTMODE – Sidebar polish + active state
+   Behebt: riesiger weisser "Pille"-Hintergrund hinter Home-Icon,
+   IBC-Logo wirkt verloren, Icons zu schwach. Sorgt für klar
+   abgegrenzte, hierarchisch lesbare Navigation im Lightmode.
+   ══════════════════════════════════════════════════════════════ */
+body:not(.dark-mode) .sidebar,
+body:not(.dark-mode) #sidebar,
+body:not(.dark-mode) aside.sidebar {
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+    border-right: 1px solid #e2e8f0 !important;
+    box-shadow: 1px 0 0 rgba(15,23,42,0.04), 4px 0 24px rgba(15,23,42,0.04) !important;
+}
+body:not(.dark-mode) .sidebar .sidebar-logo,
+body:not(.dark-mode) .sidebar .logo-wrap,
+body:not(.dark-mode) .sidebar .brand {
+    padding: 1.25rem 1rem .875rem !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    margin-bottom: .5rem !important;
+}
+body:not(.dark-mode) .sidebar a,
+body:not(.dark-mode) .sidebar .nav-item,
+body:not(.dark-mode) .sidebar .menu-item {
+    color: #475569 !important;
+    border-radius: .625rem !important;
+    margin: .15rem .5rem !important;
+    padding: .55rem .75rem !important;
+    font-weight: 500 !important;
+    transition: background .18s ease, color .18s ease, transform .18s ease !important;
+}
+body:not(.dark-mode) .sidebar a i,
+body:not(.dark-mode) .sidebar .nav-item i,
+body:not(.dark-mode) .sidebar .menu-item i {
+    color: #64748b !important;
+    width: 1.25rem !important;
+    text-align: center !important;
+    transition: color .18s ease !important;
+}
+body:not(.dark-mode) .sidebar a:hover,
+body:not(.dark-mode) .sidebar .nav-item:hover,
+body:not(.dark-mode) .sidebar .menu-item:hover {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+    transform: translateX(2px);
+}
+body:not(.dark-mode) .sidebar a:hover i,
+body:not(.dark-mode) .sidebar .nav-item:hover i {
+    color: #2563eb !important;
+}
+/* Active-Link – moderate Pille statt riesiger weisser Block */
+body:not(.dark-mode) .sidebar a.active,
+body:not(.dark-mode) .sidebar .nav-item.active,
+body:not(.dark-mode) .sidebar .menu-item.active,
+body:not(.dark-mode) .sidebar a[aria-current="page"] {
+    background: linear-gradient(135deg, rgba(37,99,235,0.10), rgba(16,185,129,0.10)) !important;
+    color: #1e3a8a !important;
+    font-weight: 700 !important;
+    box-shadow: inset 3px 0 0 #2563eb !important;
+}
+body:not(.dark-mode) .sidebar a.active i,
+body:not(.dark-mode) .sidebar .nav-item.active i {
+    color: #2563eb !important;
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   29. LIGHTMODE – Welcome-/Hero-Banner Inhalte
+   Sorgt für satte Lesbarkeit auf dem blau→grünen Gradient,
+   Buttons im Banner mit klarem Glassmorphism statt blass.
+   ══════════════════════════════════════════════════════════════ */
+body:not(.dark-mode) .welcome-hero,
+body:not(.dark-mode) .dash-hero,
+body:not(.dark-mode) .d-hero {
+    box-shadow:
+        0 1px 0 rgba(255,255,255,.4) inset,
+        0 12px 40px -12px rgba(37,99,235,.45) !important;
+    border-radius: 1.25rem !important;
+}
+body:not(.dark-mode) .welcome-hero h1,
+body:not(.dark-mode) .dash-hero h1,
+body:not(.dark-mode) .d-hero h1 {
+    text-shadow: 0 2px 14px rgba(0,0,0,.18) !important;
+    color: #ffffff !important;
+}
+body:not(.dark-mode) .welcome-hero p,
+body:not(.dark-mode) .welcome-hero .subtitle,
+body:not(.dark-mode) .dash-hero .subtitle {
+    color: rgba(255,255,255,0.92) !important;
+    text-shadow: 0 1px 6px rgba(0,0,0,.14) !important;
+}
+/* Quick-action chips im Hero (Events, Inventar, Rechnungen…) */
+body:not(.dark-mode) .welcome-hero .chip,
+body:not(.dark-mode) .welcome-hero .quick-action,
+body:not(.dark-mode) .dash-hero .chip,
+body:not(.dark-mode) .d-hero .chip,
+body:not(.dark-mode) .welcome-hero a[class*="btn"],
+body:not(.dark-mode) .dash-hero a[class*="btn"] {
+    background: rgba(255,255,255,0.18) !important;
+    backdrop-filter: blur(8px) saturate(140%);
+    -webkit-backdrop-filter: blur(8px) saturate(140%);
+    border: 1px solid rgba(255,255,255,0.32) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    box-shadow: 0 4px 14px rgba(15,23,42,0.10) !important;
+    transition: transform .18s ease, background .18s ease, box-shadow .18s ease !important;
+}
+body:not(.dark-mode) .welcome-hero .chip:hover,
+body:not(.dark-mode) .welcome-hero a[class*="btn"]:hover {
+    background: rgba(255,255,255,0.30) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 22px rgba(15,23,42,0.18) !important;
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   30. LIGHTMODE – Stat-Karten & Profil-Vervollständigen
+   Klarer Schatten + accent-line. Fixt das "blass"-Problem.
+   ══════════════════════════════════════════════════════════════ */
+body:not(.dark-mode) .stat-card,
+body:not(.dark-mode) .d-stat-card,
+body:not(.dark-mode) .summary-card,
+body:not(.dark-mode) .info-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 1rem !important;
+    box-shadow:
+        0 1px 0 rgba(255,255,255,.6) inset,
+        0 6px 18px -6px rgba(15,23,42,.08) !important;
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease !important;
+}
+body:not(.dark-mode) .stat-card:hover,
+body:not(.dark-mode) .d-stat-card:hover,
+body:not(.dark-mode) .summary-card:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 1px 0 rgba(255,255,255,.6) inset,
+        0 12px 28px -10px rgba(15,23,42,.16) !important;
+    border-color: #cbd5e1 !important;
+}
+body:not(.dark-mode) .stat-card .stat-value,
+body:not(.dark-mode) .d-stat-card .stat-value,
+body:not(.dark-mode) .stat-card .value,
+body:not(.dark-mode) .stat-card .number {
+    color: #0f172a !important;
+    font-weight: 800 !important;
+}
+body:not(.dark-mode) .stat-card .stat-label,
+body:not(.dark-mode) .d-stat-card .stat-label,
+body:not(.dark-mode) .stat-card .label {
+    color: #64748b !important;
+    font-weight: 600 !important;
+}
+/* Profile-completion Karte – Donut + Button */
+body:not(.dark-mode) .profile-completion .progress-text,
+body:not(.dark-mode) .profile-completion .percentage {
+    color: #1e3a8a !important;
+    font-weight: 700 !important;
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   31. RESPONSIVE / MOBILE – Topbar-Dropdown overlap fix
+   Behebt: User-Menü überlagert "Mitglieder"-Titel und Suchleiste.
+   Ursache: Dropdown hatte nicht genug z-index oder transparenten
+   Hintergrund. Hier: solider Hintergrund, Backdrop-Shadow + Scrim.
+   ══════════════════════════════════════════════════════════════ */
+.user-menu,
+.user-dropdown,
+.topbar .dropdown-menu,
+#userDropdown,
+#mobile-user-menu {
+    z-index: 1090 !important;
+    background-color: #ffffff;
+    border: 1px solid rgba(15,23,42,.08);
+    border-radius: 0.875rem;
+    box-shadow:
+        0 1px 0 rgba(255,255,255,.7) inset,
+        0 14px 38px -14px rgba(15,23,42,.32),
+        0 6px 16px -8px rgba(15,23,42,.20) !important;
+    overflow: hidden;
+}
+body.dark-mode .user-menu,
+body.dark-mode .user-dropdown,
+body.dark-mode .topbar .dropdown-menu,
+body.dark-mode #userDropdown,
+body.dark-mode #mobile-user-menu {
+    background-color: #1e293b !important;
+    border-color: rgba(148,163,184,.18) !important;
+    box-shadow:
+        0 1px 0 rgba(255,255,255,.05) inset,
+        0 14px 38px -14px rgba(0,0,0,.55),
+        0 6px 16px -8px rgba(0,0,0,.40) !important;
+    color: #e2e8f0 !important;
+}
+/* Mobile: dropdown soll keinen Inhalt darunter "durchscheinen" lassen */
+@media (max-width: 768px) {
+    .user-menu,
+    .user-dropdown,
+    .topbar .dropdown-menu,
+    #userDropdown,
+    #mobile-user-menu {
+        position: absolute !important;
+        top: calc(100% + .5rem) !important;
+        right: .75rem !important;
+        left: auto !important;
+        min-width: 16rem !important;
+        max-width: calc(100vw - 1.5rem) !important;
+        background-color: #ffffff !important; /* MUST be opaque on mobile */
+    }
+    body.dark-mode .user-menu,
+    body.dark-mode .user-dropdown,
+    body.dark-mode .topbar .dropdown-menu,
+    body.dark-mode #userDropdown,
+    body.dark-mode #mobile-user-menu {
+        background-color: #0f172a !important;
+    }
+    /* Backdrop-Scrim, damit Inhalt dahinter abgedunkelt wird */
+    .user-menu.open::before,
+    .user-dropdown.open::before,
+    #userDropdown.open::before,
+    #mobile-user-menu.open::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background: rgba(15,23,42,.42);
+        z-index: -1;
+        backdrop-filter: blur(2px);
+        -webkit-backdrop-filter: blur(2px);
+        animation: ui-scrim-in .18s ease both;
+    }
+    body.dark-mode .user-menu.open::before,
+    body.dark-mode .user-dropdown.open::before,
+    body.dark-mode #userDropdown.open::before,
+    body.dark-mode #mobile-user-menu.open::before {
+        background: rgba(0,0,0,.55);
+    }
+}
+@keyframes ui-scrim-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   32. RESPONSIVE – Mobile topbar: nicht zu hoch, kein Überlauf
+   ══════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+    #mobile-header,
+    .topbar,
+    header.topbar {
+        min-height: 56px !important;
+        padding: .5rem .75rem !important;
+        gap: .5rem !important;
+    }
+    /* Hamburger-, Settings-, Profil-Buttons gleichgrosse Touch-Targets */
+    #mobile-header button,
+    .topbar .icon-btn,
+    .topbar .btn-icon {
+        width: 40px !important;
+        height: 40px !important;
+        min-width: 40px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: .625rem !important;
+    }
+    /* Profile-Pill rechts */
+    #mobile-header .user-trigger,
+    .topbar .user-trigger,
+    .topbar .profile-trigger {
+        max-width: 40vw !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }
+    /* Page-Header darunter: gar kein Übergreifen mehr */
+    .page-wrapper,
+    main,
+    .main-content {
+        padding-top: max(.75rem, env(safe-area-inset-top)) !important;
+    }
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   33. POLISH – Mitglieder-Karten (Member cards) auf Mobil
+   Cards bleiben kompakt, Profilbild-Halo proportional.
+   ══════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+    .member-card,
+    .alumni-card,
+    .members-card,
+    [class*="member-card"] {
+        border-radius: 1rem !important;
+        margin-bottom: .875rem !important;
+    }
+    .member-card .member-avatar,
+    .alumni-card .alumni-avatar,
+    .members-card img.profile,
+    .member-card img.profile-photo {
+        width: 96px !important;
+        height: 96px !important;
+        border-radius: 50% !important;
+    }
+    .member-card h3,
+    .alumni-card h3 {
+        font-size: 1.125rem !important;
+        line-height: 1.25 !important;
+        margin-top: .5rem !important;
+    }
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   34. DEDUPE – doppelte Akzent-Bars / Doppel-Schatten
+   Manche Karten hatten zwei "::before"-Akzent-Linien (Migration
+   leftover). Wir neutralisieren das hier defensiv.
+   ══════════════════════════════════════════════════════════════ */
+.stat-card + .stat-card-accent,
+.summary-card + .summary-card-accent {
+    display: none !important;
+}
+.stat-card::after.legacy-line,
+.summary-card::after.legacy-line {
+    display: none !important;
+}
+/* Doppelte page-titles in Hero+Page-Header – hide den Page-Header H1
+   wenn ein Hero direkt darüber sitzt mit derselben Aufschrift */
+.welcome-hero + .page-header > h1.dup,
+.dash-hero    + .page-header > h1.dup {
+    display: none !important;
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   35. RESPONSIVE – Page-Wrapper Padding gegen Sidebar-Überlapp
+   ══════════════════════════════════════════════════════════════ */
+@media (min-width: 1024px) {
+    body:not(.sidebar-collapsed) .page-wrapper,
+    body:not(.sidebar-collapsed) main.with-sidebar,
+    body:not(.sidebar-collapsed) .main-content {
+        padding-left: clamp(1.25rem, 2vw, 2rem) !important;
+        padding-right: clamp(1.25rem, 2vw, 2rem) !important;
+    }
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   36. LIGHTMODE – Darkmode-Toggle im Profil-Dropdown
+   Der "Darkmode"-Schalter war zu blass.
+   ══════════════════════════════════════════════════════════════ */
+body:not(.dark-mode) .user-menu .theme-toggle,
+body:not(.dark-mode) .user-dropdown .theme-toggle,
+body:not(.dark-mode) #darkModeToggle {
+    color: #0f172a !important;
+}
+body:not(.dark-mode) .user-menu .theme-toggle .toggle-track,
+body:not(.dark-mode) .user-dropdown .theme-toggle .toggle-track {
+    background: #e2e8f0 !important;
+    border: 1px solid #cbd5e1 !important;
+}
+body.dark-mode .user-menu .theme-toggle .toggle-track,
+body.dark-mode .user-dropdown .theme-toggle .toggle-track {
+    background: #2563eb !important;
+    border-color: #1d4ed8 !important;
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   37. MOBILE TOPBAR – Premium-Politur
+   Die flache blaue Leiste wirkte zu schlicht. Wir heben sie mit
+   einem Gradienten, subtilen Akzent-Highlights und einer feinen
+   Unterkante (die wie ein Schatten wirkt) an.
+   ══════════════════════════════════════════════════════════════ */
+@media (max-width: 767.98px) {
+    #mobile-header,
+    .mobile-topbar {
+        background: linear-gradient(
+            135deg,
+            #003d6b 0%,
+            #00457d 45%,
+            #0066b3 100%
+        ) !important;
+        box-shadow:
+            0 2px 14px rgba(0, 30, 70, 0.22),
+            0 1px 0 rgba(255, 255, 255, 0.08) inset !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+        position: relative;
+    }
+
+    /* Zarter Glanz-Akzent quer über die Topbar */
+    #mobile-header::after,
+    .mobile-topbar::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.06) 0%,
+            transparent 65%
+        );
+        z-index: 0;
+    }
+    /* Alle Buttons und Kontrollen über dem Akzent */
+    #mobile-header > *,
+    .mobile-topbar > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* mob-btn: leicht glasig + Fokus-Ring verfeinert */
+    #mobile-header .mob-btn,
+    .mobile-topbar .mob-btn {
+        background: rgba(255, 255, 255, 0.14) !important;
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        transition: background 0.18s ease, transform 0.15s ease !important;
+    }
+    #mobile-header .mob-btn:hover,
+    #mobile-header .mob-btn:active,
+    .mobile-topbar .mob-btn:hover,
+    .mobile-topbar .mob-btn:active {
+        background: rgba(255, 255, 255, 0.24) !important;
+        transform: translateY(-1px);
+    }
+
+    /* Profilbutton: sichtbarere Kapsel */
+    #mobile-header .mob-profile-btn,
+    .mobile-topbar .mob-profile-btn {
+        background: rgba(255, 255, 255, 0.18) !important;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 2px 8px rgba(0, 20, 50, 0.18);
+        transition:
+            background 0.18s ease,
+            transform 0.15s ease,
+            box-shadow 0.2s ease !important;
+    }
+    #mobile-header .mob-profile-btn:hover,
+    .mobile-topbar .mob-profile-btn:hover,
+    #mobile-header .mob-profile-btn[aria-expanded="true"],
+    .mobile-topbar .mob-profile-btn[aria-expanded="true"] {
+        background: rgba(255, 255, 255, 0.28) !important;
+        box-shadow:
+            0 4px 14px rgba(0, 20, 50, 0.28),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+    }
+    #mobile-header .mob-profile-btn .mob-avatar,
+    .mobile-topbar .mob-profile-btn .mob-avatar {
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35);
+    }
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   38. MOBILE PROFILE DROPDOWN – klarere Abgrenzung zur Seite
+   Vorher lagen die Page-Content-Chips sichtbar unter/neben dem
+   Dropdown (zu wenig Kontrast, zu wenig Schatten). Jetzt: starker
+   Schatten, fester Hintergrund, mehr Abstand zur Topbar.
+   ══════════════════════════════════════════════════════════════ */
+#mob-profile-dropdown {
+    /* Sicherheit – überschreibt altes inline/ui */
+    z-index: 1200 !important;
+    background: #ffffff !important;
+    border: 1px solid rgba(15, 23, 42, 0.08) !important;
+    box-shadow:
+        0 24px 60px -12px rgba(15, 23, 42, 0.28),
+        0 12px 24px -8px rgba(15, 23, 42, 0.18),
+        0 0 0 1px rgba(255, 255, 255, 0.6) inset !important;
+    margin-top: 0.25rem;
+    overflow: hidden;
+}
+
+body.dark-mode #mob-profile-dropdown {
+    background: #0f172a !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow:
+        0 24px 60px -12px rgba(0, 0, 0, 0.65),
+        0 12px 24px -8px rgba(0, 0, 0, 0.45) !important;
+}
+
+/* Wenn das Dropdown offen ist, Seiteninhalt hinter einem subtilen
+   Scrim verstecken – das beseitigt das "Chip scheint durch"-Gefühl */
+#mob-profile-dropdown.open::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    top: calc(var(--topbar-height) + env(safe-area-inset-top, 0px));
+    background: rgba(15, 23, 42, 0.18);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    z-index: -1;
+    pointer-events: none;
+    animation: mob-dd-scrim-in 0.18s ease-out both;
+}
+
+@keyframes mob-dd-scrim-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* Dropdown-Items: mehr "Tap-Feel" + klarere Ränder */
+#mob-profile-dropdown .mob-dd-header {
+    background: linear-gradient(
+        135deg,
+        rgba(0, 102, 179, 0.06) 0%,
+        rgba(16, 185, 129, 0.04) 100%
+    );
+}
+body.dark-mode #mob-profile-dropdown .mob-dd-header {
+    background: linear-gradient(
+        135deg,
+        rgba(59, 130, 246, 0.14) 0%,
+        rgba(16, 185, 129, 0.08) 100%
+    );
+    border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+#mob-profile-dropdown .mob-dd-item {
+    transition: background 0.15s ease, color 0.15s ease, padding-left 0.15s ease;
+}
+#mob-profile-dropdown .mob-dd-item:hover,
+#mob-profile-dropdown .mob-dd-item:focus-visible {
+    background: rgba(0, 102, 179, 0.08) !important;
+    padding-left: 1.15rem;
+    outline: none;
+}
+#mob-profile-dropdown .mob-dd-item--logout:hover,
+#mob-profile-dropdown .mob-dd-item--logout:focus-visible {
+    background: rgba(239, 68, 68, 0.08) !important;
+    color: #dc2626 !important;
+}
+body.dark-mode #mob-profile-dropdown .mob-dd-item:hover {
+    background: rgba(255, 255, 255, 0.06) !important;
+}
+body.dark-mode #mob-profile-dropdown .mob-dd-item--logout:hover {
+    background: rgba(239, 68, 68, 0.14) !important;
+    color: #fca5a5 !important;
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   39. RESPONSIVE – Page-Content nicht unter die Topbar rutschen
+   Fix: genügend Platz für fixed Topbar + Safe-Area einhalten.
+   Einige Module hatten zu knappen Top-Abstand und der Seiten-
+   inhalt (z. B. "Mitglieder"-Chips) erschien neben dem Burger.
+   ══════════════════════════════════════════════════════════════ */
+@media (max-width: 767.98px) {
+    body {
+        padding-top: 0 !important;
+    }
+    main,
+    .page-wrapper,
+    .main-content,
+    #page-content {
+        padding-top: calc(
+            var(--topbar-height, 56px)
+            + env(safe-area-inset-top, 0px)
+            + 0.75rem
+        ) !important;
+    }
+    /* Falls die Seite bereits ein eigenes Top-Padding hat, nicht
+       doppelt addieren – wir setzen deshalb margin-top statt
+       padding-top auf Hero/Header-Wrappern ab */
+    main > .page-header:first-child,
+    .page-wrapper > .page-header:first-child {
+        margin-top: 0 !important;
+    }
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   40. LIGHTMODE – Sidebar komplett hell (FINAL OVERRIDE)
+   Der Designwechsel: Im Lightmode soll die Sidebar hellen
+   Hintergrund mit dunkler Schrift haben. Früher wurde sie per
+   theme.css mit --sidebar-bg-light = #00457D dauerhaft auf
+   dunkelblau gezwungen – inkl. weisser Schrift. Das ergab
+   weiss-auf-weiss, wenn einzelne Regeln den BG auf weiss
+   überschrieben haben. Dieser Block setzt ein kohärentes,
+   lesbares, hellblaues/weisses Design im Lightmode durch und
+   lässt den Darkmode unberührt. Die Regeln stehen bewusst am
+   Dateiende, damit sie in der Kaskade gewinnen – zusätzlich
+   erhöht `html body:not(.dark-mode)` die Spezifität.
+   ══════════════════════════════════════════════════════════════ */
+
+/* Hintergrund + Rahmen */
+html body:not(.dark-mode) .sidebar,
+html body:not(.dark-mode) #sidebar,
+html body:not(.dark-mode) aside.sidebar {
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+    color: #0f172a !important;
+    border-right: 1px solid #e2e8f0 !important;
+    box-shadow:
+        1px 0 0 rgba(15, 23, 42, 0.04),
+        4px 0 24px rgba(15, 23, 42, 0.05) !important;
+}
+
+/* Theme.css Z.243-278 setzt .sidebar a / span / i / div / p / li / h1-6
+   alle auf color:#fff !important. Wir überschreiben hier mit höherer
+   Spezifität (html body:not(.dark-mode) .sidebar …), damit die
+   Standard-Textfarbe im Sidebar-Lightmode dunkel wird und per
+   Vererbung an Nav-Item-Spans weitergereicht werden kann. */
+html body:not(.dark-mode) .sidebar a,
+html body:not(.dark-mode) .sidebar span,
+html body:not(.dark-mode) .sidebar i,
+html body:not(.dark-mode) .sidebar label,
+html body:not(.dark-mode) .sidebar p,
+html body:not(.dark-mode) .sidebar li,
+html body:not(.dark-mode) .sidebar h1,
+html body:not(.dark-mode) .sidebar h2,
+html body:not(.dark-mode) .sidebar h3,
+html body:not(.dark-mode) .sidebar h4,
+html body:not(.dark-mode) .sidebar h5,
+html body:not(.dark-mode) .sidebar h6,
+html body:not(.dark-mode) #sidebar a,
+html body:not(.dark-mode) #sidebar span,
+html body:not(.dark-mode) #sidebar i,
+html body:not(.dark-mode) #sidebar label,
+html body:not(.dark-mode) #sidebar p,
+html body:not(.dark-mode) #sidebar li,
+html body:not(.dark-mode) #sidebar h1,
+html body:not(.dark-mode) #sidebar h2,
+html body:not(.dark-mode) #sidebar h3,
+html body:not(.dark-mode) #sidebar h4,
+html body:not(.dark-mode) #sidebar h5,
+html body:not(.dark-mode) #sidebar h6 {
+    color: #334155 !important;
+    text-shadow: none !important;
+}
+
+/* Generische div-Regel nur für direkte Kinder, damit Nav-Container
+   nicht fälschlich getönt werden, aber Badges & Container-Texte
+   trotzdem lesbar bleiben. */
+html body:not(.dark-mode) .sidebar div,
+html body:not(.dark-mode) #sidebar div {
+    color: #334155 !important;
+}
+
+/* Logo / Brand-Zeile */
+html body:not(.dark-mode) .sidebar .sidebar-logo,
+html body:not(.dark-mode) .sidebar .sidebar-brand,
+html body:not(.dark-mode) .sidebar .logo-wrap,
+html body:not(.dark-mode) .sidebar .brand,
+html body:not(.dark-mode) #sidebar .sidebar-logo,
+html body:not(.dark-mode) #sidebar .sidebar-brand {
+    border-bottom: 1px solid #f1f5f9 !important;
+    color: #0f172a !important;
+}
+
+/* Nav-Items: dunkler Text auf hellem Grund. Gilt für alle in
+   theme.css & main_layout verwendeten Klassen. */
+html body:not(.dark-mode) .sidebar .sidebar-nav-item,
+html body:not(.dark-mode) .sidebar nav .sidebar-nav-item,
+html body:not(.dark-mode) #sidebar .sidebar-nav-item,
+html body:not(.dark-mode) #sidebar nav .sidebar-nav-item,
+html body:not(.dark-mode) .sidebar a.sidebar-nav-item,
+html body:not(.dark-mode) .sidebar nav a,
+html body:not(.dark-mode) #sidebar nav a,
+html body:not(.dark-mode) .sidebar .nav-item,
+html body:not(.dark-mode) .sidebar .menu-item {
+    color: #334155 !important;
+    opacity: 1 !important;
+    text-shadow: none !important;
+    font-weight: 500 !important;
+    border-left-color: transparent !important;
+}
+
+/* Icons in den Nav-Items */
+html body:not(.dark-mode) .sidebar .sidebar-nav-item .sidebar-nav-icon,
+html body:not(.dark-mode) .sidebar .sidebar-nav-item i,
+html body:not(.dark-mode) .sidebar nav a i,
+html body:not(.dark-mode) #sidebar .sidebar-nav-item .sidebar-nav-icon,
+html body:not(.dark-mode) #sidebar .sidebar-nav-item i {
+    color: #64748b !important;
+    opacity: 1 !important;
+    filter: none !important;
+}
+
+/* Hover: feinster Highlight, kein Weiss-auf-Blau mehr */
+html body:not(.dark-mode) .sidebar .sidebar-nav-item:hover,
+html body:not(.dark-mode) .sidebar nav .sidebar-nav-item:hover,
+html body:not(.dark-mode) #sidebar .sidebar-nav-item:hover,
+html body:not(.dark-mode) .sidebar nav a:hover,
+html body:not(.dark-mode) #sidebar nav a:hover,
+html body:not(.dark-mode) .sidebar .nav-item:hover,
+html body:not(.dark-mode) .sidebar .menu-item:hover {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+    border-left-color: #93c5fd !important;
+    transform: none !important;
+}
+/* Span- und Icon-Farbe im Hover-Zustand (beats generic span→#334155) */
+html body:not(.dark-mode) .sidebar .sidebar-nav-item:hover span,
+html body:not(.dark-mode) .sidebar nav a:hover span,
+html body:not(.dark-mode) #sidebar .sidebar-nav-item:hover span {
+    color: #0f172a !important;
+}
+html body:not(.dark-mode) .sidebar .sidebar-nav-item:hover .sidebar-nav-icon,
+html body:not(.dark-mode) .sidebar .sidebar-nav-item:hover i,
+html body:not(.dark-mode) #sidebar .sidebar-nav-item:hover i {
+    color: #2563eb !important;
+}
+
+/* Aktiver Menüpunkt – dezente Pille mit blauer Akzentleiste */
+html body:not(.dark-mode) .sidebar .sidebar-nav-item--active,
+html body:not(.dark-mode) .sidebar nav .sidebar-nav-item--active,
+html body:not(.dark-mode) #sidebar .sidebar-nav-item--active,
+html body:not(.dark-mode) .sidebar a.active,
+html body:not(.dark-mode) .sidebar a[aria-current="page"],
+html body:not(.dark-mode) .sidebar .nav-item.active,
+html body:not(.dark-mode) .sidebar .menu-item.active {
+    background: linear-gradient(135deg,
+        rgba(37, 99, 235, 0.10),
+        rgba(16, 185, 129, 0.08)) !important;
+    color: #1e3a8a !important;
+    font-weight: 700 !important;
+    border-left: 3px solid #2563eb !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.6),
+        0 1px 2px rgba(15, 23, 42, 0.04) !important;
+    text-shadow: none !important;
+}
+html body:not(.dark-mode) .sidebar .sidebar-nav-item--active .sidebar-nav-icon,
+html body:not(.dark-mode) .sidebar .sidebar-nav-item--active i,
+html body:not(.dark-mode) .sidebar a.active i,
+html body:not(.dark-mode) #sidebar .sidebar-nav-item--active .sidebar-nav-icon {
+    color: #2563eb !important;
+    filter: none !important;
+}
+/* Span-Farbe für den aktiven Menüpunkt – beats generic span→#334155 */
+html body:not(.dark-mode) .sidebar .sidebar-nav-item--active span,
+html body:not(.dark-mode) .sidebar a.active span,
+html body:not(.dark-mode) .sidebar a[aria-current="page"] span,
+html body:not(.dark-mode) #sidebar .sidebar-nav-item--active span {
+    color: #1e3a8a !important;
+}
+
+/* Section-Labels ("KOMMUNIKATION", "COMMUNITY", "DATEN" …) */
+html body:not(.dark-mode) .sidebar .sidebar-section-label,
+html body:not(.dark-mode) #sidebar .sidebar-section-label,
+html body:not(.dark-mode) .sidebar .sidebar-section-title,
+html body:not(.dark-mode) #sidebar .sidebar-section-title,
+html body:not(.dark-mode) .sidebar .nav-section-title,
+html body:not(.dark-mode) #sidebar .nav-section-title {
+    color: #64748b !important;
+    letter-spacing: 0.1em !important;
+    font-weight: 700 !important;
+    border-top: 1px solid #eef2f7 !important;
+    text-shadow: none !important;
+}
+
+/* Divider-Linien allgemein */
+html body:not(.dark-mode) .sidebar hr,
+html body:not(.dark-mode) #sidebar hr,
+html body:not(.dark-mode) .sidebar .sidebar-divider {
+    border-color: #eef2f7 !important;
+    background: #eef2f7 !important;
+}
+
+/* Footer-Bereich (z. B. "Datenschutz / Impressum") */
+html body:not(.dark-mode) .sidebar .sidebar-footer,
+html body:not(.dark-mode) #sidebar .sidebar-footer,
+html body:not(.dark-mode) .sidebar .sidebar-footer a {
+    color: #64748b !important;
+    border-top: 1px solid #eef2f7 !important;
+}
+html body:not(.dark-mode) .sidebar .sidebar-footer a:hover {
+    color: #2563eb !important;
+}
+
+/* Scrollbar im Lightmode unauffällig */
+html body:not(.dark-mode) .sidebar::-webkit-scrollbar-thumb,
+html body:not(.dark-mode) #sidebar::-webkit-scrollbar-thumb {
+    background: #cbd5e1 !important;
+}
+html body:not(.dark-mode) .sidebar::-webkit-scrollbar-track,
+html body:not(.dark-mode) #sidebar::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+
+/* Darkmode bleibt komplett unverändert – hier KEINE Regeln hinzufügen,
+   die .dark-mode betreffen. */
+
+
+/* ══════════════════════════════════════════════════════════════
+   41. LIGHTMODE – Hero-Banner & Quick-Action-Chips (FINAL)
+   Auf dem blauen/grünen Gradient-Banner sollen alle Chips
+   durchgehend weisse, gut lesbare Schrift haben. Screenshot
+   zeigte "Inventar" grau-auf-grau; Ursache war die Überlagerung
+   mit einer allgemeinen button-Regel. Wir erzwingen hier weisse
+   Schrift in allen Gradient-Hero-Varianten und vereinheitlichen
+   den Glassmorphism-Stil.
+   ══════════════════════════════════════════════════════════════ */
+html body:not(.dark-mode) .welcome-hero,
+html body:not(.dark-mode) .dash-hero,
+html body:not(.dark-mode) .d-hero {
+    color: #ffffff !important;
+}
+html body:not(.dark-mode) .welcome-hero *,
+html body:not(.dark-mode) .dash-hero *,
+html body:not(.dark-mode) .d-hero *:not(.btn):not(.chip):not(.quick-action):not(a) {
+    color: inherit;
+}
+
+/* Chips / Quick-Action-Buttons im Hero – alle Farbvarianten */
+html body:not(.dark-mode) .welcome-hero .chip,
+html body:not(.dark-mode) .welcome-hero .quick-action,
+html body:not(.dark-mode) .welcome-hero a.btn,
+html body:not(.dark-mode) .welcome-hero button.btn,
+html body:not(.dark-mode) .welcome-hero a[class*="btn-"],
+html body:not(.dark-mode) .dash-hero .chip,
+html body:not(.dark-mode) .dash-hero a.btn,
+html body:not(.dark-mode) .dash-hero button.btn,
+html body:not(.dark-mode) .dash-hero a[class*="btn-"],
+html body:not(.dark-mode) .d-hero .chip,
+html body:not(.dark-mode) .d-hero .quick-action,
+html body:not(.dark-mode) .d-hero a.btn,
+html body:not(.dark-mode) .d-hero a[class*="btn-"],
+html body:not(.dark-mode) .d-hero-actions a,
+html body:not(.dark-mode) .d-hero-actions button {
+    background: rgba(255, 255, 255, 0.16) !important;
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+    backdrop-filter: blur(10px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.34) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.14) !important;
+}
+html body:not(.dark-mode) .welcome-hero .chip:hover,
+html body:not(.dark-mode) .welcome-hero a.btn:hover,
+html body:not(.dark-mode) .welcome-hero a[class*="btn-"]:hover,
+html body:not(.dark-mode) .dash-hero .chip:hover,
+html body:not(.dark-mode) .d-hero .chip:hover,
+html body:not(.dark-mode) .d-hero a.btn:hover,
+html body:not(.dark-mode) .d-hero-actions a:hover {
+    background: rgba(255, 255, 255, 0.28) !important;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+}
+
+/* Icons in den Chips sollen ebenfalls weiss sein */
+html body:not(.dark-mode) .welcome-hero .chip i,
+html body:not(.dark-mode) .dash-hero .chip i,
+html body:not(.dark-mode) .d-hero .chip i,
+html body:not(.dark-mode) .d-hero-actions i,
+html body:not(.dark-mode) .welcome-hero .quick-action i {
+    color: #ffffff !important;
+}
+
+/* Rolle-Badge auf Hero (z. B. "Vorstand Finanzen") */
+html body:not(.dark-mode) .welcome-hero .role-badge,
+html body:not(.dark-mode) .dash-hero .role-badge,
+html body:not(.dark-mode) .d-hero .role-badge,
+html body:not(.dark-mode) .welcome-hero .badge,
+html body:not(.dark-mode) .d-hero .badge {
+    background: rgba(16, 185, 129, 0.92) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    font-weight: 700 !important;
+}

@@ -165,26 +165,34 @@ body {
     transition: background-color var(--transition-slow), color var(--transition-slow);
 }
 
-.card,
-.bg-white {
+/* Bootstrap .card and Tailwind .bg-white: fix background for dark mode.
+   IMPORTANT: we only fix the background, NOT the text color, because
+   setting color:var(--text-main) here would cascade to white-text children
+   and override them in light mode (making them dark when they should stay white). */
+.card {
     background-color: var(--bg-card) !important;
     color: var(--text-main) !important;
 }
+.bg-white {
+    background-color: var(--bg-card) !important;
+    /* No color override here – let children inherit from body or set their own */
+}
 
-/* Fix Input Fields in Dark Mode - Perfect Contrast */
-.dark-mode input,
-.dark-mode select,
-.dark-mode textarea {
-    background-color: var(--bg-input) !important; /* Ultra dark for maximum contrast */
-    color: var(--text-main) !important; /* Ultra white text */
-    border: 1.5px solid var(--border-light) !important; /* Stronger border */
+/* Fix Input Fields in Dark Mode - Perfect Contrast
+   Excludes modal-specific inputs (they have their own scoped overrides) */
+.dark-mode input:not(.inv-form-input):not(.idea-form-input):not(.vc-field-input):not(.emg-form-input):not(.jb-form-input),
+.dark-mode select:not(.inv-form-input):not(.idea-form-input):not(.vc-field-input):not(.emg-form-input):not(.jb-form-input),
+.dark-mode textarea:not(.inv-form-input):not(.idea-form-input):not(.vc-field-input):not(.emg-form-input):not(.jb-form-input) {
+    background-color: var(--bg-input) !important;
+    color: var(--text-main) !important;
+    border: 1.5px solid var(--border-light) !important;
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3) !important;
     transition: all 0.3s ease !important;
 }
 
-.dark-mode input:focus,
-.dark-mode select:focus,
-.dark-mode textarea:focus {
+.dark-mode input:not(.inv-form-input):not(.idea-form-input):not(.vc-field-input):not(.emg-form-input):not(.jb-form-input):focus,
+.dark-mode select:not(.inv-form-input):not(.idea-form-input):not(.vc-field-input):not(.emg-form-input):not(.jb-form-input):focus,
+.dark-mode textarea:not(.inv-form-input):not(.idea-form-input):not(.vc-field-input):not(.emg-form-input):not(.jb-form-input):focus {
     border-color: var(--ibc-blue-light) !important;
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3), 0 0 0 3px rgba(51, 133, 196, 0.4) !important;
     outline: none;
@@ -192,7 +200,7 @@ body {
 
 .dark-mode input::placeholder,
 .dark-mode textarea::placeholder {
-    color: var(--text-muted) !important; /* Consistent with light mode */
+    color: var(--text-muted) !important;
     opacity: 1;
 }
 
@@ -8662,18 +8670,25 @@ body:not(.dark-mode) .mobile-bottom-nav-item.open span {
    and that heading weights establish a clear visual hierarchy.
    ──────────────────────────────────────────────────────────── */
 
-/* Headings get dark colors in light mode — but NOT inside hero/banner/modal-header areas
-   that intentionally have colored/dark backgrounds with white text. */
-body:not(.dark-mode) h1:not(.sidebar *):not(.d-hero *):not(.modal-white-text *):not([class*="-hero"] *):not([class*="modal-header"] *) { color: #0c1a2e !important; font-weight: 800; }
-body:not(.dark-mode) h2:not(.sidebar *):not(.d-hero *):not(.modal-white-text *):not([class*="-hero"] *):not([class*="modal-header"] *) { color: #0f2040 !important; font-weight: 700; }
-body:not(.dark-mode) h3:not(.sidebar *):not(.d-hero *):not(.modal-white-text *):not([class*="-hero"] *):not([class*="modal-header"] *) { color: #1a2f4a !important; font-weight: 700; }
-body:not(.dark-mode) h4:not(.sidebar *):not(.d-hero *):not(.modal-white-text *):not([class*="-hero"] *):not([class*="modal-header"] *) { color: #1e3a5f !important; font-weight: 600; }
-body:not(.dark-mode) h5:not(.sidebar *):not(.d-hero *):not(.modal-white-text *):not([class*="-hero"] *):not([class*="modal-header"] *) { color: #243d5c !important; font-weight: 600; }
-body:not(.dark-mode) h6:not(.sidebar *):not(.d-hero *):not(.modal-white-text *):not([class*="-hero"] *):not([class*="modal-header"] *) { color: #2d4a6b !important; font-weight: 600; }
+/* Headings get dark colors in light mode — but NOT inside hero/banner/modal-header areas.
+   Use simple :not() selectors (CSS3 compatible) to exclude known white-text contexts. */
+/* Light mode heading colors — exclude classes that intentionally sit on dark backgrounds */
+body:not(.dark-mode) h1:not(.d-hero-title):not(.d-hero-subtitle):not(.welcome-title):not(.modal-white-text *) { color: #0c1a2e !important; font-weight: 800; }
+body:not(.dark-mode) h2:not(.welcome-subtitle) { color: #0f2040 !important; font-weight: 700; }
+body:not(.dark-mode) h3 { color: #1a2f4a !important; font-weight: 700; }
+body:not(.dark-mode) h4 { color: #1e3a5f !important; font-weight: 600; }
+body:not(.dark-mode) h5 { color: #243d5c !important; font-weight: 600; }
+body:not(.dark-mode) h6 { color: #2d4a6b !important; font-weight: 600; }
 
-/* Dashboard hero – always white text regardless of mode */
-.d-hero h1, .d-hero h2, .d-hero h3, .d-hero .d-hero-title { color: #fff !important; }
-.d-hero p, .d-hero .d-hero-subtitle { color: rgba(255,255,255,0.82) !important; }
+/* Dashboard hero, sidebar, and modal headers — always white text (dark background context) */
+.d-hero h1, .d-hero h2, .d-hero h3, .d-hero h4, .d-hero h5, .d-hero h6,
+.d-hero .d-hero-title, .d-hero-title { color: #fff !important; }
+.d-hero p, .d-hero .d-hero-subtitle, .d-hero-subtitle { color: rgba(255,255,255,0.82) !important; }
+.d-hero .d-role-badge { color: rgba(255,255,255,0.95) !important; }
+.d-hero .d-quick-action { color: #fff !important; }
+/* Modal card headers always use CSS vars (dark bg in light mode too) */
+.idea-modal-head-title, .inv-modal-head-title,
+.vc-modal-title, .emg-modal-title { color: var(--text-main) !important; }
 
 /* ── 4. LIGHT MODE: MUTED / SECONDARY TEXT ─────────────────
    Refine --text-muted so secondary labels are clearly readable
@@ -8916,7 +8931,28 @@ body:not(.dark-mode) p.text-secondary {
     color: #6b7280 !important; /* gray-500 – clear muted text */
 }
 
-/* ── 17. MOBILE: CARD LABEL AND VALUE SIZING ───────────────
+/* ── 17. FOOTER TEXT COLOR ──────────────────────────────────
+   Footer text in dark mode should be readable (light gray).
+   Light mode keeps default gray-500 colour.
+   ──────────────────────────────────────────────────────────── */
+.dark-mode footer,
+.dark-mode footer p,
+.dark-mode footer span,
+.dark-mode footer a {
+    color: var(--text-muted) !important;
+}
+.dark-mode footer a:hover {
+    color: var(--text-main) !important;
+}
+
+/* ── 18. SIDEBAR: fix h2 dark override ─────────────────────
+   Sidebar headings always stay white in dark mode.
+   ──────────────────────────────────────────────────────────── */
+.dark-mode .sidebar h2,
+.dark-mode .sidebar h3,
+.dark-mode .sidebar h4 { color: var(--text-main) !important; }
+
+/* ── 19. MOBILE: CARD LABEL AND VALUE SIZING ───────────────
    Mobile card-table data-label values need correct font size.
    ──────────────────────────────────────────────────────────── */
 
@@ -17529,44 +17565,7 @@ body:not(.dark-mode) .vc-btn-edit {
 .dark-mode .dir-search-input, .dark-mode .dir-select { background: rgba(255,255,255,.05) !important; border-color: rgba(255,255,255,.1) !important; color: var(--text-main) !important; }
 .dark-mode .dir-flash--success { background: rgba(16,185,129,.14) !important; border-color: rgba(16,185,129,.3) !important; color: #6ee7b7 !important; }
 
-/* ── vCards modal dark mode (pages/admin/vcards.php) ─────────── */
-.dark-mode .vc-modal,
-.dark-mode .vc-confirm-modal {
-    background: var(--bg-card) !important;
-    border-color: rgba(255,255,255,.08) !important;
-    box-shadow: 0 24px 64px rgba(0,0,0,.7), 0 8px 20px rgba(0,0,0,.5) !important;
-}
-.dark-mode .vc-modal-header {
-    background: rgba(13,148,136,.06) !important;
-    border-bottom-color: rgba(255,255,255,.08) !important;
-}
-.dark-mode .vc-modal-footer,
-.dark-mode .vc-confirm-footer {
-    background: rgba(255,255,255,.02) !important;
-    border-top-color: rgba(255,255,255,.08) !important;
-}
-.dark-mode .vc-field-input {
-    background: rgba(255,255,255,.05) !important;
-    border-color: rgba(255,255,255,.12) !important;
-    color: var(--text-main) !important;
-}
-.dark-mode .vc-field-input:focus {
-    border-color: rgba(13,148,136,.7) !important;
-    box-shadow: 0 0 0 3px rgba(13,148,136,.2) !important;
-    background: rgba(255,255,255,.07) !important;
-}
-.dark-mode .vc-modal-cancel,
-.dark-mode .vc-confirm-cancel {
-    background: rgba(255,255,255,.05) !important;
-    border-color: rgba(255,255,255,.12) !important;
-    color: var(--text-muted) !important;
-}
-.dark-mode .vc-modal-cancel:hover,
-.dark-mode .vc-confirm-cancel:hover {
-    background: rgba(255,255,255,.09) !important;
-    border-color: rgba(255,255,255,.2) !important;
-}
-.dark-mode .vc-modal-overlay { background: rgba(0,0,0,.72) !important; }
+/* ── vCards modal dark mode — handled in pages/admin/vcards.php ── */
 .dark-mode .vc-card {
     background: var(--gradient-card-dark) !important;
     border-color: rgba(255,255,255,.07) !important;
@@ -17586,25 +17585,54 @@ body:not(.dark-mode) .vc-btn-edit {
     border-color: rgba(255,255,255,.07) !important;
 }
 
-/* ── Inventory modal dark mode (pages/inventory/index.php) ─── */
-.dark-mode .inv-modal-dialog {
-    background: var(--bg-card) !important;
-    border: 1.5px solid rgba(255,255,255,.08) !important;
-    box-shadow: 0 20px 60px rgba(0,0,0,.7) !important;
-}
-.dark-mode .inv-form-input {
-    background: rgba(255,255,255,.05) !important;
+/* ── Inventory modal dark mode — handled in pages/inventory/index.php ── */
+
+/* ══ Global Tailwind dark: overrides ════════════════════════════
+   Since Tailwind JIT isn't used here, dark: prefix classes don't
+   activate automatically. This block handles them site-wide.
+══════════════════════════════════════════════════════════════ */
+
+/* Backgrounds */
+.dark-mode .dark\:bg-gray-800,
+.dark-mode .dark\:bg-gray-900,
+.dark-mode .dark\:bg-slate-800,
+.dark-mode .dark\:bg-slate-900 { background-color: var(--bg-card) !important; }
+.dark-mode .dark\:bg-gray-700,
+.dark-mode .dark\:bg-slate-700 { background-color: var(--bg-body) !important; }
+.dark-mode .dark\:bg-gray-600,
+.dark-mode .dark\:bg-slate-600 { background-color: rgba(255,255,255,.1) !important; }
+
+/* Text */
+.dark-mode .dark\:text-white,
+.dark-mode .dark\:text-gray-100,
+.dark-mode .dark\:text-gray-200,
+.dark-mode .dark\:text-slate-100,
+.dark-mode .dark\:text-slate-200 { color: var(--text-main) !important; }
+.dark-mode .dark\:text-gray-300,
+.dark-mode .dark\:text-gray-400,
+.dark-mode .dark\:text-slate-300,
+.dark-mode .dark\:text-slate-400 { color: var(--text-muted) !important; }
+
+/* Borders */
+.dark-mode .dark\:border-gray-600,
+.dark-mode .dark\:border-gray-700,
+.dark-mode .dark\:border-slate-600,
+.dark-mode .dark\:border-slate-700 { border-color: var(--border-color) !important; }
+
+/* Hover states — these need explicit .dark-mode scoping */
+.dark-mode .dark\:hover\:bg-gray-600:hover,
+.dark-mode .dark\:hover\:bg-gray-700:hover,
+.dark-mode .dark\:hover\:bg-slate-600:hover,
+.dark-mode .dark\:hover\:bg-slate-700:hover { background-color: rgba(255,255,255,.1) !important; }
+
+/* Inputs, selects, textareas with Tailwind dark: classes */
+.dark-mode input.dark\:bg-gray-700,
+.dark-mode select.dark\:bg-gray-700,
+.dark-mode textarea.dark\:bg-gray-700,
+.dark-mode input.dark\:bg-slate-700,
+.dark-mode select.dark\:bg-slate-700,
+.dark-mode textarea.dark\:bg-slate-700 {
+    background: rgba(255,255,255,.06) !important;
     border-color: rgba(255,255,255,.12) !important;
-    color: var(--text-main) !important;
-}
-.dark-mode .inv-form-input:focus {
-    border-color: rgba(124,58,237,.7) !important;
-    box-shadow: 0 0 0 3px rgba(124,58,237,.2) !important;
-    background: rgba(255,255,255,.07) !important;
-}
-.dark-mode .inv-modal-overlay { background: rgba(0,0,0,.72) !important; }
-.dark-mode .inv-search-input {
-    background: rgba(255,255,255,.05) !important;
-    border-color: rgba(255,255,255,.1) !important;
     color: var(--text-main) !important;
 }

@@ -1,0 +1,2 @@
+# This directory is for event image uploads
+# Ensure web server has write permissions (chmod 755 or 777)

@@ -11,15 +11,12 @@ if (!Auth::check() || !(Auth::hasPermission('manage_projects') || Auth::isBoard(
     exit;
 }
 
-// Try to fetch groups from Microsoft Entra for allowed roles
+// Role visibility uses the canonical IBC-Unternehmensapp role list (ROLE_MAPPING
+// from config.php), NOT the full Microsoft Entra group catalogue. This keeps the
+// event-visibility selector in sync with the app's built-in role system.
+// NOTE: $entraGroups is kept as an empty array so the fallback-branch further
+// down renders without extra changes.
 $entraGroups = [];
-try {
-    $graphService = new MicrosoftGraphService();
-    $entraGroups = $graphService->getAllGroups();
-} catch (Exception $e) {
-    // If Graph API is unavailable, we'll fall back to hardcoded roles
-    error_log("Could not fetch groups from Microsoft Graph: " . $e->getMessage());
-}
 
 // Check if we're creating a new event or editing an existing one
 $eventId = intval($_GET['id'] ?? 0);
@@ -90,7 +87,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$readOnly) {
             'registration_link' => trim($_POST['registration_link'] ?? ''),
             'needs_helpers' => isset($_POST['needs_helpers']) ? 1 : 0,
             'is_internal_project' => isset($_POST['is_internal_project']) ? 1 : 0,
-            'requires_application' => isset($_POST['requires_application']) ? 1 : 0,
+            // requires_application has been removed from the Event editor.
+            // Bewerbung-Workflows leben jetzt ausschliesslich im Projekt-Modul.
             'allowed_roles' => $_POST['allowed_roles'] ?? []
         ];
 
@@ -1305,95 +1303,52 @@ ob_start();
                             >
                             <span>Internes Projekt</span>
                         </label>
-
-                        <label id="requires_application_wrapper" class="eved-checkbox-group <?php
-                            $showRequiresApplication = ($_SERVER['REQUEST_METHOD'] === 'POST')
-                                ? isset($_POST['is_internal_project'])
-                                : ($event['is_internal_project'] ?? false);
-                            echo $showRequiresApplication ? '' : 'hidden';
-                        ?>">
-                            <input
-                                type="checkbox"
-                                name="requires_application"
-                                id="requires_application"
-                                <?php
-                                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                                    echo isset($_POST['requires_application']) ? 'checked' : '';
-                                } else {
-                                    echo ($event['requires_application'] ?? false) ? 'checked' : '';
-                                }
-                                ?>
-                                <?php echo $readOnly ? 'disabled' : ''; ?>
-                            >
-                            <span>Bewerbung erforderlich</span>
-                        </label>
                     </div>
                 </div>
 
-                <!-- Visibility: Role Checkboxes -->
+                <!-- Visibility: Role Checkboxes (IBC-Unternehmensapp roles only) -->
                 <div class="eved-form-row full">
                     <div class="eved-form-group">
                         <label class="eved-label">
                             Sichtbarkeit (Rollen)
-                            <span class="eved-label-hint">Wenn keine Rolle ausgewählt ist, ist das Event für alle sichtbar</span>
+                            <span class="eved-label-hint">Wird keine Rolle ausgewählt, ist das Event für <strong>alle</strong> Mitglieder sichtbar.</span>
                         </label>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--eved-spacing-md);">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--eved-spacing-md);">
                             <?php
-                            // Use Microsoft Entra groups if available, otherwise fall back to hardcoded roles
-                            if (!empty($entraGroups)) {
-                                // Display groups from Microsoft Entra
-                                $allowedRoles = $_POST['allowed_roles'] ?? $event['allowed_roles'] ?? [];
-                                foreach ($entraGroups as $groupIndex => $group):
-                                $groupIdSafe = 'group_' . $groupIndex;
-                                ?>
-                                <label for="<?php echo $groupIdSafe; ?>" class="eved-checkbox-group">
-                                    <input
-                                        type="checkbox"
-                                        id="<?php echo $groupIdSafe; ?>"
-                                        name="allowed_roles[]"
-                                        value="<?php echo htmlspecialchars($group['id']); ?>"
-                                        <?php echo in_array($group['id'], $allowedRoles) ? 'checked' : ''; ?>
-                                        <?php echo $readOnly ? 'disabled' : ''; ?>
-                                    >
-                                    <span><?php echo htmlspecialchars($group['displayName']); ?></span>
-                                </label>
-                                <?php
-                                endforeach;
-                            } else {
-                                // Fallback: Use AuthHandler mapping keys as role options
-                                $roles = [
-                                    'Anwaerter' => 'Anwärter',
-                                    'Mitglied' => 'Mitglied',
-                                    'Ehrenmitglied' => 'Ehrenmitglied',
-                                    'Ressortleiter' => 'Ressortleiter',
-                                    'Alumni' => 'Alumni',
-                                    'Alumni_Vorstand' => 'Alumni-Vorstand',
-                                    'Alumni_Finanz' => 'Alumni-Finanzprüfer',
-                                    'board_roles' => 'Vorstand'
-                                ];
-                                $allowedRoles = $_POST['allowed_roles'] ?? $event['allowed_roles'] ?? [];
-                                $boardEntraRoles = ['vorstand_finanzen', 'vorstand_intern', 'vorstand_extern'];
-                                foreach ($roles as $roleValue => $roleLabel):
+                            // Canonical IBC-Unternehmensapp roles (subset of ROLE_MAPPING in config.php).
+                            // These are the SAME roles the rest of the application uses, so the
+                            // selector is guaranteed to match what users actually have.
+                            // "board_roles" is a virtual shortcut that fans out to all three vorstand_* keys.
+                            $ibcRoles = [
+                                'anwaerter'         => 'Anwärter',
+                                'mitglied'          => 'Mitglied',
+                                'ressortleiter'     => 'Ressortleiter',
+                                'board_roles'       => 'Vorstand (alle drei)',
+                                'ehrenmitglied'     => 'Ehrenmitglied',
+                                'alumni'            => 'Alumni',
+                                'alumni_vorstand'   => 'Alumni-Vorstand',
+                                'alumni_finanz'     => 'Alumni-Finanzprüfer',
+                            ];
+                            $allowedRoles = $_POST['allowed_roles'] ?? $event['allowed_roles'] ?? [];
+                            $boardEntraRoles = ['vorstand_finanzen', 'vorstand_intern', 'vorstand_extern'];
+                            foreach ($ibcRoles as $roleValue => $roleLabel):
                                 $roleIdSafe = 'role_' . $roleValue;
                                 $isChecked = ($roleValue === 'board_roles')
                                     ? (!empty(array_intersect($boardEntraRoles, $allowedRoles)) || in_array('board_roles', $allowedRoles))
                                     : in_array($roleValue, $allowedRoles);
-                                ?>
+                            ?>
                                 <label for="<?php echo $roleIdSafe; ?>" class="eved-checkbox-group">
                                     <input
                                         type="checkbox"
                                         id="<?php echo $roleIdSafe; ?>"
                                         name="allowed_roles[]"
-                                        value="<?php echo $roleValue; ?>"
+                                        value="<?php echo htmlspecialchars($roleValue); ?>"
                                         <?php echo $isChecked ? 'checked' : ''; ?>
                                         <?php echo $readOnly ? 'disabled' : ''; ?>
                                     >
-                                    <span><?php echo $roleLabel; ?></span>
+                                    <span><?php echo htmlspecialchars($roleLabel); ?></span>
                                 </label>
-                                <?php
-                                endforeach;
-                            }
-                            ?>
+                            <?php endforeach; ?>
                         </div>
                     </div>
                 </div>
@@ -1582,21 +1537,9 @@ needsHelpersCheckbox?.addEventListener('change', function() {
     }
 });
 
-// Show/hide "Bewerbung erforderlich" based on "Internes Projekt"
-const isInternalProjectCheckbox = document.getElementById('is_internal_project');
-const requiresApplicationWrapper = document.getElementById('requires_application_wrapper');
-const requiresApplicationCheckbox = document.getElementById('requires_application');
-
-isInternalProjectCheckbox?.addEventListener('change', function() {
-    if (this.checked) {
-        requiresApplicationWrapper.classList.remove('hidden');
-    } else {
-        requiresApplicationWrapper.classList.add('hidden');
-        if (requiresApplicationCheckbox) {
-            requiresApplicationCheckbox.checked = false;
-        }
-    }
-});
+// "Bewerbung erforderlich" was removed from the Event editor on request —
+// Events use simple role-based visibility only. The Bewerbungs-Workflow
+// lives now exclusively in the Projekt-Modul.
 
 // ============================================================================
 // HELPER SLOTS MANAGEMENT - Robust JavaScript Logic

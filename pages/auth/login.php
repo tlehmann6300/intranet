@@ -1205,9 +1205,19 @@ try {
         .login-footer {
             margin-top: 40px;
             font-size: 14px;
-            opacity: 0.75;
+            opacity: 1;
             -webkit-animation: textSlideUp 1s ease-out 1.1s both;
             animation: textSlideUp 1s ease-out 1.1s both;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.25);
+        }
+        /* Sicherstellen, dass der Copyright-Text voll-weiß ist,
+           unabhängig von global gesetzten Body-Farben im Lightmode. */
+        body:not(.dark-mode) .login-footer,
+        body:not(.dark-mode) .login-footer *,
+        html:not(.dark-mode) .login-footer,
+        html:not(.dark-mode) .login-footer * {
+            color: #ffffff !important;
+            opacity: 1 !important;
         }
 
         /* RESPONSIVE DESIGN - Perfekt für ALLE Größen */
@@ -1657,8 +1667,8 @@ try {
         </a>
 
         <!-- Footer -->
-        <div class="login-footer">
-            <p>&copy; <?php echo date('Y'); ?> IBC Business Consulting. Alle Rechte vorbehalten.</p>
+        <div class="login-footer" style="color:#ffffff !important;">
+            <p style="color:#ffffff !important; opacity:1 !important; margin:0; text-shadow:0 1px 2px rgba(0,0,0,0.25);">&copy; <?php echo date('Y'); ?> IBC Business Consulting. Alle Rechte vorbehalten.</p>
         </div>
     </div>
 

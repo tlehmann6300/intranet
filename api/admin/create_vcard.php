@@ -71,6 +71,17 @@ $data = [
 
 if (isset($_POST['rolle'])) {
     $data['rolle'] = trim(strip_tags($_POST['rolle']));
+
+    // Uniqueness: jede Rolle darf nur einmal vergeben werden
+    if ($data['rolle'] !== '' && VCard::isRolleTaken($data['rolle'])) {
+        http_response_code(409);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Diese Rolle ist bereits einer anderen vCard zugewiesen. Bitte eine andere Rolle wählen oder die bestehende vCard bearbeiten.',
+            'field'   => 'rolle',
+        ]);
+        exit;
+    }
 }
 
 if (isset($_POST['funktion'])) {
@@ -109,6 +120,27 @@ if (isset($_POST['linkedin'])) {
         $data['linkedin'] = $linkedin;
     } else {
         $data['linkedin'] = '';
+    }
+}
+
+// ── Lebenslauf URL ─────────────────────────────────────────────────────────────
+if (isset($_POST['lebenslauf'])) {
+    $lebenslauf = trim($_POST['lebenslauf']);
+    if ($lebenslauf !== '') {
+        if (filter_var($lebenslauf, FILTER_VALIDATE_URL) === false) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Ungültige Lebenslauf-URL']);
+            exit;
+        }
+        $scheme = strtolower(parse_url($lebenslauf, PHP_URL_SCHEME));
+        if (!in_array($scheme, ['http', 'https'], true)) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Lebenslauf-URL muss mit http:// oder https:// beginnen']);
+            exit;
+        }
+        $data['lebenslauf'] = $lebenslauf;
+    } else {
+        $data['lebenslauf'] = '';
     }
 }
 

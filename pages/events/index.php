@@ -292,6 +292,15 @@ ob_start();
             Statistiken
         </a>
         <?php endif; ?>
+        <?php if (Auth::hasRole(['vorstand_intern','vorstand_extern','vorstand_finanzen'])): ?>
+        <a href="import.php"
+           style="display:inline-flex;align-items:center;gap:0.45rem;padding:0.6rem 1.1rem;background:var(--bg-card);border:1.5px solid var(--border-color);color:var(--text-main);border-radius:0.75rem;font-size:0.875rem;font-weight:700;text-decoration:none;white-space:nowrap;transition:border-color 0.18s,color 0.18s;"
+           onmouseover="this.style.borderColor='var(--ibc-blue)';this.style.color='var(--ibc-blue)'"
+           onmouseout="this.style.borderColor='var(--border-color)';this.style.color='var(--text-main)'">
+            <i class="fas fa-file-import" aria-hidden="true"></i>
+            JSON-Import
+        </a>
+        <?php endif; ?>
         <?php if (Auth::hasPermission('manage_projects') || Auth::isBoard() || Auth::hasRole(['ressortleiter','alumni_vorstand'])): ?>
         <a href="edit.php?new=1"
            style="display:inline-flex;align-items:center;gap:0.45rem;padding:0.6rem 1.1rem;background:linear-gradient(135deg,var(--ibc-blue),#0044aa);color:#fff;border-radius:0.75rem;font-size:0.875rem;font-weight:700;text-decoration:none;white-space:nowrap;box-shadow:0 3px 12px rgba(0,102,179,0.3);transition:opacity 0.18s,transform 0.18s;"

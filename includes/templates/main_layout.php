@@ -31,6 +31,8 @@ if (Auth::check() && isset($_SESSION['profile_incomplete']) && $_SESSION['profil
 
 $_themeCssVersion = filemtime(__DIR__ . '/../../assets/css/theme.css');
 $_tailwindCssVersion = filemtime(__DIR__ . '/../../assets/css/tailwind.css');
+$_uiFixesPath = __DIR__ . '/../../assets/css/ui-fixes.css';
+$_uiFixesCssVersion = file_exists($_uiFixesPath) ? filemtime($_uiFixesPath) : '1';
 
 /**
  * Check if the given navigation path matches the current request URI.
@@ -142,6 +144,7 @@ if ($currentUser && isset($currentUser['id'])) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="<?php echo asset('assets/css/theme.css') . '?v=' . $_themeCssVersion; ?>">
     <link rel="stylesheet" href="<?php echo asset('assets/css/tailwind.css') . '?v=' . $_tailwindCssVersion; ?>">
+    <link rel="stylesheet" href="<?php echo asset('assets/css/ui-fixes.css') . '?v=' . $_uiFixesCssVersion; ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
     <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css" crossorigin="anonymous">
     <style>
@@ -156,18 +159,29 @@ if ($currentUser && isset($currentUser['id'])) {
         @supports (height: 100dvh) { .sidebar { height: 100dvh; } }
 
         /* ── PAGE ENTRANCE ANIMATION ──────────────────────────────── */
+        /* WICHTIG: Nur opacity animieren – KEIN transform, da transform mit
+           animation-fill-mode:both einen containing block erzeugt und
+           fixed-positionierte Modals (z.B. Popups) dadurch nicht mehr
+           relativ zum Viewport, sondern relativ zu diesem Container
+           ausgerichtet würden (= "Popup zu weit oben"-Problem). */
         @keyframes pageEntranceFade {
-            from { opacity: 0; transform: translateY(10px); }
-            to   { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; }
+            to   { opacity: 1; }
         }
         @media (prefers-reduced-motion: no-preference) {
-            #main-content > *:not(.fixed):not([style*="position: fixed"]):not([style*="position:fixed"]) {
+            #main-content > *:not(.fixed):not([style*="position: fixed"]):not([style*="position:fixed"]):not([class*="modal-overlay"]) {
                 animation: pageEntranceFade 0.35s cubic-bezier(0.22, 0.61, 0.36, 1) both;
             }
             #main-content > *:nth-child(2) { animation-delay: 0.04s; }
             #main-content > *:nth-child(3) { animation-delay: 0.08s; }
             #main-content > *:nth-child(4) { animation-delay: 0.12s; }
             #main-content > *:nth-child(5) { animation-delay: 0.16s; }
+            /* Sicherheitsnetz: Modals dürfen NIE einen transform erben */
+            [class*="modal-overlay"],
+            [class$="-modal-overlay"] {
+                animation: none !important;
+                transform: none !important;
+            }
         }
 
         /* ── SPRING CARD TAP (MOBILE) ────────────────────────────── */
@@ -952,11 +966,11 @@ if ($currentUser && isset($currentUser['id'])) {
         <div class="max-w-7xl mx-auto">
             <?php echo $content ?? ''; ?>
         </div>
-        <footer class="max-w-7xl mx-auto mt-8 py-4 border-t border-gray-200 dark:border-slate-700">
-            <div class="flex flex-col items-center md:flex-row md:justify-between gap-2 text-sm text-gray-500 dark:text-gray-400">
-                <p>&copy; <?php echo date('Y'); ?> IBC Business Consulting. Alle Rechte vorbehalten.</p>
+        <footer class="max-w-7xl mx-auto mt-8 py-4" style="border-top: 1px solid var(--border-color);">
+            <div class="flex flex-col items-center md:flex-row md:justify-between gap-2 text-sm" style="color: var(--text-muted);">
+                <p style="color: var(--text-muted);">&copy; <?php echo date('Y'); ?> IBC Business Consulting. Alle Rechte vorbehalten.</p>
                 <div class="flex gap-4">
-                    <a href="<?php echo asset('pages/impressum.php'); ?>" class="hover:text-ibc-green transition-colors" aria-label="Impressum – Rechtliche Hinweise">Impressum</a>
+                    <a href="<?php echo asset('pages/impressum.php'); ?>" style="color: var(--text-muted); transition: color 0.15s;" onmouseover="this.style.color='var(--ibc-green)'" onmouseout="this.style.color='var(--text-muted)'" aria-label="Impressum – Rechtliche Hinweise">Impressum</a>
                 </div>
             </div>
         </footer>

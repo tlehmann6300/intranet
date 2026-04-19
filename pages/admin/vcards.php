@@ -3,6 +3,7 @@ require_once __DIR__ . '/../../src/Auth.php';
 require_once __DIR__ . '/../../includes/models/VCard.php';
 require_once __DIR__ . '/../../includes/handlers/CSRFHandler.php';
 require_once __DIR__ . '/../../includes/helpers.php';
+require_once __DIR__ . '/../../config/config.php';
 
 // Only Vorstand (vorstand_finanzen, vorstand_intern, vorstand_extern) and Ressortleiter (ressortleiter) may access this page
 if (!Auth::check() || !Auth::canCreateBasicContent()) {
@@ -19,6 +20,19 @@ try {
     $vcardError = 'Die Verbindung zur vCard-Datenbank ist fehlgeschlagen. Bitte später erneut versuchen.';
 }
 $csrfToken = CSRFHandler::getToken();
+
+// Jede Rolle darf nur einmal als vCard existieren. Wir geben hier eine
+// Map  "rolle (lowercase) => vcard-id"  aus, damit das Formular im
+// Frontend schon bereits vergebene Rollen deaktivieren kann.
+$takenRoles = [];
+foreach ($vcards as $vc) {
+    if (!empty($vc['rolle'])) {
+        $key = mb_strtolower(trim((string) $vc['rolle']));
+        if ($key !== '' && !isset($takenRoles[$key])) {
+            $takenRoles[$key] = (int) $vc['id'];
+        }
+    }
+}
 
 /** Return initials (max 2 chars) from first + last name */
 function vcInitials(string $v, string $n): string {
@@ -223,6 +237,25 @@ ob_start();
     cursor:pointer; transition:background .2s, transform .15s, box-shadow .15s; min-height:36px;
 }
 .vc-btn-delete:hover { background:rgba(239,68,68,.2); transform:translateY(-1px); box-shadow:0 3px 10px rgba(239,68,68,.15); }
+.vc-btn-preview {
+    flex:1; display:inline-flex; align-items:center; justify-content:center; gap:.35rem;
+    padding:.5rem .75rem; font-size:.8rem; font-weight:600; border-radius:.625rem;
+    background:rgba(13,148,136,.1); color:rgba(13,118,108,1); border:1px solid rgba(13,148,136,.25);
+    cursor:pointer; transition:background .2s, transform .15s, box-shadow .15s; min-height:36px;
+    text-decoration:none;
+}
+.vc-btn-preview:hover { background:rgba(13,148,136,.2); transform:translateY(-1px); box-shadow:0 3px 10px rgba(13,148,136,.2); color:rgba(13,118,108,1); text-decoration:none; }
+.dark-mode .vc-btn-preview {
+    color:#5eead4 !important; background:rgba(13,148,136,.16) !important;
+    border-color:rgba(13,148,136,.35) !important;
+}
+.dark-mode .vc-btn-preview:hover { background:rgba(13,148,136,.28) !important; color:#5eead4 !important; }
+
+/* On very narrow widths stack the three footer buttons vertically for readability */
+@media (max-width:400px) {
+    .vc-card-footer { flex-direction:column; }
+    .vc-btn-edit, .vc-btn-delete, .vc-btn-preview { width:100%; }
+}
 
 /* ── Empty state ──────────────────────────────────────────────── */
 .vc-empty {
@@ -264,8 +297,8 @@ ob_start();
 
 /* Modal card */
 .vc-modal {
-    background:#fff;
-    border-radius:1.375rem;
+    background:var(--bg-card);
+    border-radius:1.5rem;
     width:100%; max-width:520px;
     max-height:92dvh;
     overflow:hidden;
@@ -288,14 +321,14 @@ ob_start();
 .vc-modal::before {
     content:''; display:block; height:4px; flex-shrink:0;
     background:linear-gradient(90deg, #0d9488, #059669);
-    border-radius:1.375rem 1.375rem 0 0;
+    border-radius:1.5rem 1.5rem 0 0;
 }
 
 /* Modal header */
 .vc-modal-header {
     display:flex; align-items:center; justify-content:space-between;
     padding:1.125rem 1.5rem 1rem;
-    border-bottom:1px solid #f1f5f9;
+    border-bottom:1px solid var(--border-color);
     gap:.75rem;
 }
 .vc-modal-header-left { display:flex; align-items:center; gap:.75rem; min-width:0; }
@@ -307,19 +340,19 @@ ob_start();
 }
 .vc-modal-title {
     font-size:1.0625rem; font-weight:800;
-    color:#0f172a !important;   /* Always dark regardless of mode */
+    color:var(--text-main) !important;
     margin:0; line-height:1.25;
     letter-spacing:-.01em;
 }
 .vc-modal-close {
     width:2.25rem; height:2.25rem; border-radius:.625rem;
-    background:transparent; border:1.5px solid #e2e8f0;
-    color:#94a3b8; cursor:pointer; flex-shrink:0;
+    background:transparent; border:1.5px solid var(--border-color);
+    color:var(--text-muted); cursor:pointer; flex-shrink:0;
     display:flex; align-items:center; justify-content:center;
     transition:background .15s, color .15s, border-color .15s;
     font-size:.9rem;
 }
-.vc-modal-close:hover { background:#fef2f2; border-color:#fca5a5; color:#ef4444; }
+.vc-modal-close:hover { background:rgba(239,68,68,.08); border-color:rgba(239,68,68,.4); color:#ef4444; }
 
 /* Modal body */
 .vc-modal-body {
@@ -335,7 +368,7 @@ ob_start();
 /* Field label */
 .vc-field-label {
     display:block; font-size:.75rem; font-weight:700;
-    color:#475569 !important;   /* Always slate, never blue-black */
+    color:var(--text-muted) !important;
     text-transform:uppercase; letter-spacing:.06em; margin-bottom:.3rem;
     line-height:1.3;
 }
@@ -344,20 +377,21 @@ ob_start();
 /* Field input */
 .vc-field-input {
     width:100%; padding:.6875rem .9375rem;
-    border-radius:.625rem; border:1.5px solid #e2e8f0;
-    background:#fff; color:#0f172a;
+    border-radius:.625rem; border:1.5px solid var(--border-color);
+    background:var(--bg-body); color:var(--text-main);
     font-size:.9rem; outline:none; box-sizing:border-box;
     transition:border-color .18s, box-shadow .18s, background .18s;
     line-height:1.45;
     -webkit-appearance:none;
+    box-shadow:inset 0 1px 3px rgba(0,0,0,.04);
 }
-.vc-field-input::placeholder { color:#94a3b8; }
+.vc-field-input::placeholder { color:var(--text-muted); opacity:.6; }
 .vc-field-input:focus {
     border-color:#0d9488;
     box-shadow:0 0 0 3px rgba(13,148,136,.14);
-    background:#fff;
+    background:var(--bg-card);
 }
-.vc-field-input:hover:not(:focus) { border-color:#cbd5e1; }
+.vc-field-input:hover:not(:focus) { border-color:var(--text-muted); }
 
 /* Select arrow */
 select.vc-field-input {
@@ -367,7 +401,7 @@ select.vc-field-input {
 }
 
 /* Field hint */
-.vc-field-hint { font-size:.72rem; color:#94a3b8; margin-top:.25rem; line-height:1.45; }
+.vc-field-hint { font-size:.72rem; color:var(--text-muted); margin-top:.25rem; line-height:1.45; }
 
 /* Grid for name pair */
 .vc-field-grid { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; }
@@ -376,7 +410,7 @@ select.vc-field-input {
 /* ── Custom file input ──────────────────────────────────────── */
 .vc-file-zone {
     display:flex; align-items:stretch; border-radius:.625rem;
-    border:1.5px solid #e2e8f0; overflow:hidden; cursor:pointer;
+    border:1.5px solid var(--border-color); overflow:hidden; cursor:pointer;
     transition:border-color .18s;
 }
 .vc-file-zone:hover { border-color:#0d9488; }
@@ -390,7 +424,7 @@ select.vc-field-input {
 }
 .vc-file-name {
     display:flex; align-items:center;
-    padding:.6rem .875rem; font-size:.825rem; color:#64748b;
+    padding:.6rem .875rem; font-size:.825rem; color:var(--text-muted);
     flex:1; overflow:hidden;
 }
 .vc-file-name span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -403,12 +437,12 @@ select.vc-field-input {
 /* Photo preview */
 .vc-photo-preview-wrap {
     display:flex; align-items:center; gap:.875rem;
-    padding:.75rem; background:#f8fafc; border-radius:.75rem;
-    border:1.5px solid #e2e8f0;
+    padding:.75rem; background:var(--bg-body); border-radius:.75rem;
+    border:1.5px solid var(--border-color);
 }
 .vc-photo-preview {
     width:3.25rem; height:3.25rem; border-radius:50%; object-fit:cover;
-    border:2px solid #e2e8f0; flex-shrink:0;
+    border:2px solid var(--border-color); flex-shrink:0;
 }
 .vc-photo-initials-preview {
     width:3.25rem; height:3.25rem; border-radius:50%; flex-shrink:0;
@@ -420,17 +454,17 @@ select.vc-field-input {
 /* Modal footer */
 .vc-modal-footer {
     padding:.875rem 1.5rem 1.25rem;
-    border-top:1px solid #f1f5f9;
+    border-top:1px solid var(--border-color);
     display:flex; gap:.625rem;
 }
 .vc-modal-cancel {
     flex:1; padding:.6875rem 1rem; border-radius:.75rem;
-    border:1.5px solid #e2e8f0; background:#fff;
-    color:#475569 !important; font-weight:600; cursor:pointer;
+    border:1.5px solid var(--border-color); background:var(--bg-body);
+    color:var(--text-main) !important; font-weight:600; cursor:pointer;
     font-size:.875rem; transition:background .15s, border-color .15s;
     text-align:center;
 }
-.vc-modal-cancel:hover { background:#f8fafc; border-color:#cbd5e1; color:#334155 !important; }
+.vc-modal-cancel:hover { background:var(--bg-card); border-color:var(--text-muted); }
 .vc-modal-save {
     flex:2; padding:.6875rem 1rem; border-radius:.75rem;
     background:linear-gradient(135deg,#0d9488,#059669);
@@ -446,8 +480,8 @@ select.vc-field-input {
 
 /* ── Delete-confirm modal ─────────────────────────────────────── */
 .vc-confirm-modal {
-    background:#fff;
-    border-radius:1.375rem;
+    background:var(--bg-card);
+    border-radius:1.5rem;
     width:100%; max-width:400px;
     overflow:hidden; display:flex; flex-direction:column;
     box-shadow:
@@ -473,16 +507,16 @@ select.vc-field-input {
     display:flex; align-items:center; justify-content:center;
     font-size:1.4rem; color:#ef4444; margin-bottom:.375rem;
 }
-.vc-confirm-title { font-size:1.0625rem; font-weight:800; color:#0f172a !important; margin:0; }
-.vc-confirm-msg   { font-size:.875rem; color:#64748b !important; margin:0; line-height:1.55; max-width:28ch; }
+.vc-confirm-title { font-size:1.0625rem; font-weight:800; color:var(--text-main) !important; margin:0; }
+.vc-confirm-msg   { font-size:.875rem; color:var(--text-muted) !important; margin:0; line-height:1.55; max-width:28ch; }
 .vc-confirm-footer { padding:.875rem 1.5rem 1.375rem; display:flex; gap:.625rem; }
 .vc-confirm-cancel {
     flex:1; padding:.6875rem; border-radius:.75rem;
-    border:1.5px solid #e2e8f0; background:#fff;
-    color:#475569 !important; font-weight:600; cursor:pointer; font-size:.875rem;
+    border:1.5px solid var(--border-color); background:var(--bg-body);
+    color:var(--text-main) !important; font-weight:600; cursor:pointer; font-size:.875rem;
     transition:background .15s, border-color .15s; text-align:center;
 }
-.vc-confirm-cancel:hover { background:#f8fafc; border-color:#cbd5e1; }
+.vc-confirm-cancel:hover { background:var(--bg-card); border-color:var(--text-muted); }
 .vc-confirm-delete {
     flex:1; padding:.6875rem; border-radius:.75rem;
     background:linear-gradient(135deg,#ef4444,#dc2626);
@@ -498,39 +532,33 @@ select.vc-field-input {
 @media (max-width:600px) {
     .vc-modal-overlay { align-items:flex-end; padding:0; }
     .vc-modal, .vc-confirm-modal {
-        border-radius:1.375rem 1.375rem 0 0; max-width:100%; max-height:92dvh;
+        border-radius:1.5rem 1.5rem 0 0; max-width:100%; max-height:92dvh;
     }
-    .vc-modal::before, .vc-confirm-modal::before { border-radius:1.375rem 1.375rem 0 0; }
+    .vc-modal::before, .vc-confirm-modal::before { border-radius:1.5rem 1.5rem 0 0; }
 }
 
-/* ── Dark mode overrides ─────────────────────────────────────── */
+/* ── Dark mode — only overrides CSS vars can't handle ─────── */
 .dark-mode .vc-modal,
 .dark-mode .vc-confirm-modal {
-    background:var(--bg-card) !important;
-    box-shadow:0 0 0 1px rgba(255,255,255,.06), 0 24px 64px rgba(0,0,0,.7) !important;
+    box-shadow:0 0 0 1px rgba(255,255,255,.07), 0 24px 64px rgba(0,0,0,.65);
 }
-.dark-mode .vc-modal-header { border-bottom-color:rgba(255,255,255,.07) !important; }
-.dark-mode .vc-modal-title  { color:var(--text-main) !important; }
-.dark-mode .vc-modal-close  { border-color:rgba(255,255,255,.1) !important; color:var(--text-muted) !important; background:transparent !important; }
-.dark-mode .vc-modal-close:hover { background:rgba(239,68,68,.15) !important; border-color:rgba(239,68,68,.4) !important; color:#f87171 !important; }
-.dark-mode .vc-field-label  { color:#94a3b8 !important; }
-.dark-mode .vc-field-input  { background:rgba(255,255,255,.06) !important; border-color:rgba(255,255,255,.12) !important; color:var(--text-main) !important; }
-.dark-mode .vc-field-input:focus { border-color:#0d9488 !important; box-shadow:0 0 0 3px rgba(13,148,136,.22) !important; }
-.dark-mode .vc-field-input:hover:not(:focus) { border-color:rgba(255,255,255,.18) !important; }
-.dark-mode .vc-field-input::placeholder { color:#475569 !important; }
-.dark-mode .vc-photo-preview-wrap { background:rgba(255,255,255,.04) !important; border-color:rgba(255,255,255,.09) !important; }
-.dark-mode .vc-photo-preview { border-color:rgba(255,255,255,.12) !important; }
-.dark-mode .vc-file-zone { border-color:rgba(255,255,255,.12) !important; }
-.dark-mode .vc-file-zone:hover { border-color:#0d9488 !important; }
-.dark-mode .vc-file-name { color:#64748b !important; }
-.dark-mode .vc-modal-footer { border-top-color:rgba(255,255,255,.07) !important; }
-.dark-mode .vc-modal-cancel { background:rgba(255,255,255,.05) !important; border-color:rgba(255,255,255,.1) !important; color:var(--text-muted) !important; }
-.dark-mode .vc-modal-cancel:hover { background:rgba(255,255,255,.09) !important; border-color:rgba(255,255,255,.18) !important; color:var(--text-main) !important; }
-.dark-mode .vc-confirm-title { color:var(--text-main) !important; }
-.dark-mode .vc-confirm-msg { color:var(--text-muted) !important; }
-.dark-mode .vc-confirm-footer { border-top:none !important; }
-.dark-mode .vc-confirm-cancel { background:rgba(255,255,255,.05) !important; border-color:rgba(255,255,255,.1) !important; color:var(--text-muted) !important; }
-.dark-mode .vc-confirm-cancel:hover { background:rgba(255,255,255,.09) !important; }
+.dark-mode .vc-field-input {
+    background:rgba(255,255,255,.07);
+    border-color:rgba(255,255,255,.11);
+    color:var(--text-main);
+    box-shadow:none;
+}
+.dark-mode .vc-field-input:focus {
+    background:rgba(255,255,255,.10);
+    border-color:#0d9488;
+    box-shadow:0 0 0 3px rgba(13,148,136,.22);
+}
+.dark-mode .vc-field-input:hover:not(:focus) { border-color:rgba(255,255,255,.2); }
+.dark-mode .vc-field-input::placeholder { color:rgba(255,255,255,.3); opacity:1; }
+.dark-mode .vc-modal-cancel,
+.dark-mode .vc-confirm-cancel { background:rgba(255,255,255,.05); border-color:rgba(255,255,255,.11); }
+.dark-mode .vc-modal-cancel:hover,
+.dark-mode .vc-confirm-cancel:hover { background:rgba(255,255,255,.09); border-color:rgba(255,255,255,.2); }
 
 /* ── Toast ────────────────────────────────────────────────────── */
 #vc-toast {
@@ -570,9 +598,6 @@ select.vc-field-input {
     border-top-color:rgba(255,255,255,.07) !important;
 }
 .dark-mode .vc-card-divider { background:rgba(255,255,255,.07) !important; }
-.dark-mode .vc-modal { border-color:rgba(255,255,255,.08) !important; }
-.dark-mode .vc-modal-header { background:rgba(13,148,136,.08) !important; border-bottom-color:rgba(255,255,255,.08) !important; }
-.dark-mode .vc-modal-footer { background:rgba(255,255,255,.03) !important; border-top-color:rgba(255,255,255,.07) !important; }
 .dark-mode .vc-btn-edit {
     color:#93c5fd !important; background:rgba(59,130,246,.16) !important;
     border-color:rgba(59,130,246,.35) !important;
@@ -653,7 +678,7 @@ select.vc-field-input {
         if (stripos($card['rolle'], 'Vorstand') !== false) {
             $rolleClass = 'vc-rolle-vorstand';
             $rolleLabel = $card['rolle'];
-        } elseif (stripos($card['rolle'], 'Ressort') !== false) {
+        } elseif (stripos($card['rolle'], 'Ressort') !== false || stripos($card['rolle'], 'Manager') !== false || stripos($card['rolle'], 'Managerin') !== false) {
             $rolleClass = 'vc-rolle-ressort';
             $rolleLabel = $card['rolle'];
         }
@@ -715,22 +740,36 @@ select.vc-field-input {
   </div>
 
   <div class="vc-card-footer">
-    <button type="button" class="vc-btn-edit"
-            onclick="openEditModal(
-                <?php echo (int)$card['id']; ?>,
-                <?php echo json_encode($card['vorname'] ?? ''); ?>,
-                <?php echo json_encode($card['nachname'] ?? ''); ?>,
-                <?php echo json_encode($card['rolle'] ?? ''); ?>,
-                <?php echo json_encode($card['funktion'] ?? ''); ?>,
-                <?php echo json_encode($card['email'] ?? ''); ?>,
-                <?php echo json_encode($card['telefon'] ?? ''); ?>,
-                <?php echo json_encode($card['linkedin'] ?? ''); ?>,
-                <?php echo json_encode($card['profilbild'] ?? ''); ?>
-            )">
+    <a class="vc-btn-preview"
+       href="<?php echo htmlspecialchars(VCARD_PUBLIC_URL . '?user=' . (int)$card['id']); ?>"
+       target="_blank" rel="noopener noreferrer"
+       title="vCard in neuem Tab anzeigen">
+      <i class="fas fa-eye"></i>Anzeigen
+    </a>
+    <?php
+      // NB: we intentionally use data-* attributes instead of inline onclick
+      // with json_encode(). JSON uses double quotes, which would break the
+      // onclick="…" attribute boundary (the previous regression that made
+      // the Edit/Delete buttons stop working). htmlspecialchars() here is
+      // the canonical way to embed user text inside an HTML attribute.
+      $fullName = trim(($card['vorname'] ?? '') . ' ' . ($card['nachname'] ?? ''));
+    ?>
+    <button type="button" class="vc-btn-edit js-vc-edit"
+            data-id="<?php echo (int)$card['id']; ?>"
+            data-vorname="<?php echo htmlspecialchars($card['vorname']    ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+            data-nachname="<?php echo htmlspecialchars($card['nachname']  ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+            data-rolle="<?php echo htmlspecialchars($card['rolle']        ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+            data-funktion="<?php echo htmlspecialchars($card['funktion']  ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+            data-email="<?php echo htmlspecialchars($card['email']        ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+            data-telefon="<?php echo htmlspecialchars($card['telefon']    ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+            data-linkedin="<?php echo htmlspecialchars($card['linkedin']  ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+            data-profilbild="<?php echo !empty($card['profilbild']) ? htmlspecialchars(asset($card['profilbild']), ENT_QUOTES, 'UTF-8') : ''; ?>"
+            data-lebenslauf="<?php echo htmlspecialchars($card['lebenslauf'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
       <i class="fas fa-pen"></i>Bearbeiten
     </button>
-    <button type="button" class="vc-btn-delete"
-            onclick="openConfirm(<?php echo (int)$card['id']; ?>, <?php echo json_encode(trim(($card['vorname'] ?? '') . ' ' . ($card['nachname'] ?? ''))); ?>)">
+    <button type="button" class="vc-btn-delete js-vc-delete"
+            data-id="<?php echo (int)$card['id']; ?>"
+            data-name="<?php echo htmlspecialchars($fullName, ENT_QUOTES, 'UTF-8'); ?>">
       <i class="fas fa-trash"></i>Löschen
     </button>
   </div>
@@ -804,8 +843,22 @@ select.vc-field-input {
           <label class="vc-field-label">Rolle</label>
           <select id="editRolle" name="rolle" class="vc-field-input" style="cursor:pointer;">
             <option value="">— Keine Rolle —</option>
-            <option value="Vorstand">Vorstand</option>
-            <option value="Ressortleitung">Ressortleitung</option>
+            <optgroup label="Vorstand">
+              <option value="Vorstand Intern">Vorstand Intern</option>
+              <option value="Vorstand Extern">Vorstand Extern</option>
+              <option value="Vorstand Finanzen und Recht">Vorstand Finanzen und Recht</option>
+            </optgroup>
+            <optgroup label="Ressortleitung">
+              <option value="Ressortleitung IT">Ressortleitung IT</option>
+              <option value="Ressortleitung Human Resources">Ressortleitung Human Resources</option>
+              <option value="Ressortleitung Akquise">Ressortleitung Akquise</option>
+              <option value="Ressortleitung Qualitätsmanagement">Ressortleitung Qualitätsmanagement</option>
+              <option value="Ressortleitung Marketing">Ressortleitung Marketing</option>
+            </optgroup>
+            <optgroup label="Management">
+              <option value="SharePoint-Manager">SharePoint-Manager</option>
+              <option value="Social-Media-Managerin">Social-Media-Managerin</option>
+            </optgroup>
           </select>
         </div>
 
@@ -837,6 +890,14 @@ select.vc-field-input {
                  placeholder="https://linkedin.com/in/…">
         </div>
 
+        <!-- Lebenslauf / CV -->
+        <div>
+          <label class="vc-field-label">Lebenslauf-URL <span style="font-size:.7rem;font-weight:400;text-transform:none;color:#94a3b8;">(optional – PDF oder externer Link)</span></label>
+          <input type="url" id="editLebenslauf" name="lebenslauf" class="vc-field-input"
+                 placeholder="https://…/cv.pdf">
+          <p class="vc-field-hint"><i class="fas fa-info-circle" style="margin-right:.25rem;"></i>Wird auf der öffentlichen vCard als Download-Button angezeigt, wenn gesetzt.</p>
+        </div>
+
         <!-- Profilbild -->
         <div>
           <label class="vc-field-label">Profilbild austauschen</label>
@@ -846,7 +907,7 @@ select.vc-field-input {
               <span class="vc-file-name"><span id="editFileName">Kein Bild gewählt</span></span>
               <input type="file" id="editProfilbild" name="profilbild"
                      accept="image/jpeg,image/png,image/webp,image/gif"
-                     onchange="document.getElementById('editFileName').textContent = this.files[0] ? this.files[0].name : 'Kein Bild gewählt'">
+                     onchange="vcHandleFilePick(this, 'editFileName', 'editPhotoPreview', 'editPhotoWrap', 'editInitialsWrap')">
             </label>
           </div>
           <p class="vc-field-hint"><i class="fas fa-info-circle" style="margin-right:.25rem;"></i>JPG, PNG, WebP oder GIF – max. 5 MB. Leer lassen, um Bild beizubehalten.</p>
@@ -899,8 +960,22 @@ select.vc-field-input {
           <label class="vc-field-label">Rolle</label>
           <select id="createRolle" name="rolle" class="vc-field-input" style="cursor:pointer;">
             <option value="">— Keine Rolle —</option>
-            <option value="Vorstand">Vorstand</option>
-            <option value="Ressortleitung">Ressortleitung</option>
+            <optgroup label="Vorstand">
+              <option value="Vorstand Intern">Vorstand Intern</option>
+              <option value="Vorstand Extern">Vorstand Extern</option>
+              <option value="Vorstand Finanzen und Recht">Vorstand Finanzen und Recht</option>
+            </optgroup>
+            <optgroup label="Ressortleitung">
+              <option value="Ressortleitung IT">Ressortleitung IT</option>
+              <option value="Ressortleitung Human Resources">Ressortleitung Human Resources</option>
+              <option value="Ressortleitung Akquise">Ressortleitung Akquise</option>
+              <option value="Ressortleitung Qualitätsmanagement">Ressortleitung Qualitätsmanagement</option>
+              <option value="Ressortleitung Marketing">Ressortleitung Marketing</option>
+            </optgroup>
+            <optgroup label="Management">
+              <option value="SharePoint-Manager">SharePoint-Manager</option>
+              <option value="Social-Media-Managerin">Social-Media-Managerin</option>
+            </optgroup>
           </select>
         </div>
 
@@ -932,6 +1007,14 @@ select.vc-field-input {
                  placeholder="https://linkedin.com/in/…">
         </div>
 
+        <!-- Lebenslauf / CV -->
+        <div>
+          <label class="vc-field-label">Lebenslauf-URL <span style="font-size:.7rem;font-weight:400;text-transform:none;color:#94a3b8;">(optional – PDF oder externer Link)</span></label>
+          <input type="url" id="createLebenslauf" name="lebenslauf" class="vc-field-input"
+                 placeholder="https://…/cv.pdf">
+          <p class="vc-field-hint"><i class="fas fa-info-circle" style="margin-right:.25rem;"></i>Wird auf der öffentlichen vCard als Download-Button angezeigt, wenn gesetzt.</p>
+        </div>
+
         <!-- Profilbild -->
         <div>
           <label class="vc-field-label">Profilbild <span style="font-size:.7rem;font-weight:400;text-transform:none;color:#94a3b8;">(optional)</span></label>
@@ -941,7 +1024,7 @@ select.vc-field-input {
               <span class="vc-file-name"><span id="createFileName">Kein Bild gewählt</span></span>
               <input type="file" id="createProfilbild" name="profilbild"
                      accept="image/jpeg,image/png,image/webp,image/gif"
-                     onchange="document.getElementById('createFileName').textContent = this.files[0] ? this.files[0].name : 'Kein Bild gewählt'">
+                     onchange="vcHandleFilePick(this, 'createFileName', null, null, null)">
             </label>
           </div>
           <p class="vc-field-hint"><i class="fas fa-info-circle" style="margin-right:.25rem;"></i>JPG, PNG, WebP oder GIF – max. 5 MB</p>
@@ -980,6 +1063,35 @@ select.vc-field-input {
 const VCARD_API_URL        = <?php echo json_encode(asset('api/admin/update_vcard.php')); ?>;
 const VCARD_CREATE_API_URL = <?php echo json_encode(asset('api/admin/create_vcard.php')); ?>;
 const VCARD_DELETE_API_URL = <?php echo json_encode(asset('api/admin/delete_vcard.php')); ?>;
+
+/* Map aus "rolle (lowercase) → vcard-id" – jede Rolle darf nur einmal
+   existieren. Wird nach jeder Erstellung/Änderung/Löschung im
+   Frontend gepflegt, damit die Dropdowns korrekt deaktivieren. */
+let VCARD_TAKEN_ROLES = <?php echo json_encode($takenRoles, JSON_UNESCAPED_UNICODE); ?> || {};
+
+/** Aktualisiert die <option>-Einträge in einem Rollen-<select>,
+ *  damit bereits vergebene Rollen deaktiviert angezeigt werden.
+ *  Die aktuell eigene Rolle (excludeId) bleibt im Edit-Modal aktiv.
+ */
+function refreshRoleOptions(selectEl, excludeId = null) {
+    if (!selectEl) return;
+    const options = selectEl.querySelectorAll('option[value]');
+    options.forEach(opt => {
+        const val = (opt.value || '').trim().toLowerCase();
+        if (val === '') {
+            opt.disabled = false;
+            return;
+        }
+        const takenBy = VCARD_TAKEN_ROLES[val];
+        const isTaken = takenBy !== undefined && takenBy !== null;
+        const isOwnRole = excludeId !== null && takenBy === Number(excludeId);
+        opt.disabled = isTaken && !isOwnRole;
+        // Label-Suffix zur Info
+        const baseLabel = opt.dataset.baseLabel || opt.textContent;
+        if (!opt.dataset.baseLabel) opt.dataset.baseLabel = baseLabel;
+        opt.textContent = opt.disabled ? baseLabel + ' (bereits vergeben)' : baseLabel;
+    });
+}
 
 /* ── Toast ─────────────────────────────── */
 function showVcToast(message, type = 'success') {
@@ -1064,19 +1176,64 @@ function _unlockScroll() {
     window.scrollTo(0, _vcScrollY);
 }
 
+/* ── File-Picker-Helper: Live-Preview + Grösse prüfen ────── */
+function vcHandleFilePick(input, fileNameId, previewId, photoWrapId, initialsWrapId) {
+    const fileNameEl = fileNameId ? document.getElementById(fileNameId) : null;
+    const file = input.files && input.files[0] ? input.files[0] : null;
+
+    if (!file) {
+        if (fileNameEl) fileNameEl.textContent = 'Kein Bild gewählt';
+        return;
+    }
+
+    // Client-seitige Grössenvalidierung (Server prüft nochmal mit 5 MB Limit)
+    const MAX_SIZE = 5 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+        showVcToast('Datei ist zu gross. Max. 5 MB.', 'error');
+        input.value = '';
+        if (fileNameEl) fileNameEl.textContent = 'Kein Bild gewählt';
+        return;
+    }
+
+    if (fileNameEl) fileNameEl.textContent = file.name;
+
+    // Live-Preview, falls Ziel-Elemente vorhanden
+    if (previewId) {
+        const preview = document.getElementById(previewId);
+        if (preview) {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                preview.src = ev.target.result;
+                if (photoWrapId) {
+                    const pw = document.getElementById(photoWrapId);
+                    if (pw) pw.style.display = 'block';
+                }
+                if (initialsWrapId) {
+                    const iw = document.getElementById(initialsWrapId);
+                    if (iw) iw.style.display = 'none';
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+}
+
 /* ── Edit Modal ────────────────────────── */
 let _currentEditId = null;
 
-function openEditModal(id, vorname, nachname, rolle, funktion, email, telefon, linkedin, profilbild) {
+function openEditModal(id, vorname, nachname, rolle, funktion, email, telefon, linkedin, profilbild, lebenslauf) {
     _currentEditId = id;
     document.getElementById('editId').value       = id;
     document.getElementById('editVorname').value  = vorname;
     document.getElementById('editNachname').value = nachname;
+    // Belegte Rollen ausgrauen – eigene Rolle bleibt wählbar
+    refreshRoleOptions(document.getElementById('editRolle'), id);
     document.getElementById('editRolle').value    = rolle;
     document.getElementById('editFunktion').value = funktion;
     document.getElementById('editEmail').value    = email;
     document.getElementById('editTelefon').value  = telefon;
     document.getElementById('editLinkedin').value = linkedin;
+    document.getElementById('editLebenslauf').value = lebenslauf || '';
     document.getElementById('editProfilbild').value = '';
 
     const photoWrap    = document.getElementById('editPhotoWrap');
@@ -1113,6 +1270,8 @@ document.getElementById('editModal').addEventListener('click', e => {
 /* ── Create Modal ──────────────────────── */
 function openCreateModal() {
     document.getElementById('createForm').reset();
+    // Belegte Rollen aus dem Dropdown ausgrauen
+    refreshRoleOptions(document.getElementById('createRolle'), null);
     _lockScroll();
     document.getElementById('createModal').classList.add('open');
     document.getElementById('createVorname').focus();
@@ -1151,6 +1310,38 @@ document.getElementById('confirmModal').addEventListener('click', e => {
     if (e.target === e.currentTarget) closeConfirm();
 });
 
+/* ── Wire up Edit / Delete buttons via event delegation ──
+   This replaces the old inline onclick="…json_encode()…" which broke the
+   HTML attribute quoting and caused the buttons to do nothing. Using
+   data-* attributes + delegation is robust against any character in
+   the record (apostrophes, quotes, HTML entities, etc.). */
+document.addEventListener('click', function (e) {
+    const editBtn = e.target.closest('.js-vc-edit');
+    if (editBtn) {
+        openEditModal(
+            parseInt(editBtn.dataset.id, 10),
+            editBtn.dataset.vorname    || '',
+            editBtn.dataset.nachname   || '',
+            editBtn.dataset.rolle      || '',
+            editBtn.dataset.funktion   || '',
+            editBtn.dataset.email      || '',
+            editBtn.dataset.telefon    || '',
+            editBtn.dataset.linkedin   || '',
+            editBtn.dataset.profilbild || '',
+            editBtn.dataset.lebenslauf || ''
+        );
+        return;
+    }
+    const deleteBtn = e.target.closest('.js-vc-delete');
+    if (deleteBtn) {
+        openConfirm(
+            parseInt(deleteBtn.dataset.id, 10),
+            deleteBtn.dataset.name || ''
+        );
+        return;
+    }
+});
+
 document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
     if (!_pendingDeleteId) return;
     const id   = _pendingDeleteId;
@@ -1167,6 +1358,13 @@ document.getElementById('confirmDeleteBtn').addEventListener('click', async () =
         const data = await resp.json();
         if (data.success) {
             showVcToast(data.message || 'vCard erfolgreich gelöscht', 'success');
+            // Gelöschte Rolle wieder freigeben, damit sie in den Dropdowns
+            // sofort als verfügbar angezeigt wird.
+            Object.keys(VCARD_TAKEN_ROLES).forEach(key => {
+                if (Number(VCARD_TAKEN_ROLES[key]) === Number(id)) {
+                    delete VCARD_TAKEN_ROLES[key];
+                }
+            });
             if (card) {
                 card.style.transition = 'opacity .4s ease, transform .4s ease';
                 card.style.opacity    = '0';
@@ -1201,6 +1399,15 @@ document.getElementById('createForm').addEventListener('submit', async function(
             showVcToast(data.message || 'vCard erfolgreich angelegt', 'success');
             setTimeout(() => location.reload(), 900);
         } else {
+            // 409 Conflict → Rolle bereits vergeben
+            if (resp.status === 409 && data.field === 'rolle') {
+                const sel = document.getElementById('createRolle');
+                if (sel) {
+                    sel.focus();
+                    sel.style.borderColor = '#ef4444';
+                    setTimeout(() => { sel.style.borderColor = ''; }, 2500);
+                }
+            }
             showVcToast(data.message || 'Fehler beim Anlegen', 'error');
         }
     } catch(err) {
@@ -1223,6 +1430,19 @@ document.getElementById('editForm').addEventListener('submit', async function(e)
         if (data.success) {
             closeEditModal();
             showVcToast(data.message || 'vCard erfolgreich aktualisiert', 'success');
+
+            // VCARD_TAKEN_ROLES synchron halten: alte Rolle dieser ID
+            // entfernen, neue (sofern nicht leer) eintragen.
+            Object.keys(VCARD_TAKEN_ROLES).forEach(key => {
+                if (Number(VCARD_TAKEN_ROLES[key]) === Number(_currentEditId)) {
+                    delete VCARD_TAKEN_ROLES[key];
+                }
+            });
+            const newRolleRaw = (fd.get('rolle') || '').toString().trim();
+            if (newRolleRaw !== '') {
+                VCARD_TAKEN_ROLES[newRolleRaw.toLowerCase()] = Number(_currentEditId);
+            }
+
             // Live-update the card in the grid
             const card = document.querySelector(`.vc-card[data-id="${_currentEditId}"]`);
             if (card) {
@@ -1269,6 +1489,15 @@ document.getElementById('editForm').addEventListener('submit', async function(e)
                 setTimeout(() => card.style.boxShadow = '', 800);
             }
         } else {
+            // 409 Conflict → Rolle bereits von einer anderen vCard belegt
+            if (resp.status === 409 && data.field === 'rolle') {
+                const sel = document.getElementById('editRolle');
+                if (sel) {
+                    sel.focus();
+                    sel.style.borderColor = '#ef4444';
+                    setTimeout(() => { sel.style.borderColor = ''; }, 2500);
+                }
+            }
             showVcToast(data.message || 'Fehler beim Speichern', 'error');
         }
     } catch(err) {

@@ -94,12 +94,9 @@ try {
     }
 } catch (PDOException $e) { error_log("stats db: " . $e->getMessage()); }
 
-// CSV helper
-function sanitizeCsvValue($val) {
-    $s = str_replace('"', '""', (string)$val);
-    if (preg_match('/^[=+\-@]/', $s)) $s = "'" . $s;
-    return $s;
-}
+// CSV helper sanitizeCsvValue() lives in includes/helpers.php (auto-loaded
+// via the layout). The previous local copy here caused a fatal redeclare,
+// so we simply reuse the canonical implementation.
 
 $title = 'Statistiken - IBC Intranet';
 ob_start();

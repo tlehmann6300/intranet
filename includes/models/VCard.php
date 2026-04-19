@@ -6,7 +6,7 @@ declare(strict_types=1);
  * Manages contact card data stored in the external vCard database.
  *
  * Remote table: vcards_table
- * Columns: id, vorname, nachname, rolle, funktion, telefon, email, linkedin, profilbild
+ * Columns: id, vorname, nachname, rolle, funktion, telefon, email, linkedin, profilbild, lebenslauf
  */
 
 require_once __DIR__ . '/../database.php';
@@ -29,6 +29,7 @@ class VCard {
         'email',
         'linkedin',
         'profilbild',
+        'lebenslauf',
     ];
 
     /**
@@ -60,6 +61,40 @@ class VCard {
         $stmt = $db->prepare($sql);
         $stmt->execute([$id]);
         return $stmt->fetch();
+    }
+
+    /**
+     * Check if a given Rolle is already assigned to another vCard.
+     *
+     * Rolle-Strings are compared case-insensitively and after whitespace
+     * trimming. Empty roles are never considered duplicates (so multiple
+     * vCards without a role are allowed).
+     *
+     * @param string   $rolle     The role string to test
+     * @param int|null $excludeId Optional vCard ID to exclude from the
+     *                            check (used during update).
+     * @return bool True if another vCard already uses this role.
+     */
+    public static function isRolleTaken(string $rolle, ?int $excludeId = null): bool {
+        $trimmed = trim($rolle);
+        if ($trimmed === '') {
+            return false;
+        }
+        $db = Database::getVCardDB();
+
+        if ($excludeId !== null && $excludeId > 0) {
+            $sql = "SELECT id FROM " . self::TABLE . "
+                    WHERE TRIM(LOWER(rolle)) = LOWER(?) AND id <> ? LIMIT 1";
+            $stmt = $db->prepare($sql);
+            $stmt->execute([$trimmed, $excludeId]);
+        } else {
+            $sql = "SELECT id FROM " . self::TABLE . "
+                    WHERE TRIM(LOWER(rolle)) = LOWER(?) LIMIT 1";
+            $stmt = $db->prepare($sql);
+            $stmt->execute([$trimmed]);
+        }
+
+        return (bool) $stmt->fetch();
     }
 
     /**

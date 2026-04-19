@@ -101,6 +101,10 @@ define('DB_VCARD_NAME', _env('DB_VCARD_NAME', 'dbs13688083'));
 define('DB_VCARD_USER', _env('DB_VCARD_USER', 'dbu5428642'));
 define('DB_VCARD_PASS', _env('DB_VCARD_PASS', ''));
 
+// Public vCard preview URL (the QR-scan landing page that reads vcards_table)
+// Accepts a ?user=<id> query parameter. Override via .env VCARD_PUBLIC_URL if needed.
+define('VCARD_PUBLIC_URL', _env('VCARD_PUBLIC_URL', 'https://vcard.business-consulting.de/vCard.php'));
+
 // SMTP Settings
 define('SMTP_HOST',       _env('SMTP_HOST', ''));
 define('SMTP_PORT',       (int) _env('SMTP_PORT', '587'));

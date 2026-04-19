@@ -1,0 +1,75 @@
+# ==============================================================================
+# 1. DOMAIN & HTTPS ENFORCEMENT
+# ==============================================================================
+RewriteEngine On
+
+# Erzwinge die korrekte Domain (Redirect auf intra.business-consulting.de)
+RewriteCond %{HTTP_HOST} !^intra\.business-consulting\.de$ [NC]
+RewriteRule ^(.*)$ https://intra.business-consulting.de/$1 [L,R=301]
+
+# Erzwinge HTTPS
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# ==============================================================================
+# 2. ZUGRIFFSSCHUTZ (SYSTEM-ORDNER)
+# ==============================================================================
+# Verhindert Verzeichnis-Listing
+Options -Indexes
+
+# Schütze sensible Ordner, erlaube aber explizit assets, pages und api
+RewriteRule ^(private|config|vendor|logs|sql|includes|src)/.*$ - [F,L]
+
+# Erlaube manifest.json explizit (benötigt für PWA)
+<Files "manifest.json">
+    Require all granted
+</Files>
+
+# Schütze Konfigurationsdateien
+<FilesMatch "\.(env|ini|log|sh|bak|sql|json|lock|example)$">
+    Require all denied
+</FilesMatch>
+
+# Erlaube Zugriff auf die login.php explizit (falls nötig, eigentlich durch obige Regeln gedeckt)
+<Files "pages/auth/login.php">
+    Allow from all
+</Files>
+
+# ==============================================================================
+# 3. SECURITY HEADERS (ENTRA ID KOMPATIBEL)
+# ==============================================================================
+<IfModule mod_headers.c>
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), fullscreen=(self)"
+
+    # NOTE: The PHP security_headers.php emits the authoritative CSP.
+    # This header acts as a fallback for requests that bypass PHP (e.g. direct
+    # static-asset requests handled by Apache). 'unsafe-eval' is intentionally
+    # removed – it was never required by the application. The img-src domain
+    # list is tightened to explicit trusted origins instead of the wildcard
+    # 'https:' which previously allowed any HTTPS image source.
+    Header always set Content-Security-Policy "default-src 'self'; \
+script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://www.google.com https://www.gstatic.com; \
+style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn-uicons.flaticon.com https://cdn.jsdelivr.net https://www.gstatic.com; \
+img-src 'self' data: blob: https://www.gstatic.com; \
+font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn-uicons.flaticon.com; \
+connect-src 'self' https://cdn.jsdelivr.net; \
+frame-src 'self' https://www.google.com https://forms.office.com; \
+form-action 'self'; \
+base-uri 'self'; \
+object-src 'none'; \
+frame-ancestors 'self'"
+</IfModule>
+
+# ==============================================================================
+# 4. CLICKJACKING / MIME-SNIFFING SCHUTZ FÜR UPLOADS
+# ==============================================================================
+# Verhindere dass hochgeladene Dateien als HTML oder Skript interpretiert werden
+<IfModule mod_headers.c>
+    <FilesMatch "\.(jpg|jpeg|png|gif|webp|svg|pdf|doc|docx|xls|xlsx|zip|ics|eml)$">
+        Header always set X-Content-Type-Options "nosniff"
+    </FilesMatch>
+</IfModule>
