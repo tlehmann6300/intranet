@@ -513,9 +513,9 @@ if ($currentUser && isset($currentUser['id'])) {
         <!-- Hamburger: opens sidebar overlay -->
         <button id="mobile-menu-btn" class="mob-btn" aria-label="Menü öffnen" aria-expanded="false">
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-                <path id="mob-icon-top" stroke="#fff" stroke-width="2" stroke-linecap="round" d="M2 4.5h14"/>
-                <path id="mob-icon-mid" stroke="#fff" stroke-width="2" stroke-linecap="round" d="M2 9h14"/>
-                <path id="mob-icon-bot" stroke="#fff" stroke-width="2" stroke-linecap="round" d="M2 13.5h14"/>
+                <path id="mob-icon-top" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M2 4.5h14"/>
+                <path id="mob-icon-mid" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M2 9h14"/>
+                <path id="mob-icon-bot" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M2 13.5h14"/>
             </svg>
         </button>
 
