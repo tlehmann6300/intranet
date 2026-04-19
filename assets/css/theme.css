@@ -9586,7 +9586,7 @@ body {
         min-height: calc(var(--topbar-height) + env(safe-area-inset-top, 0px)) !important;
         padding-top: env(safe-area-inset-top, 0px) !important;
         display: flex;
-        align-items: flex-end;
+        align-items: center;
     }
 
     /* Push main content below the expanded topbar.

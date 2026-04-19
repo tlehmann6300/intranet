@@ -657,15 +657,16 @@ body:not(.dark-mode) .proj-card-meta * {
    der frühere "sidebar immer blau"-Block bewusst entfernt, damit keine
    konkurrierenden !important-Regeln mehr wirken. */
 
-/* Topbar / mobile-header — light */
-body:not(.dark-mode) #mobile-header,
+/* Topbar / mobile-header — light
+   NOTE: #mobile-header is intentionally excluded here.
+   The mobile topbar always keeps its dark-blue gradient (section 37)
+   so that the hamburger icon (white SVG strokes) remains visible. */
 body:not(.dark-mode) .topbar,
 body:not(.dark-mode) header.topbar {
     background: #ffffff !important;
     border-bottom: 1px solid #e2e8f0 !important;
     color: #0f172a !important;
 }
-body:not(.dark-mode) #mobile-header *,
 body:not(.dark-mode) .topbar * {
     color: inherit;
 }
@@ -1593,8 +1594,9 @@ body.dark-mode #mobile-user-menu {
         padding: .5rem .75rem !important;
         gap: .5rem !important;
     }
-    /* Hamburger-, Settings-, Profil-Buttons gleichgrosse Touch-Targets */
-    #mobile-header button,
+    /* Hamburger-, Settings-Buttons gleichgrosse Touch-Targets
+       (mob-profile-btn ausgenommen – der behält seine Pille-Form) */
+    #mobile-header button:not(.mob-profile-btn),
     .topbar .icon-btn,
     .topbar .btn-icon {
         width: 40px !important;
@@ -1708,14 +1710,17 @@ body.dark-mode .user-dropdown .theme-toggle .toggle-track {
 
 
 /* ══════════════════════════════════════════════════════════════
-   37. MOBILE TOPBAR – Premium-Politur
-   Die flache blaue Leiste wirkte zu schlicht. Wir heben sie mit
-   einem Gradienten, subtilen Akzent-Highlights und einer feinen
-   Unterkante (die wie ein Schatten wirkt) an.
+   37. MOBILE TOPBAR – Premium-Politur (gilt in BEIDEN Modi)
+   Die mobile Topbar behält immer den dunkelblauen Gradienten –
+   sowohl im Dark- als auch im Lightmode. Das stellt sicher, dass
+   der Hamburger (weisse SVG-Strokes) und alle Topbar-Icons in
+   beiden Modi sichtbar bleiben.
+   html body-Präfix erhöht die Spezifität und schlägt etwaige
+   body:not(.dark-mode)-Overrides.
    ══════════════════════════════════════════════════════════════ */
 @media (max-width: 767.98px) {
-    #mobile-header,
-    .mobile-topbar {
+    html body #mobile-header,
+    html body .mobile-topbar {
         background: linear-gradient(
             135deg,
             #003d6b 0%,
@@ -1727,11 +1732,13 @@ body.dark-mode .user-dropdown .theme-toggle .toggle-track {
             0 1px 0 rgba(255, 255, 255, 0.08) inset !important;
         border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
         position: relative;
+        /* Alle Topbar-Icons und -Buttons in weiss */
+        color: #ffffff !important;
     }
 
     /* Zarter Glanz-Akzent quer über die Topbar */
-    #mobile-header::after,
-    .mobile-topbar::after {
+    html body #mobile-header::after,
+    html body .mobile-topbar::after {
         content: "";
         position: absolute;
         inset: 0;
@@ -1744,51 +1751,57 @@ body.dark-mode .user-dropdown .theme-toggle .toggle-track {
         z-index: 0;
     }
     /* Alle Buttons und Kontrollen über dem Akzent */
-    #mobile-header > *,
-    .mobile-topbar > * {
+    html body #mobile-header > *,
+    html body .mobile-topbar > * {
         position: relative;
         z-index: 1;
+        color: #ffffff !important;
     }
 
     /* mob-btn: leicht glasig + Fokus-Ring verfeinert */
-    #mobile-header .mob-btn,
-    .mobile-topbar .mob-btn {
+    html body #mobile-header .mob-btn,
+    html body .mobile-topbar .mob-btn {
         background: rgba(255, 255, 255, 0.14) !important;
+        color: #ffffff !important;
         backdrop-filter: blur(6px);
         -webkit-backdrop-filter: blur(6px);
         transition: background 0.18s ease, transform 0.15s ease !important;
     }
-    #mobile-header .mob-btn:hover,
-    #mobile-header .mob-btn:active,
-    .mobile-topbar .mob-btn:hover,
-    .mobile-topbar .mob-btn:active {
+    html body #mobile-header .mob-btn:hover,
+    html body #mobile-header .mob-btn:active,
+    html body .mobile-topbar .mob-btn:hover,
+    html body .mobile-topbar .mob-btn:active {
         background: rgba(255, 255, 255, 0.24) !important;
         transform: translateY(-1px);
     }
 
     /* Profilbutton: sichtbarere Kapsel */
-    #mobile-header .mob-profile-btn,
-    .mobile-topbar .mob-profile-btn {
+    html body #mobile-header .mob-profile-btn,
+    html body .mobile-topbar .mob-profile-btn {
         background: rgba(255, 255, 255, 0.18) !important;
         border: 1px solid rgba(255, 255, 255, 0.12);
         box-shadow: 0 2px 8px rgba(0, 20, 50, 0.18);
+        color: #ffffff !important;
         transition:
             background 0.18s ease,
             transform 0.15s ease,
             box-shadow 0.2s ease !important;
     }
-    #mobile-header .mob-profile-btn:hover,
-    .mobile-topbar .mob-profile-btn:hover,
-    #mobile-header .mob-profile-btn[aria-expanded="true"],
-    .mobile-topbar .mob-profile-btn[aria-expanded="true"] {
+    html body #mobile-header .mob-profile-btn:hover,
+    html body .mobile-topbar .mob-profile-btn:hover,
+    html body #mobile-header .mob-profile-btn[aria-expanded="true"],
+    html body .mobile-topbar .mob-profile-btn[aria-expanded="true"] {
         background: rgba(255, 255, 255, 0.28) !important;
         box-shadow:
             0 4px 14px rgba(0, 20, 50, 0.28),
             inset 0 0 0 1px rgba(255, 255, 255, 0.18);
     }
-    #mobile-header .mob-profile-btn .mob-avatar,
-    .mobile-topbar .mob-profile-btn .mob-avatar {
+    html body #mobile-header .mob-profile-btn .mob-avatar,
+    html body .mobile-topbar .mob-profile-btn .mob-avatar {
         box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35);
+        overflow: hidden;
+        border-radius: 50%;
+        flex-shrink: 0;
     }
 }
 
