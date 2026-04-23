@@ -1,0 +1,14 @@
+[03-Apr-2026 02:50:22 Europe/Berlin] Warning: Azure configuration is missing or incomplete in .env
+[03-Apr-2026 02:50:22 Europe/Berlin] Warning: Azure configuration is missing or incomplete in .env
+[03-Apr-2026 02:50:27 Europe/Berlin] Warning: Azure configuration is missing or incomplete in .env
+[03-Apr-2026 02:50:27 Europe/Berlin] Microsoft login initiation error: Missing Azure OAuth configuration
+[03-Apr-2026 02:50:27 Europe/Berlin] Stack trace: #0 /homepages/34/d795569457/htdocs/intra/auth/login_start.php(16): AuthHandler::initiateMicrosoftLogin()
+#1 {main}
+[03-Apr-2026 02:50:27 Europe/Berlin] Warning: Azure configuration is missing or incomplete in .env
+[03-Apr-2026 02:50:35 Europe/Berlin] Warning: Azure configuration is missing or incomplete in .env
+[03-Apr-2026 02:50:36 Europe/Berlin] Warning: Azure configuration is missing or incomplete in .env
+[03-Apr-2026 02:50:40 Europe/Berlin] Warning: Azure configuration is missing or incomplete in .env
+[03-Apr-2026 02:50:40 Europe/Berlin] Microsoft login initiation error: Missing Azure OAuth configuration
+[03-Apr-2026 02:50:40 Europe/Berlin] Stack trace: #0 /homepages/34/d795569457/htdocs/intra/auth/login_start.php(16): AuthHandler::initiateMicrosoftLogin()
+#1 {main}
+[03-Apr-2026 02:50:40 Europe/Berlin] Warning: Azure configuration is missing or incomplete in .env

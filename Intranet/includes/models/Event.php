@@ -242,14 +242,16 @@ class Event {
             $calculatedStatus = ($data['status'] ?? '') === 'draft' ? 'draft' : self::calculateStatus($data);
             
             // Insert event
+            // Note: requires_application has been removed from the Event editor.
+            // The DB column still exists but is always written as 0 for new events.
             $stmt = $db->prepare("
-                INSERT INTO events (title, description, location, maps_link, start_time, end_time, 
-                                  registration_start, registration_end, status, 
+                INSERT INTO events (title, description, location, maps_link, start_time, end_time,
+                                  registration_start, registration_end, status,
                                   is_external, external_link, registration_link, needs_helpers,
                                   image_path, created_by, is_internal_project, requires_application)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
             ");
-            
+
             $stmt->execute([
                 $data['title'],
                 $data['description'] ?? null,
@@ -266,8 +268,7 @@ class Event {
                 $data['needs_helpers'] ?? false,
                 $imagePath,
                 $userId,
-                $data['is_internal_project'] ?? 0,
-                $data['requires_application'] ?? 0
+                $data['is_internal_project'] ?? 0
             ]);
             
             $eventId = $db->lastInsertId();

@@ -31,6 +31,8 @@ if (Auth::check() && isset($_SESSION['profile_incomplete']) && $_SESSION['profil
 
 $_themeCssVersion = filemtime(__DIR__ . '/../../assets/css/theme.css');
 $_tailwindCssVersion = filemtime(__DIR__ . '/../../assets/css/tailwind.css');
+$_uiFixesPath = __DIR__ . '/../../assets/css/ui-fixes.css';
+$_uiFixesCssVersion = file_exists($_uiFixesPath) ? filemtime($_uiFixesPath) : '1';
 
 /**
  * Check if the given navigation path matches the current request URI.
@@ -142,6 +144,7 @@ if ($currentUser && isset($currentUser['id'])) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="<?php echo asset('assets/css/theme.css') . '?v=' . $_themeCssVersion; ?>">
     <link rel="stylesheet" href="<?php echo asset('assets/css/tailwind.css') . '?v=' . $_tailwindCssVersion; ?>">
+    <link rel="stylesheet" href="<?php echo asset('assets/css/ui-fixes.css') . '?v=' . $_uiFixesCssVersion; ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
     <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css" crossorigin="anonymous">
     <style>
@@ -156,18 +159,29 @@ if ($currentUser && isset($currentUser['id'])) {
         @supports (height: 100dvh) { .sidebar { height: 100dvh; } }
 
         /* ── PAGE ENTRANCE ANIMATION ──────────────────────────────── */
+        /* WICHTIG: Nur opacity animieren – KEIN transform, da transform mit
+           animation-fill-mode:both einen containing block erzeugt und
+           fixed-positionierte Modals (z.B. Popups) dadurch nicht mehr
+           relativ zum Viewport, sondern relativ zu diesem Container
+           ausgerichtet würden (= "Popup zu weit oben"-Problem). */
         @keyframes pageEntranceFade {
-            from { opacity: 0; transform: translateY(10px); }
-            to   { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; }
+            to   { opacity: 1; }
         }
         @media (prefers-reduced-motion: no-preference) {
-            #main-content > *:not(.fixed):not([style*="position: fixed"]):not([style*="position:fixed"]) {
+            #main-content > *:not(.fixed):not([style*="position: fixed"]):not([style*="position:fixed"]):not([class*="modal-overlay"]) {
                 animation: pageEntranceFade 0.35s cubic-bezier(0.22, 0.61, 0.36, 1) both;
             }
             #main-content > *:nth-child(2) { animation-delay: 0.04s; }
             #main-content > *:nth-child(3) { animation-delay: 0.08s; }
             #main-content > *:nth-child(4) { animation-delay: 0.12s; }
             #main-content > *:nth-child(5) { animation-delay: 0.16s; }
+            /* Sicherheitsnetz: Modals dürfen NIE einen transform erben */
+            [class*="modal-overlay"],
+            [class$="-modal-overlay"] {
+                animation: none !important;
+                transform: none !important;
+            }
         }
 
         /* ── SPRING CARD TAP (MOBILE) ────────────────────────────── */
@@ -499,9 +513,9 @@ if ($currentUser && isset($currentUser['id'])) {
         <!-- Hamburger: opens sidebar overlay -->
         <button id="mobile-menu-btn" class="mob-btn" aria-label="Menü öffnen" aria-expanded="false">
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-                <path id="mob-icon-top" stroke="#fff" stroke-width="2" stroke-linecap="round" d="M2 4.5h14"/>
-                <path id="mob-icon-mid" stroke="#fff" stroke-width="2" stroke-linecap="round" d="M2 9h14"/>
-                <path id="mob-icon-bot" stroke="#fff" stroke-width="2" stroke-linecap="round" d="M2 13.5h14"/>
+                <path id="mob-icon-top" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M2 4.5h14"/>
+                <path id="mob-icon-mid" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M2 9h14"/>
+                <path id="mob-icon-bot" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M2 13.5h14"/>
             </svg>
         </button>
 

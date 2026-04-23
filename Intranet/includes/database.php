@@ -358,11 +358,30 @@ class Database {
                         `email`      VARCHAR(255)   DEFAULT NULL,
                         `linkedin`   VARCHAR(500)   DEFAULT NULL,
                         `profilbild` VARCHAR(500)   DEFAULT NULL,
+                        `lebenslauf` VARCHAR(500)   DEFAULT NULL COMMENT 'URL zum Lebenslauf (PDF / externe Seite)',
                         PRIMARY KEY (`id`)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
                     COMMENT='Kontaktkarten (vCards)'"
                 );
                 error_log("VCard schema migration applied: created table 'vcards_table'");
+            } else {
+                // Existing table – add `lebenslauf` column if it does not exist yet
+                $colStmt = $db->prepare(
+                    "SELECT COLUMN_NAME
+                     FROM INFORMATION_SCHEMA.COLUMNS
+                     WHERE TABLE_SCHEMA = DATABASE()
+                       AND TABLE_NAME   = 'vcards_table'
+                       AND COLUMN_NAME  = 'lebenslauf'"
+                );
+                $colStmt->execute();
+                if (!$colStmt->fetch()) {
+                    $db->exec(
+                        "ALTER TABLE `vcards_table`
+                         ADD COLUMN `lebenslauf` VARCHAR(500) DEFAULT NULL
+                         COMMENT 'URL zum Lebenslauf (PDF / externe Seite)'"
+                    );
+                    error_log("VCard schema migration applied: added column 'lebenslauf' to 'vcards_table'");
+                }
             }
         } catch (PDOException $e) {
             error_log("VCard schema migration skipped for table 'vcards_table': " . $e->getMessage());
