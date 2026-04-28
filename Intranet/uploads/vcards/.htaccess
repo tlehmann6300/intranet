@@ -1,2 +1,54 @@
-php_flag engine off
-AddType text/plain .php .php3 .phtml
+# ──────────────────────────────────────────────────────────────────────
+# Öffentlicher Zugriff auf hochgeladene vCard-Profilbilder.
+#
+# Diese .htaccess sorgt dafür, dass (a) nur Bilddateien ausgeliefert
+# werden und (b) PHP hier grundsätzlich NICHT ausgeführt wird – auch
+# wenn Dateien "*.php" heißen sollten.
+#
+# Wichtig: `php_flag` darf nur gesetzt werden, wenn das entsprechende
+# mod_php-Modul auch tatsächlich geladen ist. Auf PHP-FPM-Hostings
+# ist mod_php deaktiviert, und ein ungewrappter `php_flag` führt dann
+# zu HTTP 500 für ALLE Requests in diesem Verzeichnis (inkl. der
+# Profilbilder selbst!). Deshalb strikt in <IfModule> kapseln.
+# ──────────────────────────────────────────────────────────────────────
+
+# 1) Verzeichnis-Listing verhindern + CGI-Execution aus
+Options -Indexes -ExecCGI
+
+# 2) PHP-Interpreter in diesem Ordner vollständig deaktivieren
+<IfModule mod_php5.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+
+# 3) Falls doch eine *.php-Datei hochgeladen würde, als Text/Binary
+#    ausliefern statt zu interpretieren.
+AddType application/octet-stream .php .php3 .php4 .php5 .phtml .pHtml
+
+# 4) Bilder dürfen explizit ausgeliefert werden (für die öffentliche
+#    vCard-Subdomain, die von https://intra.business-consulting.de/
+#    aus lädt). Dies ist NICHT zwingend nötig – die Standard-Apache-
+#    Konfiguration erlaubt statische Assets sowieso – wird aber hier
+#    explizit gesetzt, um Header und MIME-Typen abzusichern.
+<FilesMatch "\.(jpe?g|png|gif|webp|svg)$">
+    <IfModule mod_authz_core.c>
+        Require all granted
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Allow from all
+    </IfModule>
+
+    <IfModule mod_headers.c>
+        # Für Cross-Origin-Einbettung auf der öffentlichen
+        # vcard.business-consulting.de-Subdomain.
+        Header set Access-Control-Allow-Origin "*"
+        Header set X-Content-Type-Options "nosniff"
+        Header set Cache-Control "public, max-age=86400"
+    </IfModule>
+</FilesMatch>

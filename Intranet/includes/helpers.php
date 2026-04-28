@@ -178,6 +178,76 @@ function asset($path) {
 }
 
 /**
+ * Mapping for public vCard URL slugs.
+ *
+ * The admin-side "rolle" column stores long German labels
+ * ("Vorstand Finanzen und Recht"). The public vCard URL should be
+ * shareable and role-based instead of numeric-ID based, e.g.
+ *
+ *   https://vcard.business-consulting.de/?role=board_finance
+ *
+ * This centralised map keeps the admin, the public vCard page and the
+ * uniqueness check in sync. If a role is not mapped, we fall back to
+ * a slugified version of the raw rolle value.
+ *
+ * @return array<string,string>  rolle label → slug
+ */
+function vcardRoleSlugMap(): array {
+    return [
+        'Vorstand Intern'                 => 'board_intern',
+        'Vorstand Extern'                 => 'board_extern',
+        'Vorstand Finanzen und Recht'     => 'board_finance',
+        'Ressortleitung IT'               => 'head_it',
+        'Ressortleitung Human Resources'  => 'head_hr',
+        'Ressortleitung Akquise'          => 'head_sales',
+        'Ressortleitung Qualitätsmanagement' => 'head_quality',
+        'Ressortleitung Marketing'        => 'head_marketing',
+        'SharePoint-Manager'              => 'sharepoint_manager',
+        'Social-Media-Managerin'          => 'social_media_manager',
+    ];
+}
+
+/**
+ * Slugify a raw rolle label (fallback when not in the canonical map).
+ */
+function vcardSlugifyRole(string $rolle): string {
+    $s = trim($rolle);
+    if ($s === '') return '';
+    // Umlaute → ASCII
+    $s = strtr($s, [
+        'Ä' => 'ae', 'Ö' => 'oe', 'Ü' => 'ue',
+        'ä' => 'ae', 'ö' => 'oe', 'ü' => 'ue',
+        'ß' => 'ss',
+    ]);
+    $s = strtolower($s);
+    $s = preg_replace('~[^a-z0-9]+~', '_', $s);
+    $s = trim($s, '_');
+    return $s;
+}
+
+/**
+ * Convert a rolle label to a URL slug, using the canonical map first.
+ */
+function vcardRoleToSlug(string $rolle): string {
+    $map = vcardRoleSlugMap();
+    if (isset($map[$rolle])) return $map[$rolle];
+    return vcardSlugifyRole($rolle);
+}
+
+/**
+ * Resolve a URL slug back to a rolle label. Returns null if the slug
+ * is not in the canonical map and no record is found via fallback.
+ *
+ * @return string|null
+ */
+function vcardSlugToRole(string $slug): ?string {
+    $slug = strtolower(trim($slug));
+    if ($slug === '') return null;
+    $map = array_flip(vcardRoleSlugMap());
+    return $map[$slug] ?? null;
+}
+
+/**
  * Return a clean, German-formatted role name for a given database role string.
  * This is the central role display function that should be used in all frontend views.
  *

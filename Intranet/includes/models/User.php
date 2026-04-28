@@ -129,21 +129,58 @@ class User {
     }
 
     /**
-     * Delete user and associated alumni profile
+     * Soft-delete user – setzt den Status auf "veraltet" statt echten DELETE.
+     *
+     * Der Datensatz bleibt in der `users`-Tabelle erhalten, damit Fremdschlüssel
+     * (z. B. Rechnungs-, Event- oder Ausleih-Referenzen) weiter auflösbar sind.
+     * Wir markieren die Rolle als 'veraltet', entziehen Login-Berechtigung per
+     * Permanent-Lock und hängen einen Timestamp an.
+     *
+     * Optional: `forceHardDelete` erzwingt klassisches DELETE (für DSGVO-
+     * Rechtsansprüche). Standard ist immer Soft-Delete.
      */
-    public static function delete($id) {
-        // Remove alumni profile from content DB first (ignore errors if not present)
-        try {
-            $contentDb = Database::getContentDB();
-            $stmt = $contentDb->prepare("DELETE FROM alumni_profiles WHERE user_id = ?");
-            $stmt->execute([$id]);
-        } catch (Exception $e) {
-            error_log('Failed to delete alumni profile for user ' . $id . ': ' . $e->getMessage());
+    public static function delete($id, bool $forceHardDelete = false) {
+        if ($forceHardDelete) {
+            // Rechtlicher Löschauftrag – klassische DSGVO-Löschung.
+            try {
+                $contentDb = Database::getContentDB();
+                $stmt = $contentDb->prepare("DELETE FROM alumni_profiles WHERE user_id = ?");
+                $stmt->execute([$id]);
+            } catch (Exception $e) {
+                error_log('Failed to delete alumni profile for user ' . $id . ': ' . $e->getMessage());
+            }
+            $db = Database::getUserDB();
+            $stmt = $db->prepare("DELETE FROM users WHERE id = ?");
+            return $stmt->execute([$id]);
         }
 
+        // Standard: Soft-Delete – Rolle auf "veraltet" setzen, Login sperren.
         $db = Database::getUserDB();
-        $stmt = $db->prepare("DELETE FROM users WHERE id = ?");
-        return $stmt->execute([$id]);
+
+        // Probiere zuerst den modernen Pfad mit einer `deleted_at`-Spalte.
+        // Fallback ohne die Spalte: nur role + is_locked_permanently anfassen.
+        try {
+            $stmt = $db->prepare(
+                "UPDATE users
+                    SET role = 'veraltet',
+                        is_locked_permanently = 1,
+                        deleted_at = NOW()
+                  WHERE id = ?"
+            );
+            return $stmt->execute([$id]);
+        } catch (PDOException $e) {
+            // 42S22 = unknown column (deleted_at existiert noch nicht)
+            if ($e->getCode() === '42S22') {
+                $stmt = $db->prepare(
+                    "UPDATE users
+                        SET role = 'veraltet',
+                            is_locked_permanently = 1
+                      WHERE id = ?"
+                );
+                return $stmt->execute([$id]);
+            }
+            throw $e;
+        }
     }
 
     /**

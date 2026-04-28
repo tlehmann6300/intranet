@@ -382,29 +382,51 @@ ob_start();
     transform: translateY(-1px);
 }
 
-/* ── Modals ── */
+/* ── Modals ──
+ *
+ * Achtung: `position: fixed` referenziert den Viewport NUR dann korrekt, wenn
+ * KEIN Vorfahre `transform`, `filter` oder `perspective` setzt (Containing-
+ * Block-Trap). Das Modal hängt sich daher per JS direkt an `document.body`
+ * (siehe Block weiter unten). Hier wird das Layout viewport-korrekt
+ * positioniert mit großzügigem Top-Padding, damit der Topbar das Header
+ * des Modals nicht überdeckt. */
 .inv-modal-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
-    z-index: 50; opacity: 0; pointer-events: none;
+    position: fixed; inset: 0; background: rgba(0,0,0,0.55);
+    z-index: 1050; opacity: 0; pointer-events: none;
     transition: opacity .25s;
-    display: flex; align-items: center; justify-content: center; padding: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    /* Top-Padding clearing die fixe Topbar (~64–80px) + Sicherheitsabstand */
+    padding: clamp(72px, 9vh, 110px) 1rem 1.25rem;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 .inv-modal-overlay.open { opacity: 1; pointer-events: auto; }
-.inv-modal-overlay--z60 { z-index: 60; }
+.inv-modal-overlay--z60 { z-index: 1060; }
 .inv-modal-box {
     background-color: var(--bg-card);
     border-radius: 1.125rem;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
-    width: min(42rem, 100%); max-height: 88vh;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    width: min(42rem, 100%);
+    /* Max-height greift jetzt unter Berücksichtigung des Top-Paddings */
+    max-height: calc(100vh - clamp(96px, 12vh, 140px));
     display: flex; flex-direction: column; overflow: hidden;
     transform: translateY(10px) scale(.98);
     transition: transform .25s ease, opacity .25s;
     opacity: 0;
+    margin: auto; /* zentriert vertikal innerhalb des padding-Bereichs */
 }
 .inv-modal-overlay.open .inv-modal-box { transform: translateY(0) scale(1); opacity: 1; }
 @media (max-width: 599px) {
-    .inv-modal-overlay { align-items: flex-end; padding: 0; }
-    .inv-modal-box { width: 100%; border-radius: 1.25rem 1.25rem 0 0; max-height: 92vh; }
+    .inv-modal-overlay {
+        align-items: flex-end;
+        padding: clamp(56px, 8vh, 96px) 0 0;
+    }
+    .inv-modal-box {
+        width: 100%;
+        border-radius: 1.25rem 1.25rem 0 0;
+        max-height: calc(100vh - clamp(56px, 8vh, 96px));
+        margin: 0;
+    }
 }
 .inv-modal-header {
     padding: 1.125rem 1.375rem; border-bottom: 1px solid var(--border-color);
@@ -464,6 +486,12 @@ ob_start();
     letter-spacing: 0.04em;
     margin-bottom: 0.4rem;
 }
+
+/* Collapsible Bank-Section innerhalb Submission Modal */
+.inv-bank-group summary::-webkit-details-marker { display: none; }
+.inv-bank-group[open] .inv-bank-chevron { transform: rotate(180deg); }
+.inv-bank-group summary:hover { background: rgba(37,99,235,0.05); border-radius: .75rem .75rem 0 0; }
+.inv-bank-group:not([open]) summary { border-radius: .75rem; }
 
 /* Drop zone */
 .inv-drop-zone {
@@ -951,17 +979,20 @@ ob_start();
 <?php endif; ?>
 
 <?php if ($canSubmitInvoice): ?>
-<!-- ── Submission Modal ── -->
-<div id="submissionModal" class="inv-modal-overlay" role="dialog" aria-modal="true">
-    <div class="inv-modal-box">
-        <div class="inv-modal-header">
-            <div style="display:flex; align-items:center; gap:0.75rem;">
-                <div style="width:2.25rem; height:2.25rem; border-radius:.625rem; background:rgba(37,99,235,0.12); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                    <i class="fas fa-file-invoice-dollar" style="color:#2563eb; font-size:0.9rem;"></i>
+<!-- ── Submission Modal (redesigned im Ideenbox-Stil) ── -->
+<div id="submissionModal" class="inv-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="submissionModalTitle">
+    <div class="inv-modal-box" style="width:min(36rem,100%);">
+        <div class="inv-modal-header" style="padding:1rem 1.25rem; gap:.75rem; align-items:flex-start;">
+            <div style="display:flex; align-items:center; gap:.75rem; flex:1; min-width:0;">
+                <div style="width:2.5rem; height:2.5rem; border-radius:.75rem; background:linear-gradient(135deg, rgba(37,99,235,0.18), rgba(37,99,235,0.08)); display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 2px 8px -2px rgba(37,99,235,0.25);">
+                    <i class="fas fa-file-invoice-dollar" style="color:#2563eb; font-size:1rem;"></i>
                 </div>
-                <h2 class="inv-modal-title">Beleg einreichen</h2>
+                <div style="min-width:0;">
+                    <h2 id="submissionModalTitle" class="inv-modal-title" style="margin:0;">Beleg einreichen</h2>
+                    <p style="margin:.15rem 0 0; font-size:.75rem; color:var(--text-muted);">Pflichtfelder sind mit <span style="color:#dc2626;">*</span> markiert</p>
+                </div>
             </div>
-            <button id="closeSubmissionModal" class="inv-modal-close"><i class="fas fa-times"></i></button>
+            <button id="closeSubmissionModal" class="inv-modal-close" aria-label="Modal schließen"><i class="fas fa-times"></i></button>
         </div>
 
         <form id="submissionForm" action="<?php echo asset('api/submit_invoice.php'); ?>" method="POST" enctype="multipart/form-data" style="display:flex; flex-direction:column; flex:1; min-height:0;">
@@ -989,6 +1020,50 @@ ob_start();
                               placeholder="Wofür wurde der Betrag ausgegeben?"
                               class="inv-form-input" style="resize:none;"></textarea>
                 </div>
+
+                <!-- Bankverbindung (optional) -->
+                <details class="inv-bank-group" style="border:1px solid var(--border-color); border-radius:.75rem; background:rgba(37,99,235,0.03);">
+                    <summary style="list-style:none; cursor:pointer; padding:.75rem 1rem; display:flex; align-items:center; gap:.6rem; font-weight:600; color:var(--text-main); font-size:.875rem; user-select:none;">
+                        <i class="fas fa-university" style="color:#2563eb;"></i>
+                        Bankverbindung für Rückerstattung
+                        <span style="margin-left:auto; font-weight:500; font-size:.7rem; color:var(--text-muted); text-transform:none; letter-spacing:0;">optional</span>
+                        <i class="fas fa-chevron-down inv-bank-chevron" style="color:var(--text-muted); font-size:.7rem; transition:transform .2s;"></i>
+                    </summary>
+                    <div style="padding:.25rem 1rem 1rem; display:flex; flex-direction:column; gap:.75rem;">
+                        <div>
+                            <label for="account_holder" class="inv-form-label">Kontoinhaber</label>
+                            <input type="text" id="account_holder" name="account_holder"
+                                   maxlength="120"
+                                   placeholder="Vor- und Nachname"
+                                   autocomplete="name"
+                                   class="inv-form-input">
+                        </div>
+                        <div style="display:grid; grid-template-columns:2fr 1fr; gap:.75rem;">
+                            <div>
+                                <label for="iban" class="inv-form-label">IBAN</label>
+                                <input type="text" id="iban" name="iban"
+                                       maxlength="42"
+                                       pattern="[A-Za-z0-9 ]{15,42}"
+                                       placeholder="DE00 0000 0000 0000 0000 00"
+                                       autocomplete="off"
+                                       class="inv-form-input" style="font-family:ui-monospace, SFMono-Regular, Menlo, monospace;">
+                            </div>
+                            <div>
+                                <label for="bic" class="inv-form-label">BIC</label>
+                                <input type="text" id="bic" name="bic"
+                                       maxlength="11"
+                                       pattern="[A-Za-z0-9]{8,11}"
+                                       placeholder="XXXXDEXX"
+                                       autocomplete="off"
+                                       class="inv-form-input" style="font-family:ui-monospace, SFMono-Regular, Menlo, monospace; text-transform:uppercase;">
+                            </div>
+                        </div>
+                        <p style="font-size:.7rem; color:var(--text-muted); margin:0; line-height:1.4;">
+                            <i class="fas fa-shield-alt" style="margin-right:.25rem; color:#16a34a;"></i>
+                            Nur nötig, wenn Du noch keine Bankverbindung hinterlegt hast. Daten werden verschlüsselt gespeichert.
+                        </p>
+                    </div>
+                </details>
 
                 <!-- File Upload -->
                 <div>
@@ -1032,8 +1107,30 @@ ob_start();
 const csrfToken = <?php echo json_encode(CSRFHandler::getToken()); ?>;
 
 // ── Modal helpers ────────────────────────────────────────────────────────────
-function openModal(id)  { document.getElementById(id).classList.add('open');    document.body.style.overflow = 'hidden'; }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = ''; }
+// Hängt das Modal beim Öffnen direkt an document.body, damit `position: fixed`
+// gegen den Viewport positioniert wird (kein Containing-Block-Trap durch
+// `transform`/`filter` auf einem Vorfahren wie #main-content).
+function openModal(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    if (el.parentElement !== document.body) {
+        el.dataset.invOriginalParent = '1'; // markieren, damit close ihn wieder zurücklegen kann
+        document.body.appendChild(el);
+    }
+    el.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    document.body.classList.add('rech-modal-open');
+}
+function closeModal(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove('open');
+    document.body.style.overflow = '';
+    // Falls noch andere offene Modals existieren, Body-Lock NICHT entfernen
+    if (!document.querySelector('.inv-modal-overlay.open')) {
+        document.body.classList.remove('rech-modal-open');
+    }
+}
 
 // Close on overlay click
 document.querySelectorAll('.inv-modal-overlay').forEach(function (overlay) {

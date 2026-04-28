@@ -101,16 +101,15 @@ if (isset($_POST['email'])) {
 if (isset($_POST['linkedin'])) {
     $linkedin = trim($_POST['linkedin']);
     if ($linkedin !== '') {
-        $filtered = filter_var($linkedin, FILTER_VALIDATE_URL);
-        if ($filtered === false) {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Ungültige LinkedIn-URL']);
-            exit;
+        // Tolerant validation: accept "linkedin.com/in/foo" or "www.linkedin.com/in/foo"
+        // and auto-prepend https:// so users don't have to remember the scheme.
+        if (!preg_match('~^https?://~i', $linkedin)) {
+            $linkedin = 'https://' . ltrim($linkedin, '/');
         }
-        $scheme = strtolower(parse_url($linkedin, PHP_URL_SCHEME));
-        if (!in_array($scheme, ['http', 'https'], true)) {
+        $host = strtolower((string)parse_url($linkedin, PHP_URL_HOST));
+        if ($host === '' || (strpos($host, 'linkedin.com') === false)) {
             http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Ungültige LinkedIn-URL']);
+            echo json_encode(['success' => false, 'message' => 'Bitte eine LinkedIn-URL angeben (linkedin.com/…)']);
             exit;
         }
         $data['linkedin'] = $linkedin;

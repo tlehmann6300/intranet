@@ -20,15 +20,18 @@ Options -Indexes
 # Schütze sensible Ordner, erlaube aber explizit assets, pages und api
 RewriteRule ^(private|config|vendor|logs|sql|includes|src)/.*$ - [F,L]
 
-# Erlaube manifest.json explizit (benötigt für PWA)
-<Files "manifest.json">
-    Require all granted
-</Files>
-
-# Schütze Konfigurationsdateien
+# Schütze Konfigurationsdateien.
+# WICHTIG: Apache merged <Files> und <FilesMatch> in Quelltext-Reihenfolge —
+# die spätere Direktive gewinnt. Daher steht der Deny-Block ZUERST und der
+# explizite Allow für manifest.json (PWA) DANACH, damit der Allow gewinnt.
 <FilesMatch "\.(env|ini|log|sh|bak|sql|json|lock|example)$">
     Require all denied
 </FilesMatch>
+
+# Erlaube manifest.json explizit (benötigt für PWA, überschreibt FilesMatch oben)
+<Files "manifest.json">
+    Require all granted
+</Files>
 
 # Erlaube Zugriff auf die login.php explizit (falls nötig, eigentlich durch obige Regeln gedeckt)
 <Files "pages/auth/login.php">

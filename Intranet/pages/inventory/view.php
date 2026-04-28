@@ -153,6 +153,70 @@ $title = htmlspecialchars($item['name']) . ' - Inventar';
 ob_start();
 ?>
 
+<style>
+/* ══════════════════════════════════════════════════════════════════════
+   Ausleihe-/Entnehme-Popup (view.php) – neu, viewport-zentriert, robust
+   ──────────────────────────────────────────────────────────────────────
+   Frühere Lösung benutzte `absolute` + getBoundingClientRect,
+   was bei bestimmten Layouts (containing-block durch Vorfahre) das
+   Popup irgendwo in der Dokumenten-Mitte landen ließ. Jetzt: klassisch
+   zentrierter Modal-Dialog per Flexbox. Overlay wird per JS an <body>
+   portiert, damit NIEMALS ein Vorfahre Containing-Block sein kann.
+   ══════════════════════════════════════════════════════════════════════ */
+.checkout-modal-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+    z-index: 1080;
+    background: rgba(10,15,30,0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    padding: clamp(1rem, 4vh, 2.5rem) clamp(0.75rem, 2vw, 1.5rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    opacity: 0;
+    transition: opacity 0.22s ease;
+    transform: none !important;
+    animation: none !important;
+}
+.checkout-modal-overlay.open {
+    display: flex;
+    opacity: 1;
+}
+.checkout-modal-dialog {
+    position: relative;
+    width: min(32rem, calc(100vw - 2rem));
+    max-height: calc(100dvh - 4rem);
+    margin: auto;
+    transform: translateY(18px) scale(0.97);
+    opacity: 0;
+    transition: transform 0.28s cubic-bezier(0.22,0.68,0,1.2), opacity 0.22s ease;
+}
+.checkout-modal-overlay.open .checkout-modal-dialog {
+    transform: none;
+    opacity: 1;
+}
+@media (max-width: 600px) {
+    .checkout-modal-overlay {
+        align-items: flex-end;
+        padding: 0;
+    }
+    .checkout-modal-dialog {
+        width: 100%;
+        max-width: 100%;
+        border-radius: 1.5rem 1.5rem 0 0 !important;
+        max-height: 92dvh;
+        margin: 0;
+    }
+}
+body.checkout-modal-open {
+    overflow: hidden !important;
+}
+</style>
+
 <div class="mb-6">
     <a href="index.php" class="text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 inline-flex items-center mb-4 text-lg font-semibold group transition-all">
         <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i>Zurück zum Inventar
@@ -569,8 +633,8 @@ if (!empty($logbookNote)):
 </div>
 
 <!-- Combined Checkout/Rental Modal -->
-<div id="checkoutModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="checkout-modal-title">
-    <div id="checkoutDialog" class="absolute bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
+<div id="checkoutModal" class="checkout-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="checkout-modal-title">
+    <div id="checkoutDialog" class="checkout-modal-dialog bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-y-auto">
         <form id="combinedCheckoutForm" method="POST" action="checkout.php?id=<?php echo htmlspecialchars($item['id']); ?>">
             <input type="hidden" name="csrf_token" value="<?php echo CSRFHandler::getToken(); ?>">
             <input type="hidden" name="checkout" value="1">
@@ -667,67 +731,87 @@ if (!empty($logbookNote)):
 </div>
 
 <script>
-function openCheckoutModal(btn) {
-    var modal  = document.getElementById('checkoutModal');
-    var dialog = document.getElementById('checkoutDialog');
-    modal.classList.remove('hidden');
-    modal.style.display = 'block';
-    document.body.style.overflow = 'hidden';
+(function () {
+    'use strict';
 
-    // Position dialog near the clicked button
-    var rect    = btn.getBoundingClientRect();
-    var vpW     = window.innerWidth;
-    var vpH     = window.innerHeight;
-    var gap     = 8;   // space between button edge and dialog
-    var padding = 16;  // minimum distance from viewport edges
-    var maxDlgW = 512; // max-w-lg ≈ 32rem
-    var dlgW    = Math.min(maxDlgW, vpW - padding * 2);
+    /* ──────────────────────────────────────────────────────────────────
+       Ausleihen/Entnehmen-Modal – komplett neu
+       Portal an <body>, Viewport-zentriert, kein absolutes Positioning.
+       ────────────────────────────────────────────────────────────── */
+    function portalCheckoutModal() {
+        var modal = document.getElementById('checkoutModal');
+        if (!modal) return;
+        if (modal.parentNode !== document.body) {
+            document.body.appendChild(modal);
+        }
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', portalCheckoutModal);
+    } else {
+        portalCheckoutModal();
+    }
 
-    dialog.style.width = dlgW + 'px';
+    window.openCheckoutModal = function (btn) {
+        portalCheckoutModal();
+        var modal = document.getElementById('checkoutModal');
+        if (!modal) return;
 
-    // Horizontal: center under the button, clamped within viewport
-    var left = rect.left + rect.width / 2 - dlgW / 2;
-    left = Math.max(padding, Math.min(left, vpW - dlgW - padding));
-    dialog.style.left = left + 'px';
+        /* Eventuelle Inline-Reste aus alter Version komplett zurücksetzen */
+        var dialog = document.getElementById('checkoutDialog');
+        if (dialog) {
+            dialog.style.top    = '';
+            dialog.style.left   = '';
+            dialog.style.right  = '';
+            dialog.style.bottom = '';
+            dialog.style.width  = '';
+            dialog.style.height = '';
+            dialog.style.position = '';
+            dialog.style.transform = '';
+        }
 
-    // Vertical: place below button first, then check for overflow
-    dialog.style.top = (rect.bottom + gap) + 'px';
+        /* Open via class – CSS übernimmt display/flex/opacity */
+        modal.classList.add('open');
+        modal.classList.remove('hidden');
+        modal.style.display = '';      // falls alte Inline-Styles gesetzt waren
 
-    requestAnimationFrame(function () {
-        var dlgH = dialog.offsetHeight;
-        if (rect.bottom + gap + dlgH > vpH - padding) {
-            var topAbove = rect.top - gap - dlgH;
-            dialog.style.top = (topAbove >= padding ? topAbove : Math.max(padding, (vpH - dlgH) / 2)) + 'px';
+        document.body.classList.add('checkout-modal-open');
+
+        /* Overlay ggf. bis nach ganz oben scrollen */
+        modal.scrollTop = 0;
+
+        /* Fokus auf erstes Eingabefeld */
+        setTimeout(function () {
+            var qty = document.getElementById('checkoutQuantity');
+            if (qty) qty.focus();
+        }, 260);
+    };
+
+    window.closeCheckoutModal = function () {
+        var modal = document.getElementById('checkoutModal');
+        if (!modal) return;
+        modal.classList.remove('open');
+        modal.classList.add('hidden');  // Kompatibilität mit alten Markup-Nutzern
+        document.body.classList.remove('checkout-modal-open');
+    };
+
+    /* Klick auf das Overlay (nicht auf den Dialog) schließt */
+    document.addEventListener('click', function (e) {
+        var modal = document.getElementById('checkoutModal');
+        if (!modal) return;
+        if (e.target === modal && modal.classList.contains('open')) {
+            window.closeCheckoutModal();
         }
     });
-}
 
-function closeCheckoutModal() {
-    var modal  = document.getElementById('checkoutModal');
-    var dialog = document.getElementById('checkoutDialog');
-    modal.classList.add('hidden');
-    modal.style.display = '';
-    dialog.style.top   = '';
-    dialog.style.left  = '';
-    dialog.style.width = '';
-    document.body.style.overflow = '';
-}
-
-// Close modal when clicking outside
-document.getElementById('checkoutModal')?.addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeCheckoutModal();
-    }
-});
-
-// Close modal on Escape key
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        closeCheckoutModal();
-    }
-});
-
-
+    /* Escape schließt */
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Escape') return;
+        var modal = document.getElementById('checkoutModal');
+        if (modal && modal.classList.contains('open')) {
+            window.closeCheckoutModal();
+        }
+    });
+}());
 </script>
 
 <?php

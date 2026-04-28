@@ -83,10 +83,40 @@ if ($_FILES['file']['error'] !== UPLOAD_ERR_OK) {
     exit;
 }
 
+// ── Optional bank details (IBAN/BIC/Kontoinhaber) ────────────────────────────
+// Alle drei sind optional – nur mitsenden, wenn tatsächlich befüllt. Wir
+// normalisieren IBAN/BIC (Leerzeichen + Großbuchstaben) und beschränken die
+// Länge konservativ.
+$rawIban      = isset($_POST['iban'])           ? (string)$_POST['iban']           : '';
+$rawBic       = isset($_POST['bic'])            ? (string)$_POST['bic']            : '';
+$rawHolder    = isset($_POST['account_holder']) ? (string)$_POST['account_holder'] : '';
+
+$ibanNormalised = strtoupper(preg_replace('~\s+~', '', trim($rawIban)));
+$bicNormalised  = strtoupper(preg_replace('~\s+~', '', trim($rawBic)));
+$holderClean    = trim(preg_replace('~\s+~', ' ', $rawHolder));
+
+// Sehr einfache Plausibilisierung: IBAN 15–34 Zeichen alnum, BIC 8–11 Zeichen.
+if ($ibanNormalised !== '' && !preg_match('~^[A-Z0-9]{15,34}$~', $ibanNormalised)) {
+    $_SESSION['error_message'] = 'Ungültige IBAN – bitte nochmal prüfen.';
+    header('Location: ' . asset('pages/invoices/index.php'));
+    exit;
+}
+if ($bicNormalised !== '' && !preg_match('~^[A-Z0-9]{8,11}$~', $bicNormalised)) {
+    $_SESSION['error_message'] = 'Ungültiger BIC – bitte nochmal prüfen.';
+    header('Location: ' . asset('pages/invoices/index.php'));
+    exit;
+}
+if (mb_strlen($holderClean) > 120) {
+    $holderClean = mb_substr($holderClean, 0, 120);
+}
+
 // Create invoice using Invoice model
 $result = Invoice::create($user['id'], [
-    'description' => $description,
-    'amount' => $amount
+    'description'    => $description,
+    'amount'         => $amount,
+    'iban'           => $ibanNormalised,
+    'bic'            => $bicNormalised,
+    'account_holder' => $holderClean,
 ], $_FILES['file']);
 
 if ($result['success']) {

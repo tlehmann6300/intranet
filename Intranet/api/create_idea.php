@@ -1,14 +1,22 @@
 <?php
 /**
  * API: Create Idea
- * Handles idea submission and sends notification email
+ *
+ * Aktuelle Policy (Stand 2026-04):
+ *   Die Ideenbox legt KEINEN Datenbank-Eintrag mehr an, sondern verschickt
+ *   ausschließlich eine Benachrichtigungs-E-Mail an die in der .env hinter-
+ *   legte Adresse `INVOICE_NOTIFICATION_EMAIL` (Vorstand).
+ *
+ *   Vorher wurden Ideen auch in der `ideas`-Tabelle persistiert; das ist
+ *   ausdrücklich nicht mehr gewünscht. Vorstand-Mailbox = Single Source of
+ *   Truth.
  */
 
 require_once __DIR__ . '/../src/Auth.php';
-require_once __DIR__ . '/../includes/models/Idea.php';
 require_once __DIR__ . '/../includes/helpers.php';
 require_once __DIR__ . '/../src/MailService.php';
 require_once __DIR__ . '/../includes/handlers/CSRFHandler.php';
+require_once __DIR__ . '/../config/config.php';
 
 header('Content-Type: application/json');
 
@@ -50,31 +58,34 @@ if (empty($title) || empty($description)) {
     exit;
 }
 
+// Empfänger-Adresse aus der .env (Vorstand). Fallback nur als Notnagel.
+$recipient = defined('INVOICE_NOTIFICATION_EMAIL') && INVOICE_NOTIFICATION_EMAIL
+    ? INVOICE_NOTIFICATION_EMAIL
+    : (defined('MAIL_IDEAS') ? MAIL_IDEAS : 'vorstand@business-consulting.de');
+
 try {
-    $result = Idea::create((int) $user['id'], $title, $description);
+    $username  = explode('@', $user['email'])[0];
+    $emailBody = '<h2>Neue Idee eingereicht</h2>'
+        . '<table class="info-table">'
+        . '<tr><td class="info-label">Von:</td><td class="info-value">' . htmlspecialchars($username) . ' (' . htmlspecialchars($user['email']) . ')</td></tr>'
+        . '<tr><td class="info-label">Titel:</td><td class="info-value">' . htmlspecialchars($title) . '</td></tr>'
+        . '<tr><td class="info-label">Beschreibung:</td><td class="info-value">' . nl2br(htmlspecialchars($description)) . '</td></tr>'
+        . '<tr><td class="info-label">Datum:</td><td class="info-value">' . date('d.m.Y H:i') . ' Uhr</td></tr>'
+        . '</table>';
 
-    if ($result['success']) {
-        // Send notification email
-        try {
-            $username  = explode('@', $user['email'])[0];
-            $emailBody = '<h2>Neue Idee eingereicht</h2>'
-                . '<table class="info-table">'
-                . '<tr><td class="info-label">Von:</td><td class="info-value">' . htmlspecialchars($username) . ' (' . htmlspecialchars($user['email']) . ')</td></tr>'
-                . '<tr><td class="info-label">Titel:</td><td class="info-value">' . htmlspecialchars($title) . '</td></tr>'
-                . '<tr><td class="info-label">Beschreibung:</td><td class="info-value">' . nl2br(htmlspecialchars($description)) . '</td></tr>'
-                . '<tr><td class="info-label">Datum:</td><td class="info-value">' . date('d.m.Y H:i') . ' Uhr</td></tr>'
-                . '</table>';
-            MailService::send(MAIL_IDEAS, 'Neue Idee von ' . $username, $emailBody);
-        } catch (Exception $e) {
-            error_log('create_idea.php email error: ' . $e->getMessage());
-        }
+    $sent = MailService::send($recipient, 'Neue Idee von ' . $username, $emailBody);
 
-        recordFormSubmit('last_idea_submit_time');
-        echo json_encode(['success' => true, 'id' => $result['id']]);
-    } else {
+    if (!$sent) {
+        // MailService::send liefert false bei Versandfehlern; trotzdem User
+        // freundlich informieren und Logs für den Admin schreiben.
+        error_log('create_idea.php: MailService::send returned false for recipient ' . $recipient);
         http_response_code(500);
-        echo json_encode(['success' => false, 'error' => $result['error']]);
+        echo json_encode(['success' => false, 'error' => 'Versand fehlgeschlagen. Bitte später erneut versuchen.']);
+        exit;
     }
+
+    recordFormSubmit('last_idea_submit_time');
+    echo json_encode(['success' => true]);
 } catch (Exception $e) {
     error_log('create_idea.php: ' . $e->getMessage());
     http_response_code(500);

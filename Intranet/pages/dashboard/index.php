@@ -146,8 +146,14 @@ try {
 }
 
 // Get open invoices count for eligible users
+//
+// NOTE: Der Rechnungen-Bereich im Dashboard ist bewusst strenger gefasst als
+// `Auth::canAccessPage('invoices')`. Laut Vorstandsbeschluss darf die
+// Dashboard-Kachel "Rechnungen" nur von Vorstand Finanzen und Recht (und dem
+// Admin-Superuser) gesehen werden – alle anderen Rollen bekommen die Kachel
+// gar nicht erst angezeigt.
 $openInvoicesCount = 0;
-$canAccessInvoices = Auth::canAccessPage('invoices');
+$canAccessInvoices = in_array($userRole, ['vorstand_finanzen', 'admin'], true);
 if ($canAccessInvoices) {
     try {
         $rechDb = Database::getRechDB();

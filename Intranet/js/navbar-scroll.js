@@ -306,4 +306,113 @@
         initScrollReveal: initScrollReveal
     };
 
+    // ════════════════════════════════════════════════════════════════════
+    //  GLOBAL MODAL OBSERVER — body.has-open-modal toggle
+    //
+    //  Different modules (vCards, Rechnungen, Inventar, Ideenbox, Bug-Melden,
+    //  Bewerbungen, Events, Mitglieder, Checkout, …) use slightly different
+    //  modal class conventions. The CSS in `assets/css/ui-fixes.css` already
+    //  has dozens of `:has()` selectors to detect open modals, but
+    //  (a) `:has()` is not supported on Safari < 15.4 and Firefox < 121,
+    //  (b) some templates wrap `.open` further inside the modal container.
+    //
+    //  This observer catches everything: whenever any element with a
+    //  `*-modal-overlay` / `vc-modal` / `prm-modal` class gains/loses the
+    //  `.open` class (or any descendant of <body> matches `.open` AND looks
+    //  like a modal), we toggle `body.has-open-modal`. The matching CSS
+    //  rules then unconditionally hide the global footer + mobile-bottom-nav.
+    // ════════════════════════════════════════════════════════════════════
+    (function setupGlobalModalObserver() {
+        if (!window.MutationObserver || !document.body) return;
+
+        var MODAL_SELECTORS = [
+            '[class*="-modal-overlay"]',
+            '.vc-modal-overlay',
+            '.vc-modal',
+            '.prm-modal',
+            '.prm-modal-overlay',
+            '.idea-modal-overlay',
+            '.inv-modal-overlay',
+            '.evv-modal-overlay',
+            '.emg-modal-overlay',
+            '.jb-modal-overlay',
+            '.appl-modal-overlay',
+            '.rech-modal-overlay',
+            '.bug-modal-overlay',
+            '.checkout-modal-overlay',
+            '.modal'
+        ];
+        var SELECTOR = MODAL_SELECTORS.join(',');
+
+        function anyOpen() {
+            // dialog[open]
+            if (document.querySelector('dialog[open]')) return true;
+            // class-based
+            var nodes = document.querySelectorAll(SELECTOR);
+            for (var i = 0; i < nodes.length; i++) {
+                var el = nodes[i];
+                if (el.classList.contains('open') ||
+                    el.classList.contains('show') ||
+                    el.classList.contains('is-open') ||
+                    el.classList.contains('active')) {
+                    // ignore hidden helpers
+                    var cs = window.getComputedStyle(el);
+                    if (cs.display !== 'none' && cs.visibility !== 'hidden') {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function refresh() {
+            var open = anyOpen();
+            var hadFlag = document.body.classList.contains('has-open-modal');
+            if (open && !hadFlag) document.body.classList.add('has-open-modal');
+            else if (!open && hadFlag) document.body.classList.remove('has-open-modal');
+        }
+
+        var rafId = 0;
+        function schedule() {
+            if (rafId) return;
+            rafId = window.requestAnimationFrame(function () {
+                rafId = 0;
+                refresh();
+            });
+        }
+
+        var mo = new MutationObserver(function (mutations) {
+            // We only care about class/style/open mutations and DOM additions.
+            for (var i = 0; i < mutations.length; i++) {
+                var m = mutations[i];
+                if (m.type === 'attributes' &&
+                    (m.attributeName === 'class' || m.attributeName === 'style' || m.attributeName === 'open')) {
+                    schedule();
+                    return;
+                }
+                if (m.type === 'childList' &&
+                    (m.addedNodes.length || m.removedNodes.length)) {
+                    schedule();
+                    return;
+                }
+            }
+        });
+        mo.observe(document.body, {
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['class', 'style', 'open'],
+            childList: true
+        });
+
+        // Initial pass + window-level safety nets
+        refresh();
+        window.addEventListener('hashchange', refresh);
+        document.addEventListener('keydown', function (ev) {
+            if (ev.key === 'Escape') schedule();
+        });
+
+        // Public helper
+        window.refreshModalFlag = refresh;
+    }());
+
 }());

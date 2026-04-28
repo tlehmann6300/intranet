@@ -58,26 +58,78 @@ class Invoice {
         try {
             // Insert into database
             $db = Database::getConnection('rech');
-            $stmt = $db->prepare("
-                INSERT INTO invoices (user_id, description, amount, file_path, status)
-                VALUES (?, ?, ?, ?, 'pending')
-            ");
-            
-            $stmt->execute([
-                $userId,
-                $data['description'] ?? '',
-                $data['amount'] ?? 0,
-                $uploadResult['path']
-            ]);
-            
-            $invoiceId = $db->lastInsertId();
-            
+
+            $iban          = (string) ($data['iban']           ?? '');
+            $bic           = (string) ($data['bic']            ?? '');
+            $accountHolder = (string) ($data['account_holder'] ?? '');
+            $hasBankData   = ($iban !== '' || $bic !== '' || $accountHolder !== '');
+
+            $invoiceId = null;
+
+            if ($hasBankData) {
+                // Versuch mit Bankspalten – wenn die Spalten fehlen, fangen
+                // wir die PDO-Exception (42S22 = unknown column) und fallen
+                // auf das klassische INSERT plus einen Description-Vermerk
+                // zurück, damit die Bankdaten nicht verloren gehen.
+                try {
+                    $stmt = $db->prepare(
+                        "INSERT INTO invoices
+                            (user_id, description, amount, file_path, status,
+                             iban, bic, account_holder)
+                         VALUES (?, ?, ?, ?, 'pending', ?, ?, ?)"
+                    );
+                    $stmt->execute([
+                        $userId,
+                        $data['description'] ?? '',
+                        $data['amount']      ?? 0,
+                        $uploadResult['path'],
+                        $iban,
+                        $bic,
+                        $accountHolder,
+                    ]);
+                    $invoiceId = $db->lastInsertId();
+                } catch (PDOException $pe) {
+                    if ($pe->getCode() === '42S22') {
+                        $appended = trim(($data['description'] ?? '') . "\n\n"
+                            . "[Bankverbindung]\n"
+                            . "Kontoinhaber: " . $accountHolder . "\n"
+                            . "IBAN: " . $iban . "\n"
+                            . "BIC:  " . $bic);
+                        $stmt = $db->prepare(
+                            "INSERT INTO invoices (user_id, description, amount, file_path, status)
+                             VALUES (?, ?, ?, ?, 'pending')"
+                        );
+                        $stmt->execute([
+                            $userId,
+                            $appended,
+                            $data['amount']      ?? 0,
+                            $uploadResult['path'],
+                        ]);
+                        $invoiceId = $db->lastInsertId();
+                    } else {
+                        throw $pe;
+                    }
+                }
+            } else {
+                $stmt = $db->prepare(
+                    "INSERT INTO invoices (user_id, description, amount, file_path, status)
+                     VALUES (?, ?, ?, ?, 'pending')"
+                );
+                $stmt->execute([
+                    $userId,
+                    $data['description'] ?? '',
+                    $data['amount']      ?? 0,
+                    $uploadResult['path']
+                ]);
+                $invoiceId = $db->lastInsertId();
+            }
+
             return [
                 'success' => true,
                 'id' => $invoiceId,
                 'error' => null
             ];
-            
+
         } catch (Exception $e) {
             error_log("Error creating invoice: " . $e->getMessage());
             // Clean up uploaded file if database insertion failed

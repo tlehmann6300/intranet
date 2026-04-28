@@ -1,0 +1,28 @@
+node_modules/
+
+# Vite build output
+assets/dist/
+
+# PHP-CS-Fixer cache
+.php-cs-fixer.cache
+
+# PHPStan cache
+.phpstan/
+/tmp/phpstan*
+
+# PHPUnit coverage output
+tests/coverage/
+
+# Rate-limiter file cache (runtime data)
+logs/rate_limit/
+vendor/composer/tmp-*.zip~
+
+# Environment config – never commit secrets
+.env
+
+# Twig compiled template cache (runtime artefacts)
+storage/twig_cache/*
+!storage/twig_cache/.gitkeep
+
+# Runtime log files
+logs/*.log

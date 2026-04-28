@@ -998,7 +998,7 @@ document.getElementById('deleteModal')?.addEventListener('click', (e) => {
 .dark-mode .prm-project-card {
     background-color: var(--bg-card);
 }
-</style>
+
 /* PRM (Project Manage) scoped styles */
 .prm-form-container {
     margin-bottom: 2rem;

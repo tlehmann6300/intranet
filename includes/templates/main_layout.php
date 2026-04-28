@@ -369,42 +369,70 @@ if ($currentUser && isset($currentUser['id'])) {
         .mob-dd-theme-row {
             display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 0.75rem;
-            padding: 0.75rem 1rem;
+            padding: 0.875rem 1rem;
+            min-height: 3rem;
             border-top: 1px solid var(--border-color);
             background: var(--bg-body);
+            box-sizing: border-box;
+        }
+        .mob-dd-theme-row > i {
+            flex-shrink: 0;
+            width: 1rem;
+            text-align: center;
+            font-size: 0.875rem;
+            color: var(--text-muted) !important;
         }
         .mob-dd-theme-row span {
-            flex: 1;
+            flex: 1 1 auto;
+            min-width: 0;
             font-size: 0.875rem;
             font-weight: 600;
-            color: var(--text-main);
+            color: var(--text-main) !important;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .mob-dd-theme-toggle {
             position: relative;
-            width: 2.5rem;
-            height: 1.375rem;
+            width: 2.875rem;            /* 46px – größeres Touch-Target */
+            height: 1.625rem;           /* 26px */
             border-radius: 9999px;
-            background: var(--border-color);
+            background: #cbd5e1;        /* deutlich sichtbar in Lightmode */
             border: none;
+            padding: 0;
+            margin: 0;
             cursor: pointer;
-            transition: background 0.25s;
             flex-shrink: 0;
+            transition: background 0.25s ease;
+            -webkit-appearance: none;
+            appearance: none;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.08);
+            overflow: visible;
         }
-        .dark-mode .mob-dd-theme-toggle { background: var(--ibc-blue); }
+        .mob-dd-theme-toggle:focus-visible {
+            box-shadow: 0 0 0 3px rgba(0,102,179,0.35);
+        }
+        .dark-mode .mob-dd-theme-toggle { background: var(--ibc-blue, #0066b3); }
         .mob-dd-theme-toggle::after {
             content: '';
             position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 1rem;
-            height: 1rem;
+            top: 50%;
+            left: 3px;
+            width: 1.25rem;             /* 20px Thumb */
+            height: 1.25rem;
             border-radius: 50%;
-            background: #fff;
-            transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
-            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+            background: #ffffff;
+            transform: translateY(-50%);
+            transition: left 0.25s cubic-bezier(0.34,1.56,0.64,1), background 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.25), 0 1px 1px rgba(0,0,0,0.06);
         }
-        .dark-mode .mob-dd-theme-toggle::after { transform: translateX(1.125rem); }
+        .dark-mode .mob-dd-theme-toggle::after {
+            left: calc(100% - 1.25rem - 3px); /* exakt gespiegelt */
+        }
 
         /* ── MOBILE BOTTOM NAV ───────────────────────────────────── */
         #mobile-bottom-nav {
@@ -566,16 +594,16 @@ if ($currentUser && isset($currentUser['id'])) {
             <i class="fas fa-cog" aria-hidden="true"></i>
             <span>Einstellungen</span>
         </a>
+        <div class="mob-dd-theme-row" role="group" aria-label="Darkmode umschalten">
+            <i class="fas fa-moon" aria-hidden="true"></i>
+            <span>Darkmode</span>
+            <button type="button" class="mob-dd-theme-toggle" id="mob-dd-theme-btn" aria-label="Darkmode umschalten" aria-pressed="false"></button>
+        </div>
         <div class="mob-dd-divider"></div>
         <a href="<?php echo asset('pages/auth/logout.php'); ?>" class="mob-dd-item mob-dd-item--logout" role="menuitem">
             <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
             <span>Abmelden</span>
         </a>
-        <div class="mob-dd-theme-row">
-            <i class="fas fa-moon" style="color:var(--text-muted);width:1rem;text-align:center;font-size:0.875rem;" aria-hidden="true"></i>
-            <span>Darkmode</span>
-            <button class="mob-dd-theme-toggle" id="mob-dd-theme-btn" aria-label="Darkmode umschalten"></button>
-        </div>
     </div>
 
     <!-- Desktop Fixed Top Navbar (hidden on mobile) -->
@@ -627,7 +655,10 @@ if ($currentUser && isset($currentUser['id'])) {
     </header>
 
     <!-- Sidebar -->
-    <aside id="sidebar" class="sidebar fixed left-0 top-0 h-screen w-64 md:w-72 transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-40 text-white shadow-2xl flex flex-col" aria-label="Seitenleiste">
+    <!-- NOTE: Absichtlich kein `text-white` mehr – die Textfarbe wird jetzt
+         themenabhängig via CSS gesetzt (dunkelblau/hell im Lightmode,
+         weiß im Darkmode). -->
+    <aside id="sidebar" class="sidebar fixed left-0 top-0 h-screen w-64 md:w-72 transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-40 shadow-2xl flex flex-col" aria-label="Seitenleiste">
         <?php 
         $currentUser = Auth::user();
         $userRole = $currentUser['role'] ?? '';
@@ -638,7 +669,7 @@ if ($currentUser && isset($currentUser['id'])) {
                 <img src="<?php echo asset('assets/img/ibc_logo_original_navbar.webp'); ?>" alt="IBC Logo" class="w-full h-auto drop-shadow-lg" decoding="async">
                 <!-- Close button: only visible on mobile, hidden on md+ -->
                 <button id="sidebar-close-btn"
-                        class="md:hidden absolute top-0 right-0 flex items-center justify-center w-8 h-8 rounded-lg text-white/70 hover:text-white hover:bg-white/15 transition-colors"
+                        class="sidebar-close-btn md:hidden absolute top-0 right-0 flex items-center justify-center w-8 h-8 rounded-lg transition-colors"
                         aria-label="Seitenleiste schließen"
                         style="-webkit-tap-highlight-color: transparent;">
                     <i class="fas fa-times" aria-hidden="true"></i>
@@ -946,8 +977,8 @@ if ($currentUser && isset($currentUser['id'])) {
         <!-- Sidebar Footer -->
         <div class='sidebar-footer mt-auto pt-2 pb-2 px-3'>
             <!-- Live Clock (centered) -->
-            <div class='pt-2 border-t border-white/20 text-center'>
-                <div id="live-clock" class='text-xs text-white/80 font-mono'>
+            <div class='sidebar-clock-wrap pt-2 text-center'>
+                <div id="live-clock" class='sidebar-clock text-xs font-mono'>
                     <!-- JavaScript will update this -->
                 </div>
             </div>
@@ -1268,7 +1299,15 @@ if ($currentUser && isset($currentUser['id'])) {
         const mobileThemeIcon = document.getElementById('mobile-theme-icon');
         const navbarThemeToggle = document.getElementById('navbar-theme-toggle');
         const navbarThemeIcon = document.getElementById('navbar-theme-icon');
-        
+        const ddThemeBtnRef = document.getElementById('mob-dd-theme-btn');
+
+        // Helper: aria-pressed/aria-checked synchron halten (Dropdown-Switch).
+        function syncDdThemeAria(isDark) {
+            if (!ddThemeBtnRef) return;
+            ddThemeBtnRef.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+            ddThemeBtnRef.setAttribute('aria-label', isDark ? 'Zu Lightmode wechseln' : 'Zu Darkmode wechseln');
+        }
+
         // Get user's saved theme preference from database (via data attribute)
         const userThemePreference = document.body.getAttribute('data-user-theme') || 'auto';
         
@@ -1289,6 +1328,7 @@ if ($currentUser && isset($currentUser['id'])) {
                 if (mobileThemeToggle) mobileThemeToggle.setAttribute('aria-label', 'Zu Lightmode wechseln');
                 if (navbarThemeIcon) { navbarThemeIcon.classList.remove('fa-moon'); navbarThemeIcon.classList.add('fa-sun'); }
                 if (navbarThemeToggle) navbarThemeToggle.setAttribute('aria-label', 'Zu Lightmode wechseln');
+                syncDdThemeAria(true);
             } else {
                 document.body.classList.remove('dark-mode', 'dark');
                 document.documentElement.classList.remove('dark-mode', 'dark');
@@ -1300,9 +1340,10 @@ if ($currentUser && isset($currentUser['id'])) {
                 if (mobileThemeToggle) mobileThemeToggle.setAttribute('aria-label', 'Zu Darkmode wechseln');
                 if (navbarThemeIcon) { navbarThemeIcon.classList.remove('fa-sun'); navbarThemeIcon.classList.add('fa-moon'); }
                 if (navbarThemeToggle) navbarThemeToggle.setAttribute('aria-label', 'Zu Darkmode wechseln');
+                syncDdThemeAria(false);
             }
         }
-        
+
         // Apply initial theme
         applyTheme(currentTheme);
         
@@ -1321,6 +1362,7 @@ if ($currentUser && isset($currentUser['id'])) {
                 if (mobileThemeToggle) mobileThemeToggle.setAttribute('aria-label', 'Zu Darkmode wechseln');
                 if (navbarThemeIcon) { navbarThemeIcon.classList.remove('fa-sun'); navbarThemeIcon.classList.add('fa-moon'); }
                 if (navbarThemeToggle) navbarThemeToggle.setAttribute('aria-label', 'Zu Darkmode wechseln');
+                syncDdThemeAria(false);
             } else {
                 document.body.classList.add('dark-mode', 'dark');
                 document.documentElement.classList.add('dark-mode', 'dark');
@@ -1333,16 +1375,47 @@ if ($currentUser && isset($currentUser['id'])) {
                 if (mobileThemeToggle) mobileThemeToggle.setAttribute('aria-label', 'Zu Lightmode wechseln');
                 if (navbarThemeIcon) { navbarThemeIcon.classList.remove('fa-moon'); navbarThemeIcon.classList.add('fa-sun'); }
                 if (navbarThemeToggle) navbarThemeToggle.setAttribute('aria-label', 'Zu Lightmode wechseln');
+                syncDdThemeAria(true);
             }
         }
 
-        themeToggle?.addEventListener('click', toggleTheme);
+        /* Weicher Icon-Swap: kurz auf 0 opacity/180deg, dann Klassenwechsel
+           in toggleTheme(), dann zurück. Funktioniert in allen Browsern. */
+        function toggleThemeAnimated() {
+            var icons = [themeIcon, mobileThemeIcon, navbarThemeIcon].filter(Boolean);
+            icons.forEach(function (ic) {
+                ic.style.transition = 'opacity 0.15s ease, transform 0.25s cubic-bezier(.34,1.56,.64,1)';
+                ic.style.opacity = '0';
+                ic.style.transform = 'rotate(180deg) scale(0.8)';
+            });
+            setTimeout(function () {
+                toggleTheme();
+                /* Nach Klassenwechsel ein Frame warten, dann wieder einblenden */
+                requestAnimationFrame(function () {
+                    icons.forEach(function (ic) {
+                        ic.style.opacity = '1';
+                        ic.style.transform = 'rotate(0deg) scale(1)';
+                    });
+                    /* Inline-Style nach Animation wieder freigeben, damit
+                       andere Styles (z.B. CSS-Hover-Transform) greifen. */
+                    setTimeout(function () {
+                        icons.forEach(function (ic) {
+                            ic.style.transition = '';
+                            ic.style.opacity = '';
+                            ic.style.transform = '';
+                        });
+                    }, 320);
+                });
+            }, 150);
+        }
+
+        themeToggle?.addEventListener('click', toggleThemeAnimated);
 
         // Mobile theme toggle (synced with sidebar toggle)
-        mobileThemeToggle?.addEventListener('click', toggleTheme);
+        mobileThemeToggle?.addEventListener('click', toggleThemeAnimated);
 
         // Navbar theme toggle
-        navbarThemeToggle?.addEventListener('click', toggleTheme);
+        navbarThemeToggle?.addEventListener('click', toggleThemeAnimated);
 
         // ── Navbar Profile Dropdown ──────────────────────────────────
         (function() {

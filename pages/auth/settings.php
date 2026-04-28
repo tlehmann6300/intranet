@@ -663,41 +663,169 @@ ob_start();
     }
 }
 
-/* ── Support Modal – dark mode overrides ─────────────────────── */
-.dark-mode #supportModal > div {
-    background: var(--bg-card) !important;
+/* ════════════════════════════════════════════════════════════════════
+   SUPPORT MODAL · identisch zur Logik in profile.php
+   ──────────────────────────────────────────────────────────────────
+   Eigene Klasse `.support-modal-overlay`, default `display:none`,
+   Open-Zustand ausschliesslich per `.is-open`. Keine Tailwind-
+   `hidden`/`flex`-Toggle-Konflikte mehr.
+   ════════════════════════════════════════════════════════════════════ */
+.support-modal-overlay{
+    position: fixed;
+    inset: 0;
+    z-index: 1050;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(72px, 9vh, 110px) 1rem 1.25rem;
+    background: rgba(2, 6, 23, 0.68);
+    -webkit-backdrop-filter: blur(8px) saturate(1.1);
+            backdrop-filter: blur(8px) saturate(1.1);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    opacity: 0;
+    transition: opacity .2s ease;
+}
+.support-modal-overlay.is-open{ display: flex; opacity: 1; }
+.support-modal-box{
+    background: var(--bg-card, #ffffff);
+    color: var(--text-main, #0f172a);
+    border-radius: 1.125rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    width: min(36rem, 100%);
+    max-height: calc(100vh - clamp(96px, 12vh, 140px));
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: translateY(12px) scale(.97);
+    opacity: 0;
+    transition: transform .25s cubic-bezier(.34,1.56,.64,1), opacity .2s ease;
+    margin: auto;
+}
+html.dark .support-modal-box,
+body.dark-mode .support-modal-box{
+    background: var(--bg-card, #1f2937);
+    color: var(--text-main, #f1f5f9);
     border: 1.5px solid rgba(255,255,255,.08);
-    box-shadow: 0 16px 56px rgba(0,0,0,.65);
 }
-.dark-mode #supportModal h3,
-.dark-mode #supportModal label {
-    color: var(--text-main) !important;
+.support-modal-overlay.is-open .support-modal-box{
+    transform: translateY(0) scale(1);
+    opacity: 1;
 }
-.dark-mode #supportModal button[onclick="hideSupportModal()"] {
-    color: var(--text-muted) !important;
+.support-modal-header{
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border-color, #e5e7eb);
+    flex-shrink: 0;
 }
-.dark-mode #supportModal button[onclick="hideSupportModal()"]:hover {
-    color: var(--text-main) !important;
+.support-modal-title{
+    font-size: 1.05rem; font-weight: 700; margin: 0;
+    color: var(--text-main, inherit);
+    display: flex; align-items: center; gap: .55rem;
 }
-.dark-mode #supportModal select,
-.dark-mode #supportModal textarea {
-    background: rgba(255,255,255,.05) !important;
-    border-color: rgba(255,255,255,.12) !important;
-    color: var(--text-main) !important;
+.support-modal-close{
+    width: 2rem; height: 2rem; border-radius: 50%; border: none; cursor: pointer;
+    background: rgba(100,116,139,.12);
+    color: var(--text-muted, #64748b);
+    display: flex; align-items: center; justify-content: center;
+    transition: background .2s, color .2s;
 }
-.dark-mode #supportModal select:focus,
-.dark-mode #supportModal textarea:focus {
-    border-color: rgba(0,102,179,.5) !important;
-    box-shadow: 0 0 0 3px rgba(0,102,179,.15) !important;
+.support-modal-close:hover{ background: rgba(220,38,38,.14); color: #dc2626; }
+.support-modal-body{
+    padding: 1.25rem 1.25rem 1rem;
+    overflow-y: auto;
+    flex: 1;
+}
+.support-modal-body label{
+    display:block; font-size:.8rem; font-weight:600;
+    color: var(--text-muted, #475569);
+    margin-bottom:.4rem; letter-spacing:.02em;
+}
+.support-modal-body select,
+.support-modal-body textarea{
+    width: 100%;
+    padding: .65rem .85rem;
+    border-radius: .65rem;
+    border: 1px solid var(--border-color, #cbd5e1);
+    background: var(--bg-input, #ffffff);
+    color: var(--text-main, inherit);
+    font: inherit;
+    font-size: .92rem;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+body.dark-mode .support-modal-body select,
+body.dark-mode .support-modal-body textarea{
+    background: rgba(255,255,255,.05);
+    border-color: rgba(255,255,255,.12);
+    color: #f1f5f9;
+}
+.support-modal-body select:focus,
+.support-modal-body textarea:focus{
     outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, .18);
 }
-.dark-mode #supportModal .flex.flex-col button:first-of-type {
-    background: rgba(255,255,255,.07) !important;
-    color: var(--text-muted) !important;
+.support-modal-body textarea{ resize: vertical; min-height: 6.5rem; }
+.support-modal-feedback{
+    margin-top: .25rem;
+    padding: .65rem .85rem;
+    border-radius: .55rem;
+    font-size: .85rem;
+    font-weight: 500;
 }
-.dark-mode #supportModal .flex.flex-col button:first-of-type:hover {
-    background: rgba(255,255,255,.12) !important;
-    color: var(--text-main) !important;
+.support-modal-feedback[hidden]{ display: none !important; }
+.support-modal-feedback.is-success{ background: rgba(22,163,74,.12); color: #15803d; border:1px solid rgba(22,163,74,.3); }
+.support-modal-feedback.is-error  { background: rgba(220,38,38,.12); color: #b91c1c; border:1px solid rgba(220,38,38,.3); }
+.support-modal-footer{
+    display: flex; gap: .75rem; justify-content: flex-end; flex-wrap: wrap;
+    padding: 1rem 1.25rem;
+    border-top: 1px solid var(--border-color, #e5e7eb);
+    flex-shrink: 0;
+}
+.support-modal-footer .btn-cancel{
+    padding: .6rem 1.1rem; border-radius: .65rem; border: none; cursor: pointer;
+    background: rgba(100,116,139,.12); color: var(--text-muted, #475569);
+    font-weight: 600; font-size: .9rem; transition: background .2s;
+}
+.support-modal-footer .btn-cancel:hover{ background: rgba(100,116,139,.22); }
+body.dark-mode .support-modal-footer .btn-cancel{
+    background: rgba(255,255,255,.07); color: rgba(241,245,249,.85);
+}
+body.dark-mode .support-modal-footer .btn-cancel:hover{
+    background: rgba(255,255,255,.14); color: #f1f5f9;
+}
+.support-modal-footer .btn-submit{
+    padding: .6rem 1.2rem; border-radius: .65rem; border: none; cursor: pointer;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: #fff; font-weight: 700; font-size: .9rem;
+    box-shadow: 0 8px 18px -8px rgba(37, 99, 235, .55);
+    transition: transform .2s, box-shadow .2s, opacity .2s;
+    display: inline-flex; align-items: center; gap: .45rem;
+}
+.support-modal-footer .btn-submit:hover{
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px -8px rgba(37, 99, 235, .65);
+}
+.support-modal-footer .btn-submit:disabled{
+    opacity: .65; cursor: not-allowed; transform: none;
+}
+@media (max-width: 600px){
+    .support-modal-overlay{
+        align-items: flex-end;
+        padding: clamp(56px, 8vh, 96px) 0 0;
+    }
+    .support-modal-box{
+        width: 100%;
+        border-radius: 1.25rem 1.25rem 0 0;
+        max-height: calc(100vh - clamp(56px, 8vh, 96px));
+        margin: 0;
+    }
+}
+/* Defensive Guards */
+#supportModal:not(.is-open){ display: none !important; }
+body:not(.sidebar-open):not(.has-open-modal):not(.bug-modal-open):not(.rech-modal-open){
+    overflow-y: auto !important;
+    position: static !important;
 }
 </style>
 
@@ -1086,48 +1214,53 @@ ob_start();
 
 </div>
 
-<!-- Support Modal -->
-<div id="supportModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-    <div class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden">
-        <div class="p-6 overflow-y-auto flex-1">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-bold dark:text-white">
-                    <i class="fas fa-headset text-blue-600 mr-2"></i>Hilfe
-                </h3>
-                <button type="button" onclick="hideSupportModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-            <form id="support-modal-form" method="POST" action="<?php echo asset('api/submit_support.php'); ?>" class="space-y-4">
+<!-- Support Modal · neue Logik (siehe profile.php) -->
+<div id="supportModal"
+     class="support-modal-overlay bug-modal-overlay"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="supportModalTitle"
+     aria-hidden="true">
+    <div class="support-modal-box" role="document">
+        <div class="support-modal-header">
+            <h3 class="support-modal-title" id="supportModalTitle">
+                <i class="fas fa-headset" style="color:#2563eb;"></i>Hilfe &amp; Support
+            </h3>
+            <button type="button" class="support-modal-close" data-support-close aria-label="Schließen">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <form id="support-modal-form" method="POST" action="<?php echo asset('api/submit_support.php'); ?>" novalidate>
+            <div class="support-modal-body">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(CSRFHandler::getToken(), ENT_QUOTES, 'UTF-8'); ?>">
-                <div>
-                    <label for="support-modal-type" class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Art der Anfrage</label>
-                    <select id="support-modal-type" name="request_type" required
-                            class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Bitte auswählen...</option>
+
+                <div style="margin-bottom: 1rem;">
+                    <label for="support-modal-type">Art der Anfrage</label>
+                    <select id="support-modal-type" name="request_type" required>
+                        <option value="">Bitte auswählen…</option>
                         <option value="2fa_reset">2FA zurücksetzen</option>
-                        <option value="bug">Bug / Fehler</option>
+                        <option value="bug">Bug / Fehler melden</option>
                         <option value="other">Sonstiges</option>
                     </select>
                 </div>
+
                 <div>
-                    <label for="support-modal-description" class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Beschreibung</label>
-                    <textarea id="support-modal-description" name="description" rows="4" required
-                              placeholder="Beschreibe dein Anliegen..."
-                              class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    <label for="support-modal-description">Beschreibung</label>
+                    <textarea id="support-modal-description" name="description" rows="5" required
+                              placeholder="Beschreibe dein Anliegen so genau wie möglich…"></textarea>
                 </div>
-                <div id="support-modal-feedback" class="hidden"></div>
-                <div class="flex flex-col md:flex-row gap-3 justify-end">
-                    <button type="button" onclick="hideSupportModal()"
-                            class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
-                        Abbrechen
-                    </button>
-                    <button type="submit" id="support-modal-submit-btn" class="btn-primary">
-                        <i class="fas fa-paper-plane mr-2"></i>Senden
-                    </button>
-                </div>
-            </form>
-        </div>
+
+                <div id="support-modal-feedback" class="support-modal-feedback" hidden></div>
+            </div>
+
+            <div class="support-modal-footer">
+                <button type="button" class="btn-cancel" data-support-close>Abbrechen</button>
+                <button type="submit" id="support-modal-submit-btn" class="btn-submit">
+                    <i class="fas fa-paper-plane"></i><span>Senden</span>
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -1153,92 +1286,165 @@ document.querySelectorAll('input[name="theme"]').forEach(radio => {
     });
 });
 
-// Show the support modal with a pre-selected type
-function showSupportModal(type) {
+// ════════════════════════════════════════════════════════════════════════
+// SUPPORT MODAL · identisch zur neuen Logik in profile.php
+// ────────────────────────────────────────────────────────────────────────
+//   • Default = display:none, Open = .is-open
+//   • Modal wird beim Öffnen an document.body portiert (Containing-Block-
+//     Trap durch transformierte Vorfahren wird so umgangen)
+//   • Backdrop-Klick · Esc · Cross-Button · Abbrechen schließen
+//   • Body-Scroll-Lock + body.bug-modal-open für Footer-Hide-CSS
+//   • Fail-Safe beim Init: räumt evtl. hängengebliebene Lock-Reste weg
+// ════════════════════════════════════════════════════════════════════════
+(function () {
     const modal = document.getElementById('supportModal');
     if (!modal) return;
-    const select = document.getElementById('support-modal-type');
-    if (select && type) {
-        select.value = type;
-        select.disabled = true;
-        let hidden = document.getElementById('support-modal-type-hidden');
-        if (!hidden) {
-            hidden = document.createElement('input');
-            hidden.type = 'hidden';
-            hidden.id = 'support-modal-type-hidden';
-            hidden.name = 'request_type';
-            select.parentNode.appendChild(hidden);
-        }
-        hidden.value = type;
-    }
-    modal.classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-}
 
-function hideSupportModal() {
-    const modal = document.getElementById('supportModal');
-    if (!modal) return;
-    modal.classList.add('hidden');
-    document.body.style.overflow = '';
-    const select = document.getElementById('support-modal-type');
-    if (select) {
-        select.disabled = false;
+    const form        = document.getElementById('support-modal-form');
+    const select      = document.getElementById('support-modal-type');
+    const submitBtn   = document.getElementById('support-modal-submit-btn');
+    const feedback    = document.getElementById('support-modal-feedback');
+    let   originalSubmitHTML = submitBtn ? submitBtn.innerHTML : '';
+    let   isOpen      = false;
+
+    function setHiddenInput(value) {
+        let inp = document.getElementById('support-modal-type-hidden');
+        if (!value) { if (inp) inp.remove(); return; }
+        if (!inp) {
+            inp = document.createElement('input');
+            inp.type = 'hidden';
+            inp.id   = 'support-modal-type-hidden';
+            inp.name = 'request_type';
+            select.parentNode.appendChild(inp);
+        }
+        inp.value = value;
     }
-    const hidden = document.getElementById('support-modal-type-hidden');
-    if (hidden) hidden.remove();
-    const form = document.getElementById('support-modal-form');
-    if (form) form.reset();
-    const feedback = document.getElementById('support-modal-feedback');
-    if (feedback) {
-        feedback.className = 'hidden';
+
+    function resetFeedback() {
+        if (!feedback) return;
+        feedback.hidden = true;
+        feedback.classList.remove('is-success', 'is-error');
         feedback.textContent = '';
     }
-}
 
-// Close modal on backdrop click
-document.getElementById('supportModal') && document.getElementById('supportModal').addEventListener('click', function(e) {
-    if (e.target === this) hideSupportModal();
-});
+    function showFeedback(kind, text) {
+        if (!feedback) return;
+        feedback.classList.remove('is-success', 'is-error');
+        feedback.classList.add(kind === 'success' ? 'is-success' : 'is-error');
+        feedback.textContent = text;
+        feedback.hidden = false;
+    }
 
-// AJAX submission for the support modal form
-(function() {
-    const supportForm = document.getElementById('support-modal-form');
-    if (!supportForm) return;
-    supportForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const submitBtn = document.getElementById('support-modal-submit-btn');
-        const feedback = document.getElementById('support-modal-feedback');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Wird gesendet...';
+    function lockBodyScroll(lock) {
+        document.body.style.overflow = lock ? 'hidden' : '';
+        document.body.classList.toggle('bug-modal-open', !!lock);
+    }
 
-        fetch(this.action, { method: 'POST', body: new FormData(this) })
-            .then(function(r) {
-                if (!r.ok) { throw new Error('HTTP ' + r.status); }
-                return r.json();
-            })
-            .then(function(data) {
-                feedback.classList.remove('hidden');
-                if (data.success) {
-                    feedback.className = 'mt-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 text-green-700 dark:text-green-300 rounded-lg';
-                    feedback.textContent = data.message || 'Anfrage erfolgreich gesendet!';
-                    supportForm.reset();
-                    submitBtn.innerHTML = originalText;
-                } else {
-                    feedback.className = 'mt-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg';
-                    feedback.textContent = data.message || 'Fehler beim Senden der Anfrage.';
-                    submitBtn.innerHTML = originalText;
-                }
-                submitBtn.disabled = false;
-            })
-            .catch(function() {
-                feedback.className = 'mt-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg';
-                feedback.classList.remove('hidden');
-                feedback.textContent = 'Fehler beim Senden der Anfrage.';
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-            });
+    function open(type) {
+        if (modal.parentElement !== document.body) {
+            document.body.appendChild(modal);
+        }
+        if (select && type) {
+            select.value = type;
+            select.disabled = true;
+            setHiddenInput(type);
+        } else if (select) {
+            select.disabled = false;
+            setHiddenInput(null);
+        }
+        resetFeedback();
+        modal.classList.add('is-open');
+        modal.classList.add('open'); // Sentinel für globalen Modal-Observer
+        modal.setAttribute('aria-hidden', 'false');
+        lockBodyScroll(true);
+        isOpen = true;
+
+        const firstField = modal.querySelector('select:not([disabled]), textarea, input:not([type="hidden"])');
+        if (firstField) {
+            setTimeout(function () { try { firstField.focus(); } catch (e) {} }, 50);
+        }
+    }
+
+    function close() {
+        modal.classList.remove('is-open', 'open');
+        modal.setAttribute('aria-hidden', 'true');
+        lockBodyScroll(false);
+        isOpen = false;
+
+        if (select) { select.disabled = false; select.value = ''; }
+        setHiddenInput(null);
+        if (form) form.reset();
+        resetFeedback();
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalSubmitHTML;
+        }
+    }
+
+    // Globale API für Inline-`onclick`-Handler im Markup.
+    window.showSupportModal = function (type) { open(type); };
+    window.hideSupportModal = function ()      { close(); };
+
+    // Backdrop / Close-Buttons
+    modal.addEventListener('click', function (e) {
+        if (e.target === modal) { close(); return; }
+        const closer = e.target.closest('[data-support-close]');
+        if (closer && modal.contains(closer)) {
+            e.preventDefault();
+            close();
+        }
     });
+
+    // ESC-Taste
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && isOpen) close();
+    });
+
+    // ─── Fail-Safe beim Init ───────────────────────────────────────────
+    modal.classList.remove('is-open', 'open', 'hidden');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('bug-modal-open', 'has-open-modal', 'rech-modal-open');
+    if (document.body.style.overflow === 'hidden') document.body.style.overflow = '';
+    if (document.body.style.position === 'fixed') {
+        document.body.style.position = '';
+        document.body.style.top      = '';
+        document.body.style.width    = '';
+    }
+    document.documentElement.style.overflow = '';
+
+    // ─── Form Submit ────────────────────────────────────────────────────
+    if (form) {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (!submitBtn) return;
+            originalSubmitHTML = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Wird gesendet…</span>';
+            resetFeedback();
+
+            fetch(form.action, { method: 'POST', body: new FormData(form) })
+                .then(function (r) {
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    return r.json();
+                })
+                .then(function (data) {
+                    if (data && data.success) {
+                        showFeedback('success', data.message || 'Anfrage erfolgreich gesendet!');
+                        form.reset();
+                        setTimeout(function () { close(); }, 1800);
+                    } else {
+                        showFeedback('error', (data && data.message) || 'Fehler beim Senden der Anfrage.');
+                    }
+                })
+                .catch(function () {
+                    showFeedback('error', 'Netzwerkfehler – bitte erneut versuchen.');
+                })
+                .finally(function () {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalSubmitHTML;
+                });
+        });
+    }
 }());
 
 // Sync theme preference with localStorage after successful save

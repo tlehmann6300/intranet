@@ -2213,3 +2213,1339 @@ html body:not(.dark-mode) .d-hero .badge {
     border: 1px solid rgba(255, 255, 255, 0.3) !important;
     font-weight: 700 !important;
 }
+
+
+/* ══════════════════════════════════════════════════════════════
+   42. LIGHTMODE – Sidebar NUCLEAR OVERRIDE
+   Manche Tailwind-Utility-Klassen (text-white, text-white/80,
+   border-white/20) stehen direkt im HTML und überleben normale
+   Regeln. Außerdem wird .sidebar in theme.css mehrfach mit
+   !important auf weiße Schrift gesetzt. Hier erzwingen wir
+   FINAL die korrekten Farben für *alle* Text-Nachfahren der
+   Sidebar im Lightmode – ausser Sonderfälle (Active-State,
+   Badges, Icons), die anschließend wieder gezielt gesetzt werden.
+   ══════════════════════════════════════════════════════════════ */
+
+/* Basisfarbe auf wirklich ALLE Textnachfahren der Sidebar im Lightmode */
+html body:not(.dark-mode) #sidebar,
+html body:not(.dark-mode) #sidebar *,
+html body:not(.dark-mode) .sidebar,
+html body:not(.dark-mode) .sidebar * {
+    color: #334155 !important;
+    text-shadow: none !important;
+}
+
+/* Überschriften / Section-Labels – leicht heller Grau */
+html body:not(.dark-mode) #sidebar .sidebar-section-label,
+html body:not(.dark-mode) .sidebar .sidebar-section-label {
+    color: #64748b !important;
+}
+
+/* Aktiver Menüpunkt wieder einfärben – kräftiges Dunkelblau */
+html body:not(.dark-mode) #sidebar .sidebar-nav-item--active,
+html body:not(.dark-mode) #sidebar .sidebar-nav-item--active *,
+html body:not(.dark-mode) .sidebar .sidebar-nav-item--active,
+html body:not(.dark-mode) .sidebar .sidebar-nav-item--active * {
+    color: #1e3a8a !important;
+}
+html body:not(.dark-mode) #sidebar .sidebar-nav-item--active .sidebar-nav-icon,
+html body:not(.dark-mode) #sidebar .sidebar-nav-item--active i,
+html body:not(.dark-mode) .sidebar .sidebar-nav-item--active .sidebar-nav-icon,
+html body:not(.dark-mode) .sidebar .sidebar-nav-item--active i {
+    color: #2563eb !important;
+}
+
+/* Icons im Ruhezustand etwas dunkler als Text */
+html body:not(.dark-mode) #sidebar .sidebar-nav-item .sidebar-nav-icon,
+html body:not(.dark-mode) #sidebar .sidebar-nav-item i,
+html body:not(.dark-mode) .sidebar .sidebar-nav-item .sidebar-nav-icon,
+html body:not(.dark-mode) .sidebar .sidebar-nav-item i {
+    color: #64748b !important;
+}
+
+/* Hover-Farbe für Icon + Text */
+html body:not(.dark-mode) #sidebar .sidebar-nav-item:hover,
+html body:not(.dark-mode) #sidebar .sidebar-nav-item:hover *,
+html body:not(.dark-mode) .sidebar .sidebar-nav-item:hover,
+html body:not(.dark-mode) .sidebar .sidebar-nav-item:hover * {
+    color: #0f172a !important;
+}
+html body:not(.dark-mode) #sidebar .sidebar-nav-item:hover i,
+html body:not(.dark-mode) .sidebar .sidebar-nav-item:hover i {
+    color: #2563eb !important;
+}
+
+/* Sidebar-Close-Button (Mobile) – lesbar auf hellem Grund */
+html body:not(.dark-mode) #sidebar .sidebar-close-btn,
+html body:not(.dark-mode) #sidebar .sidebar-close-btn i,
+html body:not(.dark-mode) .sidebar .sidebar-close-btn,
+html body:not(.dark-mode) .sidebar .sidebar-close-btn i {
+    color: #64748b !important;
+    background: transparent !important;
+}
+html body:not(.dark-mode) #sidebar .sidebar-close-btn:hover,
+html body:not(.dark-mode) #sidebar .sidebar-close-btn:hover i,
+html body:not(.dark-mode) .sidebar .sidebar-close-btn:hover,
+html body:not(.dark-mode) .sidebar .sidebar-close-btn:hover i {
+    color: #0f172a !important;
+    background: #f1f5f9 !important;
+}
+
+/* Footer / Live-Clock */
+html body:not(.dark-mode) #sidebar .sidebar-footer,
+html body:not(.dark-mode) .sidebar .sidebar-footer,
+html body:not(.dark-mode) #sidebar .sidebar-clock,
+html body:not(.dark-mode) .sidebar .sidebar-clock {
+    color: #64748b !important;
+}
+html body:not(.dark-mode) #sidebar .sidebar-clock-wrap,
+html body:not(.dark-mode) .sidebar .sidebar-clock-wrap {
+    border-top: 1px solid #e2e8f0 !important;
+}
+
+/* Tailwind text-white*/? / border-white*/? Utilities an Sidebar-Kindern
+   entschärfen – wir adressieren die wichtigsten Kombinationen. */
+html body:not(.dark-mode) .sidebar [class*="text-white"],
+html body:not(.dark-mode) #sidebar [class*="text-white"] {
+    color: #334155 !important;
+}
+html body:not(.dark-mode) .sidebar [class*="border-white"],
+html body:not(.dark-mode) #sidebar [class*="border-white"] {
+    border-color: #e2e8f0 !important;
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   43. DARKMODE – Sidebar Textfarben (weiß)
+   Da wir in Lightmode alles auf #334155 setzen, müssen wir im
+   Darkmode explizit wieder auf Weiß gehen. Sonst hätten wir
+   dunkelgrauen Text auf dunkelblauem Hintergrund.
+   ══════════════════════════════════════════════════════════════ */
+html body.dark-mode #sidebar,
+html body.dark-mode #sidebar *,
+html body.dark-mode .sidebar,
+html body.dark-mode .sidebar * {
+    color: rgba(255, 255, 255, 0.92) !important;
+}
+html body.dark-mode #sidebar .sidebar-section-label,
+html body.dark-mode .sidebar .sidebar-section-label {
+    color: rgba(255, 255, 255, 0.45) !important;
+}
+html body.dark-mode #sidebar .sidebar-nav-item .sidebar-nav-icon,
+html body.dark-mode #sidebar .sidebar-nav-item i,
+html body.dark-mode .sidebar .sidebar-nav-item .sidebar-nav-icon,
+html body.dark-mode .sidebar .sidebar-nav-item i {
+    color: rgba(255, 255, 255, 0.82) !important;
+}
+html body.dark-mode #sidebar .sidebar-nav-item--active,
+html body.dark-mode #sidebar .sidebar-nav-item--active *,
+html body.dark-mode .sidebar .sidebar-nav-item--active,
+html body.dark-mode .sidebar .sidebar-nav-item--active * {
+    color: #ffffff !important;
+}
+html body.dark-mode #sidebar .sidebar-clock-wrap,
+html body.dark-mode .sidebar .sidebar-clock-wrap {
+    border-top: 1px solid rgba(255, 255, 255, 0.14) !important;
+}
+html body.dark-mode #sidebar .sidebar-close-btn,
+html body.dark-mode .sidebar .sidebar-close-btn {
+    color: rgba(255, 255, 255, 0.72) !important;
+    background: transparent !important;
+}
+html body.dark-mode #sidebar .sidebar-close-btn:hover,
+html body.dark-mode .sidebar .sidebar-close-btn:hover {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* ==========================================================================
+   44 · MODALS / POPUPS – Footer & Impressum in den Hintergrund legen
+   ==========================================================================
+   Problem: In einigen Modal-Dialogen war der Footer (Copyright, Impressum)
+   durch den halbtransparenten Backdrop sichtbar bzw. stand sogar darüber.
+   Fix: Wir heben Modale auf einen sehr hohen Stacking-Layer und setzen den
+   Footer sowie die Mobile-Bottom-Nav unsichtbar, sobald ein Modal offen ist.
+   Die Modale selbst werden über aria-hidden="false", `.open`, `.is-open`,
+   `.show`, `[open]` oder einer `modal-open`-Klasse am <body> erkannt. */
+
+/* 1) Modale mindestens über Navbar (die hat z-index 1100) und Footer legen. */
+html body .modal,
+html body .modal-backdrop,
+html body .vc-modal,
+html body .prm-modal,
+html body dialog[open] {
+    z-index: 9999 !important;
+}
+
+/* 2) Wenn ein Modal offen ist, Footer & Mobile-Nav unsichtbar schalten.
+      Wir prüfen sowohl auf eine Body-Klasse (viele Bootstrap-ähnliche Libs)
+      als auch auf ein offenes Modal direkt im DOM. Jede Modal-Variante
+      bekommt hier ihren Selector. */
+html body.modal-open footer,
+html body.modal-open #mobile-bottom-nav,
+html body.checkout-modal-open footer,
+html body.checkout-modal-open #mobile-bottom-nav,
+html body:has(.modal.show) footer,
+html body:has(.modal.open) footer,
+html body:has(.vc-modal.open) footer,
+html body:has(.vc-modal-overlay.open) footer,
+html body:has(.prm-modal.open) footer,
+html body:has(.prm-modal-overlay.open) footer,
+html body:has(.inv-modal-overlay.open) footer,
+html body:has(.idea-modal-overlay.open) footer,
+html body:has(.evv-modal-overlay.open) footer,
+html body:has(.emg-modal-overlay.open) footer,
+html body:has(.jb-modal-overlay.open) footer,
+html body:has(.appl-modal-overlay.open) footer,
+html body:has(.rech-modal-overlay.open) footer,
+html body:has(.bug-modal-overlay.open) footer,
+html body:has(.checkout-modal-overlay.open) footer,
+html body:has([class*="-modal-overlay"].open) footer,
+html body:has([class*="-modal"].open[role="dialog"]) footer,
+html body:has(.modal.show) #mobile-bottom-nav,
+html body:has(.modal.open) #mobile-bottom-nav,
+html body:has(.vc-modal.open) #mobile-bottom-nav,
+html body:has(.vc-modal-overlay.open) #mobile-bottom-nav,
+html body:has(.prm-modal.open) #mobile-bottom-nav,
+html body:has(.prm-modal-overlay.open) #mobile-bottom-nav,
+html body:has(.inv-modal-overlay.open) #mobile-bottom-nav,
+html body:has(.idea-modal-overlay.open) #mobile-bottom-nav,
+html body:has(.evv-modal-overlay.open) #mobile-bottom-nav,
+html body:has(.emg-modal-overlay.open) #mobile-bottom-nav,
+html body:has(.jb-modal-overlay.open) #mobile-bottom-nav,
+html body:has(.appl-modal-overlay.open) #mobile-bottom-nav,
+html body:has(.rech-modal-overlay.open) #mobile-bottom-nav,
+html body:has(.bug-modal-overlay.open) #mobile-bottom-nav,
+html body:has(.checkout-modal-overlay.open) #mobile-bottom-nav,
+html body:has([class*="-modal-overlay"].open) #mobile-bottom-nav,
+html body:has([class*="-modal"].open[role="dialog"]) #mobile-bottom-nav,
+html body:has(dialog[open]) footer,
+html body:has(dialog[open]) #mobile-bottom-nav {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* 2-bis) JS-gesteuerter Body-Lock: jede Modal-Open-JS setzt body.modal-open
+ * (oder eine spezifische Variante). Damit wir auch ohne CSS-:has() (ältere
+ * Safari-Versionen vor 15.4) den Footer verstecken, hier zusätzliche
+ * body-Klassen-Trigger. */
+html body.has-open-modal footer,
+html body.has-open-modal #mobile-bottom-nav,
+html body.vc-modal-open footer,
+html body.vc-modal-open #mobile-bottom-nav,
+html body.inv-modal-open footer,
+html body.inv-modal-open #mobile-bottom-nav,
+html body.idea-modal-open footer,
+html body.idea-modal-open #mobile-bottom-nav,
+html body.evv-modal-open footer,
+html body.evv-modal-open #mobile-bottom-nav,
+html body.bug-modal-open footer,
+html body.bug-modal-open #mobile-bottom-nav,
+html body.rech-modal-open footer,
+html body.rech-modal-open #mobile-bottom-nav {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* 2b) Zusätzlich: alles im #main-content, was NICHT das Modal selbst ist,
+       beim Öffnen leicht "wegdämpfen". Den sichtbaren Divider des Footers
+       (border-top) wegblenden und den Footer-Container selbst kollabieren. */
+html body:has(.idea-modal-overlay.open) #main-content > :not(.idea-modal-overlay) footer,
+html body:has(.inv-modal-overlay.open) #main-content > :not(.inv-modal-overlay) footer,
+html body:has(.evv-modal-overlay.open) #main-content > :not(.evv-modal-overlay) footer,
+html body:has(.emg-modal-overlay.open) #main-content > :not(.emg-modal-overlay) footer,
+html body:has(.jb-modal-overlay.open) #main-content > :not(.jb-modal-overlay) footer,
+html body:has(.appl-modal-overlay.open) #main-content > :not(.appl-modal-overlay) footer,
+html body:has(.checkout-modal-overlay.open) #main-content > :not(.checkout-modal-overlay) footer,
+html body:has([class*="-modal-overlay"].open) #main-content footer,
+html body:has([class*="-modal-overlay"].open) #main-content > main > footer,
+html body:has([class*="-modal-overlay"].open) main > footer,
+html body:has([class*="-modal-overlay"].open) > footer,
+html body:has(.vc-modal-overlay.open) footer,
+html body.has-open-modal #main-content footer,
+html body.has-open-modal main > footer,
+html body.has-open-modal > footer {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    border-top-color: transparent !important;
+}
+
+/* 2c) Der harte horizontale Divider im <main> (border-top von <footer>)
+       kommt oft vor dem Backdrop durch. Wir zielen zusätzlich auf den
+       typischen Footer-Wrapper der main_layout.php. */
+html body:has([class*="-modal-overlay"].open) main > footer,
+html body:has([class*="-modal-overlay"].open) main footer,
+html body:has(.vc-modal-overlay.open) main footer,
+html body.has-open-modal main footer {
+    border-top: 0 !important;
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
+
+/* 3) Backdrop deckend genug, damit durchscheinender Footer nicht ablenkt.
+      Alle Modal-Overlays bekommen einen kräftigeren Backdrop. */
+html body .modal-backdrop,
+html body .vc-modal.open::before,
+html body .prm-modal.open::before {
+    background-color: rgba(2, 6, 23, 0.72) !important;
+}
+html body .idea-modal-overlay,
+html body .inv-modal-overlay,
+html body .evv-modal-overlay,
+html body .emg-modal-overlay,
+html body .jb-modal-overlay,
+html body .appl-modal-overlay,
+html body .checkout-modal-overlay,
+html body [class$="-modal-overlay"] {
+    background-color: rgba(2, 6, 23, 0.68) !important;
+    -webkit-backdrop-filter: blur(8px) saturate(1.1) !important;
+            backdrop-filter: blur(8px) saturate(1.1) !important;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   SECTION 45 · LIGHTMODE-BUTTON POLISH + BROWSER-KOMPAT
+   (Firefox · Chrome · Safari · Opera)
+   ───────────────────────────────────────────────────────────────────
+   • Konsistente Optik für Theme-Toggles (Navbar + Mobile + Legacy)
+   • Weicher Icon-Swap zwischen Mond/Sonne statt harter Replace
+   • Klare focus-visible-Outlines (Keyboard)
+   • Vendor-Präfixe für Safari (backdrop-filter, mask) + ältere Opera
+   • Fix für Firefox: `color-mix()` Fallbacks + rendering hints
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── 45.1  Polished Lightmode-Toggle ─────────────────────────────── */
+html body .navbar-theme-btn,
+html body #mobile-theme-toggle,
+html body #mob-dd-theme-btn {
+    position: relative;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
+    -webkit-transition:
+        background 0.22s ease,
+        border-color 0.22s ease,
+        color 0.22s ease,
+        -webkit-transform 0.35s cubic-bezier(.34,1.56,.64,1),
+                transform 0.35s cubic-bezier(.34,1.56,.64,1),
+        box-shadow 0.25s ease;
+    transition:
+        background 0.22s ease,
+        border-color 0.22s ease,
+        color 0.22s ease,
+        transform 0.35s cubic-bezier(.34,1.56,.64,1),
+        -webkit-transform 0.35s cubic-bezier(.34,1.56,.64,1),
+        box-shadow 0.25s ease;
+}
+
+/* Lightmode: dezenter Schatten + knackiger Kreis */
+html body:not(.dark-mode) .navbar-theme-btn {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #334155 !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.85),
+        0 1px 2px rgba(15,23,42,0.06),
+        0 4px 12px -4px rgba(15,23,42,0.08);
+}
+html body:not(.dark-mode) .navbar-theme-btn:hover {
+    background: linear-gradient(135deg, #fffbeb, #fef3c7) !important;
+    border-color: #f59e0b !important;
+    color: #b45309 !important;
+    -webkit-transform: rotate(-18deg) scale(1.08);
+            transform: rotate(-18deg) scale(1.08);
+    box-shadow:
+        0 6px 18px -6px rgba(245, 158, 11, 0.55),
+        0 2px 4px rgba(15,23,42,0.06) !important;
+}
+html body:not(.dark-mode) .navbar-theme-btn:active {
+    -webkit-transform: rotate(0deg) scale(0.94);
+            transform: rotate(0deg) scale(0.94);
+}
+
+/* Darkmode: kühler Look, Mond-Atmosphäre */
+html body.dark-mode .navbar-theme-btn {
+    background: rgba(30,41,59,0.6) !important;
+    border-color: rgba(148,163,184,0.28) !important;
+    color: #e2e8f0 !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.06),
+        0 1px 2px rgba(0,0,0,0.35);
+}
+html body.dark-mode .navbar-theme-btn:hover {
+    background: linear-gradient(135deg, rgba(30,58,138,0.35), rgba(51,133,196,0.25)) !important;
+    border-color: #60a5fa !important;
+    color: #f0f9ff !important;
+    -webkit-transform: rotate(22deg) scale(1.08);
+            transform: rotate(22deg) scale(1.08);
+    box-shadow:
+        0 6px 20px -6px rgba(96, 165, 250, 0.55),
+        0 2px 4px rgba(0,0,0,0.35) !important;
+}
+html body.dark-mode .navbar-theme-btn:active {
+    -webkit-transform: rotate(0deg) scale(0.94);
+            transform: rotate(0deg) scale(0.94);
+}
+
+/* Icon-Crossfade (Mond ↔ Sonne) mit fester Breite, damit kein Jump */
+html body .navbar-theme-btn > i,
+html body #navbar-theme-icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    line-height: 1;
+    text-align: center;
+    -webkit-transition: opacity 0.2s ease, -webkit-transform 0.3s ease;
+    transition:         opacity 0.2s ease,         transform 0.3s ease;
+}
+
+/* ── 45.2  Focus-Visible (Keyboard) – sichtbar in ALLEN Browsern ─── */
+html body .navbar-theme-btn:focus,
+html body #mobile-theme-toggle:focus,
+html body #mob-dd-theme-btn:focus {
+    outline: none; /* Browser-Default weg */
+}
+html body .navbar-theme-btn:focus-visible,
+html body #mobile-theme-toggle:focus-visible,
+html body #mob-dd-theme-btn:focus-visible {
+    outline: 2.5px solid var(--ibc-blue, #0066b3) !important;
+    outline-offset: 3px !important;
+    box-shadow: 0 0 0 4px rgba(0, 102, 179, 0.18) !important;
+}
+html body.dark-mode .navbar-theme-btn:focus-visible,
+html body.dark-mode #mobile-theme-toggle:focus-visible,
+html body.dark-mode #mob-dd-theme-btn:focus-visible {
+    outline-color: #60a5fa !important;
+    box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.22) !important;
+}
+
+/* ── 45.3  Browser-Kompat: Backdrop-Filter Fallbacks ─────────────── */
+/* Safari 9+ braucht -webkit-backdrop-filter. Opera Legacy (<80) hat
+   kein backdrop-filter → sichtbarer Hintergrund muss trotzdem
+   ausreichend deckend sein. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    html body .navbar-theme-btn,
+    html body.dark-mode .navbar-theme-btn {
+        /* Solide Hintergründe als Fallback */
+        background: #ffffff;
+    }
+    html body.dark-mode .navbar-theme-btn {
+        background: #1e293b;
+    }
+}
+
+/* ── 45.4  color-mix() Fallback – Firefox <112, Safari <16.2, etc. */
+@supports not (color: color-mix(in srgb, red 50%, blue)) {
+    html body .navbar-theme-btn:hover,
+    html body.dark-mode .navbar-theme-btn:hover {
+        /* Fester Hover-Hintergrund anstelle color-mix-basierter Werte */
+        box-shadow:
+            0 6px 18px -6px rgba(245, 158, 11, 0.55),
+            0 2px 4px rgba(15, 23, 42, 0.06) !important;
+    }
+}
+
+/* ── 45.5  :has() Fallback – Firefox <121: Modal-Footer-Hide ganz
+          in Ordnung (kein Rendering-Bug, nur feature gate). Hier nur
+          abgesichert, dass das Scroll-Lock NICHT ohne :has() kaputt
+          geht – wir setzen den Lock-Klassen-Mechanismus zusätzlich
+          per JS-Fallback nicht hier um, aber die Modals haben einen
+          eigenen body-class scroll-lock. */
+
+/* ── 45.6  Safari-Rendering-Hints gegen Flicker bei transform-Hover */
+html body .navbar-theme-btn {
+    -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+    -webkit-transform-style: preserve-3d;
+            transform-style: preserve-3d;
+    will-change: transform;
+}
+
+/* ── 45.7  Legacy Opera (Presto) / Very old Edge (<79) Fallback
+          — border-radius + box-shadow support ist gegeben, aber
+          `outline: <length> solid <color>` mit Radii rendert dort
+          teils eckig → per Focus-Ring via Box-Shadow simulieren. */
+@supports not (outline-style: auto) {
+    html body .navbar-theme-btn:focus-visible {
+        outline: none !important;
+        box-shadow:
+            0 0 0 2.5px var(--ibc-blue, #0066b3),
+            0 0 0 6px rgba(0, 102, 179, 0.18) !important;
+    }
+}
+
+/* ── 45.8  Print: Toggle ausblenden (wird im Druck nicht gebraucht) */
+@media print {
+    .navbar-theme-btn,
+    #mobile-theme-toggle,
+    #mob-dd-theme-btn { display: none !important; }
+}
+
+/* ── 45.9  Reduced-Motion: kein Rotate, nur Farbwechsel ────────── */
+@media (prefers-reduced-motion: reduce) {
+    html body .navbar-theme-btn,
+    html body.dark-mode .navbar-theme-btn {
+        -webkit-transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease !important;
+                transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease !important;
+    }
+    html body .navbar-theme-btn:hover,
+    html body.dark-mode .navbar-theme-btn:hover {
+        -webkit-transform: none !important;
+                transform: none !important;
+    }
+}
+
+/* ── 45.10  Touch (kein Hover): keine Rotations-Hovers → nur Tap-Feedback */
+@media (hover: none) {
+    html body .navbar-theme-btn:hover,
+    html body.dark-mode .navbar-theme-btn:hover {
+        -webkit-transform: none !important;
+                transform: none !important;
+    }
+    html body .navbar-theme-btn:active {
+        -webkit-transform: scale(0.94) !important;
+                transform: scale(0.94) !important;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SECTION 46 · LIGHTMODE — BUNTE PILL-BUTTONS POLIEREN
+   (Dashboard-Quick-Actions · Status-Badges · Kategorie-Chips ·
+    Modul-spezifische Action-Buttons)
+   ───────────────────────────────────────────────────────────────────
+   Ausgangslage:
+     Die farbigen Pill-Buttons (Events / Inventar / Rechnungen /
+     Mitglieder / Profil) haben im Dashboard nur 0.30 Opazität. Auf
+     dem dunklen Hero-Gradient wirken sie im Lightmode "ausgewaschen"
+     und zu zurückhaltend. Hover-Zustand ist kaum sichtbar.
+
+   Ziel:
+     • Knackigere, deutlich sichtbare Farben (Opazität 0.55–0.70)
+     • Kräftigerer Rand, besserer Kontrast
+     • Stärkerer Hover-Lift (Skalierung + Soft-Glow)
+     • Konsistentes Verhalten über ALLE Module (Events, Inventar,
+       Rechnungen, Mitglieder, Profil)
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── 46.1  Base-Polish für .d-quick-action im Lightmode ─────────── */
+html body:not(.dark-mode) .d-hero .d-quick-action {
+    /* Feine weiße Umrandung + deutlicher Schatten für "Plastik"-Optik */
+    border-width: 1.5px !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.18),
+        0 2px 8px rgba(0,0,0,0.22),
+        0 1px 0 rgba(255,255,255,0.08) !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.02em !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.18);
+    -webkit-transition:
+        background-color 0.22s ease,
+        border-color 0.22s ease,
+        box-shadow 0.22s ease,
+        -webkit-transform 0.28s cubic-bezier(.34,1.56,.64,1),
+                transform 0.28s cubic-bezier(.34,1.56,.64,1) !important;
+    transition:
+        background-color 0.22s ease,
+        border-color 0.22s ease,
+        box-shadow 0.22s ease,
+        transform 0.28s cubic-bezier(.34,1.56,.64,1),
+        -webkit-transform 0.28s cubic-bezier(.34,1.56,.64,1) !important;
+}
+
+/* ── 46.2  Pro Variante: saturierte Farben im Lightmode ─────────── */
+/* Events – Blau */
+html body:not(.dark-mode) .d-hero .d-quick-action--events {
+    background: rgba(59,130,246, 0.62) !important;
+    border-color: rgba(255,255,255,0.55) !important;
+}
+html body:not(.dark-mode) .d-hero .d-quick-action--events:hover {
+    background: rgba(37,99,235, 0.85) !important;
+    border-color: rgba(255,255,255,0.75) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.28),
+        0 8px 22px -4px rgba(37,99,235,0.55),
+        0 2px 6px rgba(0,0,0,0.22) !important;
+}
+
+/* Inventar – Orange */
+html body:not(.dark-mode) .d-hero .d-quick-action--inventory {
+    background: rgba(249,115,22, 0.65) !important;
+    border-color: rgba(255,255,255,0.55) !important;
+}
+html body:not(.dark-mode) .d-hero .d-quick-action--inventory:hover {
+    background: rgba(234,88,12, 0.88) !important;
+    border-color: rgba(255,255,255,0.75) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.28),
+        0 8px 22px -4px rgba(234,88,12,0.55),
+        0 2px 6px rgba(0,0,0,0.22) !important;
+}
+
+/* Rechnungen – Grün */
+html body:not(.dark-mode) .d-hero .d-quick-action--invoices {
+    background: rgba(16,185,129, 0.62) !important;
+    border-color: rgba(255,255,255,0.55) !important;
+}
+html body:not(.dark-mode) .d-hero .d-quick-action--invoices:hover {
+    background: rgba(5,150,105, 0.88) !important;
+    border-color: rgba(255,255,255,0.75) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.28),
+        0 8px 22px -4px rgba(5,150,105,0.55),
+        0 2px 6px rgba(0,0,0,0.22) !important;
+}
+
+/* Mitglieder – Lila */
+html body:not(.dark-mode) .d-hero .d-quick-action--members {
+    background: rgba(139,92,246, 0.62) !important;
+    border-color: rgba(255,255,255,0.55) !important;
+}
+html body:not(.dark-mode) .d-hero .d-quick-action--members:hover {
+    background: rgba(124,58,237, 0.88) !important;
+    border-color: rgba(255,255,255,0.75) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.28),
+        0 8px 22px -4px rgba(124,58,237,0.55),
+        0 2px 6px rgba(0,0,0,0.22) !important;
+}
+
+/* Profil – Pink */
+html body:not(.dark-mode) .d-hero .d-quick-action--profile {
+    background: rgba(236,72,153, 0.62) !important;
+    border-color: rgba(255,255,255,0.55) !important;
+}
+html body:not(.dark-mode) .d-hero .d-quick-action--profile:hover {
+    background: rgba(219,39,119, 0.88) !important;
+    border-color: rgba(255,255,255,0.75) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.28),
+        0 8px 22px -4px rgba(219,39,119,0.55),
+        0 2px 6px rgba(0,0,0,0.22) !important;
+}
+
+/* ── 46.3  Hover-Lift (Skalierung) konsistent über alle Varianten ─ */
+html body:not(.dark-mode) .d-hero .d-quick-action:hover {
+    -webkit-transform: translateY(-2px) scale(1.03);
+            transform: translateY(-2px) scale(1.03);
+}
+html body:not(.dark-mode) .d-hero .d-quick-action:active {
+    -webkit-transform: translateY(0) scale(0.97);
+            transform: translateY(0) scale(0.97);
+}
+
+/* ── 46.4  Status-Badges im Lightmode: mehr Punch ────────────────── */
+/* Invoice-Badges & ähnliche Pills: heben farbigen Kontur statt
+   nur sehr schwacher Hintergrundfarbe. */
+html body:not(.dark-mode) .d-inv-badge--pending {
+    background: rgba(245,158,11, 0.18) !important;
+    border: 1px solid rgba(245,158,11, 0.55) !important;
+    color: #78350f !important;
+    font-weight: 700 !important;
+}
+html body:not(.dark-mode) .d-inv-badge--approved {
+    background: rgba(16,185,129, 0.18) !important;
+    border: 1px solid rgba(16,185,129, 0.55) !important;
+    color: #064e3b !important;
+    font-weight: 700 !important;
+}
+
+/* ── 46.5  Kategorie-/Rollen-Badges (vCard, Admin-Listen) ───────── */
+html body:not(.dark-mode) .vc-rolle-badge,
+html body:not(.dark-mode) .rolle-badge {
+    border: 1px solid rgba(15,23,42,0.12);
+    box-shadow: 0 1px 2px rgba(15,23,42,0.06);
+}
+html body:not(.dark-mode) .vc-rolle-vorstand {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe) !important;
+    border-color: #60a5fa !important;
+    color: #1e3a8a !important;
+    font-weight: 700 !important;
+}
+html body:not(.dark-mode) .vc-rolle-ressort {
+    background: linear-gradient(135deg, #fef3c7, #fde68a) !important;
+    border-color: #f59e0b !important;
+    color: #78350f !important;
+    font-weight: 700 !important;
+}
+
+/* ── 46.6  Modul-spezifische "bunte" Primary-Buttons ─────────────── */
+/* Bezieht sich auf Action-Buttons wie "Neu anlegen", "Export", etc.
+   die module-weise in unterschiedlichen Farben auftreten. */
+html body:not(.dark-mode) .btn-primary:not([disabled]),
+html body:not(.dark-mode) .inv-btn-primary:not([disabled]),
+html body:not(.dark-mode) .evv-btn-primary:not([disabled]),
+html body:not(.dark-mode) .rech-btn-primary:not([disabled]),
+html body:not(.dark-mode) .jb-btn-primary:not([disabled]) {
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.22),
+        0 2px 6px rgba(15,23,42,0.12),
+        0 1px 0 rgba(255,255,255,0.1);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+}
+html body:not(.dark-mode) .btn-primary:hover:not([disabled]),
+html body:not(.dark-mode) .inv-btn-primary:hover:not([disabled]),
+html body:not(.dark-mode) .evv-btn-primary:hover:not([disabled]),
+html body:not(.dark-mode) .rech-btn-primary:hover:not([disabled]),
+html body:not(.dark-mode) .jb-btn-primary:hover:not([disabled]) {
+    -webkit-transform: translateY(-1px);
+            transform: translateY(-1px);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.28),
+        0 6px 18px -4px rgba(15,23,42,0.22),
+        0 2px 4px rgba(15,23,42,0.14);
+}
+
+/* ── 46.7  Reduced-Motion: keine Transform-Animationen ──────────── */
+@media (prefers-reduced-motion: reduce) {
+    html body:not(.dark-mode) .d-hero .d-quick-action,
+    html body:not(.dark-mode) .d-hero .d-quick-action:hover,
+    html body:not(.dark-mode) .d-hero .d-quick-action:active,
+    html body:not(.dark-mode) .btn-primary:hover,
+    html body:not(.dark-mode) .inv-btn-primary:hover,
+    html body:not(.dark-mode) .evv-btn-primary:hover,
+    html body:not(.dark-mode) .rech-btn-primary:hover,
+    html body:not(.dark-mode) .jb-btn-primary:hover {
+        -webkit-transform: none !important;
+                transform: none !important;
+        -webkit-transition: background-color 0.15s ease, border-color 0.15s ease !important;
+                transition: background-color 0.15s ease, border-color 0.15s ease !important;
+    }
+}
+
+/* ── 46.8  Touch (kein Hover): kleinerer Hover-Lift ──────────────── */
+@media (hover: none) {
+    html body:not(.dark-mode) .d-hero .d-quick-action:hover {
+        -webkit-transform: none !important;
+                transform: none !important;
+    }
+}
+
+/* ── 46.9  color-mix-Fallback für ganz alte Engines ──────────────── */
+@supports not (color: color-mix(in srgb, red 50%, blue)) {
+    html body:not(.dark-mode) .d-hero .d-quick-action--events    { background-color: rgb(110,158,245) !important; }
+    html body:not(.dark-mode) .d-hero .d-quick-action--inventory { background-color: rgb(252,148,60) !important; }
+    html body:not(.dark-mode) .d-hero .d-quick-action--invoices  { background-color: rgb(78,204,161) !important; }
+    html body:not(.dark-mode) .d-hero .d-quick-action--members   { background-color: rgb(164,128,249) !important; }
+    html body:not(.dark-mode) .d-hero .d-quick-action--profile   { background-color: rgb(241,118,179) !important; }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   47.  LIGHTMODE — GLOBALER „TEXT-AUF-FARBE = WEISS"-OVERRIDE
+   ──────────────────────────────────────────────────────────────────
+   Problem: An vielen Stellen war im Lightmode die Schrift schwarz,
+   obwohl der Hintergrund (Gradient, gefüllter Button, gesättigtes
+   Badge, gefärbter Modal-Header, Sidebar im Brandblau) dunkel ist.
+   Resultat: schwarz-auf-dunkelblau / schwarz-auf-grün — unleserlich.
+
+   Dieser Block ist ein Catch-All. Er greift NUR im Lightmode
+   (`body:not(.dark-mode)`), und nur auf Komponenten, die per Konvention
+   einen kräftig gefärbten Hintergrund haben. Alle Elemente innerhalb
+   solcher Container bekommen `color: #ffffff !important` — inkl. ihrer
+   Heading-, Paragraph-, Span-, Link- und Icon-Kinder.
+
+   Reihenfolge der Selektoren = Spezifität-Strategie: zuerst breite
+   Attribut-Selektoren, dann konkrete Klassen (gewinnen bei Konflikten).
+   ════════════════════════════════════════════════════════════════════ */
+
+/* 47.1 — Hero/Banner/Gradient-Container: weiße Schrift überall darin. */
+html body:not(.dark-mode) [class*="hero"]:not(.swiper-slide):not(.icon-hero),
+html body:not(.dark-mode) [class*="-hero"]:not(.swiper-slide):not(.icon-hero),
+html body:not(.dark-mode) [class*="banner"]:not(.cookie-banner),
+html body:not(.dark-mode) [class*="gradient-card"],
+html body:not(.dark-mode) .welcome-hero,
+html body:not(.dark-mode) .d-hero,
+html body:not(.dark-mode) .dash-hero,
+html body:not(.dark-mode) .page-hero,
+html body:not(.dark-mode) .module-hero,
+html body:not(.dark-mode) .hero-gradient {
+    color: #ffffff !important;
+}
+html body:not(.dark-mode) [class*="hero"]:not(.swiper-slide):not(.icon-hero) :where(h1,h2,h3,h4,h5,h6,p,span,small,strong,em,li,a:not(.btn):not([class*="btn-"]):not(.chip):not(.tag),i,svg),
+html body:not(.dark-mode) [class*="-hero"]:not(.swiper-slide):not(.icon-hero) :where(h1,h2,h3,h4,h5,h6,p,span,small,strong,em,li,a:not(.btn):not([class*="btn-"]):not(.chip):not(.tag),i,svg),
+html body:not(.dark-mode) [class*="banner"]:not(.cookie-banner) :where(h1,h2,h3,h4,h5,h6,p,span,small,strong,em,li,a:not(.btn):not([class*="btn-"]):not(.chip):not(.tag),i,svg),
+html body:not(.dark-mode) [class*="gradient-card"] :where(h1,h2,h3,h4,h5,h6,p,span,small,strong,em,li,a:not(.btn):not([class*="btn-"]):not(.chip):not(.tag),i,svg),
+html body:not(.dark-mode) .welcome-hero :where(h1,h2,h3,h4,h5,h6,p,span,small,strong,em,li,a:not(.btn):not([class*="btn-"]):not(.chip):not(.tag),i,svg),
+html body:not(.dark-mode) .d-hero      :where(h1,h2,h3,h4,h5,h6,p,span,small,strong,em,li,a:not(.btn):not([class*="btn-"]):not(.chip):not(.tag),i,svg),
+html body:not(.dark-mode) .dash-hero   :where(h1,h2,h3,h4,h5,h6,p,span,small,strong,em,li,a:not(.btn):not([class*="btn-"]):not(.chip):not(.tag),i,svg),
+html body:not(.dark-mode) .page-hero   :where(h1,h2,h3,h4,h5,h6,p,span,small,strong,em,li,a:not(.btn):not([class*="btn-"]):not(.chip):not(.tag),i,svg),
+html body:not(.dark-mode) .module-hero :where(h1,h2,h3,h4,h5,h6,p,span,small,strong,em,li,a:not(.btn):not([class*="btn-"]):not(.chip):not(.tag),i,svg),
+html body:not(.dark-mode) .hero-gradient :where(h1,h2,h3,h4,h5,h6,p,span,small,strong,em,li,a:not(.btn):not([class*="btn-"]):not(.chip):not(.tag),i,svg) {
+    color: #ffffff !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,.18);
+}
+
+/* 47.2 — Gefüllte Buttons (alle Module + Bootstrap-Klassen). */
+html body:not(.dark-mode) .btn-primary,
+html body:not(.dark-mode) .btn-success,
+html body:not(.dark-mode) .btn-danger,
+html body:not(.dark-mode) .btn-warning,
+html body:not(.dark-mode) .btn-info,
+html body:not(.dark-mode) .btn-dark,
+html body:not(.dark-mode) [class*="-btn-primary"],
+html body:not(.dark-mode) [class*="-btn-success"],
+html body:not(.dark-mode) [class*="-btn-danger"],
+html body:not(.dark-mode) [class*="-btn-delete"],
+html body:not(.dark-mode) [class*="-btn-save"],
+html body:not(.dark-mode) [class*="-btn-submit"],
+html body:not(.dark-mode) .ibc-btn-primary,
+html body:not(.dark-mode) .ibc-btn-danger,
+html body:not(.dark-mode) .save-btn,
+html body:not(.dark-mode) .delete-btn,
+html body:not(.dark-mode) .submit-btn,
+html body:not(.dark-mode) button[type="submit"]:not(.btn-cancel):not(.btn-secondary):not(.btn-link):not(.btn-outline) {
+    color: #ffffff !important;
+}
+html body:not(.dark-mode) .btn-primary :where(span,i,svg,small),
+html body:not(.dark-mode) .btn-success :where(span,i,svg,small),
+html body:not(.dark-mode) .btn-danger  :where(span,i,svg,small),
+html body:not(.dark-mode) .btn-warning :where(span,i,svg,small),
+html body:not(.dark-mode) .btn-info    :where(span,i,svg,small),
+html body:not(.dark-mode) [class*="-btn-primary"] :where(span,i,svg,small),
+html body:not(.dark-mode) [class*="-btn-success"] :where(span,i,svg,small),
+html body:not(.dark-mode) [class*="-btn-danger"]  :where(span,i,svg,small) {
+    color: #ffffff !important;
+}
+
+/* 47.3 — Sidebar = dunkelblau im Lightmode → Schrift WEISS. */
+html body:not(.dark-mode) .sidebar,
+html body:not(.dark-mode) .sidebar-mobile {
+    color: #ffffff;
+}
+html body:not(.dark-mode) .sidebar :where(a, button, span, p, li, h1, h2, h3, h4, h5, h6, i, svg),
+html body:not(.dark-mode) .sidebar .menu-item,
+html body:not(.dark-mode) .sidebar .menu-item-text,
+html body:not(.dark-mode) .sidebar .menu-section-title,
+html body:not(.dark-mode) .sidebar .submenu-item,
+html body:not(.dark-mode) .sidebar .nav-link,
+html body:not(.dark-mode) .sidebar .nav-item {
+    color: #ffffff !important;
+}
+html body:not(.dark-mode) .sidebar .menu-section-title {
+    color: rgba(255,255,255,.6) !important;
+}
+/* aktive Menüpunkte: leicht abgehobener BG, Text bleibt weiß. */
+html body:not(.dark-mode) .sidebar .menu-item.active,
+html body:not(.dark-mode) .sidebar .nav-link.active {
+    background-color: rgba(255,255,255,.14) !important;
+    color: #ffffff !important;
+}
+
+/* 47.4 — Gefärbte Badges (gesättigt) → weisse Schrift. */
+html body:not(.dark-mode) .badge.bg-primary,
+html body:not(.dark-mode) .badge.bg-success,
+html body:not(.dark-mode) .badge.bg-danger,
+html body:not(.dark-mode) .badge.bg-warning,
+html body:not(.dark-mode) .badge.bg-info,
+html body:not(.dark-mode) .badge.bg-dark,
+html body:not(.dark-mode) .badge-primary,
+html body:not(.dark-mode) .badge-success,
+html body:not(.dark-mode) .badge-danger,
+html body:not(.dark-mode) .badge-warning,
+html body:not(.dark-mode) .badge-info,
+html body:not(.dark-mode) .role-badge,
+html body:not(.dark-mode) .status-badge.is-active,
+html body:not(.dark-mode) .status-badge.is-paid,
+html body:not(.dark-mode) .status-badge.is-completed,
+html body:not(.dark-mode) .pill-primary,
+html body:not(.dark-mode) .pill-success,
+html body:not(.dark-mode) .pill-danger {
+    color: #ffffff !important;
+}
+
+/* 47.5 — Toasts / Notifications mit gesättigtem BG. */
+html body:not(.dark-mode) .toast.bg-primary,
+html body:not(.dark-mode) .toast.bg-success,
+html body:not(.dark-mode) .toast.bg-danger,
+html body:not(.dark-mode) .toast.bg-warning,
+html body:not(.dark-mode) .toast-success,
+html body:not(.dark-mode) .toast-error,
+html body:not(.dark-mode) .toast-warning,
+html body:not(.dark-mode) .toast-info,
+html body:not(.dark-mode) .notification-success,
+html body:not(.dark-mode) .notification-error {
+    color: #ffffff !important;
+}
+
+/* 47.6 — Topbar / Navbar Elemente, die aufs Brand-Blau gesetzt sind. */
+html body:not(.dark-mode) .topbar.brand,
+html body:not(.dark-mode) .navbar.brand,
+html body:not(.dark-mode) #mobile-header.brand,
+html body:not(.dark-mode) .topbar.brand :where(a,span,i,svg,button) {
+    color: #ffffff !important;
+}
+
+/* 47.7 — Modal-Header mit gesättigtem BG (z. B. Bestätigen-Dialoge). */
+html body:not(.dark-mode) .modal-header.bg-primary,
+html body:not(.dark-mode) .modal-header.bg-success,
+html body:not(.dark-mode) .modal-header.bg-danger,
+html body:not(.dark-mode) .modal-header.bg-warning,
+html body:not(.dark-mode) [class*="-modal-overlay"] [class*="-header"][class*="brand"],
+html body:not(.dark-mode) .modal-header.bg-primary :where(h1,h2,h3,h4,h5,p,small,span,i),
+html body:not(.dark-mode) .modal-header.bg-success :where(h1,h2,h3,h4,h5,p,small,span,i),
+html body:not(.dark-mode) .modal-header.bg-danger  :where(h1,h2,h3,h4,h5,p,small,span,i),
+html body:not(.dark-mode) .modal-header.bg-warning :where(h1,h2,h3,h4,h5,p,small,span,i) {
+    color: #ffffff !important;
+}
+
+/* 47.8 — Tag-/Chip-Elemente in Hero-Bereichen. */
+html body:not(.dark-mode) .welcome-hero .chip,
+html body:not(.dark-mode) .welcome-hero .quick-action,
+html body:not(.dark-mode) .d-hero .chip,
+html body:not(.dark-mode) .d-hero .quick-action,
+html body:not(.dark-mode) [class*="hero"] .chip,
+html body:not(.dark-mode) [class*="hero"] .tag {
+    color: #ffffff !important;
+}
+
+/* 47.9 — Edge-Case: Dashboard-Karten mit „brand-color"-Modifier. */
+html body:not(.dark-mode) .stat-card.brand,
+html body:not(.dark-mode) .stat-card.brand :where(h1,h2,h3,h4,p,span,i,small),
+html body:not(.dark-mode) .metric-card.is-primary,
+html body:not(.dark-mode) .metric-card.is-primary :where(h1,h2,h3,h4,p,span,i,small) {
+    color: #ffffff !important;
+}
+
+/* 47.10 — Schutz: Tailwind-`text-white` darf im Lightmode NICHT
+   versehentlich überschrieben werden. */
+html body:not(.dark-mode) .text-white,
+html body:not(.dark-mode) .text-white * {
+    color: #ffffff !important;
+}
+
+/* 47.11 — Breiter Catch-All: Action-Buttons / Anchors mit Inline-Gradient
+           oder gesättigtem BG (Blog-„Beitrag erstellen", Ausleihe-„Artikel
+           ausleihen/entdecken", Dashboard-„Profil bearbeiten",
+           Settings-„Aktivieren" etc.).
+   ────────────────────────────────────────────────────────────────────
+   Hintergrund: theme.css hat eine globale Regel (Zeile ~873):
+     body:not(.dark-mode) a:not(.btn-primary):not(.btn):not(.text-white)…
+        { color: var(--text-main) !important; }
+   die wegen `!important` auch Inline-Styles wie `color:#fff` schlägt.
+   Diese Sektion ist die Gegenmaßnahme: sie greift überall dort, wo der
+   BG inline als Gradient oder sattes Brand-/Tailwind-Color gesetzt ist. */
+
+/* (a) Inline-Gradient-Backgrounds (linear-gradient / radial-gradient /
+       conic-gradient — egal welcher Verlauf). */
+html body:not(.dark-mode) a[style*="linear-gradient"],
+html body:not(.dark-mode) a[style*="radial-gradient"],
+html body:not(.dark-mode) a[style*="conic-gradient"],
+html body:not(.dark-mode) button[style*="linear-gradient"],
+html body:not(.dark-mode) button[style*="radial-gradient"],
+html body:not(.dark-mode) button[style*="conic-gradient"],
+html body:not(.dark-mode) [class*="action-btn"][style*="linear-gradient"],
+html body:not(.dark-mode) [class*="action-btn"][style*="radial-gradient"] {
+    color: #ffffff !important;
+}
+html body:not(.dark-mode) a[style*="linear-gradient"] :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) a[style*="radial-gradient"] :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) a[style*="conic-gradient"]  :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) button[style*="linear-gradient"] :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) button[style*="radial-gradient"] :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) button[style*="conic-gradient"]  :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) [class*="action-btn"][style*="linear-gradient"] :where(span,small,strong,em,i,svg,b) {
+    color: #ffffff !important;
+}
+
+/* (b) NICHT verwenden: `[style*="color:#fff"]` würde via Substring auch
+       `background-color:#fff` matchen und Text auf weiß-auf-weiß setzen.
+       Wir verlassen uns daher auf (a) Gradient-Match und (c/d)
+       Klassen-basierte Catch-Alls. */
+
+/* (c) Tailwind-Utility-BG-Klassen (sattes Color-Set: 400–900). Diese
+       werden in mehreren Modulen für Action-CTAs benutzt. */
+html body:not(.dark-mode) a[class*="bg-purple-"],
+html body:not(.dark-mode) a[class*="bg-violet-"],
+html body:not(.dark-mode) a[class*="bg-indigo-"],
+html body:not(.dark-mode) a[class*="bg-blue-"],
+html body:not(.dark-mode) a[class*="bg-sky-"],
+html body:not(.dark-mode) a[class*="bg-cyan-"],
+html body:not(.dark-mode) a[class*="bg-teal-"],
+html body:not(.dark-mode) a[class*="bg-emerald-"],
+html body:not(.dark-mode) a[class*="bg-green-"],
+html body:not(.dark-mode) a[class*="bg-lime-"],
+html body:not(.dark-mode) a[class*="bg-amber-"],
+html body:not(.dark-mode) a[class*="bg-orange-"],
+html body:not(.dark-mode) a[class*="bg-red-"],
+html body:not(.dark-mode) a[class*="bg-rose-"],
+html body:not(.dark-mode) a[class*="bg-pink-"],
+html body:not(.dark-mode) a[class*="bg-fuchsia-"],
+html body:not(.dark-mode) a[class*="bg-slate-7"],
+html body:not(.dark-mode) a[class*="bg-slate-8"],
+html body:not(.dark-mode) a[class*="bg-slate-9"],
+html body:not(.dark-mode) a[class*="bg-zinc-7"],
+html body:not(.dark-mode) a[class*="bg-zinc-8"],
+html body:not(.dark-mode) a[class*="bg-zinc-9"],
+html body:not(.dark-mode) a[class*="bg-gray-7"],
+html body:not(.dark-mode) a[class*="bg-gray-8"],
+html body:not(.dark-mode) a[class*="bg-gray-9"],
+html body:not(.dark-mode) a[class*="bg-neutral-7"],
+html body:not(.dark-mode) a[class*="bg-neutral-8"],
+html body:not(.dark-mode) a[class*="bg-neutral-9"],
+html body:not(.dark-mode) button[class*="bg-purple-"],
+html body:not(.dark-mode) button[class*="bg-violet-"],
+html body:not(.dark-mode) button[class*="bg-indigo-"],
+html body:not(.dark-mode) button[class*="bg-blue-"],
+html body:not(.dark-mode) button[class*="bg-sky-"],
+html body:not(.dark-mode) button[class*="bg-cyan-"],
+html body:not(.dark-mode) button[class*="bg-teal-"],
+html body:not(.dark-mode) button[class*="bg-emerald-"],
+html body:not(.dark-mode) button[class*="bg-green-"],
+html body:not(.dark-mode) button[class*="bg-lime-"],
+html body:not(.dark-mode) button[class*="bg-amber-"],
+html body:not(.dark-mode) button[class*="bg-orange-"],
+html body:not(.dark-mode) button[class*="bg-red-"],
+html body:not(.dark-mode) button[class*="bg-rose-"],
+html body:not(.dark-mode) button[class*="bg-pink-"],
+html body:not(.dark-mode) button[class*="bg-fuchsia-"] {
+    color: #ffffff !important;
+}
+html body:not(.dark-mode) a[class*="bg-purple-"]   :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) a[class*="bg-violet-"]   :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) a[class*="bg-indigo-"]   :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) a[class*="bg-blue-"]     :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) a[class*="bg-sky-"]      :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) a[class*="bg-cyan-"]     :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) a[class*="bg-teal-"]     :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) a[class*="bg-emerald-"]  :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) a[class*="bg-green-"]    :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) a[class*="bg-lime-"]     :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) a[class*="bg-amber-"]    :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) a[class*="bg-orange-"]   :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) a[class*="bg-red-"]      :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) a[class*="bg-rose-"]     :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) a[class*="bg-pink-"]     :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) a[class*="bg-fuchsia-"]  :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) button[class*="bg-purple-"]   :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) button[class*="bg-violet-"]   :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) button[class*="bg-indigo-"]   :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) button[class*="bg-blue-"]     :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) button[class*="bg-sky-"]      :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) button[class*="bg-cyan-"]     :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) button[class*="bg-teal-"]     :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) button[class*="bg-emerald-"]  :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) button[class*="bg-green-"]    :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) button[class*="bg-lime-"]     :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) button[class*="bg-amber-"]    :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) button[class*="bg-orange-"]   :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) button[class*="bg-red-"]      :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) button[class*="bg-rose-"]     :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) button[class*="bg-pink-"]     :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) button[class*="bg-fuchsia-"]  :where(span,small,strong,em,i,svg,b) {
+    color: #ffffff !important;
+}
+
+/* (d) Custom Action-Button-Klassen, die in mehreren Modulen für CTAs
+       eingesetzt werden. */
+html body:not(.dark-mode) .action-btn,
+html body:not(.dark-mode) .create-btn,
+html body:not(.dark-mode) .primary-action,
+html body:not(.dark-mode) .cta-btn,
+html body:not(.dark-mode) .gradient-btn,
+html body:not(.dark-mode) [class*="-create-btn"],
+html body:not(.dark-mode) [class*="-action-btn"],
+html body:not(.dark-mode) [class*="-cta-btn"],
+html body:not(.dark-mode) [class*="-gradient-btn"],
+html body:not(.dark-mode) .blog-create-btn,
+html body:not(.dark-mode) .inv-rent-btn,
+html body:not(.dark-mode) .inv-discover-btn,
+html body:not(.dark-mode) .d-action-btn,
+html body:not(.dark-mode) .profile-edit-btn,
+html body:not(.dark-mode) .activate-btn {
+    color: #ffffff !important;
+}
+html body:not(.dark-mode) .action-btn         :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) .create-btn         :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) .primary-action     :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) .cta-btn            :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) .gradient-btn       :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) [class*="-create-btn"]   :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) [class*="-action-btn"]   :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) [class*="-cta-btn"]      :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) [class*="-gradient-btn"] :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) .blog-create-btn    :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) .inv-rent-btn       :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) .inv-discover-btn   :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) .d-action-btn       :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) .profile-edit-btn   :where(span,small,strong,em,i,svg,b),
+html body:not(.dark-mode) .activate-btn       :where(span,small,strong,em,i,svg,b) {
+    color: #ffffff !important;
+}
+
+/* (e) Spezial: Anchors / Buttons, deren computed background-color sehr
+       wahrscheinlich brand-blau / saturiertes Color-Brand ist (data-Attr
+       Konvention). Hilft bei eigenen Modulen, die `data-variant="primary"`
+       oder Ähnliches setzen. */
+html body:not(.dark-mode) a[data-variant="primary"],
+html body:not(.dark-mode) a[data-variant="brand"],
+html body:not(.dark-mode) a[data-variant="success"],
+html body:not(.dark-mode) a[data-variant="danger"],
+html body:not(.dark-mode) button[data-variant="primary"],
+html body:not(.dark-mode) button[data-variant="brand"],
+html body:not(.dark-mode) button[data-variant="success"],
+html body:not(.dark-mode) button[data-variant="danger"] {
+    color: #ffffff !important;
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   48.  RESPONSIVE — UMFASSENDE MOBILE/TABLET-FIXES
+   ──────────────────────────────────────────────────────────────────
+   Bündelt die häufigsten Layout-Probleme auf kleinen Viewports:
+     - Tabellen brechen aus (kein horizontaler Scroll, lange Header)
+     - Modals zentriert auf Tablets, dadurch zu schmal/zu breit
+     - Touch-Targets zu klein
+     - Forms haben fixe max-width
+     - Cards / Status-Icons skalieren nicht
+   ════════════════════════════════════════════════════════════════════ */
+
+/* 48.1 — Globaler Container-Schutz: nichts darf horizontal überlaufen. */
+html body main,
+html body .page-wrapper,
+html body .container,
+html body .container-fluid,
+html body .card,
+html body .d-card,
+html body .ibc-card,
+html body section {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* 48.2 — Tabellen: auf Mobile horizontal scrollen, Schrift kleiner. */
+@media (max-width: 767.98px) {
+    .table-responsive,
+    .invoice-table-wrapper,
+    [class*="-table-wrapper"] {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+    .table-responsive table,
+    .invoice-table-wrapper table,
+    [class*="-table-wrapper"] table,
+    table.table {
+        min-width: 540px; /* erzwingt horizontalen Scroll statt Quetschen */
+        font-size: .82rem;
+    }
+    table.table th,
+    table.table td {
+        padding: .5rem .55rem !important;
+        word-break: break-word;
+        white-space: normal;
+    }
+    table.table th {
+        font-size: .72rem;
+        letter-spacing: .02em;
+    }
+}
+
+/* 48.3 — Modal-Bottomsheet bis 900px (Tablets im Hochformat). */
+@media (max-width: 900px) and (orientation: portrait) {
+    [class*="-modal-overlay"]:not(.support-modal-overlay),
+    .modal-overlay,
+    .vc-modal-overlay,
+    .inv-modal-overlay,
+    .rech-modal-overlay,
+    .evv-modal-overlay,
+    .jb-modal-overlay,
+    .appl-modal-overlay,
+    .idea-modal-overlay,
+    .checkout-modal-overlay {
+        align-items: flex-end !important;
+        padding: clamp(60px, 8vh, 96px) 0 0 !important;
+    }
+    [class*="-modal-box"]:not(.support-modal-box),
+    .modal-box,
+    .vc-modal,
+    .inv-modal-box,
+    .rech-modal-box {
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 1.25rem 1.25rem 0 0 !important;
+        margin: 0 !important;
+        max-height: calc(100vh - clamp(60px, 8vh, 96px)) !important;
+    }
+}
+
+/* 48.4 — Forms: fixe max-widths auf Mobile aufheben. */
+@media (max-width: 639.98px) {
+    .form-control,
+    input.form-control,
+    select.form-control,
+    textarea.form-control,
+    .form-input,
+    .form-select,
+    .ibc-input {
+        max-width: 100% !important;
+        width: 100% !important;
+        box-sizing: border-box;
+    }
+    .form-row,
+    .row.g-form,
+    .form-grid {
+        flex-direction: column !important;
+    }
+    .form-row > [class*="col-"],
+    .row.g-form > [class*="col-"],
+    .form-grid > * {
+        max-width: 100% !important;
+        flex: 0 0 100% !important;
+    }
+}
+
+/* 48.5 — Touch-Target ≥44px: Buttons, Nav-Items, Pagination, Dropdowns. */
+@media (max-width: 767.98px) {
+    .btn:not(.btn-icon-tiny):not(.btn-link),
+    button:not([class*="-tiny"]):not([class*="-mini"]):not(.support-modal-close):not(.btn-link),
+    .nav-link,
+    .menu-item > a,
+    .pagination .page-link,
+    .dropdown-item,
+    .list-group-item-action {
+        min-height: 44px;
+        line-height: 1.25;
+        padding-top: .55rem;
+        padding-bottom: .55rem;
+    }
+    /* iconische Close-/Cross-Buttons: nicht aufblähen, aber Tap-Fläche
+       per padding sicherstellen. */
+    .btn-close,
+    .modal-close,
+    [class*="-modal-close"],
+    .support-modal-close {
+        min-width: 40px;
+        min-height: 40px;
+    }
+}
+
+/* 48.6 — Status-Icon-Bubbles auf Mobile shrinken. */
+@media (max-width: 480px) {
+    .status-icon,
+    .status-indicator,
+    [class*="-status-icon"],
+    .stat-icon-wrapper {
+        width: 40px !important;
+        height: 40px !important;
+        font-size: .9rem !important;
+    }
+    .stat-card,
+    .metric-card,
+    .d-card {
+        padding: 1rem !important;
+    }
+    .stat-card h3,
+    .metric-card h3,
+    .d-card h3 {
+        font-size: 1rem !important;
+    }
+}
+
+/* 48.7 — Hero/Banner: Padding + Schriftgrößen mobil reduzieren. */
+@media (max-width: 639.98px) {
+    .welcome-hero,
+    .d-hero,
+    .dash-hero,
+    .page-hero,
+    [class*="-hero"]:not(.swiper-slide):not(.icon-hero) {
+        padding: 1.25rem 1rem !important;
+        border-radius: .9rem !important;
+    }
+    .welcome-hero h1,
+    .d-hero h1,
+    .dash-hero h1,
+    .page-hero h1 {
+        font-size: clamp(1.25rem, 5vw, 1.75rem) !important;
+        line-height: 1.2 !important;
+    }
+    .welcome-hero p,
+    .d-hero p,
+    .dash-hero p,
+    .page-hero p {
+        font-size: .9rem !important;
+    }
+}
+
+/* 48.8 — Card-Grids: erzwinge 1 Spalte unter 480px. */
+@media (max-width: 480px) {
+    .grid-cards,
+    .card-grid,
+    .stat-grid,
+    .metric-grid,
+    .d-card-grid {
+        grid-template-columns: 1fr !important;
+        gap: .75rem !important;
+    }
+}
+
+/* 48.9 — Dropdown-/Popover-Menüs am Viewport festklemmen. */
+@media (max-width: 480px) {
+    .dropdown-menu,
+    .popover,
+    .navbar-profile-dropdown {
+        max-width: min(calc(100vw - 1.5rem), 22rem) !important;
+        right: .75rem !important;
+        left: auto !important;
+    }
+}
+
+/* 48.10 — Long Words: keine Pixel-Overflows in Cards/Listen. */
+.card,
+.d-card,
+.ibc-card,
+.list-group-item,
+.menu-item,
+[class*="-card"] {
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+/* 48.11 — Bilder/Media auf Mobile auf 100% beschränken. */
+img,
+video,
+iframe,
+.media-embed {
+    max-width: 100%;
+    height: auto;
+}
+
+/* 48.12 — Buttons in Modal-Footers auf Mobile vollbreit. */
+@media (max-width: 480px) {
+    .modal-footer,
+    [class*="-modal-footer"],
+    .support-modal-footer {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+    .modal-footer > button,
+    [class*="-modal-footer"] > button,
+    .support-modal-footer > button {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+}
+
+/* 48.13 — Print-Mode: keine Overlays, kein Sidebar, Druck-freundlich. */
+@media print {
+    .sidebar,
+    #mobile-header,
+    #mobile-bottom-nav,
+    .topbar,
+    [class*="-modal-overlay"],
+    .modal,
+    footer,
+    .floating-action-btn {
+        display: none !important;
+    }
+    body {
+        background: #ffffff !important;
+        color: #000000 !important;
+    }
+}

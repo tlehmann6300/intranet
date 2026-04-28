@@ -722,23 +722,66 @@ ob_start();
 <script>
 (function () {
     'use strict';
+
+    /* ──────────────────────────────────────────────────────────────────
+       Ausleihe-Popup – komplett neu (viewport-zentriert + Portal)
+       ────────────────────────────────────────────────────────────────
+       WARUM das früher nicht tat, was es sollte:
+         • Das Overlay lag tief verschachtelt in #main-content / Flex-
+           wrappern. Sobald irgendein Vorfahre (Animation, transform,
+           filter, backdrop-filter, will-change) einen Containing-Block
+           erzeugt, verhält sich `position:fixed` wie `position:absolute`
+           → Popup "klebt" an irgendeiner Seitenmitte statt am Viewport.
+         • Zusätzlich hat die alte JS-Variante `body { position:fixed }`
+           gesetzt, um Scroll zu sperren – das kann bei iOS Safari zu
+           Sprung-/Positionierungsbugs führen. Nicht nötig: ui-fixes.css
+           sperrt den Scroll bereits per `body:has(.inv-modal-overlay.open)`.
+
+       Lösung in 2 Schritten:
+         1) "Portal": Overlay wird beim ersten Öffnen direkt an
+            <body> angehängt. Dadurch kann *kein* Vorfahr mehr einen
+            Containing-Block erzeugen.
+         2) Kein JS-Scroll-Lock mehr – CSS übernimmt das.
+    */
+
     function fmtDate(d) {
-        return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+        return d.getFullYear()
+            + '-' + String(d.getMonth() + 1).padStart(2, '0')
+            + '-' + String(d.getDate()).padStart(2, '0');
     }
 
-    var _scrollY = 0;
+    /* Overlay einmalig an <body> hängen, sobald DOM bereit ist. */
+    function portalOverlay() {
+        var overlay = document.getElementById('invModalOverlay');
+        if (!overlay) return;
+        if (overlay.parentNode !== document.body) {
+            document.body.appendChild(overlay);
+        }
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', portalOverlay);
+    } else {
+        portalOverlay();
+    }
 
     window.openInvModal = function (item) {
+        /* Sicherheitshalber direkt vor dem Öffnen erneut portalen,
+           falls dynamische Inhalte das Overlay bewegt haben. */
+        portalOverlay();
+
         var overlay  = document.getElementById('invModalOverlay');
         var nameEl   = document.getElementById('invModalItemName');
         var qtyInput = document.getElementById('invQty');
         var form     = document.getElementById('invLendForm');
+        if (!overlay || !form) return;
 
         form.action = 'checkout.php?id=' + encodeURIComponent(item.id);
         if (nameEl) nameEl.textContent = item.name;
 
-        qtyInput.max   = item.pieces;
-        qtyInput.value = 1;
+        if (qtyInput) {
+            qtyInput.max   = item.pieces;
+            qtyInput.value = 1;
+        }
 
         var today    = new Date();
         var tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate() + 1);
@@ -752,31 +795,27 @@ ob_start();
         if (purposeEl) purposeEl.value = '';
         if (destEl)    destEl.value    = '';
 
-        /* Lock scroll WITHOUT jumping to top */
-        _scrollY = window.scrollY;
-        document.body.style.position = 'fixed';
-        document.body.style.top      = '-' + _scrollY + 'px';
-        document.body.style.left     = '0';
-        document.body.style.right    = '0';
-        document.body.style.overflow = 'hidden';
-
+        /* Kein body{position:fixed}-Hack mehr. CSS (ui-fixes.css) sperrt
+           den Scroll via `body:has(.inv-modal-overlay.open) { overflow:hidden }`. */
         overlay.classList.add('open');
-        setTimeout(function () { qtyInput.focus(); }, 280);
+
+        /* Inhalt des Overlays ggf. nach oben scrollen (falls langer Dialog) */
+        overlay.scrollTop = 0;
+
+        setTimeout(function () { if (qtyInput) qtyInput.focus(); }, 280);
     };
 
     window.closeInvModal = function () {
-        document.getElementById('invModalOverlay').classList.remove('open');
-        /* Restore scroll position exactly where user was */
-        document.body.style.position = '';
-        document.body.style.top      = '';
-        document.body.style.left     = '';
-        document.body.style.right    = '';
-        document.body.style.overflow = '';
-        window.scrollTo(0, _scrollY);
+        var overlay = document.getElementById('invModalOverlay');
+        if (overlay) overlay.classList.remove('open');
     };
 
     document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') closeInvModal();
+        if (e.key !== 'Escape') return;
+        var overlay = document.getElementById('invModalOverlay');
+        if (overlay && overlay.classList.contains('open')) {
+            window.closeInvModal();
+        }
     });
 
     var startEl = document.getElementById('invStartDate');

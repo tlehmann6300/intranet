@@ -190,8 +190,7 @@ ob_start();
 }
 
 /* Name + role */
-.vc-card-name  { font-size:.975rem; font-weight:700; color:var(--text-main); margin:0 0 .2rem; line-height:1.25; }
-.vc-card-funktion { font-size:.78rem; color:var(--text-muted); margin:0; line-height:1.4; }
+.vc-card-name  { font-size:.975rem; font-weight:700; color:var(--text-main); margin:0 0 .35rem; line-height:1.25; }
 
 /* Rolle badge */
 .vc-rolle-badge {
@@ -652,7 +651,7 @@ select.vc-field-input {
 <div class="vc-search-wrap">
   <i class="vc-search-icon fas fa-search"></i>
   <input type="text" id="vcSearch" class="vc-search-input"
-         placeholder="Name, Funktion oder E-Mail suchen…"
+         placeholder="Name, Rolle oder E-Mail suchen…"
          oninput="filterCards(this.value)">
   <span class="vc-search-count" id="vcSearchCount"></span>
 </div>
@@ -686,8 +685,8 @@ select.vc-field-input {
     $searchText = strtolower(
         ($card['vorname'] ?? '') . ' ' .
         ($card['nachname'] ?? '') . ' ' .
-        ($card['funktion'] ?? '') . ' ' .
-        ($card['email'] ?? '')
+        ($card['rolle']    ?? '') . ' ' .
+        ($card['email']    ?? '')
     );
 ?>
 <div class="vc-card" data-search="<?php echo htmlspecialchars($searchText); ?>"
@@ -696,15 +695,37 @@ select.vc-field-input {
   <div class="vc-card-top">
     <div class="vc-avatar" style="background:<?php echo $grad; ?>;">
       <?php if ($hasPhoto): ?>
-      <img src="<?php echo htmlspecialchars(asset($card['profilbild'])); ?>"
+      <?php
+        // Cache-Busting, damit nach einem Bild-Wechsel die neue Datei sofort
+        // erscheint (Apache darf Profilbilder ansonsten aggressiv cachen).
+        // Wir hängen einen Hash des Pfads an, der sich nur beim Upload eines
+        // neuen Bildes ändert – also "stable" für identische Bilder und
+        // dennoch "fresh" nach einem echten Upload.
+        $photoUrl    = asset($card['profilbild']);
+        $photoCacheV = substr(sha1((string)$card['profilbild']), 0, 8);
+        $photoSrc    = $photoUrl . (strpos($photoUrl, '?') === false ? '?' : '&') . 'v=' . $photoCacheV;
+      ?>
+      <img src="<?php echo htmlspecialchars($photoSrc); ?>"
            alt="<?php echo htmlspecialchars($card['vorname'] . ' ' . $card['nachname']); ?>"
-           onerror="this.style.display='none'">
+           loading="lazy"
+           decoding="async"
+           data-initials="<?php echo htmlspecialchars($initials); ?>"
+           onerror="(function(el){
+               el.style.display='none';
+               var parent = el.parentElement;
+               if(parent && !parent.querySelector('.vc-avatar-initials-fb')){
+                   var fb = document.createElement('span');
+                   fb.className = 'vc-avatar-initials-fb';
+                   fb.textContent = el.dataset.initials || '';
+                   fb.style.cssText = 'display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-weight:700;color:#fff;';
+                   parent.appendChild(fb);
+               }
+           })(this);">
       <?php endif; ?>
       <?php if (!$hasPhoto): echo htmlspecialchars($initials); endif; ?>
     </div>
     <div style="min-width:0;">
       <p class="vc-card-name"><?php echo htmlspecialchars(trim(($card['vorname'] ?? '') . ' ' . ($card['nachname'] ?? ''))); ?></p>
-      <p class="vc-card-funktion"><?php echo htmlspecialchars($card['funktion'] ?: '—'); ?></p>
       <?php if ($rolleLabel): ?>
       <span class="vc-rolle-badge <?php echo $rolleClass; ?>"><?php echo htmlspecialchars($rolleLabel); ?></span>
       <?php endif; ?>
@@ -740,8 +761,16 @@ select.vc-field-input {
   </div>
 
   <div class="vc-card-footer">
+    <?php
+      // Bevorzugt Rollen-Slug im öffentlichen Link (z. B. ?role=board_finance).
+      // Fallback auf ?user=<id>, solange noch keine Rolle vergeben ist.
+      $publicSlug = !empty($card['rolle']) ? vcardRoleToSlug($card['rolle']) : '';
+      $publicUrl  = VCARD_PUBLIC_URL . ($publicSlug !== ''
+          ? '?role=' . rawurlencode($publicSlug)
+          : '?user=' . (int)$card['id']);
+    ?>
     <a class="vc-btn-preview"
-       href="<?php echo htmlspecialchars(VCARD_PUBLIC_URL . '?user=' . (int)$card['id']); ?>"
+       href="<?php echo htmlspecialchars($publicUrl); ?>"
        target="_blank" rel="noopener noreferrer"
        title="vCard in neuem Tab anzeigen">
       <i class="fas fa-eye"></i>Anzeigen
@@ -759,12 +788,17 @@ select.vc-field-input {
             data-vorname="<?php echo htmlspecialchars($card['vorname']    ?? '', ENT_QUOTES, 'UTF-8'); ?>"
             data-nachname="<?php echo htmlspecialchars($card['nachname']  ?? '', ENT_QUOTES, 'UTF-8'); ?>"
             data-rolle="<?php echo htmlspecialchars($card['rolle']        ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-            data-funktion="<?php echo htmlspecialchars($card['funktion']  ?? '', ENT_QUOTES, 'UTF-8'); ?>"
             data-email="<?php echo htmlspecialchars($card['email']        ?? '', ENT_QUOTES, 'UTF-8'); ?>"
             data-telefon="<?php echo htmlspecialchars($card['telefon']    ?? '', ENT_QUOTES, 'UTF-8'); ?>"
             data-linkedin="<?php echo htmlspecialchars($card['linkedin']  ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-            data-profilbild="<?php echo !empty($card['profilbild']) ? htmlspecialchars(asset($card['profilbild']), ENT_QUOTES, 'UTF-8') : ''; ?>"
-            data-lebenslauf="<?php echo htmlspecialchars($card['lebenslauf'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+            data-profilbild="<?php
+                if (!empty($card['profilbild'])) {
+                    $pb = asset($card['profilbild']);
+                    $cv = substr(sha1((string)$card['profilbild']), 0, 8);
+                    $pb .= (strpos($pb, '?') === false ? '?' : '&') . 'v=' . $cv;
+                    echo htmlspecialchars($pb, ENT_QUOTES, 'UTF-8');
+                }
+            ?>">
       <i class="fas fa-pen"></i>Bearbeiten
     </button>
     <button type="button" class="vc-btn-delete js-vc-delete"
@@ -800,7 +834,7 @@ select.vc-field-input {
       </button>
     </div>
 
-    <form id="editForm" novalidate style="display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;">
+    <form id="editForm" novalidate enctype="multipart/form-data" style="display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;">
       <input type="hidden" id="editId" name="id" value="">
       <input type="hidden" id="editCsrf" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken); ?>">
       <div class="vc-modal-body">
@@ -862,13 +896,6 @@ select.vc-field-input {
           </select>
         </div>
 
-        <!-- Funktion — NOW EDITABLE -->
-        <div>
-          <label class="vc-field-label">Funktion</label>
-          <input type="text" id="editFunktion" name="funktion" class="vc-field-input"
-                 placeholder="z. B. Vorstandsvorsitzender">
-        </div>
-
         <!-- Email -->
         <div>
           <label class="vc-field-label">E-Mail</label>
@@ -883,19 +910,11 @@ select.vc-field-input {
                  placeholder="+49 123 456789">
         </div>
 
-        <!-- LinkedIn -->
+        <!-- LinkedIn (optional) -->
         <div>
-          <label class="vc-field-label">LinkedIn-URL</label>
+          <label class="vc-field-label">LinkedIn-URL <span style="font-size:.7rem;font-weight:400;text-transform:none;color:#94a3b8;">(optional)</span></label>
           <input type="url" id="editLinkedin" name="linkedin" class="vc-field-input"
                  placeholder="https://linkedin.com/in/…">
-        </div>
-
-        <!-- Lebenslauf / CV -->
-        <div>
-          <label class="vc-field-label">Lebenslauf-URL <span style="font-size:.7rem;font-weight:400;text-transform:none;color:#94a3b8;">(optional – PDF oder externer Link)</span></label>
-          <input type="url" id="editLebenslauf" name="lebenslauf" class="vc-field-input"
-                 placeholder="https://…/cv.pdf">
-          <p class="vc-field-hint"><i class="fas fa-info-circle" style="margin-right:.25rem;"></i>Wird auf der öffentlichen vCard als Download-Button angezeigt, wenn gesetzt.</p>
         </div>
 
         <!-- Profilbild -->
@@ -939,7 +958,7 @@ select.vc-field-input {
       </button>
     </div>
 
-    <form id="createForm" novalidate style="display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;">
+    <form id="createForm" novalidate enctype="multipart/form-data" style="display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;">
       <input type="hidden" id="createCsrf" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken); ?>">
       <div class="vc-modal-body">
 
@@ -979,13 +998,6 @@ select.vc-field-input {
           </select>
         </div>
 
-        <!-- Funktion -->
-        <div>
-          <label class="vc-field-label">Funktion</label>
-          <input type="text" id="createFunktion" name="funktion" class="vc-field-input"
-                 placeholder="z. B. Vorstandsvorsitzender">
-        </div>
-
         <!-- Email -->
         <div>
           <label class="vc-field-label">E-Mail</label>
@@ -1000,19 +1012,11 @@ select.vc-field-input {
                  placeholder="+49 123 456789">
         </div>
 
-        <!-- LinkedIn -->
+        <!-- LinkedIn (optional) -->
         <div>
-          <label class="vc-field-label">LinkedIn-URL</label>
+          <label class="vc-field-label">LinkedIn-URL <span style="font-size:.7rem;font-weight:400;text-transform:none;color:#94a3b8;">(optional)</span></label>
           <input type="url" id="createLinkedin" name="linkedin" class="vc-field-input"
                  placeholder="https://linkedin.com/in/…">
-        </div>
-
-        <!-- Lebenslauf / CV -->
-        <div>
-          <label class="vc-field-label">Lebenslauf-URL <span style="font-size:.7rem;font-weight:400;text-transform:none;color:#94a3b8;">(optional – PDF oder externer Link)</span></label>
-          <input type="url" id="createLebenslauf" name="lebenslauf" class="vc-field-input"
-                 placeholder="https://…/cv.pdf">
-          <p class="vc-field-hint"><i class="fas fa-info-circle" style="margin-right:.25rem;"></i>Wird auf der öffentlichen vCard als Download-Button angezeigt, wenn gesetzt.</p>
         </div>
 
         <!-- Profilbild -->
@@ -1221,7 +1225,7 @@ function vcHandleFilePick(input, fileNameId, previewId, photoWrapId, initialsWra
 /* ── Edit Modal ────────────────────────── */
 let _currentEditId = null;
 
-function openEditModal(id, vorname, nachname, rolle, funktion, email, telefon, linkedin, profilbild, lebenslauf) {
+function openEditModal(id, vorname, nachname, rolle, email, telefon, linkedin, profilbild) {
     _currentEditId = id;
     document.getElementById('editId').value       = id;
     document.getElementById('editVorname').value  = vorname;
@@ -1229,11 +1233,9 @@ function openEditModal(id, vorname, nachname, rolle, funktion, email, telefon, l
     // Belegte Rollen ausgrauen – eigene Rolle bleibt wählbar
     refreshRoleOptions(document.getElementById('editRolle'), id);
     document.getElementById('editRolle').value    = rolle;
-    document.getElementById('editFunktion').value = funktion;
     document.getElementById('editEmail').value    = email;
     document.getElementById('editTelefon').value  = telefon;
     document.getElementById('editLinkedin').value = linkedin;
-    document.getElementById('editLebenslauf').value = lebenslauf || '';
     document.getElementById('editProfilbild').value = '';
 
     const photoWrap    = document.getElementById('editPhotoWrap');
@@ -1323,12 +1325,10 @@ document.addEventListener('click', function (e) {
             editBtn.dataset.vorname    || '',
             editBtn.dataset.nachname   || '',
             editBtn.dataset.rolle      || '',
-            editBtn.dataset.funktion   || '',
             editBtn.dataset.email      || '',
             editBtn.dataset.telefon    || '',
             editBtn.dataset.linkedin   || '',
-            editBtn.dataset.profilbild || '',
-            editBtn.dataset.lebenslauf || ''
+            editBtn.dataset.profilbild || ''
         );
         return;
     }
@@ -1371,11 +1371,19 @@ document.getElementById('confirmDeleteBtn').addEventListener('click', async () =
                 card.style.transform  = 'scale(.9)';
                 setTimeout(() => {
                     card.remove();
-                    // update count
                     const remaining = document.querySelectorAll('#vcGrid .vc-card').length;
                     const el = document.getElementById('vcCount');
                     if (el) el.textContent = remaining + ' Kontakt' + (remaining === 1 ? '' : 'e');
+                    // Beim letzten Eintrag → Seite neu laden, damit Empty-State
+                    // und Header korrekt server-side gerendert werden.
+                    if (remaining === 0) {
+                        setTimeout(() => window.location.reload(), 600);
+                    }
                 }, 400);
+            } else {
+                // Karte nicht im DOM gefunden → sicherheitshalber neu laden,
+                // damit die Liste definitiv synchron ist.
+                setTimeout(() => window.location.reload(), 800);
             }
         } else {
             showVcToast(data.message || 'Fehler beim Löschen', 'error');
@@ -1448,7 +1456,6 @@ document.getElementById('editForm').addEventListener('submit', async function(e)
             if (card) {
                 const vorname  = fd.get('vorname') || '';
                 const nachname = fd.get('nachname') || '';
-                const funktion = fd.get('funktion') || '';
                 const rolle    = fd.get('rolle') || '';
                 const email    = fd.get('email') || '';
                 const telefon  = fd.get('telefon') || '';
@@ -1456,10 +1463,6 @@ document.getElementById('editForm').addEventListener('submit', async function(e)
                 // Update name
                 const nameEl = card.querySelector('.vc-card-name');
                 if (nameEl) nameEl.textContent = (vorname + ' ' + nachname).trim();
-
-                // Update funktion
-                const funkEl = card.querySelector('.vc-card-funktion');
-                if (funkEl) funkEl.textContent = funktion || '—';
 
                 // Update rolle badge
                 const badgeEl = card.querySelector('.vc-rolle-badge');
@@ -1481,7 +1484,7 @@ document.getElementById('editForm').addEventListener('submit', async function(e)
                 }
 
                 // Update search data
-                card.dataset.search = [vorname, nachname, funktion, email].join(' ').toLowerCase();
+                card.dataset.search = [vorname, nachname, rolle, email].join(' ').toLowerCase();
 
                 // Subtle flash
                 card.style.transition = 'box-shadow .4s';
