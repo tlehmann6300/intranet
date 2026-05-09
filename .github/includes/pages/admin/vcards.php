@@ -535,6 +535,11 @@ select.vc-field-input {
         border-radius:1.5rem 1.5rem 0 0; max-width:100%; max-height:92dvh;
     }
     .vc-modal::before, .vc-confirm-modal::before { border-radius:1.5rem 1.5rem 0 0; }
+    .vc-modal-header { padding:.875rem 1rem .75rem; }
+    .vc-modal-body  { padding:1rem; gap:.75rem; }
+    .vc-modal-footer { padding:.75rem 1rem 1.25rem; flex-direction:column; }
+    .vc-modal-cancel, .vc-modal-save { flex:none; width:100%; }
+    .vc-confirm-body { padding:1.25rem 1rem .875rem; }
 }
 
 /* ── Dark mode — only overrides CSS vars can't handle ─────── */

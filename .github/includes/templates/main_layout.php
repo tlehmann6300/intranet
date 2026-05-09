@@ -873,6 +873,17 @@ if ($currentUser && isset($currentUser['id'])) {
                     <i class="fas fa-user-plus sidebar-nav-icon" aria-hidden="true"></i>
                     <span>Neue Alumni</span>
                 </a>
+                <!-- Öffentliche Formulare (zum Teilen / kopieren) -->
+                <a href="<?php echo asset('pages/public/neue_alumni.php'); ?>" target="_blank" rel="noopener noreferrer"
+                   class="sidebar-nav-item">
+                    <i class="fas fa-link sidebar-nav-icon" aria-hidden="true"></i>
+                    <span>Neuer Alumni Link ↗</span>
+                </a>
+                <a href="<?php echo asset('pages/public/alumni_recovery.php'); ?>" target="_blank" rel="noopener noreferrer"
+                   class="sidebar-nav-item">
+                    <i class="fas fa-key sidebar-nav-icon" aria-hidden="true"></i>
+                    <span>Recovery Link ↗</span>
+                </a>
                 <?php endif; ?>
 
 
@@ -965,13 +976,13 @@ if ($currentUser && isset($currentUser['id'])) {
 
 
     <!-- Main Content -->
-    <main id="main-content" role="main" class="md:ml-64 lg:ml-72 min-h-screen px-4 sm:px-6 lg:px-8 pb-4 pt-[var(--topbar-height)] md:pt-6 lg:pt-8 2xl:pt-10" style="padding-bottom: max(1rem, env(safe-area-inset-bottom, 0))">
-        <div class="max-w-7xl mx-auto">
+    <main id="main-content" role="main" class="md:ml-64 lg:ml-72 min-h-screen px-4 sm:px-6 lg:px-8 pt-[var(--topbar-height)] md:pt-6 lg:pt-8 2xl:pt-10 flex flex-col" style="padding-bottom: max(1rem, env(safe-area-inset-bottom, 0))">
+        <div class="max-w-7xl mx-auto w-full flex-1">
             <?php echo $content ?? ''; ?>
         </div>
-        <footer class="max-w-7xl mx-auto mt-8 py-4" style="border-top: 1px solid var(--border-color);">
+        <footer class="max-w-7xl mx-auto w-full mt-8 py-4" style="border-top: 1px solid var(--border-color);">
             <div class="flex flex-col items-center md:flex-row md:justify-between gap-2 text-sm" style="color: var(--text-muted);">
-                <p style="color: var(--text-muted);">&copy; <?php echo date('Y'); ?> IBC Business Consulting. Alle Rechte vorbehalten.</p>
+                <p style="color: var(--text-muted);">&copy; <?php echo date('Y'); ?> Institut für Business Consulting e.V. Alle Rechte vorbehalten.</p>
                 <div class="flex gap-4">
                     <a href="<?php echo asset('pages/impressum.php'); ?>" style="color: var(--text-muted); transition: color 0.15s;" onmouseover="this.style.color='var(--ibc-green)'" onmouseout="this.style.color='var(--text-muted)'" aria-label="Impressum – Rechtliche Hinweise">Impressum</a>
                 </div>

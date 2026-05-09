@@ -252,6 +252,21 @@ ob_start();
     color: var(--ibc-green);
 }
 
+/* ── Responsive ───────────────────────────────────────────────── */
+@media (max-width: 480px) {
+    /* Profilbild-Button auf volle Breite */
+    .dir-card-body { padding: 2.5rem 0.75rem 0.875rem; }
+    /* Langer Rollentext soll umbrechen, nicht aus der Karte laufen */
+    .dir-role-badge { white-space: normal; text-align: center; max-width: 100%; }
+    /* Suchfeld + Buttons immer untereinander */
+    .dir-search-input { font-size: 0.8125rem; }
+    /* Kartenname soll umbrechen */
+    .dir-card-name { font-size: 0.875rem; }
+}
+@media (max-width: 360px) {
+    .dir-card-body { padding: 2.5rem 0.625rem 0.75rem; }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .dir-card, .dir-card:nth-child(n) { animation: none; }
     .dir-card:hover { transform: none; }
@@ -273,7 +288,7 @@ ob_start();
         </div>
         <div style="min-width:0;">
             <h1 style="font-size:clamp(1.25rem,4vw,1.625rem);font-weight:800;color:var(--text-main);letter-spacing:-0.02em;line-height:1.2;margin:0;">Alumni-Verzeichnis</h1>
-            <p style="font-size:0.8125rem;color:var(--text-muted);margin:0.125rem 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Entdecke und vernetze dich mit unserem Alumni-Netzwerk</p>
+            <p style="font-size:0.8125rem;color:var(--text-muted);margin:0.125rem 0 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:min(100%,28rem);">Entdecke und vernetze dich mit unserem Alumni-Netzwerk</p>
         </div>
     </div>
     <?php if (in_array($user['role'], ['alumni','alumni_vorstand','alumni_finanz','ehrenmitglied'])): ?>
@@ -304,7 +319,7 @@ ob_start();
             <div style="position:relative;">
                 <i class="fas fa-industry" style="position:absolute;left:0.875rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.75rem;pointer-events:none;z-index:1;" aria-hidden="true"></i>
                 <select name="industry" class="dir-select" style="padding-left:2.25rem;width:100%;" aria-label="Branche filtern">
-                    <option value="">Alle Branchen</option>
+                    <option value="">Branche auswählen…</option>
                     <?php foreach ($industries as $ind): ?>
                     <option value="<?php echo htmlspecialchars($ind); ?>" <?php echo $industryFilter === $ind ? 'selected' : ''; ?>>
                         <?php echo htmlspecialchars($ind); ?>

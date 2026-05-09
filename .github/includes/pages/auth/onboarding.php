@@ -283,9 +283,21 @@ if ($showQRCode) {
             <!-- Step 1b: QR code + code confirmation -->
             <?php if ($showQRCode && $qrCodeUrl): ?>
                 <div class="qr-wrapper">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?data=<?php echo urlencode($qrCodeUrl); ?>&size=200x200"
-                         alt="2FA QR-Code">
+                    <div id="qr-onboarding" style="display:inline-block;background:#fff;padding:8px;border-radius:8px;border:1px solid #e5e7eb;"></div>
                 </div>
+                <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js" crossorigin="anonymous"></script>
+                <script>
+                (function(){
+                    var el = document.getElementById('qr-onboarding');
+                    if (!el) return;
+                    new QRCode(el, {
+                        text: <?php echo json_encode($qrCodeUrl, JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_SLASHES); ?>,
+                        width: 200, height: 200,
+                        colorDark: '#000000', colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                })();
+                </script>
                 <p class="sub-text" style="text-align:center;">
                     Scanne den Code mit deiner App und gib den 6-stelligen Code unten ein.
                 </p>
