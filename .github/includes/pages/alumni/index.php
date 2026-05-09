@@ -13,14 +13,11 @@ $viewerRole     = $user['role'] ?? '';
 $canViewPrivate = in_array($viewerRole, ['alumni','vorstand_intern','vorstand_extern','vorstand_finanzen']);
 
 $searchKeyword  = $_GET['search']   ?? '';
-$industryFilter = $_GET['industry'] ?? '';
 
 $filters = [];
 if (!empty($searchKeyword))  $filters['search']   = $searchKeyword;
-if (!empty($industryFilter)) $filters['industry'] = $industryFilter;
 
 $profiles   = Alumni::searchProfiles($filters);
-$industries = Alumni::getAllIndustries();
 
 // Role style map — RGBA, no dark: classes needed
 $roleStyles = [
@@ -315,18 +312,6 @@ ob_start();
                        class="dir-search-input"
                        aria-label="Alumni suchen">
             </div>
-            <!-- Industry select -->
-            <div style="position:relative;">
-                <i class="fas fa-industry" style="position:absolute;left:0.875rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.75rem;pointer-events:none;z-index:1;" aria-hidden="true"></i>
-                <select name="industry" class="dir-select" style="padding-left:2.25rem;width:100%;" aria-label="Branche filtern">
-                    <option value="">Branche auswählen…</option>
-                    <?php foreach ($industries as $ind): ?>
-                    <option value="<?php echo htmlspecialchars($ind); ?>" <?php echo $industryFilter === $ind ? 'selected' : ''; ?>>
-                        <?php echo htmlspecialchars($ind); ?>
-                    </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
             <!-- Buttons -->
             <div style="display:flex;gap:0.5rem;flex-shrink:0;">
                 <button type="submit"
@@ -334,7 +319,7 @@ ob_start();
                     <i class="fas fa-search" style="font-size:0.7rem;" aria-hidden="true"></i>
                     Suchen
                 </button>
-                <?php if (!empty($searchKeyword) || !empty($industryFilter)): ?>
+                <?php if (!empty($searchKeyword)): ?>
                 <a href="index.php"
                    style="display:inline-flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;background:var(--bg-body);border:1.5px solid var(--border-color);border-radius:50%;color:var(--text-muted);text-decoration:none;font-size:0.75rem;transition:border-color 0.15s,color 0.15s;flex-shrink:0;"
                    title="Filter zurücksetzen"
@@ -353,7 +338,7 @@ ob_start();
     <span style="display:inline-flex;align-items:center;justify-content:center;width:1.75rem;height:1.75rem;border-radius:50%;background:rgba(124,58,237,0.1);font-size:0.75rem;font-weight:800;color:#7c3aed;"><?php echo count($profiles); ?></span>
     <span style="font-size:0.875rem;color:var(--text-muted);">
         <?php echo count($profiles) === 1 ? 'Profil' : 'Profile'; ?> gefunden
-        <?php if (!empty($searchKeyword) || !empty($industryFilter)): ?>
+        <?php if (!empty($searchKeyword)): ?>
         <span style="font-size:0.8rem;"> · Gefiltert</span>
         <?php endif; ?>
     </span>
@@ -366,10 +351,10 @@ ob_start();
         <i class="fas fa-user-graduate" style="font-size:1.75rem;color:var(--text-muted);" aria-hidden="true"></i>
     </div>
     <p style="font-weight:800;color:var(--text-main);font-size:1.0625rem;margin:0 0 0.375rem;">
-        <?php echo (!empty($searchKeyword) || !empty($industryFilter)) ? 'Keine Profile gefunden' : 'Noch keine Alumni-Profile vorhanden.'; ?>
+        <?php echo (!empty($searchKeyword)) ? 'Keine Profile gefunden' : 'Noch keine Alumni-Profile vorhanden.'; ?>
     </p>
     <p style="font-size:0.875rem;color:var(--text-muted);margin:0;">
-        <?php echo (!empty($searchKeyword) || !empty($industryFilter)) ? 'Bitte passe Deinen Suchfilter an.' : 'Schau später wieder vorbei!'; ?>
+        <?php echo (!empty($searchKeyword)) ? 'Bitte passe Deinen Suchfilter an.' : 'Schau später wieder vorbei!'; ?>
     </p>
 </div>
 
