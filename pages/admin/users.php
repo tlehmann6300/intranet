@@ -43,17 +43,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    if (isset($_POST['toggle_alumni_validation']) && isset($_POST['user_id'])) {
-        $userId      = intval($_POST['user_id']);
-        $isValidated = intval($_POST['is_validated'] ?? 0);
-        try {
-            User::setAlumniValidated($userId, $isValidated);
-            $message = 'Alumni-Verifizierungsstatus aktualisiert.';
-        } catch (Exception $e) {
-            $error = 'Fehler beim Aktualisieren: ' . $e->getMessage();
-        }
-    }
-
     if (isset($_POST['import_entra_user'])) {
         $entraId          = trim($_POST['entra_id']       ?? '');
         $displayName      = trim($_POST['display_name']   ?? '');
@@ -585,29 +574,6 @@ ob_start();
                 </span>
                 <?php endif; ?>
 
-                <?php if ($user['role'] == 'alumni'): ?>
-                  <?php if ($user['is_alumni_validated']): ?>
-                  <form method="POST" class="inline" style="margin:0;">
-                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(CSRFHandler::getToken()); ?>">
-                    <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-                    <input type="hidden" name="is_validated" value="0">
-                    <button type="submit" name="toggle_alumni_validation"
-                            style="display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .6rem;min-height:32px;border-radius:.5rem;font-size:.75rem;font-weight:600;background:rgba(34,197,94,.12);color:rgba(21,128,61,1);border:1px solid rgba(34,197,94,.3);cursor:pointer;transition:background .2s;">
-                      <i class="fas fa-check-circle" style="font-size:.65rem;"></i>Verifiziert
-                    </button>
-                  </form>
-                  <?php else: ?>
-                  <form method="POST" class="inline" style="margin:0;">
-                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(CSRFHandler::getToken()); ?>">
-                    <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-                    <input type="hidden" name="is_validated" value="1">
-                    <button type="submit" name="toggle_alumni_validation"
-                            style="display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .6rem;min-height:32px;border-radius:.5rem;font-size:.75rem;font-weight:600;background:rgba(234,179,8,.1);color:rgba(161,98,7,1);border:1px solid rgba(234,179,8,.3);cursor:pointer;transition:background .2s;">
-                      <i class="fas fa-clock" style="font-size:.65rem;"></i>Ausstehend
-                    </button>
-                  </form>
-                  <?php endif; ?>
-                <?php endif; ?>
               </div>
             </td>
 
@@ -844,7 +810,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (exportBtn) {
         exportBtn.addEventListener('click', function() {
             const rows = Array.from(userRows).filter(function(r) { return r.style.display !== 'none'; });
-            let csv = 'ID,E-Mail,Rolle,2FA Aktiviert,Alumni Verifiziert\n';
+            let csv = 'ID,E-Mail,Rolle,2FA Aktiviert\n';
             rows.forEach(function(row) {
                 const id    = row.dataset.id;
                 const email = row.dataset.email;
@@ -852,9 +818,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const cells = row.querySelectorAll('td');
                 const tfaBadge  = cells[4] ? cells[4].querySelector('.fa-shield-alt') : null;
                 const tfa       = tfaBadge ? 'Ja' : 'Nein';
-                const verifBadge = cells[4] ? cells[4].querySelector('.fa-check-circle') : null;
-                const verif = verifBadge ? 'Ja' : (cells[4] && cells[4].querySelector('.fa-clock') ? 'Nein' : 'N/A');
-                csv += `${sanitizeCsvValue(id)},"${sanitizeCsvValue(email)}","${sanitizeCsvValue(role)}","${sanitizeCsvValue(tfa)}","${sanitizeCsvValue(verif)}"\n`;
+                csv += `${sanitizeCsvValue(id)},"${sanitizeCsvValue(email)}","${sanitizeCsvValue(role)}","${sanitizeCsvValue(tfa)}"\n`;
             });
             const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
