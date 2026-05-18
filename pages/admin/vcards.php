@@ -217,30 +217,34 @@ ob_start();
 
 /* Action buttons */
 .vc-card-footer {
-    padding:.875rem 1.25rem;
+    padding:.875rem 1rem;
     border-top:1px solid var(--border-color);
-    display:flex; gap:.5rem;
+    display:flex; flex-wrap:wrap; gap:.5rem;
     background:rgba(156,163,175,.03);
 }
+.vc-btn-label { white-space:nowrap; }
 .vc-btn-edit {
-    flex:1; display:inline-flex; align-items:center; justify-content:center; gap:.35rem;
-    padding:.5rem .75rem; font-size:.8rem; font-weight:600; border-radius:.625rem;
+    flex:1 1 calc(50% - .25rem); min-width:0;
+    display:inline-flex; align-items:center; justify-content:center; gap:.35rem;
+    padding:.5rem .65rem; font-size:.78rem; font-weight:600; border-radius:.625rem;
     background:rgba(59,130,246,.1); color:rgba(37,99,235,1); border:1px solid rgba(59,130,246,.25);
-    cursor:pointer; transition:background .2s, transform .15s, box-shadow .15s; min-height:36px;
+    cursor:pointer; transition:background .2s, transform .15s, box-shadow .15s; min-height:38px;
 }
 .vc-btn-edit:hover { background:rgba(59,130,246,.2); transform:translateY(-1px); box-shadow:0 3px 10px rgba(59,130,246,.2); }
 .vc-btn-delete {
-    flex:1; display:inline-flex; align-items:center; justify-content:center; gap:.35rem;
-    padding:.5rem .75rem; font-size:.8rem; font-weight:600; border-radius:.625rem;
+    flex:1 1 calc(50% - .25rem); min-width:0;
+    display:inline-flex; align-items:center; justify-content:center; gap:.35rem;
+    padding:.5rem .65rem; font-size:.78rem; font-weight:600; border-radius:.625rem;
     background:rgba(239,68,68,.1); color:rgba(185,28,28,1); border:1px solid rgba(239,68,68,.25);
-    cursor:pointer; transition:background .2s, transform .15s, box-shadow .15s; min-height:36px;
+    cursor:pointer; transition:background .2s, transform .15s, box-shadow .15s; min-height:38px;
 }
 .vc-btn-delete:hover { background:rgba(239,68,68,.2); transform:translateY(-1px); box-shadow:0 3px 10px rgba(239,68,68,.15); }
 .vc-btn-preview {
-    flex:1; display:inline-flex; align-items:center; justify-content:center; gap:.35rem;
-    padding:.5rem .75rem; font-size:.8rem; font-weight:600; border-radius:.625rem;
+    flex:1 1 calc(50% - .25rem); min-width:0;
+    display:inline-flex; align-items:center; justify-content:center; gap:.35rem;
+    padding:.5rem .65rem; font-size:.78rem; font-weight:600; border-radius:.625rem;
     background:rgba(13,148,136,.1); color:rgba(13,118,108,1); border:1px solid rgba(13,148,136,.25);
-    cursor:pointer; transition:background .2s, transform .15s, box-shadow .15s; min-height:36px;
+    cursor:pointer; transition:background .2s, transform .15s, box-shadow .15s; min-height:38px;
     text-decoration:none;
 }
 .vc-btn-preview:hover { background:rgba(13,148,136,.2); transform:translateY(-1px); box-shadow:0 3px 10px rgba(13,148,136,.2); color:rgba(13,118,108,1); text-decoration:none; }
@@ -251,10 +255,11 @@ ob_start();
 .dark-mode .vc-btn-preview:hover { background:rgba(13,148,136,.28) !important; color:#5eead4 !important; }
 
 .vc-btn-history {
-    flex:1; display:inline-flex; align-items:center; justify-content:center; gap:.35rem;
-    padding:.5rem .75rem; font-size:.8rem; font-weight:600; border-radius:.625rem;
+    flex:1 1 calc(50% - .25rem); min-width:0;
+    display:inline-flex; align-items:center; justify-content:center; gap:.35rem;
+    padding:.5rem .65rem; font-size:.78rem; font-weight:600; border-radius:.625rem;
     background:rgba(168,85,247,.1); color:rgba(126,34,206,1); border:1px solid rgba(168,85,247,.25);
-    cursor:pointer; transition:background .2s, transform .15s, box-shadow .15s; min-height:36px;
+    cursor:pointer; transition:background .2s, transform .15s, box-shadow .15s; min-height:38px;
 }
 .vc-btn-history:hover { background:rgba(168,85,247,.2); transform:translateY(-1px); box-shadow:0 3px 10px rgba(168,85,247,.2); }
 .dark-mode .vc-btn-history { color:#d8b4fe !important; background:rgba(168,85,247,.16) !important; border-color:rgba(168,85,247,.35) !important; }
@@ -284,10 +289,82 @@ ob_start();
 }
 .vc-history-empty { padding:2rem 1rem; text-align:center; color:var(--text-muted); }
 
-/* On very narrow widths stack the footer buttons vertically for readability */
-@media (max-width:400px) {
-    .vc-card-footer { flex-direction:column; }
-    .vc-btn-edit, .vc-btn-delete, .vc-btn-preview, .vc-btn-history { width:100%; }
+/* ── Responsive cascade ───────────────────────────────────────
+   Aufeinander aufbauende Breakpoints:
+     ≤900px : Grid 2 Spalten
+     ≤700px : Page-Header und Card-Texte etwas kleiner
+     ≤540px : Grid 1 Spalte
+     ≤480px : Action-Buttons werden Icon-only (Label ausgeblendet)
+     ≤380px : Page-Header stack (Titel + "Neue vCard" Button)
+   ──────────────────────────────────────────────────────────── */
+
+@media (max-width:900px) {
+    .vc-page-header { gap:.875rem; }
+    .vc-page-title { font-size:1.4rem; }
+    .vc-card-top { padding:1rem 1rem .75rem; gap:.75rem; }
+    .vc-avatar   { width:3rem; height:3rem; font-size:1rem; }
+    .vc-card-info { padding:.625rem 1rem; }
+    .vc-card-footer { padding:.75rem .875rem; }
+}
+
+@media (max-width:700px) {
+    .vc-page-title { font-size:1.25rem; }
+    .vc-page-sub   { font-size:.8rem; }
+    .vc-header-icon { width:2.5rem; height:2.5rem; }
+    .vc-header-icon i { font-size:.95rem !important; }
+    .vc-search-input { padding:.625rem 1rem .625rem 2.625rem; font-size:.85rem; }
+    .vc-search-count { font-size:.7rem; right:.875rem; }
+    .vc-card-name { font-size:.92rem;
+        overflow:hidden; text-overflow:ellipsis;
+        display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
+    }
+    .vc-rolle-badge { font-size:.65rem; padding:.15rem .55rem; }
+    .vc-info-row { font-size:.78rem; }
+}
+
+@media (max-width:540px) {
+    .vc-page { padding-bottom:1rem; }
+    .vc-search-count { display:none; }  /* Zähler ausblenden – sonst kollidiert mit langem Text */
+    .vc-card-footer { gap:.4rem; padding:.625rem .75rem; }
+    .vc-btn-edit, .vc-btn-delete, .vc-btn-preview, .vc-btn-history {
+        padding:.5rem .5rem; min-height:40px; font-size:.75rem;
+    }
+}
+
+@media (max-width:480px) {
+    /* Icon-only Buttons – Labels werden visuell ausgeblendet, bleiben für Screenreader erhalten */
+    .vc-btn-label {
+        position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+        overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+    }
+    .vc-btn-edit, .vc-btn-delete, .vc-btn-preview, .vc-btn-history {
+        gap:0; padding:.5rem; flex:1 1 calc(25% - .35rem); min-height:42px;
+    }
+    .vc-btn-edit i, .vc-btn-delete i, .vc-btn-preview i, .vc-btn-history i {
+        font-size:.95rem;
+    }
+    .vc-btn-new { padding:.55rem 1rem; font-size:.85rem; }
+    .vc-btn-new span:not(.vc-btn-label) { font-size:.85rem; }
+    /* History-Modal: Items stapelbar, Year-Badge oben */
+    .vc-history-item { flex-wrap:wrap; gap:.5rem .75rem; padding:.65rem .75rem; }
+    .vc-history-year { min-width:2.75rem; font-size:.75rem; padding:.25rem .5rem; }
+    .vc-history-name { font-size:.85rem; }
+    .vc-history-role { font-size:.72rem; white-space:normal; word-break:break-word; }
+    .vc-history-current-tag { font-size:.6rem; padding:.1rem .4rem; }
+    /* Modal-Header etwas kompakter */
+    .vc-modal-header { padding:.875rem 1.125rem .75rem; }
+    .vc-modal-body   { padding:1rem 1.125rem; }
+    .vc-modal-footer { padding:.75rem 1.125rem 1rem; gap:.5rem; }
+    .vc-modal-title  { font-size:.975rem; }
+    .vc-modal-header-icon { width:2rem; height:2rem; }
+}
+
+@media (max-width:380px) {
+    /* Page-Header: Titel + Neuer-Button stapeln und Button volle Breite */
+    .vc-page-header { flex-direction:column; align-items:stretch; }
+    .vc-btn-new { width:100%; justify-content:center; }
+    .vc-page-title { font-size:1.125rem; }
+    .vc-search-input { font-size:.825rem; padding-left:2.5rem; }
 }
 
 /* ── Empty state ──────────────────────────────────────────────── */
@@ -609,13 +686,6 @@ select.vc-field-input {
     #vc-toast { left:1rem; right:1rem; min-width:0; bottom:1rem; }
 }
 
-
-@media (max-width:480px) {
-    .vc-page-title { font-size:1.35rem; }
-    .vc-page-header { flex-direction:column; }
-    .vc-btn-new { width:100%; justify-content:center; }
-}
-
 /* ── Dark mode specific ───────────────────────────────────────── */
 .dark-mode .vc-card {
     background:var(--gradient-card-dark) !important;
@@ -807,7 +877,7 @@ select.vc-field-input {
        href="<?php echo htmlspecialchars($publicUrl); ?>"
        target="_blank" rel="noopener noreferrer"
        title="vCard in neuem Tab anzeigen">
-      <i class="fas fa-eye"></i>Anzeigen
+      <i class="fas fa-eye" aria-hidden="true"></i><span class="vc-btn-label">Anzeigen</span>
     </a>
     <?php
       // NB: we intentionally use data-* attributes instead of inline onclick
@@ -833,18 +903,20 @@ select.vc-field-input {
                     echo htmlspecialchars($pb, ENT_QUOTES, 'UTF-8');
                 }
             ?>">
-      <i class="fas fa-pen"></i>Bearbeiten
+      <i class="fas fa-pen" aria-hidden="true"></i><span class="vc-btn-label">Bearbeiten</span>
     </button>
     <button type="button" class="vc-btn-delete js-vc-delete"
             data-id="<?php echo (int)$card['id']; ?>"
-            data-name="<?php echo htmlspecialchars($fullName, ENT_QUOTES, 'UTF-8'); ?>">
-      <i class="fas fa-trash"></i>Löschen
+            data-name="<?php echo htmlspecialchars($fullName, ENT_QUOTES, 'UTF-8'); ?>"
+            aria-label="Löschen">
+      <i class="fas fa-trash" aria-hidden="true"></i><span class="vc-btn-label">Löschen</span>
     </button>
     <?php if (!empty($card['rolle'])): ?>
     <button type="button" class="vc-btn-history js-vc-history"
             data-rolle="<?php echo htmlspecialchars($card['rolle'], ENT_QUOTES, 'UTF-8'); ?>"
-            title="Frühere Inhaber dieser Rolle anzeigen">
-      <i class="fas fa-history"></i>History anschauen
+            title="Frühere Inhaber dieser Rolle anzeigen"
+            aria-label="History anschauen">
+      <i class="fas fa-history" aria-hidden="true"></i><span class="vc-btn-label">History</span>
     </button>
     <?php endif; ?>
   </div>
