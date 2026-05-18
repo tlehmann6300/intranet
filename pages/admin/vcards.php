@@ -265,29 +265,9 @@ ob_start();
 .dark-mode .vc-btn-history { color:#d8b4fe !important; background:rgba(168,85,247,.16) !important; border-color:rgba(168,85,247,.35) !important; }
 .dark-mode .vc-btn-history:hover { background:rgba(168,85,247,.28) !important; color:#e9d5ff !important; }
 
-.vc-history-list { display:flex; flex-direction:column; gap:.65rem; max-height:60vh; overflow-y:auto; padding:.25rem; }
-.vc-history-item {
-    display:flex; align-items:center; gap:.85rem;
-    padding:.75rem .95rem; border:1px solid var(--border-color); border-radius:.75rem;
-    background:var(--bg-body);
-}
-.vc-history-item.is-current { border-color:rgba(13,148,136,.5); background:rgba(13,148,136,.08); }
-.vc-history-year {
-    flex-shrink:0;
-    min-width:3.25rem; padding:.35rem .55rem; border-radius:.5rem;
-    background:rgba(15,23,42,.08); color:var(--text-main);
-    font-weight:800; font-size:.85rem; text-align:center;
-}
-.vc-history-item.is-current .vc-history-year { background:rgba(13,148,136,.2); color:rgba(13,118,108,1); }
-.vc-history-meta { display:flex; flex-direction:column; gap:.15rem; min-width:0; flex:1; }
-.vc-history-name { font-weight:700; color:var(--text-main); font-size:.92rem; }
-.vc-history-role { font-size:.78rem; color:var(--text-muted); }
-.vc-history-current-tag {
-    font-size:.65rem; font-weight:700; padding:.15rem .45rem;
-    background:rgba(13,148,136,.18); color:rgba(13,118,108,1); border-radius:9999px;
-    text-transform:uppercase; letter-spacing:.05em;
-}
-.vc-history-empty { padding:2rem 1rem; text-align:center; color:var(--text-muted); }
+/* History-Liste wird komplett mit Tailwind-Utilities gerendert (siehe JS).
+   Hier nur noch der scrollbare Container und der Empty-State. */
+#historyList { max-height: min(60vh, 32rem); overflow-y: auto; padding: 0.25rem; }
 
 /* ── Responsive cascade ───────────────────────────────────────
    Aufeinander aufbauende Breakpoints:
@@ -345,12 +325,6 @@ ob_start();
     }
     .vc-btn-new { padding:.55rem 1rem; font-size:.85rem; }
     .vc-btn-new span:not(.vc-btn-label) { font-size:.85rem; }
-    /* History-Modal: Items stapelbar, Year-Badge oben */
-    .vc-history-item { flex-wrap:wrap; gap:.5rem .75rem; padding:.65rem .75rem; }
-    .vc-history-year { min-width:2.75rem; font-size:.75rem; padding:.25rem .5rem; }
-    .vc-history-name { font-size:.85rem; }
-    .vc-history-role { font-size:.72rem; white-space:normal; word-break:break-word; }
-    .vc-history-current-tag { font-size:.6rem; padding:.1rem .4rem; }
     /* Modal-Header etwas kompakter */
     .vc-modal-header { padding:.875rem 1.125rem .75rem; }
     .vc-modal-body   { padding:1rem 1.125rem; }
@@ -1496,7 +1470,7 @@ async function openVcHistory(rolle) {
     if (!overlay || !listEl) return;
 
     titleEl.textContent = 'History: ' + rolle;
-    listEl.innerHTML = '<div class="vc-history-empty"><i class="fas fa-spinner fa-spin"></i> Lade Verlauf…</div>';
+    listEl.innerHTML = renderHistoryEmpty('<i class="fas fa-spinner fa-spin mr-2"></i>Lade Verlauf…');
     overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
 
@@ -1505,33 +1479,77 @@ async function openVcHistory(rolle) {
         const resp = await fetch(url, { credentials: 'same-origin' });
         const data = await resp.json();
         if (!data.success) {
-            listEl.innerHTML = '<div class="vc-history-empty">Konnte Verlauf nicht laden.</div>';
+            listEl.innerHTML = renderHistoryEmpty('Konnte Verlauf nicht laden.');
             return;
         }
         const items = Array.isArray(data.items) ? data.items : [];
         if (items.length === 0) {
-            listEl.innerHTML = '<div class="vc-history-empty">Keine Einträge für diese Rolle.</div>';
+            listEl.innerHTML = renderHistoryEmpty('Keine Einträge für diese Rolle.');
             return;
         }
         const maxJahr = items.reduce((m, it) => Math.max(m, parseInt(it.jahr, 10) || 0), 0);
-        listEl.innerHTML = items.map(it => {
-            const jahr = parseInt(it.jahr, 10) || '–';
-            const isCurrent = jahr === maxJahr;
-            const safeName = (it.vorname || '') + ' ' + (it.nachname || '');
-            const contact = [it.email, it.telefon].filter(Boolean).join(' · ');
-            return ''
-                + '<div class="vc-history-item ' + (isCurrent ? 'is-current' : '') + '">'
-                +   '<div class="vc-history-year">' + escapeHtml(String(jahr)) + '</div>'
-                +   '<div class="vc-history-meta">'
-                +     '<span class="vc-history-name">' + escapeHtml(safeName.trim() || '–') + '</span>'
-                +     '<span class="vc-history-role">' + escapeHtml(it.position || '') + (contact ? ' · ' + escapeHtml(contact) : '') + '</span>'
-                +   '</div>'
-                +   (isCurrent ? '<span class="vc-history-current-tag">aktuell</span>' : '')
-                + '</div>';
-        }).join('');
+        listEl.innerHTML = '<ul class="flex flex-col gap-2 sm:gap-3 list-none m-0 p-0">'
+            + items.map(it => renderHistoryItem(it, maxJahr)).join('')
+            + '</ul>';
     } catch (err) {
-        listEl.innerHTML = '<div class="vc-history-empty">Fehler beim Laden des Verlaufs.</div>';
+        listEl.innerHTML = renderHistoryEmpty('Fehler beim Laden des Verlaufs.');
     }
+}
+
+function renderHistoryEmpty(html) {
+    return '<div class="py-8 px-4 text-center text-sm text-slate-400">' + html + '</div>';
+}
+
+function renderHistoryItem(it, maxJahr) {
+    const jahr = parseInt(it.jahr, 10);
+    const isLatest = jahr === maxJahr;
+    const fullName = ((it.vorname || '') + ' ' + (it.nachname || '')).trim() || '–';
+    const role = it.position || '';
+    const email = it.email || '';
+    const phone = it.telefon || '';
+
+    // Mobile: flex-col (gestapelt). sm+: flex-row mit Year-Badge links, Tag rechts.
+    const itemClass = [
+        'group flex flex-col gap-2 p-3',
+        'sm:flex-row sm:items-center sm:gap-4 sm:p-4',
+        'rounded-xl border bg-slate-800/60 border-slate-700/60',
+        isLatest ? 'ring-1 ring-amber-500/30' : ''
+    ].join(' ');
+
+    const yearBadgeClass = [
+        'inline-flex shrink-0 items-center justify-center',
+        'min-w-[3.25rem] px-2.5 py-1.5 rounded-lg text-sm font-extrabold tracking-tight',
+        isLatest ? 'bg-amber-500/15 text-amber-200' : 'bg-slate-700/60 text-slate-200'
+    ].join(' ');
+
+    const tag = isLatest
+        ? '<span class="self-start sm:self-center shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-200 text-[10px] font-bold uppercase tracking-wider"><i class="fas fa-history" aria-hidden="true"></i>Vorgänger</span>'
+        : '';
+
+    // Kontakt-Zeile: nur anzeigen, wenn etwas vorhanden ist; Mailto/Tel-Links.
+    const contactBits = [];
+    if (email) contactBits.push('<a href="mailto:' + escapeAttr(email) + '" class="hover:text-slate-200 hover:underline break-all">' + escapeHtml(email) + '</a>');
+    if (phone) contactBits.push('<a href="tel:' + escapeAttr(phone.replace(/\s+/g,'')) + '" class="hover:text-slate-200 hover:underline whitespace-nowrap">' + escapeHtml(phone) + '</a>');
+    const contactRow = contactBits.length
+        ? '<div class="text-xs text-slate-400 flex flex-wrap gap-x-3 gap-y-1 mt-0.5">' + contactBits.join('<span class="text-slate-600">·</span>') + '</div>'
+        : '';
+
+    return ''
+        + '<li class="' + itemClass + '">'
+        +   '<div class="flex items-start gap-3 sm:contents">'
+        +     '<div class="' + yearBadgeClass + '">' + escapeHtml(isNaN(jahr) ? '–' : String(jahr)) + '</div>'
+        +     '<div class="flex flex-col min-w-0 flex-1 gap-0.5">'
+        +       '<div class="font-bold text-slate-100 text-sm sm:text-base break-words">' + escapeHtml(fullName) + '</div>'
+        +       (role ? '<div class="text-xs text-slate-400 break-words">' + escapeHtml(role) + '</div>' : '')
+        +       contactRow
+        +     '</div>'
+        +   '</div>'
+        +   tag
+        + '</li>';
+}
+
+function escapeAttr(str) {
+    return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 function closeVcHistory() {
