@@ -547,9 +547,9 @@ ob_start();
                 ><?php echo htmlspecialchars($description, ENT_QUOTES, 'UTF-8'); ?></textarea>
             </div>
 
-            <!-- PDF Upload -->
+            <!-- PDF Upload (Lebenslauf oder Stellenausschreibung) -->
             <div class="jcr-form-group">
-                <label class="jcr-label">Lebenslauf (optional)</label>
+                <label class="jcr-label">PDF-Anhang (optional) – Lebenslauf <em>oder</em> Stellenausschreibung</label>
                 <?php if ($profileCvPath !== null): ?>
                 <div class="jcr-info-box">
                     <div class="jcr-info-title">
@@ -563,7 +563,7 @@ ob_start();
                         </label>
                         <label class="jcr-radio-option">
                             <input type="radio" name="cv_source" value="upload" id="cv_source_upload" checked>
-                            <span>Neue Datei hochladen</span>
+                            <span>Neue Datei hochladen (Lebenslauf oder Stellenausschreibung)</span>
                         </label>
                     </div>
                 </div>

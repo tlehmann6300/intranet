@@ -124,7 +124,7 @@ ob_start();
     background: var(--bg-card);
     border: 1.5px solid var(--border-color);
     border-radius: 9999px;
-    padding: 0.5rem 1rem 0.5rem 2.375rem;
+    padding: 0.5rem 1rem 0.5rem 2.75rem;
     font-size: 0.875rem;
     color: var(--text-main);
     outline: none;

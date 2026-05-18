@@ -120,7 +120,7 @@ ob_start();
     color:var(--text-muted); font-size:.9rem; pointer-events:none;
 }
 .vc-search-input {
-    width:100%; padding:.7rem 1rem .7rem 2.625rem; border-radius:.875rem;
+    width:100%; padding:.7rem 1rem .7rem 2.875rem; border-radius:.875rem;
     border:1.5px solid var(--border-color); background:var(--bg-card);
     color:var(--text-main); font-size:.9rem; outline:none; box-sizing:border-box;
     transition:border-color .2s, box-shadow .2s;
@@ -250,10 +250,44 @@ ob_start();
 }
 .dark-mode .vc-btn-preview:hover { background:rgba(13,148,136,.28) !important; color:#5eead4 !important; }
 
-/* On very narrow widths stack the three footer buttons vertically for readability */
+.vc-btn-history {
+    flex:1; display:inline-flex; align-items:center; justify-content:center; gap:.35rem;
+    padding:.5rem .75rem; font-size:.8rem; font-weight:600; border-radius:.625rem;
+    background:rgba(168,85,247,.1); color:rgba(126,34,206,1); border:1px solid rgba(168,85,247,.25);
+    cursor:pointer; transition:background .2s, transform .15s, box-shadow .15s; min-height:36px;
+}
+.vc-btn-history:hover { background:rgba(168,85,247,.2); transform:translateY(-1px); box-shadow:0 3px 10px rgba(168,85,247,.2); }
+.dark-mode .vc-btn-history { color:#d8b4fe !important; background:rgba(168,85,247,.16) !important; border-color:rgba(168,85,247,.35) !important; }
+.dark-mode .vc-btn-history:hover { background:rgba(168,85,247,.28) !important; color:#e9d5ff !important; }
+
+.vc-history-list { display:flex; flex-direction:column; gap:.65rem; max-height:60vh; overflow-y:auto; padding:.25rem; }
+.vc-history-item {
+    display:flex; align-items:center; gap:.85rem;
+    padding:.75rem .95rem; border:1px solid var(--border-color); border-radius:.75rem;
+    background:var(--bg-body);
+}
+.vc-history-item.is-current { border-color:rgba(13,148,136,.5); background:rgba(13,148,136,.08); }
+.vc-history-year {
+    flex-shrink:0;
+    min-width:3.25rem; padding:.35rem .55rem; border-radius:.5rem;
+    background:rgba(15,23,42,.08); color:var(--text-main);
+    font-weight:800; font-size:.85rem; text-align:center;
+}
+.vc-history-item.is-current .vc-history-year { background:rgba(13,148,136,.2); color:rgba(13,118,108,1); }
+.vc-history-meta { display:flex; flex-direction:column; gap:.15rem; min-width:0; flex:1; }
+.vc-history-name { font-weight:700; color:var(--text-main); font-size:.92rem; }
+.vc-history-role { font-size:.78rem; color:var(--text-muted); }
+.vc-history-current-tag {
+    font-size:.65rem; font-weight:700; padding:.15rem .45rem;
+    background:rgba(13,148,136,.18); color:rgba(13,118,108,1); border-radius:9999px;
+    text-transform:uppercase; letter-spacing:.05em;
+}
+.vc-history-empty { padding:2rem 1rem; text-align:center; color:var(--text-muted); }
+
+/* On very narrow widths stack the footer buttons vertically for readability */
 @media (max-width:400px) {
     .vc-card-footer { flex-direction:column; }
-    .vc-btn-edit, .vc-btn-delete, .vc-btn-preview { width:100%; }
+    .vc-btn-edit, .vc-btn-delete, .vc-btn-preview, .vc-btn-history { width:100%; }
 }
 
 /* ── Empty state ──────────────────────────────────────────────── */
@@ -806,6 +840,13 @@ select.vc-field-input {
             data-name="<?php echo htmlspecialchars($fullName, ENT_QUOTES, 'UTF-8'); ?>">
       <i class="fas fa-trash"></i>Löschen
     </button>
+    <?php if (!empty($card['rolle'])): ?>
+    <button type="button" class="vc-btn-history js-vc-history"
+            data-rolle="<?php echo htmlspecialchars($card['rolle'], ENT_QUOTES, 'UTF-8'); ?>"
+            title="Frühere Inhaber dieser Rolle anzeigen">
+      <i class="fas fa-history"></i>History anschauen
+    </button>
+    <?php endif; ?>
   </div>
 
 </div><!-- .vc-card -->
@@ -940,6 +981,32 @@ select.vc-field-input {
         </button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- ═══ History Modal ════════════════════════════════════════ -->
+<div id="historyModal" class="vc-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="historyModalTitle">
+  <div class="vc-modal">
+    <div class="vc-modal-header">
+      <div class="vc-modal-header-left">
+        <div class="vc-modal-header-icon" style="background:linear-gradient(135deg,rgba(168,85,247,1),rgba(124,58,237,1));">
+          <i class="fas fa-history" style="color:#fff;font-size:.85rem;"></i>
+        </div>
+        <h3 class="vc-modal-title" id="historyModalTitle">History</h3>
+      </div>
+      <button type="button" class="vc-modal-close" onclick="closeVcHistory()" aria-label="Schließen">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="vc-modal-body">
+      <p style="margin:0 0 1rem;color:var(--text-muted);font-size:.85rem;">
+        Alle Personen, die diese Rolle bisher innehatten – nach Jahr sortiert.
+      </p>
+      <div id="historyList" class="vc-history-list"></div>
+    </div>
+    <div class="vc-modal-footer">
+      <button type="button" onclick="closeVcHistory()" class="vc-modal-cancel">Schließen</button>
+    </div>
   </div>
 </div>
 
@@ -1340,6 +1407,80 @@ document.addEventListener('click', function (e) {
         );
         return;
     }
+    const historyBtn = e.target.closest('.js-vc-history');
+    if (historyBtn) {
+        openVcHistory(historyBtn.dataset.rolle || '');
+        return;
+    }
+});
+
+// ── History Modal ─────────────────────────────────────────────────
+const VCARD_HISTORY_API_URL = <?php echo json_encode(asset('api/admin/get_vcard_history.php')); ?>;
+
+async function openVcHistory(rolle) {
+    const overlay = document.getElementById('historyModal');
+    const listEl  = document.getElementById('historyList');
+    const titleEl = document.getElementById('historyModalTitle');
+    if (!overlay || !listEl) return;
+
+    titleEl.textContent = 'History: ' + rolle;
+    listEl.innerHTML = '<div class="vc-history-empty"><i class="fas fa-spinner fa-spin"></i> Lade Verlauf…</div>';
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    try {
+        const url = VCARD_HISTORY_API_URL + '?rolle=' + encodeURIComponent(rolle);
+        const resp = await fetch(url, { credentials: 'same-origin' });
+        const data = await resp.json();
+        if (!data.success) {
+            listEl.innerHTML = '<div class="vc-history-empty">Konnte Verlauf nicht laden.</div>';
+            return;
+        }
+        const items = Array.isArray(data.items) ? data.items : [];
+        if (items.length === 0) {
+            listEl.innerHTML = '<div class="vc-history-empty">Keine Einträge für diese Rolle.</div>';
+            return;
+        }
+        const maxJahr = items.reduce((m, it) => Math.max(m, parseInt(it.jahr, 10) || 0), 0);
+        listEl.innerHTML = items.map(it => {
+            const jahr = parseInt(it.jahr, 10) || '–';
+            const isCurrent = jahr === maxJahr;
+            const safeName = (it.vorname || '') + ' ' + (it.nachname || '');
+            const contact = [it.email, it.telefon].filter(Boolean).join(' · ');
+            return ''
+                + '<div class="vc-history-item ' + (isCurrent ? 'is-current' : '') + '">'
+                +   '<div class="vc-history-year">' + escapeHtml(String(jahr)) + '</div>'
+                +   '<div class="vc-history-meta">'
+                +     '<span class="vc-history-name">' + escapeHtml(safeName.trim() || '–') + '</span>'
+                +     '<span class="vc-history-role">' + escapeHtml(it.position || '') + (contact ? ' · ' + escapeHtml(contact) : '') + '</span>'
+                +   '</div>'
+                +   (isCurrent ? '<span class="vc-history-current-tag">aktuell</span>' : '')
+                + '</div>';
+        }).join('');
+    } catch (err) {
+        listEl.innerHTML = '<div class="vc-history-empty">Fehler beim Laden des Verlaufs.</div>';
+    }
+}
+
+function closeVcHistory() {
+    const overlay = document.getElementById('historyModal');
+    if (!overlay) return;
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, ch => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[ch]);
+}
+
+document.addEventListener('click', e => {
+    const overlay = document.getElementById('historyModal');
+    if (overlay && e.target === overlay) closeVcHistory();
+});
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeVcHistory();
 });
 
 document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {

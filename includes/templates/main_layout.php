@@ -56,8 +56,6 @@ function is_nav_active(string $path): bool {
     return strpos($uri, $path) !== false;
 }
 
-// Ensure $currentUser is defined for the body data-user-theme attribute,
-// even on pages that don't set it before including this layout.
 if (!isset($currentUser)) {
     $currentUser = Auth::user();
 }
@@ -506,32 +504,12 @@ if ($currentUser && isset($currentUser['id'])) {
         }
     </style>
 </head>
-<body class="bg-gray-50 text-slate-800 dark:bg-slate-900 dark:text-slate-200 overflow-x-hidden" data-user-theme="<?php echo htmlspecialchars($currentUser['theme_preference'] ?? 'auto'); ?>">
+<body class="bg-slate-900 text-slate-200 dark-mode dark overflow-x-hidden" data-theme="dark">
     <script>
-        // Apply theme immediately to prevent flash of unstyled content (FOUC)
-        (function() {
-            const userTheme = document.body.getAttribute('data-user-theme') || 'auto';
-            const savedTheme = localStorage.getItem('theme') || userTheme;
-            
-            if (savedTheme === 'dark') {
-                document.body.classList.add('dark-mode', 'dark');
-                document.documentElement.classList.add('dark-mode', 'dark');
-                document.documentElement.setAttribute('data-theme', 'dark');
-                document.documentElement.style.colorScheme = 'dark';
-            } else if (savedTheme === 'light') {
-                document.body.classList.remove('dark-mode', 'dark');
-                document.documentElement.classList.remove('dark-mode', 'dark');
-                document.documentElement.setAttribute('data-theme', 'light');
-                document.documentElement.style.colorScheme = 'light';
-            } else { // auto
-                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                    document.body.classList.add('dark-mode', 'dark');
-                    document.documentElement.classList.add('dark-mode', 'dark');
-                    document.documentElement.setAttribute('data-theme', 'dark');
-                    document.documentElement.style.colorScheme = 'dark';
-                }
-            }
-        })();
+        // Darkmode ist die einzig unterstützte Darstellung – Klassen werden bereits server-side gesetzt.
+        document.documentElement.classList.add('dark-mode', 'dark');
+        document.documentElement.setAttribute('data-theme', 'dark');
+        document.documentElement.style.colorScheme = 'dark';
     </script>
     <!-- Mobile Menu Overlay -->
     <div id="sidebar-overlay" class="sidebar-overlay"></div>
@@ -555,11 +533,8 @@ if ($currentUser && isset($currentUser['id'])) {
                  decoding="async">
         </div>
 
-        <!-- Right: Theme toggle + Profile dropdown button -->
+        <!-- Right: Profile dropdown button -->
         <div class="flex items-center gap-1.5 shrink-0">
-            <button id="mobile-theme-toggle" class="mob-btn" aria-label="Darkmode umschalten">
-                <i id="mobile-theme-icon" class="fas fa-moon" aria-hidden="true"></i>
-            </button>
             <button id="mob-profile-btn" class="mob-profile-btn" aria-label="Profil-Menü öffnen" aria-expanded="false" aria-controls="mob-profile-dropdown">
                 <div class="mob-avatar" style="background-color:<?php echo htmlspecialchars($_navbarAvatarColor); ?>">
                     <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:0.625rem;font-weight:700;color:#fff;" aria-hidden="true"><?php echo htmlspecialchars($_navbarInitials); ?></span>
@@ -594,11 +569,6 @@ if ($currentUser && isset($currentUser['id'])) {
             <i class="fas fa-cog" aria-hidden="true"></i>
             <span>Einstellungen</span>
         </a>
-        <div class="mob-dd-theme-row" role="group" aria-label="Darkmode umschalten">
-            <i class="fas fa-moon" aria-hidden="true"></i>
-            <span>Darkmode</span>
-            <button type="button" class="mob-dd-theme-toggle" id="mob-dd-theme-btn" aria-label="Darkmode umschalten" aria-pressed="false"></button>
-        </div>
         <div class="mob-dd-divider"></div>
         <a href="<?php echo asset('pages/auth/logout.php'); ?>" class="mob-dd-item mob-dd-item--logout" role="menuitem">
             <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
@@ -608,11 +578,6 @@ if ($currentUser && isset($currentUser['id'])) {
 
     <!-- Desktop Fixed Top Navbar (hidden on mobile) -->
     <header class="desktop-navbar" id="desktop-navbar" aria-label="Desktop-Navigation">
-        <!-- Light/Dark Mode Toggle -->
-        <button id="navbar-theme-toggle" class="navbar-theme-btn" aria-label="Zwischen hellem und dunklem Modus wechseln">
-            <i id="navbar-theme-icon" class="fas fa-moon" aria-hidden="true"></i>
-        </button>
-
         <!-- Profile Dropdown Trigger -->
         <div class="relative" id="navbar-profile-wrapper">
             <button id="navbar-profile-btn" class="navbar-profile-btn" aria-haspopup="true" aria-expanded="false" aria-controls="navbar-profile-dropdown">
@@ -983,11 +948,6 @@ if ($currentUser && isset($currentUser['id'])) {
                 </div>
             </div>
 
-            <!-- Hidden elements to keep theme-toggle IDs for existing JS -->
-            <button id="theme-toggle" class="hidden" aria-hidden="true" tabindex="-1">
-                <i id="theme-icon" class='fas fa-moon'></i>
-                <span id="theme-text">Darkmode</span>
-            </button>
         </div>
     </aside>
 
@@ -1258,14 +1218,6 @@ if ($currentUser && isset($currentUser['id'])) {
                     });
                 });
 
-                // Dropdown theme toggle button
-                const ddThemeBtn = document.getElementById('mob-dd-theme-btn');
-                if (ddThemeBtn) {
-                    ddThemeBtn.addEventListener('click', function(e) {
-                        e.stopPropagation();
-                        toggleTheme();
-                    });
-                }
             })();
         });
         
@@ -1291,131 +1243,8 @@ if ($currentUser && isset($currentUser['id'])) {
             });
         })();
         
-        // Dark/Light Mode Toggle
-        const themeToggle = document.getElementById('theme-toggle');
-        const themeIcon = document.getElementById('theme-icon');
-        const themeText = document.getElementById('theme-text');
-        const mobileThemeToggle = document.getElementById('mobile-theme-toggle');
-        const mobileThemeIcon = document.getElementById('mobile-theme-icon');
-        const navbarThemeToggle = document.getElementById('navbar-theme-toggle');
-        const navbarThemeIcon = document.getElementById('navbar-theme-icon');
-        const ddThemeBtnRef = document.getElementById('mob-dd-theme-btn');
-
-        // Helper: aria-pressed/aria-checked synchron halten (Dropdown-Switch).
-        function syncDdThemeAria(isDark) {
-            if (!ddThemeBtnRef) return;
-            ddThemeBtnRef.setAttribute('aria-pressed', isDark ? 'true' : 'false');
-            ddThemeBtnRef.setAttribute('aria-label', isDark ? 'Zu Lightmode wechseln' : 'Zu Darkmode wechseln');
-        }
-
-        // Get user's saved theme preference from database (via data attribute)
-        const userThemePreference = document.body.getAttribute('data-user-theme') || 'auto';
-        
-        // Load theme preference (localStorage overrides database preference)
-        let currentTheme = localStorage.getItem('theme') || userThemePreference;
-        
-        // Apply theme based on preference
-        function applyTheme(theme) {
-            const isDark = theme === 'dark' || (theme !== 'light' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-            if (isDark) {
-                document.body.classList.add('dark-mode', 'dark');
-                document.documentElement.classList.add('dark-mode', 'dark');
-                document.documentElement.setAttribute('data-theme', 'dark');
-                document.documentElement.style.colorScheme = 'dark';
-                if (themeIcon) { themeIcon.classList.remove('fa-moon'); themeIcon.classList.add('fa-sun'); }
-                if (themeText) themeText.textContent = 'Lightmode';
-                if (mobileThemeIcon) { mobileThemeIcon.classList.remove('fa-moon'); mobileThemeIcon.classList.add('fa-sun'); }
-                if (mobileThemeToggle) mobileThemeToggle.setAttribute('aria-label', 'Zu Lightmode wechseln');
-                if (navbarThemeIcon) { navbarThemeIcon.classList.remove('fa-moon'); navbarThemeIcon.classList.add('fa-sun'); }
-                if (navbarThemeToggle) navbarThemeToggle.setAttribute('aria-label', 'Zu Lightmode wechseln');
-                syncDdThemeAria(true);
-            } else {
-                document.body.classList.remove('dark-mode', 'dark');
-                document.documentElement.classList.remove('dark-mode', 'dark');
-                document.documentElement.setAttribute('data-theme', 'light');
-                document.documentElement.style.colorScheme = 'light';
-                if (themeIcon) { themeIcon.classList.remove('fa-sun'); themeIcon.classList.add('fa-moon'); }
-                if (themeText) themeText.textContent = 'Darkmode';
-                if (mobileThemeIcon) { mobileThemeIcon.classList.remove('fa-sun'); mobileThemeIcon.classList.add('fa-moon'); }
-                if (mobileThemeToggle) mobileThemeToggle.setAttribute('aria-label', 'Zu Darkmode wechseln');
-                if (navbarThemeIcon) { navbarThemeIcon.classList.remove('fa-sun'); navbarThemeIcon.classList.add('fa-moon'); }
-                if (navbarThemeToggle) navbarThemeToggle.setAttribute('aria-label', 'Zu Darkmode wechseln');
-                syncDdThemeAria(false);
-            }
-        }
-
-        // Apply initial theme
-        applyTheme(currentTheme);
-        
-        // Toggle theme on button click
-        function toggleTheme() {
-            const isDarkMode = document.body.classList.contains('dark-mode');
-            if (isDarkMode) {
-                document.body.classList.remove('dark-mode', 'dark');
-                document.documentElement.classList.remove('dark-mode', 'dark');
-                document.documentElement.setAttribute('data-theme', 'light');
-                document.documentElement.style.colorScheme = 'light';
-                localStorage.setItem('theme', 'light');
-                if (themeIcon) { themeIcon.classList.remove('fa-sun'); themeIcon.classList.add('fa-moon'); }
-                if (themeText) themeText.textContent = 'Darkmode';
-                if (mobileThemeIcon) { mobileThemeIcon.classList.remove('fa-sun'); mobileThemeIcon.classList.add('fa-moon'); }
-                if (mobileThemeToggle) mobileThemeToggle.setAttribute('aria-label', 'Zu Darkmode wechseln');
-                if (navbarThemeIcon) { navbarThemeIcon.classList.remove('fa-sun'); navbarThemeIcon.classList.add('fa-moon'); }
-                if (navbarThemeToggle) navbarThemeToggle.setAttribute('aria-label', 'Zu Darkmode wechseln');
-                syncDdThemeAria(false);
-            } else {
-                document.body.classList.add('dark-mode', 'dark');
-                document.documentElement.classList.add('dark-mode', 'dark');
-                document.documentElement.setAttribute('data-theme', 'dark');
-                document.documentElement.style.colorScheme = 'dark';
-                localStorage.setItem('theme', 'dark');
-                if (themeIcon) { themeIcon.classList.remove('fa-moon'); themeIcon.classList.add('fa-sun'); }
-                if (themeText) themeText.textContent = 'Lightmode';
-                if (mobileThemeIcon) { mobileThemeIcon.classList.remove('fa-moon'); mobileThemeIcon.classList.add('fa-sun'); }
-                if (mobileThemeToggle) mobileThemeToggle.setAttribute('aria-label', 'Zu Lightmode wechseln');
-                if (navbarThemeIcon) { navbarThemeIcon.classList.remove('fa-moon'); navbarThemeIcon.classList.add('fa-sun'); }
-                if (navbarThemeToggle) navbarThemeToggle.setAttribute('aria-label', 'Zu Lightmode wechseln');
-                syncDdThemeAria(true);
-            }
-        }
-
-        /* Weicher Icon-Swap: kurz auf 0 opacity/180deg, dann Klassenwechsel
-           in toggleTheme(), dann zurück. Funktioniert in allen Browsern. */
-        function toggleThemeAnimated() {
-            var icons = [themeIcon, mobileThemeIcon, navbarThemeIcon].filter(Boolean);
-            icons.forEach(function (ic) {
-                ic.style.transition = 'opacity 0.15s ease, transform 0.25s cubic-bezier(.34,1.56,.64,1)';
-                ic.style.opacity = '0';
-                ic.style.transform = 'rotate(180deg) scale(0.8)';
-            });
-            setTimeout(function () {
-                toggleTheme();
-                /* Nach Klassenwechsel ein Frame warten, dann wieder einblenden */
-                requestAnimationFrame(function () {
-                    icons.forEach(function (ic) {
-                        ic.style.opacity = '1';
-                        ic.style.transform = 'rotate(0deg) scale(1)';
-                    });
-                    /* Inline-Style nach Animation wieder freigeben, damit
-                       andere Styles (z.B. CSS-Hover-Transform) greifen. */
-                    setTimeout(function () {
-                        icons.forEach(function (ic) {
-                            ic.style.transition = '';
-                            ic.style.opacity = '';
-                            ic.style.transform = '';
-                        });
-                    }, 320);
-                });
-            }, 150);
-        }
-
-        themeToggle?.addEventListener('click', toggleThemeAnimated);
-
-        // Mobile theme toggle (synced with sidebar toggle)
-        mobileThemeToggle?.addEventListener('click', toggleThemeAnimated);
-
-        // Navbar theme toggle
-        navbarThemeToggle?.addEventListener('click', toggleThemeAnimated);
+        // Darkmode ist die einzige unterstützte Darstellung – keine Toggle-Logik mehr.
+        localStorage.setItem('theme', 'dark');
 
         // ── Navbar Profile Dropdown ──────────────────────────────────
         (function() {

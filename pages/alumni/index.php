@@ -41,7 +41,7 @@ ob_start();
     background: var(--bg-body);
     border: 1.5px solid var(--border-color);
     border-radius: 9999px;
-    padding: 0.55rem 1rem 0.55rem 2.375rem;
+    padding: 0.55rem 1rem 0.55rem 2.75rem;
     font-size: 0.875rem;
     color: var(--text-main);
     outline: none;
@@ -303,7 +303,7 @@ ob_start();
             <!-- Industry select -->
             <div style="position:relative;">
                 <i class="fas fa-industry" style="position:absolute;left:0.875rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.75rem;pointer-events:none;z-index:1;" aria-hidden="true"></i>
-                <select name="industry" class="dir-select" style="padding-left:2.25rem;width:100%;" aria-label="Branche filtern">
+                <select name="industry" class="dir-select" style="padding-left:2.75rem;width:100%;" aria-label="Branche filtern">
                     <option value="">Alle Branchen</option>
                     <?php foreach ($industries as $ind): ?>
                     <option value="<?php echo htmlspecialchars($ind); ?>" <?php echo $industryFilter === $ind ? 'selected' : ''; ?>>

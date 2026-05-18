@@ -80,6 +80,14 @@ if (isset($_POST['rolle'])) {
     }
 }
 
+if (isset($_POST['titel'])) {
+    $data['titel'] = trim(strip_tags($_POST['titel']));
+}
+
+if (isset($_POST['abteilung'])) {
+    $data['abteilung'] = trim(strip_tags($_POST['abteilung']));
+}
+
 if (isset($_POST['funktion'])) {
     $data['funktion'] = trim(strip_tags($_POST['funktion']));
 }
