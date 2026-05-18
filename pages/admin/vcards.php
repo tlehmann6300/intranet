@@ -612,8 +612,8 @@ select.vc-field-input {
 .vc-confirm-delete:hover { opacity:.9; transform:translateY(-1px); box-shadow:0 4px 16px rgba(239,68,68,.5); }
 .vc-confirm-delete:active { transform:none; }
 
-/* ── Responsive: bottom sheet on mobile ─────────────────────── */
-@media (max-width:600px) {
+/* ── Responsive: bottom sheet nur auf echten Phones ─────────── */
+@media (max-width:480px) {
     .vc-modal-overlay { align-items:flex-end; padding:0; }
     .vc-modal, .vc-confirm-modal {
         border-radius:1.5rem 1.5rem 0 0; max-width:100%; max-height:92dvh;

@@ -311,18 +311,6 @@ ob_start();
                        class="dir-search-input"
                        aria-label="Alumni suchen">
             </div>
-            <!-- Industry select -->
-            <div style="position:relative;">
-                <i class="fas fa-industry" style="position:absolute;left:0.875rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.75rem;pointer-events:none;z-index:1;" aria-hidden="true"></i>
-                <select name="industry" class="dir-select" style="padding-left:2.75rem;width:100%;" aria-label="Branche filtern">
-                    <option value="">Alle Branchen</option>
-                    <?php foreach ($industries as $ind): ?>
-                    <option value="<?php echo htmlspecialchars($ind); ?>" <?php echo $industryFilter === $ind ? 'selected' : ''; ?>>
-                        <?php echo htmlspecialchars($ind); ?>
-                    </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
             <!-- Buttons -->
             <div style="display:flex;gap:0.5rem;flex-shrink:0;">
                 <button type="submit"
