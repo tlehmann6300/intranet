@@ -416,7 +416,7 @@ ob_start();
     margin: auto; /* zentriert vertikal innerhalb des padding-Bereichs */
 }
 .inv-modal-overlay.open .inv-modal-box { transform: translateY(0) scale(1); opacity: 1; }
-@media (max-width: 599px) {
+@media (max-width: 480px) {
     .inv-modal-overlay {
         align-items: flex-end;
         padding: clamp(56px, 8vh, 96px) 0 0;

@@ -17696,14 +17696,19 @@ img, video, svg { max-width: 100%; height: auto; }
     }
 }
 
-/* ── Modals: nie über den Viewport raus ──────────────────────── */
-.modal-dialog,
-[class*="modal-content"],
-[class*="-modal"]:not([class*="overlay"]) {
-    max-width: min(100%, 92vw) !important;
-    max-height: 92dvh;
-}
+/* ── Modals: nur als Mobile-Schutz – KEIN Stretch auf Desktop ───
+   Wichtig: Wir setzen kein global max-width, weil das die eigenen
+   Modal-Komponenten (vc-modal mit max-width:520px etc.) brutal
+   ueberschreiben wuerde. Nur auf kleinen Viewports zusaetzlich
+   absichern, dass nichts ueber den Rand laeuft. */
 @media (max-width: 600px) {
+    .modal-dialog,
+    [class*="modal-content"]:not([class*="overlay"]),
+    .vc-modal, .vc-confirm-modal,
+    [class*="-modal"]:not([class*="overlay"]):not([class*="header"]):not([class*="body"]):not([class*="footer"]):not([class*="title"]):not([class*="close"]) {
+        max-width: 100% !important;
+        max-height: 92dvh;
+    }
     .modal-dialog { margin: 0.5rem; }
     .modal-body, .modal-header, .modal-footer { padding: 1rem 1.125rem; }
     .modal-footer { flex-wrap: wrap; gap: 0.5rem; }
