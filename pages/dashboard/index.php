@@ -959,6 +959,25 @@ ob_start();
         grid-template-columns: repeat(<?php echo $canAccessInvoices ? '4' : '3'; ?>, 1fr);
     }
 }
+
+/* ── Mobile-Polishing ──────────────────────────────────────────── */
+@media (max-width: 480px) {
+    /* Stats: 1 Spalte auf sehr schmalen Screens */
+    .d-stats-wrap { grid-template-columns: 1fr; gap: 0.75rem; }
+    .d-stat-card { padding: 1.125rem 1.25rem; }
+    /* Hero: kompakteres Padding */
+    .d-hero { padding: 1.5rem 1.25rem !important; }
+    .d-hero-avatar { width: 3rem !important; height: 3rem !important; font-size: 1rem !important; }
+    /* Quick-Actions kleiner */
+    .d-quick-action { padding: 0.4rem 0.75rem; font-size: 0.75rem; }
+    .d-quick-action i { font-size: 0.7rem !important; }
+    /* Section-Titel etwas reduziert */
+    .d-section-title { font-size: 0.95rem !important; }
+}
+@media (max-width: 360px) {
+    .d-hero-title { font-size: 1.35rem !important; }
+    .d-hero-subtitle { font-size: 0.85rem; }
+}
 </style>
 
 <?php if (!empty($user['prompt_profile_review']) && $user['prompt_profile_review'] == 1): ?>

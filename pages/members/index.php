@@ -291,6 +291,21 @@ ob_start();
     .dir-card, .dir-card:nth-child(n) { animation: none; }
     .dir-card:hover { transform: none; }
 }
+
+/* ── Responsive Polish ───────────────────────────────────────── */
+@media (max-width: 540px) {
+    .mem-search-input, .mem-select { font-size: 0.85rem; min-height: 2.625rem; }
+    /* Search-Filter-Reihe: alle Inputs eine Zeile, Buttons darunter */
+    form > div { flex-direction: column !important; align-items: stretch !important; }
+    form > div > div { width: 100%; min-width: 0 !important; }
+    /* Submit/Reset-Button-Gruppe nimmt volle Breite und wrappt */
+    form > div > div:last-child { flex-wrap: wrap; }
+    form > div > div:last-child > button { flex: 1 1 auto; justify-content: center; }
+}
+@media (max-width: 380px) {
+    /* Header: vertikal stapeln */
+    h1 + p { white-space: normal !important; }
+}
 </style>
 
 <?php if (isset($_SESSION['success_message'])): ?>

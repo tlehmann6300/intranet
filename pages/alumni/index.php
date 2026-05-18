@@ -252,6 +252,17 @@ ob_start();
     color: var(--ibc-green);
 }
 
+/* ── Responsive Polish ───────────────────────────────────────── */
+@media (max-width: 540px) {
+    .dir-search-input, .dir-select { font-size: 0.85rem; min-height: 2.625rem; }
+    /* Such-Inputs in einer Spalte stacken auf Phone */
+    form .dir-search-input + *, form .dir-select { width: 100%; }
+}
+@media (max-width: 380px) {
+    /* Subtitle darf umbrechen */
+    h1 + p { white-space: normal !important; }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .dir-card, .dir-card:nth-child(n) { animation: none; }
     .dir-card:hover { transform: none; }
