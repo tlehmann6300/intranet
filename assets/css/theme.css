@@ -17649,3 +17649,109 @@ body:not(.dark-mode) .vc-btn-edit {
 .usr-filter-input.has-icon {
     padding-left: 2.75rem !important;
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   GLOBAL RESPONSIVE SAFETY NET
+   Greift auf allen Seiten ohne Touch der jeweiligen Page-CSS.
+   Strategie: Wrap + sanftes Skalieren, nichts wird hart ausgeblendet.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Universeller Overflow-Schutz ─────────────────────────────── */
+html, body { overflow-x: hidden; }
+img, video, svg { max-width: 100%; height: auto; }
+
+/* ── Action-Button-Reihen wrappen immer ───────────────────────── */
+.action-buttons,
+.btn-group:not(.btn-group-vertical),
+.button-row,
+[class*="-buttons"]:is([class*="card"], [class*="footer"], [class*="header"], [class*="actions"]) {
+    flex-wrap: wrap !important;
+}
+
+/* ── Bootstrap-Buttons sanft skalieren (wir nehmen Bootstrap nicht raus,
+      glätten aber das Verhalten auf kleinen Screens) ─────────── */
+@media (max-width: 540px) {
+    .btn, button.btn, a.btn {
+        font-size: 0.85rem;
+        padding: 0.5rem 0.85rem;
+    }
+    .btn-sm { font-size: 0.78rem; padding: 0.4rem 0.7rem; }
+    .btn-lg { font-size: 0.95rem; padding: 0.6rem 1rem; }
+}
+
+/* ── Tabellen auf Mobile horizontal scrollen ─────────────────── */
+@media (max-width: 768px) {
+    /* Tabellen, die nicht schon im scrollbaren Wrapper liegen */
+    table:not(.no-mobile-scroll) {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        white-space: nowrap;
+    }
+    table:not(.no-mobile-scroll) thead,
+    table:not(.no-mobile-scroll) tbody,
+    table:not(.no-mobile-scroll) tr {
+        white-space: nowrap;
+    }
+}
+
+/* ── Modals: nie über den Viewport raus ──────────────────────── */
+.modal-dialog,
+[class*="modal-content"],
+[class*="-modal"]:not([class*="overlay"]) {
+    max-width: min(100%, 92vw) !important;
+    max-height: 92dvh;
+}
+@media (max-width: 600px) {
+    .modal-dialog { margin: 0.5rem; }
+    .modal-body, .modal-header, .modal-footer { padding: 1rem 1.125rem; }
+    .modal-footer { flex-wrap: wrap; gap: 0.5rem; }
+    .modal-footer .btn { flex: 1 1 auto; min-width: 0; }
+}
+
+/* ── Lange Texte sauber umbrechen ────────────────────────────── */
+h1, h2, h3, h4, h5, h6 { overflow-wrap: anywhere; word-break: break-word; }
+.card-title, .page-title, [class$="-title"] { overflow-wrap: anywhere; }
+.long-text, .break-anywhere { overflow-wrap: anywhere; word-break: break-word; }
+
+/* E-Mails, Telefonnummern, URLs in Listen sauber umbrechen */
+a[href^="mailto:"], a[href^="tel:"] { overflow-wrap: anywhere; word-break: break-word; }
+
+/* ── Container-Padding auf kleinen Screens reduzieren ────────── */
+@media (max-width: 640px) {
+    main { padding-left: 1rem !important; padding-right: 1rem !important; }
+    .container, .max-w-7xl { padding-left: 0 !important; padding-right: 0 !important; }
+}
+
+/* ── Form-Inputs: iOS-Zoom-Schutz + Touch-Targets ────────────── */
+@media (max-width: 768px) {
+    input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+    select, textarea {
+        font-size: 16px !important;  /* verhindert iOS-Auto-Zoom */
+        min-height: 44px;
+    }
+    textarea { min-height: 96px; }
+    button, .btn, a.btn, input[type="submit"], input[type="button"] {
+        min-height: 44px;            /* Touch-Target ≥44px (Apple HIG) */
+    }
+}
+
+/* ── Card-Grids: auto-fit Fallback ────────────────────────────── */
+[class*="-grid"]:not([class*="--no-auto"]) {
+    container-type: inline-size;
+}
+
+/* ── Sidebar/Drawer overflow ─────────────────────────────────── */
+.sidebar, .drawer, [class*="-sidebar"]:not([class*="overlay"]) {
+    overflow-x: hidden;
+}
+
+/* ── Lange Such-Inputs nicht in Zähler/Buttons reinwachsen ───── */
+.search-input, [class*="-search-input"] {
+    min-width: 0;
+}
+
+/* ── Flex-Container die häufig kollabieren ───────────────────── */
+.flex-min-0 > * { min-width: 0; }   /* Hilfsklasse für truncating children */
+
