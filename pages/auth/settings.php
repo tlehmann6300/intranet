@@ -42,20 +42,6 @@ if (isset($_SESSION['error_message'])) {
         } else {
             $error = 'Fehler beim Speichern der Datenschutz-Einstellungen';
         }
-    } elseif (isset($_POST['update_theme'])) {
-        $theme = $_POST['theme'] ?? 'auto';
-        
-        // Validate theme value
-        if (!in_array($theme, ['light', 'dark', 'auto'])) {
-            $theme = 'auto';
-        }
-        
-        if (User::updateThemePreference($user['id'], $theme)) {
-            $message = 'Design-Einstellungen erfolgreich gespeichert';
-            $user = Auth::user(); // Reload user data
-        } else {
-            $error = 'Fehler beim Speichern der Design-Einstellungen';
-        }
     } elseif (isset($_POST['enable_2fa'])) {
         $ga = new PHPGangsta_GoogleAuthenticator();
         $secret = $ga->createSecret();
@@ -1055,60 +1041,6 @@ body:not(.sidebar-open):not(.has-open-modal):not(.bug-modal-open):not(.rech-moda
             </div>
         </div>
 
-        <!-- Theme Settings -->
-        <div class="set-card">
-            <!-- Section header -->
-            <div class="set-card-header" style="background: rgba(168,85,247,0.08);">
-                <div class="set-card-icon" style="background: rgba(168,85,247,0.1); color: #a855f7;">
-                    <i class="fas fa-palette"></i>
-                </div>
-                <div>
-                    <p class="set-card-title">Erscheinungsbild</p>
-                    <p class="set-card-subtitle">Design-Theme auswählen</p>
-                </div>
-            </div>
-            <div class="set-card-body">
-                <form method="POST">
-                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(CSRFHandler::getToken(), ENT_QUOTES, 'UTF-8'); ?>">
-                    <div class="set-grid-themes">
-                        <!-- Light Theme -->
-                        <div class="set-theme-option" style="<?php echo ($user['theme_preference'] ?? 'auto') === 'light' ? 'border-color: var(--ibc-blue); background: rgba(0,102,179,0.05);' : ''; ?>">
-                            <input type="radio" name="theme" value="light" <?php echo ($user['theme_preference'] ?? 'auto') === 'light' ? 'checked' : ''; ?>>
-                            <div class="set-theme-icon" style="color: #eab308;">
-                                <i class="fas fa-sun"></i>
-                            </div>
-                            <span class="set-theme-label">Hellmodus</span>
-                            <span class="set-theme-desc">Immer helles Design</span>
-                        </div>
-
-                        <!-- Dark Theme -->
-                        <div class="set-theme-option" style="<?php echo ($user['theme_preference'] ?? 'auto') === 'dark' ? 'border-color: var(--ibc-blue); background: rgba(0,102,179,0.05);' : ''; ?>">
-                            <input type="radio" name="theme" value="dark" <?php echo ($user['theme_preference'] ?? 'auto') === 'dark' ? 'checked' : ''; ?>>
-                            <div class="set-theme-icon" style="color: #6366f1;">
-                                <i class="fas fa-moon"></i>
-                            </div>
-                            <span class="set-theme-label">Dunkelmodus</span>
-                            <span class="set-theme-desc">Immer dunkles Design</span>
-                        </div>
-
-                        <!-- Auto Theme -->
-                        <div class="set-theme-option" style="<?php echo ($user['theme_preference'] ?? 'auto') === 'auto' ? 'border-color: var(--ibc-blue); background: rgba(0,102,179,0.05);' : ''; ?>">
-                            <input type="radio" name="theme" value="auto" <?php echo ($user['theme_preference'] ?? 'auto') === 'auto' ? 'checked' : ''; ?>>
-                            <div class="set-theme-icon" style="color: var(--text-muted);">
-                                <i class="fas fa-adjust"></i>
-                            </div>
-                            <span class="set-theme-label">Automatisch</span>
-                            <span class="set-theme-desc">Folgt Systemeinstellung</span>
-                        </div>
-                    </div>
-
-                    <button type="submit" name="update_theme" class="set-btn-primary" style="width: 100%; margin-top: 1rem;">
-                        <i class="fas fa-save"></i>Design-Einstellungen speichern
-                    </button>
-                </form>
-            </div>
-        </div>
-
     </div>
 
     <!-- GDPR Data Export -->
@@ -1446,31 +1378,6 @@ document.querySelectorAll('input[name="theme"]').forEach(radio => {
         });
     }
 }());
-
-// Sync theme preference with localStorage after successful save
-<?php if ($message && strpos($message, 'Design-Einstellungen') !== false): ?>
-// Theme was just saved, update data-user-theme attribute and apply theme immediately
-const newTheme = '<?php echo htmlspecialchars($user['theme_preference'] ?? 'auto'); ?>';
-document.body.setAttribute('data-user-theme', newTheme);
-localStorage.setItem('theme', newTheme);
-
-// Apply theme immediately
-// Note: Both 'dark-mode' and 'dark' classes are required:
-// - 'dark-mode' is used by custom CSS rules for sidebar and specific components
-// - 'dark' is used by Tailwind's dark mode (darkMode: 'class' in config)
-if (newTheme === 'dark') {
-    document.body.classList.add('dark-mode', 'dark');
-} else if (newTheme === 'light') {
-    document.body.classList.remove('dark-mode', 'dark');
-} else { // auto
-    // Check system preference
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.body.classList.add('dark-mode', 'dark');
-    } else {
-        document.body.classList.remove('dark-mode', 'dark');
-    }
-}
-<?php endif; ?>
 
 // Generate QR Code for 2FA if needed
 <?php if ($showQRCode): ?>

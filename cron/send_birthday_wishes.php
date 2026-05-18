@@ -39,19 +39,23 @@ try {
     $today = date('m-d');
     
     // Query to find users with birthday today
-    // Uses DATE_FORMAT to compare only month and day, ignoring the year
-    // Note: DB_CONTENT_NAME is a constant from config.php and is safe to use in the query
+    // Uses DATE_FORMAT to compare only month and day, ignoring the year.
+    // Excludes soft-deleted users. first_name fällt zurück auf users.first_name,
+    // falls kein alumni_profiles-Eintrag existiert (z. B. aktive Mitglieder).
     $stmt = $userDb->prepare("
-        SELECT 
+        SELECT
             u.id,
             u.email,
             u.gender,
             u.birthday,
-            ap.first_name
+            COALESCE(NULLIF(TRIM(ap.first_name), ''), NULLIF(TRIM(u.first_name), ''), 'Mitglied') AS first_name
         FROM users u
         LEFT JOIN " . DB_CONTENT_NAME . ".alumni_profiles ap ON u.id = ap.user_id
         WHERE u.birthday IS NOT NULL
-        AND DATE_FORMAT(u.birthday, '%m-%d') = :today
+          AND DATE_FORMAT(u.birthday, '%m-%d') = :today
+          AND u.deleted_at IS NULL
+          AND u.email IS NOT NULL
+          AND u.email <> ''
         ORDER BY u.id
     ");
     

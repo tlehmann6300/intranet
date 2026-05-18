@@ -9,6 +9,7 @@ Aktuell sind **zwei** Cronjobs zwingend zu konfigurieren:
 |-------------------------------------|----------------------------------------|------------------------|
 | `send_birthday_wishes.php`          | Geburtstagsmails an Mitglieder         | täglich 07:00 Uhr      |
 | `refresh_easyverein_token.php`      | EasyVerein-API-Token automatisch erneuern | täglich 03:30 Uhr   |
+| `mark_student_status_check.php`     | Setzt Studenten-Status-Abfrage am 01.04. und 01.08. | täglich 06:00 Uhr (Script prüft Datum selbst) |
 
 Weitere Skripte (z. B. `sync_easyverein.php`, `process_mail_queue.php`,
 `backup_database.php`) sind optional und werden hier am Ende kurz aufgelistet.

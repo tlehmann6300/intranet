@@ -26,6 +26,10 @@ if (!$currentUser) {
     exit;
 }
 
+// Halbjährlicher Studenten-Status-Check (01.04. / 01.08.)
+require_once __DIR__ . '/../../includes/handlers/StudentStatusCheck.php';
+StudentStatusCheck::enforce();
+
 // Check if profile is complete - if not, redirect to profile edit page
 // Only enforce for roles that need profiles (not for test/system accounts)
 $rolesRequiringProfile = ['vorstand_finanzen', 'vorstand_intern', 'vorstand_extern', 'alumni_vorstand', 'alumni_finanz', 'alumni', 'mitglied', 'ressortleiter', 'anwaerter', 'ehrenmitglied'];

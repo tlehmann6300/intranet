@@ -382,14 +382,14 @@ ob_start();
           <label class="usr-filter-label">Suche</label>
           <div style="position:relative;">
             <i class="fas fa-search" style="position:absolute;left:.75rem;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none;font-size:.8rem;"></i>
-            <input type="text" id="userSearch" placeholder="Nach E-Mail oder ID suchen…" class="usr-filter-input" style="padding-left:2.25rem;">
+            <input type="text" id="userSearch" placeholder="Nach E-Mail oder ID suchen…" class="usr-filter-input" style="padding-left:2.75rem;">
           </div>
         </div>
         <div>
           <label class="usr-filter-label">Rolle</label>
           <div style="position:relative;">
             <i class="fas fa-filter" style="position:absolute;left:.75rem;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none;font-size:.8rem;"></i>
-            <select id="roleFilter" class="usr-filter-input" style="padding-left:2.25rem;cursor:pointer;">
+            <select id="roleFilter" class="usr-filter-input" style="padding-left:2.75rem;cursor:pointer;">
               <option value="">Alle Rollen</option>
               <?php foreach (Auth::VALID_ROLES as $role): ?>
               <option value="<?php echo htmlspecialchars($role); ?>"><?php echo htmlspecialchars(translateRole($role)); ?></option>
@@ -401,7 +401,7 @@ ob_start();
           <label class="usr-filter-label">Sortierung</label>
           <div style="position:relative;">
             <i class="fas fa-sort" style="position:absolute;left:.75rem;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none;font-size:.8rem;"></i>
-            <select id="sortBy" class="usr-filter-input" style="padding-left:2.25rem;cursor:pointer;">
+            <select id="sortBy" class="usr-filter-input" style="padding-left:2.75rem;cursor:pointer;">
               <option value="email">E-Mail (A-Z)</option>
               <option value="email-desc">E-Mail (Z-A)</option>
               <option value="id">ID (aufsteigend)</option>

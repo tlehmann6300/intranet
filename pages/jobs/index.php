@@ -420,14 +420,15 @@ ob_start();
         <!-- Footer actions -->
         <div style="padding:0.75rem 1.125rem;border-top:1px solid var(--border-color);display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;margin-top:auto;">
             <?php if (!empty($listing['pdf_path'])): ?>
+            <?php $pdfLabel = ($listing['search_type'] ?? '') === 'Stellenausschreibung' ? 'Stellenausschreibung' : 'Lebenslauf'; ?>
             <a href="<?php echo htmlspecialchars(asset($listing['pdf_path']), ENT_QUOTES, 'UTF-8'); ?>"
                download
                class="job-action-btn job-action-btn--pdf">
                 <i class="fas fa-file-pdf" aria-hidden="true"></i>
-                Lebenslauf
+                <?php echo $pdfLabel; ?>
             </a>
             <?php else: ?>
-            <span style="font-size:0.75rem;color:var(--text-muted);font-style:italic;">Kein Lebenslauf</span>
+            <span style="font-size:0.75rem;color:var(--text-muted);font-style:italic;">Kein PDF-Anhang</span>
             <?php endif; ?>
 
             <div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">

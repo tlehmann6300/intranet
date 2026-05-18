@@ -1407,7 +1407,7 @@ class MailService {
             '<td style="padding:10px 15px"><a href="' . htmlspecialchars($intranetUrl, ENT_QUOTES, 'UTF-8') . '" style="color:#6D9744">' . htmlspecialchars($intranetUrl, ENT_QUOTES, 'UTF-8') . '</a></td></tr>' .
             '<tr><td style="padding:10px 15px;font-weight:bold">E-Mail</td><td style="padding:10px 15px">' . htmlspecialchars($toEmail, ENT_QUOTES, 'UTF-8') . '</td></tr>' .
             '</table>' .
-            '<p class="email-text">Im Anhang dieser E-Mail findest du den <strong>Alumni Vertrag</strong> (als PDF und DOCX). ' .
+            '<p class="email-text">Im Anhang dieser E-Mail findest du den aktuellen <strong>Alumni Vertrag</strong> als PDF. ' .
             'Bitte drucke den Vertrag aus, fülle ihn vollständig aus, unterschreibe ihn und sende das ausgefüllte Exemplar an den Vorstand:</p>' .
             '<p class="email-text" style="text-align:center;">' .
             '<a href="mailto:' . htmlspecialchars($vorstandEmail, ENT_QUOTES, 'UTF-8') . '" style="color:#6D9744;font-weight:bold;">' .
@@ -1454,21 +1454,13 @@ class MailService {
                 $mail->addEmbeddedImage($imagePath, 'ibc_logo');
             }
 
-            // Attach the alumni contract in both formats
+            // Aktuelle Version: nur PDF anhängen. Die alte DOCX bleibt auf der Platte
+            // (Archiv), wird aber nicht mehr mitversendet, da sie inhaltlich veraltet
+            // sein könnte und ein Mismatch zur PDF entstehen würde.
             if ($pdfExists) {
                 $mail->addAttachment($attachPdf, 'Alumni-Vertrag-IBC.pdf');
             } else {
                 error_log('sendNewAlumniWelcomeWithContract: PDF attachment not found at ' . $attachPdf);
-            }
-            if ($docxExists) {
-                $mail->addAttachment(
-                    $attachDocx,
-                    'Alumni-Vertrag-IBC.docx',
-                    'base64',
-                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-                );
-            } else {
-                error_log('sendNewAlumniWelcomeWithContract: DOCX attachment not found at ' . $attachDocx);
             }
 
             ob_start();

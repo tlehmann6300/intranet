@@ -17636,3 +17636,16 @@ body:not(.dark-mode) .vc-btn-edit {
     border-color: rgba(255,255,255,.12) !important;
     color: var(--text-main) !important;
 }
+
+/* ── Search/Filter Input Safety Net ─────────────────────────────
+   Guarantees adequate left padding for inputs/selects that sit
+   next to an absolutely-positioned leading icon (typical search
+   bar pattern). Prevents icon/text overlap on any page.
+   ──────────────────────────────────────────────────────────── */
+.mem-search-input,
+.dir-search-input,
+.proj-search-input,
+.vc-search-input,
+.usr-filter-input.has-icon {
+    padding-left: 2.75rem !important;
+}

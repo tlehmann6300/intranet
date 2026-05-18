@@ -61,7 +61,7 @@ ob_start();
     background: var(--bg-body);
     border: 1.5px solid var(--border-color);
     border-radius: 9999px;
-    padding: 0.55rem 1rem 0.55rem 2.375rem;
+    padding: 0.55rem 1rem 0.55rem 2.75rem;
     font-size: 0.875rem;
     color: var(--text-main);
     outline: none;
@@ -338,7 +338,7 @@ ob_start();
             <!-- Role select -->
             <div style="position:relative;flex:1;min-width:9rem;">
                 <i class="fas fa-filter" style="position:absolute;left:0.875rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.75rem;pointer-events:none;z-index:1;" aria-hidden="true"></i>
-                <select name="role" class="mem-select" style="padding-left:2.25rem;" aria-label="Rolle filtern">
+                <select name="role" class="mem-select" style="padding-left:2.75rem;" aria-label="Rolle filtern">
                     <option value="">Alle Rollen</option>
                     <?php foreach ($roleOptions as $val => $label): ?>
                     <option value="<?php echo htmlspecialchars($val); ?>" <?php echo $roleFilter === $val ? 'selected' : ''; ?>>

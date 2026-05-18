@@ -614,12 +614,12 @@ ob_start();
 
             <!-- PDF Upload -->
             <div class="jed-form-group">
-                <label class="jed-label">Lebenslauf (optional)</label>
+                <label class="jed-label">PDF-Anhang (optional) – Lebenslauf <em>oder</em> Stellenausschreibung</label>
                 <?php if (!empty($listing['pdf_path'])): ?>
                 <div class="jed-warning-box">
                     <span class="jed-warning-text">
                         <i class="fas fa-file-pdf"></i>
-                        Aktueller Lebenslauf vorhanden
+                        Aktuelles PDF vorhanden
                     </span>
                     <label class="jed-checkbox-option">
                         <input type="checkbox" name="remove_pdf" value="1">
