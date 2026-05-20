@@ -17723,6 +17723,29 @@ h1, h2, h3, h4, h5, h6 { overflow-wrap: anywhere; word-break: break-word; }
 /* E-Mails, Telefonnummern, URLs in Listen sauber umbrechen */
 a[href^="mailto:"], a[href^="tel:"] { overflow-wrap: anywhere; word-break: break-word; }
 
+/* ── Generelle Text-Overlap-Praevention (greift in allen Modulen) ─
+   p, span, div mit Text duerfen Woerter umbrechen, bevor sie aus
+   ihrem Container ragen. min-width:0 auf Flex/Grid-Kindern verhindert,
+   dass Inhalte ihre Eltern aufblaehen. */
+p, span, dd, dt, label { overflow-wrap: anywhere; }
+[class*="snippet"], [class*="-info"], [class*="-meta"], [class*="-name"],
+[class*="-email"], [class*="-url"], [class*="-link"] {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+/* Flex-Container-Kinder duerfen schrumpfen */
+.flex > *, [class*="flex-row"] > *, [class*="flex-col"] > * { min-width: 0; }
+
+/* Badges/Pills auf Mobile umbruchsfaehig (sehr lange Rollennamen) */
+@media (max-width: 480px) {
+    [class*="badge"]:not([class*="badge-icon"]),
+    [class*="-pill"], [class*="-chip"] {
+        white-space: normal !important;
+        word-break: break-word;
+        text-align: center;
+    }
+}
+
 /* ── Container-Padding auf kleinen Screens reduzieren ────────── */
 @media (max-width: 640px) {
     main { padding-left: 1rem !important; padding-right: 1rem !important; }

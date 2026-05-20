@@ -442,16 +442,16 @@ class Auth {
     
     /**
      * Check if user can create complex content (Events, Projects, Polls, Blog)
-     * 
-     * @return bool True if user has any board role
+     *
+     * @return bool True if user has any board role or is Ressortleiter
      */
     public static function canCreateComplexContent() {
         if (!self::check()) {
             return false;
         }
-        
+
         $userRole = $_SESSION['user_role'] ?? '';
-        return in_array($userRole, self::BOARD_ROLES);
+        return in_array($userRole, array_merge(self::BOARD_ROLES, ['ressortleiter']));
     }
     
     /**

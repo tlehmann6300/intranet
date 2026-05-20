@@ -187,7 +187,11 @@ ob_start();
     font-size: 0.6875rem;
     font-weight: 700;
     border: 1px solid transparent;
-    white-space: nowrap;
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.35;
+    text-align: center;
+    max-width: 100%;
     margin-bottom: 0.625rem;
 }
 .dir-info-snippet {
@@ -429,7 +433,7 @@ ob_start();
 
 <?php else: ?>
 <!-- ── Members Grid ───────────────────────────────────────────── -->
-<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,11rem),1fr));gap:1rem;">
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,12rem),1fr));gap:1rem;">
     <?php foreach ($members as $member):
         $roleKey     = Auth::getPrimaryEntraRoleKey($member['entra_roles'] ?? null, $member['role']);
         $rs          = $roleStyles[$roleKey] ?? $defaultStyle;

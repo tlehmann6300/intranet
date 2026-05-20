@@ -282,9 +282,11 @@ if ($showQRCode) {
         <?php elseif ($step === '1b'): ?>
             <!-- Step 1b: QR code + code confirmation -->
             <?php if ($showQRCode && $qrCodeUrl): ?>
-                <div class="qr-wrapper">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?data=<?php echo urlencode($qrCodeUrl); ?>&size=200x200"
-                         alt="2FA QR-Code">
+                <div class="qr-wrapper" style="display:flex;justify-content:center;align-items:center;">
+                    <div id="qrcode-onboarding"
+                         data-qr="<?php echo htmlspecialchars($qrCodeUrl, ENT_QUOTES, 'UTF-8'); ?>"
+                         aria-label="2FA QR-Code"
+                         style="width:200px;height:200px;"></div>
                 </div>
                 <p class="sub-text" style="text-align:center;">
                     Scanne den Code mit deiner App und gib den 6-stelligen Code unten ein.
@@ -439,6 +441,37 @@ document.getElementById('profile-form').addEventListener('submit', async functio
         btn.innerHTML = '<i class="fas fa-check me-1"></i> Profil speichern &amp; loslegen';
     }
 });
+</script>
+<?php endif; ?>
+
+<?php if ($showQRCode && $qrCodeUrl): ?>
+<!-- QR-Code clientseitig rendern (kein externer Service noetig) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
+        integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+(function () {
+    function render() {
+        var el = document.getElementById('qrcode-onboarding');
+        if (!el || typeof QRCode === 'undefined') return;
+        var data = el.getAttribute('data-qr') || '';
+        if (!data) return;
+        el.innerHTML = '';
+        new QRCode(el, {
+            text: data,
+            width: 200,
+            height: 200,
+            colorDark:  '#000000',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.H
+        });
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', render);
+    } else {
+        render();
+    }
+})();
 </script>
 <?php endif; ?>
 

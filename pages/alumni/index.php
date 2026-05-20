@@ -150,7 +150,11 @@ ob_start();
     font-size: 0.6875rem;
     font-weight: 700;
     border: 1px solid transparent;
-    white-space: nowrap;
+    white-space: normal;          /* darf umbrechen, damit lange Rollen nicht aus der Karte ragen */
+    word-break: break-word;
+    line-height: 1.35;
+    text-align: center;
+    max-width: 100%;
     margin-bottom: 0.625rem;
 }
 .dir-info-snippet {
@@ -202,7 +206,7 @@ ob_start();
     justify-content: center;
     gap: 0.4rem;
     width: 100%;
-    padding: 0.55rem 0.875rem;
+    padding: 0.55rem 0.75rem;
     border-radius: 0.625rem;
     font-size: 0.8125rem;
     font-weight: 700;
@@ -213,7 +217,11 @@ ob_start();
     transition: opacity 0.18s, transform 0.18s;
     white-space: nowrap;
     min-height: 2.375rem;
+    min-width: 0;
 }
+.dir-view-btn > i { flex-shrink: 0; }
+.dir-view-btn > span,
+.dir-view-btn { overflow: hidden; text-overflow: ellipsis; }
 .dir-view-btn:hover { opacity: 0.9; transform: translateY(-1px); }
 
 /* ── Stagger ─────────────────────────────────────────────────── */
@@ -359,7 +367,7 @@ ob_start();
 
 <?php else: ?>
 <!-- ── Profiles Grid ──────────────────────────────────────────── -->
-<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,11rem),1fr));gap:1rem;">
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,12rem),1fr));gap:1rem;">
     <?php foreach ($profiles as $profile):
         $roleKey     = Auth::getPrimaryEntraRoleKey($profile['entra_roles'] ?? null, $profile['role'] ?? '');
         $rs          = $roleStyles[$roleKey] ?? $defaultStyle;
