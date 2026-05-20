@@ -339,6 +339,13 @@ ob_start();
     .vc-btn-new { width:100%; justify-content:center; }
     .vc-page-title { font-size:1.125rem; }
     .vc-search-input { font-size:.825rem; padding-left:2.5rem; }
+    /* Modal kompakter, Schließen-Button nicht abgeschnitten */
+    .vc-modal-header { padding:.75rem .875rem .6rem; gap:.5rem; }
+    .vc-modal-body   { padding:.875rem; }
+    .vc-modal-footer { padding:.625rem .875rem .875rem; }
+    .vc-modal-title  { font-size:.9rem; }
+    .vc-modal-header-icon { width:1.75rem; height:1.75rem; }
+    .vc-modal-close { width:2rem; height:2rem; }
 }
 
 /* ── Empty state ──────────────────────────────────────────────── */
@@ -427,6 +434,11 @@ ob_start();
     color:var(--text-main) !important;
     margin:0; line-height:1.25;
     letter-spacing:-.01em;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    min-width:0;
+    flex:1;
 }
 .vc-modal-close {
     width:2.25rem; height:2.25rem; border-radius:.625rem;
