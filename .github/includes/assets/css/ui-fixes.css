@@ -2213,3 +2213,226 @@ html body:not(.dark-mode) .d-hero .badge {
     border: 1px solid rgba(255, 255, 255, 0.3) !important;
     font-weight: 700 !important;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LIGHT MODE POLISH – Refined shadows, smoother surfaces, premium feel
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Subtle gradient on body for depth (Light Mode only) */
+html body:not(.dark-mode) {
+    background:
+        radial-gradient(ellipse 1200px 600px at 50% -10%,
+            rgba(0, 102, 179, 0.04) 0%,
+            transparent 60%),
+        var(--bg-body) !important;
+    background-attachment: fixed !important;
+}
+
+/* Refined card shadows – softer, multi-layer for premium depth */
+html body:not(.dark-mode) .card,
+html body:not(.dark-mode) .bg-white,
+html body:not(.dark-mode) [class*="-card"]:not(.dir-card-banner):not(.sidebar):not(.navbar) {
+    box-shadow:
+        0 1px 2px rgba(15, 23, 42, 0.04),
+        0 2px 6px rgba(15, 23, 42, 0.04),
+        0 8px 24px rgba(15, 23, 42, 0.04) !important;
+    border-color: rgba(229, 231, 235, 0.85) !important;
+    transition: box-shadow 0.25s ease, transform 0.25s ease, border-color 0.25s ease !important;
+}
+
+/* Refined hover state for cards */
+html body:not(.dark-mode) .card:hover,
+html body:not(.dark-mode) [class*="-card"]:hover:not(.dir-card-banner):not(.sidebar):not(.navbar) {
+    box-shadow:
+        0 2px 4px rgba(15, 23, 42, 0.05),
+        0 8px 16px rgba(15, 23, 42, 0.07),
+        0 20px 48px rgba(15, 23, 42, 0.08) !important;
+    border-color: rgba(0, 102, 179, 0.15) !important;
+}
+
+/* Refined input focus rings */
+html body:not(.dark-mode) input:focus,
+html body:not(.dark-mode) select:focus,
+html body:not(.dark-mode) textarea:focus {
+    border-color: var(--ibc-blue) !important;
+    box-shadow: 0 0 0 4px rgba(0, 102, 179, 0.10) !important;
+    outline: none !important;
+}
+
+/* Subtle border on inputs */
+html body:not(.dark-mode) input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+html body:not(.dark-mode) select,
+html body:not(.dark-mode) textarea {
+    border-color: rgba(209, 213, 219, 0.80) !important;
+    transition: border-color 0.18s, box-shadow 0.18s !important;
+}
+html body:not(.dark-mode) input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):hover:not(:focus),
+html body:not(.dark-mode) select:hover:not(:focus),
+html body:not(.dark-mode) textarea:hover:not(:focus) {
+    border-color: rgba(107, 114, 128, 0.5) !important;
+}
+
+/* Polish all primary buttons (gradients with smooth hover) */
+html body:not(.dark-mode) button[class*="btn-primary"],
+html body:not(.dark-mode) .btn-primary,
+html body:not(.dark-mode) button[type="submit"]:not([class*="btn-secondary"]):not([class*="btn-danger"]) {
+    transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease !important;
+}
+html body:not(.dark-mode) button[class*="btn-primary"]:hover,
+html body:not(.dark-mode) .btn-primary:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 20px rgba(0, 102, 179, 0.20) !important;
+}
+html body:not(.dark-mode) button[class*="btn-primary"]:active,
+html body:not(.dark-mode) .btn-primary:active {
+    transform: none !important;
+}
+
+/* Headings – tighter letter-spacing for sharper appearance */
+html body:not(.dark-mode) h1,
+html body:not(.dark-mode) h2,
+html body:not(.dark-mode) h3 {
+    letter-spacing: -0.015em !important;
+}
+
+/* Badge polish */
+html body:not(.dark-mode) [class*="badge"]:not(.role-badge):not(.dir-role-badge) {
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   GLOBAL RESPONSIVE FIXES – Apply across all modules
+   Common problems: long text overflow, button rows, stat cards, tables
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Universal text wrapping safety net */
+@media (max-width: 768px) {
+    /* All headings should wrap and shrink */
+    main h1, main h2, main h3, main h4 {
+        word-break: break-word;
+        overflow-wrap: anywhere;
+        hyphens: auto;
+    }
+
+    /* Long words in card titles, descriptions */
+    .card-title, .dir-card-name, .ev-card-title, .inv-card-title,
+    [class*="-card-title"], [class*="-card-name"] {
+        word-break: break-word;
+        overflow-wrap: anywhere;
+        hyphens: auto;
+    }
+
+    /* Stat numbers shouldn't break layout */
+    [class*="stat"], [class*="-number"], [class*="-count"] {
+        word-break: break-word;
+    }
+
+    /* Buttons in toolbars should wrap, not overflow */
+    .toolbar, .actions, [class*="-actions"], [class*="-toolbar"],
+    [class*="-header"] > div:has(button),
+    [class*="-header"] > div:has(a[role="button"]) {
+        flex-wrap: wrap !important;
+    }
+
+    /* Tables – horizontal scroll instead of overflow */
+    main table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        max-width: 100%;
+    }
+
+    /* Long text in spans should be allowed to wrap */
+    main p, main span:not(.badge):not([class*="badge"]):not([class*="-icon"]) {
+        overflow-wrap: anywhere;
+    }
+}
+
+/* Very small phones (< 400px) */
+@media (max-width: 400px) {
+    /* Reduce font on huge headings */
+    main h1 { font-size: clamp(1.125rem, 5.5vw, 1.5rem) !important; }
+    main h2 { font-size: clamp(1rem, 4.5vw, 1.25rem) !important; }
+
+    /* Tight padding to free up width */
+    .card, .bg-white, [class*="-card"]:not(.dir-card-banner) {
+        padding-left: max(0.75rem, env(safe-area-inset-left)) !important;
+        padding-right: max(0.75rem, env(safe-area-inset-right)) !important;
+    }
+
+    /* Buttons full-width when they crowd */
+    [class*="-actions"] > button:only-child,
+    [class*="-actions"] > a:only-child {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+
+    /* Stat card numbers */
+    [class*="-stat-number"], [class*="-number"], [class*="stat-value"] {
+        font-size: clamp(1.25rem, 7vw, 2rem) !important;
+    }
+}
+
+/* Mobile-specific: prevent horizontal page scroll on main only (sidebar must still slide) */
+@media (max-width: 768px) {
+    main#main-content {
+        overflow-x: hidden;
+    }
+
+    /* Tight gutters on smaller screens */
+    #main-content {
+        padding-left: max(0.875rem, env(safe-area-inset-left)) !important;
+        padding-right: max(0.875rem, env(safe-area-inset-right)) !important;
+    }
+}
+
+/* Page-header pattern: title + button on same row → stacks on mobile */
+@media (max-width: 600px) {
+    [class*="-page-header"],
+    [class*="-header-row"] {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.75rem !important;
+    }
+    [class*="-page-header"] > a,
+    [class*="-page-header"] > button,
+    [class*="-header-row"] > a,
+    [class*="-header-row"] > button {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+}
+
+/* Long email / URL / linkedin paths in contact info on mobile */
+@media (max-width: 480px) {
+    .contact-value, .dir-info-snippet,
+    [class*="-email"], [class*="-url"], [class*="-link-text"] {
+        word-break: break-all !important;
+        overflow-wrap: anywhere !important;
+    }
+}
+
+/* Newsletter / Invoice / Inventory tables on mobile – ensure scroll wrapper */
+@media (max-width: 768px) {
+    .table-scroll-wrapper, .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-left: -0.5rem;
+        margin-right: -0.5rem;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+}
+
+/* Filter bars: tight spacing on mobile */
+@media (max-width: 480px) {
+    [class*="-filter"], [class*="filter-bar"] {
+        gap: 0.5rem !important;
+    }
+    [class*="-filter"] input,
+    [class*="-filter"] select,
+    [class*="filter-bar"] input,
+    [class*="filter-bar"] select {
+        font-size: 0.8125rem !important;
+    }
+}
