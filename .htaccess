@@ -20,6 +20,10 @@ Options -Indexes
 # Schütze sensible Ordner, erlaube aber explizit assets, pages und api
 RewriteRule ^(private|config|vendor|logs|sql|includes|src)/.*$ - [F,L]
 
+# Versteckte Versionskontroll-/System-Verzeichnisse und -Dateien niemals
+# ausliefern (z. B. /.git/config, /.env, /.htpasswd). Verhindert Quellcode-Leak.
+RedirectMatch 404 (?i)(^|/)\.(git|svn|hg|bzr|env|htpasswd)(/|$)
+
 # Schütze Konfigurationsdateien.
 # WICHTIG: Apache merged <Files> und <FilesMatch> in Quelltext-Reihenfolge —
 # die spätere Direktive gewinnt. Daher steht der Deny-Block ZUERST und der

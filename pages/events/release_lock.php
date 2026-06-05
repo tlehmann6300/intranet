@@ -9,6 +9,7 @@ header('Content-Type: application/json');
 
 require_once __DIR__ . '/../../src/Auth.php';
 require_once __DIR__ . '/../../includes/models/Event.php';
+require_once __DIR__ . '/../../includes/handlers/CSRFHandler.php';
 
 // Only accept POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -23,6 +24,9 @@ if (!Auth::check()) {
     echo json_encode(['success' => false, 'error' => 'Not authenticated']);
     exit;
 }
+
+// CSRF-Schutz (Token kommt per sendBeacon-FormData mit)
+CSRFHandler::verifyToken($_POST['csrf_token'] ?? '');
 
 $eventId = intval($_POST['event_id'] ?? 0);
 $userId = intval($_POST['user_id'] ?? 0);

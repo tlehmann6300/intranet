@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../src/Auth.php';
 
-if (!Auth::isBoard()) {
+if (!Auth::canAccessAdminArea()) {
     header('Location: /index.php');
     exit;
 }

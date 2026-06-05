@@ -7,7 +7,7 @@ require_once __DIR__ . '/../../src/Database.php';
 require_once __DIR__ . '/../../src/MailService.php';
 
 // Only board members can access
-if (!Auth::check() || !Auth::isBoard()) {
+if (!Auth::check() || !Auth::canAccessAdminArea()) {
     header('Location: ../auth/login.php');
     exit;
 }
@@ -159,7 +159,7 @@ foreach ($applications as &$application) {
 }
 unset($application);
 
-$title = 'Bewerbungsverwaltung - IBC Intranet';
+$title = 'Projekt-Bewerbungsverwaltung - IBC Intranet';
 ob_start();
 ?>
 
@@ -353,7 +353,7 @@ ob_start();
       <i class="fas fa-briefcase" style="color:#fff;font-size:1.35rem;"></i>
     </div>
     <div>
-      <h1 class="appl-page-title">Bewerbungsverwaltung</h1>
+      <h1 class="appl-page-title">Projekt-Bewerbungsverwaltung</h1>
       <p class="appl-page-sub">Alle offenen Projektbewerbungen &bull; <?php echo count($applications); ?> ausstehend</p>
     </div>
   </div>

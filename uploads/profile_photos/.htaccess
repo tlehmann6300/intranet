@@ -1,2 +1,15 @@
-php_flag engine off
-AddType text/plain .php .php3 .phtml
+# Nur Bilder ausliefern, PHP-Ausführung deaktivieren.
+# php_flag MUSS in <IfModule> gekapselt sein – auf PHP-FPM-Hosts ist mod_php
+# nicht geladen und ein ungekapseltes php_flag löst HTTP 500 für ALLE Requests
+# in diesem Ordner aus (inkl. der Profilbilder selbst).
+Options -Indexes -ExecCGI
+<IfModule mod_php5.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+AddType application/octet-stream .php .php3 .php4 .php5 .phtml .pHtml

@@ -260,14 +260,14 @@ function getFormattedRoleName(string $role): string {
         'vorstand_finanzen'   => 'Vorstand Finanzen und Recht',
         'vorstand_intern'     => 'Vorstand Intern',
         'vorstand_extern'     => 'Vorstand Extern',
-        'ressortleiter'       => 'Ressortleiter',
+        'ressortleiter'       => 'ERW-Mitglied',
         'mitglied'            => 'Mitglied',
         'alumni'              => 'Alumni',
         'anwaerter'           => 'Anwärter',
         'alumni_vorstand'     => 'Alumni-Vorstand',
         'alumni_finanz'       => 'Alumni-Finanzprüfer',
         'ehrenmitglied'       => 'Ehrenmitglied',
-        'manager'             => 'Ressortleiter',
+        'manager'             => 'ERW-Mitglied',
         default               => ucfirst(str_replace('_', ' ', $role)),
     };
 }
@@ -309,14 +309,14 @@ function translateRole($role) {
         'vorstand_finanzen'   => 'Vorstand Finanzen und Recht',
         'vorstand_intern'     => 'Vorstand Intern',
         'vorstand_extern'     => 'Vorstand Extern',
-        'ressortleiter'       => 'Ressortleiter',
+        'ressortleiter'       => 'ERW-Mitglied',
         'mitglied'            => 'Mitglied',
         'alumni'              => 'Alumni',
         'anwaerter'           => 'Anwärter',
         'alumni_vorstand'     => 'Alumni-Vorstand',
         'alumni_finanz'       => 'Alumni-Finanzprüfer',
         'ehrenmitglied'       => 'Ehrenmitglied',
-        'manager'             => 'Ressortleiter'
+        'manager'             => 'ERW-Mitglied'
     ];
     
     return $roleTranslations[$role] ?? ucfirst($role);
@@ -333,7 +333,7 @@ function translateAzureRole($azureRole) {
     $azureRoleTranslations = [
         'anwaerter'           => 'Anwärter',
         'mitglied'            => 'Mitglied',
-        'ressortleiter'       => 'Ressortleiter',
+        'ressortleiter'       => 'ERW-Mitglied',
         'vorstand_finanzen'   => 'Vorstand Finanzen und Recht',
         'vorstand_intern'     => 'Vorstand Intern',
         'vorstand_extern'     => 'Vorstand Extern',

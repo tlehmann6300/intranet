@@ -93,7 +93,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($cvSource !== 'profile' && isset($_FILES['cv_pdf']) && $_FILES['cv_pdf']['error'] !== UPLOAD_ERR_NO_FILE) {
             $file = $_FILES['cv_pdf'];
 
-            if ($file['error'] === UPLOAD_ERR_INI_SIZE || $file['error'] === UPLOAD_ERR_FORM_SIZE) {
+            if (!is_string($file['tmp_name'] ?? null) || !is_int($file['error'] ?? null)) {
+                $errors[] = 'Ungültiger Upload.';
+            } elseif ($file['error'] === UPLOAD_ERR_INI_SIZE || $file['error'] === UPLOAD_ERR_FORM_SIZE) {
                 $errors[] = 'Die hochgeladene Datei ist zu groß. Maximum: 5 MB.';
             } elseif ($file['error'] !== UPLOAD_ERR_OK) {
                 $errors[] = 'Fehler beim Hochladen der Datei (Code: ' . (int)$file['error'] . ').';

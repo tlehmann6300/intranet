@@ -418,12 +418,11 @@ ob_start();
         $canApply   = in_array($status, ['open','applying']) && $userRole !== 'alumni';
         $pType      = $project['type'] ?? 'internal';
 
-        $hasImage = false;
-        if (!empty($project['image_path'])) {
-            $fp = realpath(__DIR__ . '/../../' . $project['image_path']);
-            $bd = realpath(__DIR__ . '/../../');
-            $hasImage = $fp && $bd && str_starts_with($fp, $bd) && file_exists($fp);
-        }
+        // Presence check only – a fragile server-side realpath()/file_exists()
+        // check previously hid valid images on deployments where the uploads
+        // path doesn't resolve under the app root. We now trust the stored path
+        // and let the browser fall back to the placeholder via onerror.
+        $hasImage = !empty($project['image_path']);
     ?>
     <a href="view.php?id=<?php echo (int)$project['id']; ?>"
        class="proj-card proj-card--<?php echo htmlspecialchars($status); ?> <?php echo $isArchived ? 'proj-card--archived' : ''; ?>">
@@ -434,9 +433,14 @@ ob_start();
         <!-- Image / Placeholder -->
         <div class="proj-img-wrap">
             <?php if ($hasImage): ?>
-                <img src="<?php echo htmlspecialchars(BASE_URL . '/' . $project['image_path']); ?>"
+                <img src="<?php echo htmlspecialchars(BASE_URL . '/' . ltrim($project['image_path'], '/')); ?>"
                      alt="<?php echo htmlspecialchars($project['title']); ?>"
-                     loading="lazy">
+                     loading="lazy"
+                     onerror="this.style.display='none';var p=this.parentNode.querySelector('.proj-placeholder');if(p)p.style.display='';">
+                <div class="proj-placeholder" style="display:none;">
+                    <i class="fas fa-folder-open" style="font-size:2.75rem;color:rgba(255,255,255,0.22);margin-bottom:0.5rem;" aria-hidden="true"></i>
+                    <span style="font-size:0.6875rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.42);">Projekt</span>
+                </div>
             <?php else: ?>
                 <div class="proj-placeholder">
                     <i class="fas fa-folder-open" style="font-size:2.75rem;color:rgba(255,255,255,0.22);margin-bottom:0.5rem;" aria-hidden="true"></i>

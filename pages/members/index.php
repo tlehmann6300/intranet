@@ -45,7 +45,7 @@ $defaultStyle = ['c'=>'var(--ibc-green)','b'=>'rgba(0,166,81,0.1)','border'=>'rg
 $roleOptions = [
     'anwaerter'         => 'Anwärter',
     'mitglied'          => 'Mitglieder',
-    'ressortleiter'     => 'Ressortleiter',
+    'ressortleiter'     => 'ERW-Mitglied',
     'vorstand_finanzen' => 'Vorstand Finanzen',
     'vorstand_intern'   => 'Vorstand Intern',
     'vorstand_extern'   => 'Vorstand Extern',

@@ -159,9 +159,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if (!in_array($actualMime, $allowedMimes)) {
                         throw new Exception('Ungültiger Bildtyp');
                     }
-                    // Validate that the file is a real image
+                    // Validate that the file is a real image of an allowed type
                     $imageInfo = @getimagesize($tmpFile);
-                    if ($imageInfo === false) {
+                    $allowedImageTypes = [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_WEBP, IMAGETYPE_GIF];
+                    if ($imageInfo === false || !in_array($imageInfo[2], $allowedImageTypes, true)) {
                         throw new Exception('Datei ist kein gültiges Bild');
                     }
                     // Save to upload directory
@@ -177,6 +178,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         throw new Exception('Fehler beim Speichern des Profilbildes');
                     }
                     chmod($uploadPath, 0644);
+                    // Defense-in-Depth: JPEG/PNG neu kodieren (Metadaten/Payloads entfernen)
+                    if ($imageInfo[2] === IMAGETYPE_JPEG && function_exists('imagecreatefromjpeg')) {
+                        $im = @imagecreatefromjpeg($uploadPath);
+                        if ($im !== false) { @imagejpeg($im, $uploadPath, 88); imagedestroy($im); }
+                    } elseif ($imageInfo[2] === IMAGETYPE_PNG && function_exists('imagecreatefrompng')) {
+                        $im = @imagecreatefrompng($uploadPath);
+                        if ($im !== false) {
+                            imagepalettetotruecolor($im); imagealphablending($im, false); imagesavealpha($im, true);
+                            @imagepng($im, $uploadPath, 6); imagedestroy($im);
+                        }
+                    }
+                    // Gespeicherte Datei erneut verifizieren
+                    $savedImg = @getimagesize($uploadPath);
+                    if ($savedImg === false || !in_array($savedImg[2], $allowedImageTypes, true)) {
+                        @unlink($uploadPath);
+                        throw new Exception('Die gespeicherte Datei ist kein gültiges Bild');
+                    }
                     // Delete old profile picture if exists
                     if (!empty($profile['image_path'])) {
                         SecureImageUpload::deleteImage($profile['image_path']);
@@ -233,8 +251,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } elseif (!empty($_FILES['cv_file']['name'])) {
                 // Option B: Upload a new CV file (PDF only)
                 $cvFile = $_FILES['cv_file'];
+                // Schutz gegen Array-/Multi-File-Injection + fileinfo-Pflicht
+                if (!is_string($cvFile['tmp_name'] ?? null) || !is_int($cvFile['error'] ?? null)) {
+                    throw new Exception('Ungültiger Upload');
+                }
+                if (!function_exists('finfo_open')) {
+                    throw new Exception('Uploads momentan nicht möglich (Serverkonfiguration).');
+                }
                 if ($cvFile['error'] !== UPLOAD_ERR_OK) {
                     throw new Exception('Fehler beim Hochladen des Lebenslaufs (Code: ' . $cvFile['error'] . ')');
+                }
+                if (!is_uploaded_file($cvFile['tmp_name'])) {
+                    throw new Exception('Ungültiger Upload');
                 }
                 // Enforce 10 MB size limit for CV
                 if ($cvFile['size'] > 10485760) {
@@ -247,16 +275,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($cvMime !== 'application/pdf') {
                     throw new Exception('Nur PDF-Dateien sind als Lebenslauf erlaubt');
                 }
+                // Magic-Bytes: gültige PDFs beginnen mit "%PDF-"
+                $cvFh = @fopen($cvFile['tmp_name'], 'rb');
+                $cvMagic = $cvFh ? fread($cvFh, 5) : '';
+                if ($cvFh) { fclose($cvFh); }
+                if ($cvMagic !== '%PDF-') {
+                    throw new Exception('Die Datei enthält keine gültigen PDF-Daten.');
+                }
                 $cvUploadDir = __DIR__ . '/../../uploads/cv/';
                 if (!is_dir($cvUploadDir)) {
                     mkdir($cvUploadDir, 0755, true);
                 }
-                $cvFilename = 'cv_' . $user['id'] . '_' . bin2hex(random_bytes(8)) . '.pdf';
+                $cvFilename = 'cv_' . $user['id'] . '_' . bin2hex(random_bytes(16)) . '.pdf';
                 $cvUploadPath = $cvUploadDir . $cvFilename;
                 if (!move_uploaded_file($cvFile['tmp_name'], $cvUploadPath)) {
                     throw new Exception('Fehler beim Speichern des Lebenslaufs');
                 }
                 chmod($cvUploadPath, 0644);
+                // Defense-in-Depth: gespeicherte Datei erneut auf PDF-Magic prüfen
+                $cvFh2 = @fopen($cvUploadPath, 'rb');
+                $cvSavedMagic = $cvFh2 ? fread($cvFh2, 5) : '';
+                if ($cvFh2) { fclose($cvFh2); }
+                if ($cvSavedMagic !== '%PDF-') {
+                    @unlink($cvUploadPath);
+                    throw new Exception('Die gespeicherte Datei ist keine gültige PDF.');
+                }
                 // Delete old CV if it exists (only files within uploads/cv/)
                 if (!empty($profile['cv_path'])) {
                     $cvAllowedDir = realpath(__DIR__ . '/../../uploads/cv');

@@ -17,7 +17,7 @@ if (!Auth::check()) {
     exit;
 }
 
-$allowedRoles = ['alumni_finanz', 'alumni_vorstand', 'vorstand_finanzen', 'vorstand_extern', 'vorstand_intern'];
+$allowedRoles = ['alumni_finanz', 'alumni_vorstand', 'vorstand_finanzen', 'vorstand_extern', 'vorstand_intern', 'ressortleiter'];
 if (!Auth::hasRole($allowedRoles)) {
     http_response_code(403);
     include __DIR__ . '/../../includes/templates/403.php';

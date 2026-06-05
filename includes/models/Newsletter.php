@@ -165,15 +165,59 @@ class Newsletter {
     }
 
     /**
+     * Email all subscribed users that a new newsletter has been published.
+     * Best-effort: failures are logged but never block the upload flow.
+     *
+     * @param string      $title     Title of the newly uploaded newsletter
+     * @param string|null $monthYear Optional month/year label
+     * @return void
+     */
+    public static function notifySubscribers(string $title, ?string $monthYear = null): void {
+        require_once __DIR__ . '/User.php';
+        require_once __DIR__ . '/../../src/MailService.php';
+
+        try {
+            $subscribers = User::getNewsletterSubscribers();
+        } catch (Exception $e) {
+            error_log('Newsletter::notifySubscribers – could not load subscribers: ' . $e->getMessage());
+            return;
+        }
+
+        foreach ($subscribers as $sub) {
+            $email = $sub['email'] ?? '';
+            if ($email === '') {
+                continue;
+            }
+            try {
+                MailService::sendNewsletterNotification(
+                    $email,
+                    $sub['first_name'] ?? '',
+                    $title,
+                    $monthYear ?? ''
+                );
+            } catch (Exception $e) {
+                error_log('Newsletter::notifySubscribers – send failed for ' . $email . ': ' . $e->getMessage());
+            }
+        }
+    }
+
+    /**
      * Validate an uploaded file and move it to the newsletters upload folder.
      *
      * @param array $file  $_FILES entry.
      * @return array {success: bool, path?: string, error?: string}
      */
     public static function handleUpload(array $file): array {
+        // Schutz gegen Array-/Multi-File-Injection
+        if (!is_string($file['tmp_name'] ?? null) || !is_int($file['error'] ?? null)) {
+            return ['success' => false, 'error' => 'Ungültiger Upload.'];
+        }
         // Basic upload error check
         if ($file['error'] !== UPLOAD_ERR_OK) {
             return ['success' => false, 'error' => 'Fehler beim Hochladen der Datei (Code ' . $file['error'] . ').'];
+        }
+        if (!is_uploaded_file($file['tmp_name'])) {
+            return ['success' => false, 'error' => 'Ungültiger Upload.'];
         }
 
         // File size limit
@@ -181,11 +225,23 @@ class Newsletter {
             return ['success' => false, 'error' => 'Die Datei überschreitet die maximale Größe von 20 MB.'];
         }
 
-        // Extension whitelist
+        // Extension whitelist (erzwingt .eml)
         $originalName = $file['name'];
-        $ext          = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+        $ext          = strtolower(pathinfo(basename((string) $originalName), PATHINFO_EXTENSION));
         if (!in_array($ext, self::ALLOWED_EXTENSIONS, true)) {
             return ['success' => false, 'error' => 'Nur .eml-Dateien sind erlaubt.'];
+        }
+
+        // Inhaltstyp grob plausibilisieren: .eml ist Text/RFC822 – ausführbare
+        // oder binäre Formate ausschließen.
+        if (function_exists('finfo_open')) {
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mime  = $finfo ? finfo_file($finfo, $file['tmp_name']) : false;
+            if ($finfo) { finfo_close($finfo); }
+            $allowedEmlMimes = ['message/rfc822', 'text/plain', 'text/rfc822-headers', 'application/octet-stream'];
+            if (is_string($mime) && !in_array($mime, $allowedEmlMimes, true)) {
+                return ['success' => false, 'error' => 'Die Datei ist keine gültige .eml-Datei.'];
+            }
         }
 
         // Generate a secure, unique filename

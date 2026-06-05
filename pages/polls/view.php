@@ -8,6 +8,7 @@ require_once __DIR__ . '/../../src/Auth.php';
 require_once __DIR__ . '/../../includes/database.php';
 require_once __DIR__ . '/../../includes/helpers.php';
 require_once __DIR__ . '/../../includes/poll_helpers.php';
+require_once __DIR__ . '/../../includes/handlers/CSRFHandler.php';
 
 // Check authentication
 if (!Auth::check()) {
@@ -76,6 +77,7 @@ $errorMessage = '';
 
 // Handle vote submission (backward compatibility for old polls)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_vote']) && !$userVote && !$hasMicrosoftFormsUrl) {
+    CSRFHandler::verifyToken($_POST['csrf_token'] ?? '');
     $optionId = $_POST['option_id'] ?? null;
     
     if (!$optionId) {
@@ -569,6 +571,7 @@ ob_start();
         </h2>
 
         <form method="POST">
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(CSRFHandler::getToken(), ENT_QUOTES, 'UTF-8'); ?>">
             <?php foreach ($options as $option): ?>
             <label class="pv-option-item">
                 <input

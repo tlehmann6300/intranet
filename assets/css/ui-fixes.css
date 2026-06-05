@@ -3549,3 +3549,98 @@ iframe,
         color: #000000 !important;
     }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   49. FLUIDE TYPOGRAFIE & FINALE MOBILE-POLITUR (2026)
+   Smooth statt gestuft: Texte skalieren fließend zwischen
+   Smartphone und Desktop. Die Defaults nutzen :where() → KEINE
+   Spezifität, d.h. jede seiten­spezifische Regel gewinnt weiterhin.
+   ══════════════════════════════════════════════════════════════ */
+
+/* 49.1 — Fluide Default-Schriftgrößen für generische Überschriften & Fließtext.
+   :where() = Spezifität 0 → wirkt nur, wo nichts Eigenes definiert ist. */
+:where(h1) { font-size: clamp(1.5rem, 1.1rem + 2.2vw, 2.25rem); line-height: 1.2; }
+:where(h2) { font-size: clamp(1.25rem, 1rem + 1.5vw, 1.75rem); line-height: 1.25; }
+:where(h3) { font-size: clamp(1.125rem, 0.95rem + 0.9vw, 1.375rem); line-height: 1.3; }
+:where(h4) { font-size: clamp(1rem, 0.9rem + 0.5vw, 1.15rem); line-height: 1.35; }
+:where(p, li, label, td, th, input, select, textarea, button, a) {
+    font-size: clamp(0.875rem, 0.82rem + 0.25vw, 1rem);
+}
+
+/* 49.2 — Lange Wörter / URLs / E-Mails nie über den Rand laufen lassen. */
+:where(h1, h2, h3, h4, h5, h6, p, span, a, td, dd, li) {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    hyphens: auto;
+}
+
+/* 49.3 — iOS: Inputs < 16px lösen beim Fokus ein ungewolltes Auto-Zoom aus.
+   Auf kleinen Screens Mindestgröße 16px erzwingen (nur anheben, nie verkleinern). */
+@media (max-width: 480px) {
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+    select,
+    textarea {
+        font-size: 16px !important;
+    }
+}
+
+/* 49.4 — Touch-Targets: interaktive Elemente auf Touch-Geräten ≥ 44px hoch
+   (Apple/Material Mindestmaß) für bequeme Bedienung mit dem Daumen. */
+@media (hover: none) and (pointer: coarse) {
+    button,
+    .btn,
+    [role="button"],
+    a.btn,
+    input[type="submit"],
+    input[type="button"],
+    .sidebar-nav-item,
+    .nav-link {
+        min-height: 44px;
+    }
+}
+
+/* 49.5 — Tabellen, die nicht ausdrücklich responsiv gewrappt sind, auf Mobile
+   horizontal scrollbar machen statt das Layout zu sprengen. */
+@media (max-width: 768px) {
+    table:not(.table-fixed-layout) {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* 49.6 — Sehr schmale Geräte (≤ 360px): Padding straffen, damit Inhalt passt. */
+@media (max-width: 360px) {
+    :where(.page-content, .dash-page-wrap, main) {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   50. SEITENLEISTE – Navigation weiter nach links rücken
+   Der dominante Einzug kommt vom Scroll-Container (Tailwind p-5 = 1.25rem)
+   plus dem Item-Innenabstand. Beides wird verschlankt, damit Dashboard &
+   Co. weiter links sitzen. Die Uhr/Datum sitzen im separaten
+   .sidebar-footer und bleiben davon unberührt.
+   ══════════════════════════════════════════════════════════════ */
+.sidebar .sidebar-scroll {
+    padding-left: 0.6rem !important;
+    padding-right: 0.6rem !important;
+}
+.sidebar .sidebar-scroll .mb-6.px-3 {
+    /* Logo-Block nicht zusätzlich einrücken */
+    padding-left: 0.35rem !important;
+    padding-right: 0.35rem !important;
+}
+.sidebar nav .sidebar-nav-item,
+.sidebar .sidebar-nav-item {
+    margin-left: 0.25rem !important;
+    margin-right: 0.25rem !important;
+    padding-left: 0.65rem !important;
+}
+.sidebar .sidebar-section-label {
+    padding-left: 0.65rem !important;
+}

@@ -59,6 +59,14 @@ class Project {
             ];
         }
 
+        // Schutz gegen Array-/Multi-File-Injection + fileinfo-Pflicht
+        if (!is_string($file['tmp_name'] ?? null) || !is_int($file['error'])) {
+            return ['success' => false, 'path' => null, 'error' => 'Ungültiger Upload'];
+        }
+        if (!function_exists('finfo_open')) {
+            return ['success' => false, 'path' => null, 'error' => 'Uploads momentan nicht möglich (Serverkonfiguration).'];
+        }
+
         // UPLOAD_ERR_INI_SIZE / UPLOAD_ERR_FORM_SIZE must be caught before inspecting
         // $file['size'], because PHP reports size as 0 when the limit is exceeded.
         if ($file['error'] === UPLOAD_ERR_INI_SIZE || $file['error'] === UPLOAD_ERR_FORM_SIZE) {
@@ -108,7 +116,19 @@ class Project {
                 'error' => 'Ungültiger Dateityp. Nur PDF-Dateien sind erlaubt. Erkannt: ' . $mimeType
             ];
         }
-        
+
+        // Magic-Bytes prüfen: gültige PDFs beginnen mit "%PDF-"
+        $fh = @fopen($file['tmp_name'], 'rb');
+        $magic = $fh ? fread($fh, 5) : '';
+        if ($fh) { fclose($fh); }
+        if ($magic !== '%PDF-') {
+            return [
+                'success' => false,
+                'path' => null,
+                'error' => 'Die Datei enthält keine gültigen PDF-Daten.'
+            ];
+        }
+
         // Determine upload directory
         $uploadDir = __DIR__ . '/../../' . self::DOCUMENTATION_UPLOAD_DIR;
         
@@ -147,7 +167,16 @@ class Project {
         
         // Set proper permissions
         chmod($uploadPath, 0644);
-        
+
+        // Defense-in-Depth: gespeicherte Datei erneut auf PDF-Magic prüfen
+        $fh = @fopen($uploadPath, 'rb');
+        $savedMagic = $fh ? fread($fh, 5) : '';
+        if ($fh) { fclose($fh); }
+        if ($savedMagic !== '%PDF-') {
+            @unlink($uploadPath);
+            return ['success' => false, 'path' => null, 'error' => 'Die gespeicherte Datei ist keine gültige PDF.'];
+        }
+
         // Return relative path for database storage
         $relativePath = rtrim(self::DOCUMENTATION_UPLOAD_DIR, '/') . '/' . $randomFilename;
         

@@ -26,3 +26,7 @@ storage/twig_cache/*
 
 # Runtime log files
 logs/*.log
+
+# macOS
+.DS_Store
+**/.DS_Store

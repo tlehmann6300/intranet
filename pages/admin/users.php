@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../includes/models/User.php';
 require_once __DIR__ . '/../../includes/helpers.php';
 require_once __DIR__ . '/../../includes/services/MicrosoftGraphService.php';
 
-if (!Auth::check() || !Auth::isBoard()) {
+if (!Auth::check() || !Auth::canAccessAdminArea()) {
     header('Location: ../auth/login.php');
     exit;
 }
@@ -653,6 +653,7 @@ ob_start();
       <!-- Import form -->
       <form id="entraImportForm" method="POST" style="display:none;">
         <div class="usr-import-box">
+          <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(CSRFHandler::getToken(), ENT_QUOTES, 'UTF-8'); ?>">
           <input type="hidden" name="entra_id" id="importEntraId">
           <input type="hidden" name="display_name" id="importDisplayName">
           <input type="hidden" name="entra_email" id="importEntraEmail">

@@ -68,6 +68,26 @@ class SecureImageUpload {
             ];
         }
 
+        // Schutz gegen Array-/Multi-File-Injection (z. B. name="bild[]"):
+        // tmp_name und error müssen Skalare sein, nicht Arrays.
+        if (!is_string($file['tmp_name'] ?? null) || !is_int($file['error'])) {
+            return [
+                'success' => false,
+                'path' => null,
+                'error' => 'Ungültiger Upload'
+            ];
+        }
+
+        // fileinfo ist für die MIME-Prüfung zwingend erforderlich.
+        if (!function_exists('finfo_open')) {
+            error_log('SecureImageUpload: PHP-Extension fileinfo fehlt – Upload abgelehnt.');
+            return [
+                'success' => false,
+                'path' => null,
+                'error' => 'Uploads sind momentan nicht möglich (Serverkonfiguration).'
+            ];
+        }
+
         // UPLOAD_ERR_INI_SIZE / UPLOAD_ERR_FORM_SIZE must be caught before inspecting
         // $file['size'], because PHP reports size as 0 when the limit is exceeded.
         if ($file['error'] === UPLOAD_ERR_INI_SIZE || $file['error'] === UPLOAD_ERR_FORM_SIZE) {
@@ -197,7 +217,25 @@ class SecureImageUpload {
         
         // Set proper permissions
         chmod($uploadPath, 0644);
-        
+
+        // ── Defense-in-Depth ─────────────────────────────────────────────────
+        // 1) Beim direkten Verschieben (ohne WebP-Konvertierung) JPEG/PNG in
+        //    place neu kodieren, um EXIF-Metadaten und eingebettete
+        //    PHP-/Polyglot-Payloads zu entfernen.
+        if (!$convertToWebP) {
+            self::reencodeInPlace($uploadPath, $imageInfo[2]);
+        }
+        // 2) Die GESPEICHERTE Datei erneut als Bild verifizieren.
+        $savedInfo = @getimagesize($uploadPath);
+        if ($savedInfo === false || !in_array($savedInfo[2], self::ALLOWED_IMAGE_TYPES, true)) {
+            @unlink($uploadPath);
+            return [
+                'success' => false,
+                'path' => null,
+                'error' => 'Die gespeicherte Datei ist kein gültiges Bild'
+            ];
+        }
+
         // Return relative path for database storage
         if ($customUploadDir) {
             // For custom upload directories, calculate relative path from project root
@@ -300,8 +338,40 @@ class SecureImageUpload {
     }
     
     /**
+     * Re-encode a JPEG/PNG file in place via GD to strip metadata and
+     * neutralise embedded payloads (polyglots). Best-effort: if GD is
+     * unavailable or the type is not JPEG/PNG, the file is left untouched
+     * (it has already passed strict MIME/getimagesize validation).
+     *
+     * @param string $path       Absolute path to the saved file
+     * @param int    $imageType  IMAGETYPE_* constant
+     * @return void
+     */
+    private static function reencodeInPlace($path, $imageType) {
+        if ($imageType === IMAGETYPE_JPEG && function_exists('imagecreatefromjpeg')) {
+            $img = @imagecreatefromjpeg($path);
+            if ($img !== false) {
+                @imagejpeg($img, $path, 88);
+                imagedestroy($img);
+            }
+        } elseif ($imageType === IMAGETYPE_PNG && function_exists('imagecreatefrompng')) {
+            $img = @imagecreatefrompng($path);
+            if ($img !== false) {
+                imagepalettetotruecolor($img);
+                imagealphablending($img, false);
+                imagesavealpha($img, true);
+                @imagepng($img, $path, 6);
+                imagedestroy($img);
+            }
+        }
+        // GIF/WebP: keine In-Place-Neukodierung (Animationen bleiben erhalten);
+        // Schutz durch MIME/getimagesize-Prüfung, Zufallsnamen und deaktivierte
+        // PHP-Ausführung im Upload-Ordner.
+    }
+
+    /**
      * Get file extension from MIME type
-     * 
+     *
      * @param string $mimeType MIME type
      * @return string File extension
      */

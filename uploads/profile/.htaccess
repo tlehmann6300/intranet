@@ -1,4 +1,6 @@
-# Prevent PHP/script execution – only images/files should be served
+# Profilbilder. Auslieferung erlaubt, aber Directory-Listing und
+# PHP-Ausführung deaktiviert.
+# php_flag strikt in <IfModule> kapseln (sonst HTTP 500 auf PHP-FPM-Hosts).
 Options -Indexes -ExecCGI
 <IfModule mod_php5.c>
     php_flag engine off

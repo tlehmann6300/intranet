@@ -1,0 +1,14 @@
+# Hochgeladene Bilder (SecureImageUpload-Standardordner).
+# Nur Bilder ausliefern, Directory-Listing und PHP-Ausführung deaktivieren.
+# php_flag strikt in <IfModule> kapseln (sonst HTTP 500 auf PHP-FPM-Hosts).
+Options -Indexes -ExecCGI
+<IfModule mod_php5.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+AddType application/octet-stream .php .php3 .php4 .php5 .phtml .pHtml

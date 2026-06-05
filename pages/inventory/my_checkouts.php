@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../../src/Auth.php';
 require_once __DIR__ . '/../../includes/services/EasyVereinInventory.php';
+require_once __DIR__ . '/../../includes/handlers/CSRFHandler.php';
 
 if (!Auth::check()) {
     header('Location: ../auth/login.php');
@@ -162,6 +163,7 @@ ob_start();
 <div id="returnModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="bg-white dark:bg-slate-800 rounded-t-3xl sm:rounded-2xl shadow-2xl w-full sm:max-w-lg max-h-[92vh] sm:max-h-[85vh] flex flex-col overflow-hidden">
         <form method="POST" action="rental.php" class="flex flex-col flex-1 min-h-0">
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(CSRFHandler::getToken(), ENT_QUOTES, 'UTF-8'); ?>">
             <input type="hidden" name="rental_id" id="return_rental_id" value="">
             <input type="hidden" name="return_rental" value="1">
             <input type="hidden" name="return_quantity" id="return_quantity" value="">

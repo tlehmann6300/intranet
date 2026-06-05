@@ -140,6 +140,8 @@ if ($currentUser && isset($currentUser['id'])) {
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&display=swap" rel="stylesheet">
     <link rel="preload" href="<?php echo asset('assets/css/theme.css') . '?v=' . $_themeCssVersion; ?>" as="style">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Flatpickr base CSS – loaded BEFORE theme.css so the IBC theme overrides win the cascade -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="<?php echo asset('assets/css/theme.css') . '?v=' . $_themeCssVersion; ?>">
     <link rel="stylesheet" href="<?php echo asset('assets/css/tailwind.css') . '?v=' . $_tailwindCssVersion; ?>">
     <link rel="stylesheet" href="<?php echo asset('assets/css/ui-fixes.css') . '?v=' . $_uiFixesCssVersion; ?>">
@@ -661,14 +663,6 @@ if ($currentUser && isset($currentUser['id'])) {
                     <span>Newsletter</span>
                 </a>
 
-                <!-- Blog (All) -->
-                <a href="<?php echo asset('pages/blog/index.php'); ?>" 
-                   class="sidebar-nav-item <?php echo is_nav_active('/blog/') ? 'sidebar-nav-item--active' : ''; ?>"
-                   <?php echo is_nav_active('/blog/') ? 'aria-current="page"' : ''; ?>>
-                    <i class="fas fa-newspaper sidebar-nav-icon" aria-hidden="true"></i>
-                    <span>Blog</span>
-                </a>
-
                 <!-- Job- & Praktikumsbörse (All) -->
                 <a href="<?php echo asset('pages/jobs/index.php'); ?>"
                    class="sidebar-nav-item <?php echo is_nav_active('/jobs/') ? 'sidebar-nav-item--active' : ''; ?>"
@@ -838,18 +832,28 @@ if ($currentUser && isset($currentUser['id'])) {
                 </a>
                 <?php endif; ?>
 
-                <!-- Bewerbungsverwaltung (Board only) -->
-                <?php if (Auth::isBoard()): ?>
+                <!-- AWP-Projekte & Bewerbungen (Board + ERW-Mitglieder) -->
+                <?php if (Auth::canAccessAdminArea()): ?>
+                <a href="<?php echo asset('pages/awp/index.php'); ?>"
+                   class="sidebar-nav-item <?php echo is_nav_active('/awp/') ? 'sidebar-nav-item--active' : ''; ?>"
+                   <?php echo is_nav_active('/awp/') ? 'aria-current="page"' : ''; ?>>
+                    <i class="fas fa-user-graduate sidebar-nav-icon" aria-hidden="true"></i>
+                    <span>AWP-Bewerbungen</span>
+                </a>
+                <?php endif; ?>
+
+                <!-- Projekt-Bewerbungsverwaltung (Board + ERW-Mitglieder) -->
+                <?php if (Auth::canAccessAdminArea()): ?>
                 <a href="<?php echo asset('pages/admin/project_applications.php'); ?>"
                    class="sidebar-nav-item <?php echo is_nav_active('/admin/project_applications.php') ? 'sidebar-nav-item--active' : ''; ?>"
                    <?php echo is_nav_active('/admin/project_applications.php') ? 'aria-current="page"' : ''; ?>>
                     <i class="fas fa-file-alt sidebar-nav-icon" aria-hidden="true"></i>
-                    <span>Bewerbungsverwaltung</span>
+                    <span>Projekt-Bewerbungsverwaltung</span>
                 </a>
                 <?php endif; ?>
 
                 <!-- Alumni-Anfragen (Alumni-Führung + Vorstand) -->
-                <?php if (Auth::hasRole(['alumni_finanz', 'alumni_vorstand', 'vorstand_finanzen', 'vorstand_extern', 'vorstand_intern'])): ?>
+                <?php if (Auth::hasRole(['alumni_finanz', 'alumni_vorstand', 'vorstand_finanzen', 'vorstand_extern', 'vorstand_intern', 'ressortleiter'])): ?>
                 <a href="<?php echo asset('pages/admin/alumni_requests.php'); ?>"
                    class="sidebar-nav-item <?php echo is_nav_active('/admin/alumni_requests.php') ? 'sidebar-nav-item--active' : ''; ?>"
                    <?php echo is_nav_active('/admin/alumni_requests.php') ? 'aria-current="page"' : ''; ?>>
@@ -859,7 +863,7 @@ if ($currentUser && isset($currentUser['id'])) {
                 <?php endif; ?>
 
                 <!-- Neue Alumni-Anfragen (Alumni-Führung + Vorstand) -->
-                <?php if (Auth::hasRole(['alumni_finanz', 'alumni_vorstand', 'vorstand_finanzen', 'vorstand_extern', 'vorstand_intern'])): ?>
+                <?php if (Auth::hasRole(['alumni_finanz', 'alumni_vorstand', 'vorstand_finanzen', 'vorstand_extern', 'vorstand_intern', 'ressortleiter'])): ?>
                 <a href="<?php echo asset('pages/admin/neue_alumni_requests.php'); ?>"
                    class="sidebar-nav-item <?php echo is_nav_active('/admin/neue_alumni_requests.php') ? 'sidebar-nav-item--active' : ''; ?>"
                    <?php echo is_nav_active('/admin/neue_alumni_requests.php') ? 'aria-current="page"' : ''; ?>>
@@ -1558,6 +1562,63 @@ if ($currentUser && isset($currentUser['id'])) {
         unset($_SESSION['show_role_notice']);
     endif;
     ?>
+
+    <!-- ── Flatpickr: global library + auto-enhancement of all date/time inputs ──
+         A single, consistent, beautiful date picker across the whole intranet.
+         Submitted value formats are preserved (date → Y-m-d, time → H:i) so no
+         server-side parsing changes. Add data-no-fp to an input to opt out. -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/de.js" defer></script>
+    <script>
+    // Runs after the deferred flatpickr scripts have executed (DOMContentLoaded
+    // fires after all defer scripts), so `flatpickr` is guaranteed to be defined.
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof flatpickr === 'undefined') return;
+        try { flatpickr.localize(flatpickr.l10ns.de); } catch (e) {}
+
+        // Plain date inputs → calendar only, value stays Y-m-d
+        document.querySelectorAll('input[type="date"]:not([data-no-fp])').forEach(function (el) {
+            if (el._flatpickr) return;
+            flatpickr(el, {
+                dateFormat: 'Y-m-d',
+                locale: 'de',
+                allowInput: true,
+                disableMobile: true,
+                minDate: el.getAttribute('min') || null,
+                maxDate: el.getAttribute('max') || null,
+            });
+        });
+
+        // Time-only inputs → time wheel, value stays H:i
+        document.querySelectorAll('input[type="time"]:not([data-no-fp])').forEach(function (el) {
+            if (el._flatpickr) return;
+            flatpickr(el, {
+                enableTime: true,
+                noCalendar: true,
+                dateFormat: 'H:i',
+                time_24hr: true,
+                locale: 'de',
+                minuteIncrement: 5,
+                allowInput: true,
+                disableMobile: true,
+            });
+        });
+
+        // datetime-local → calendar + time, value stays Y-m-dTH:i
+        document.querySelectorAll('input[type="datetime-local"]:not([data-no-fp])').forEach(function (el) {
+            if (el._flatpickr) return;
+            flatpickr(el, {
+                enableTime: true,
+                dateFormat: 'Y-m-d\\TH:i',
+                time_24hr: true,
+                locale: 'de',
+                minuteIncrement: 5,
+                allowInput: true,
+                disableMobile: true,
+            });
+        });
+    });
+    </script>
 
 </body>
 </html>

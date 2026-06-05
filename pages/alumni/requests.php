@@ -8,6 +8,7 @@ require_once __DIR__ . '/../../src/Auth.php';
 require_once __DIR__ . '/../../src/MailService.php';
 require_once __DIR__ . '/../../includes/helpers.php';
 require_once __DIR__ . '/../../includes/models/Alumni.php';
+require_once __DIR__ . '/../../includes/handlers/CSRFHandler.php';
 
 // Check authentication
 if (!Auth::check()) {
@@ -39,6 +40,7 @@ if ($profile && !empty($profile['first_name']) && !empty($profile['last_name']))
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_request'])) {
+    CSRFHandler::verifyToken($_POST['csrf_token'] ?? '');
     $thema = trim($_POST['thema'] ?? '');
     $ort = trim($_POST['ort'] ?? '');
     $beschreibung = trim($_POST['beschreibung'] ?? '');
@@ -124,6 +126,7 @@ ob_start();
         </div>
         
         <form method="POST" class="space-y-6">
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(CSRFHandler::getToken(), ENT_QUOTES, 'UTF-8'); ?>">
             <!-- Thema -->
             <div>
                 <label for="thema" class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">

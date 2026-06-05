@@ -167,6 +167,14 @@ class Invoice {
             ];
         }
 
+        // Schutz gegen Array-/Multi-File-Injection + fileinfo-Pflicht
+        if (!is_string($file['tmp_name'] ?? null) || !is_int($file['error'])) {
+            return ['success' => false, 'path' => null, 'error' => 'Ungültiger Upload'];
+        }
+        if (!function_exists('finfo_open')) {
+            return ['success' => false, 'path' => null, 'error' => 'Uploads momentan nicht möglich (Serverkonfiguration).'];
+        }
+
         // UPLOAD_ERR_INI_SIZE / UPLOAD_ERR_FORM_SIZE must be caught before inspecting
         // $file['size'], because PHP reports size as 0 when the limit is exceeded.
         if ($file['error'] === UPLOAD_ERR_INI_SIZE || $file['error'] === UPLOAD_ERR_FORM_SIZE) {
@@ -216,7 +224,25 @@ class Invoice {
                 'error' => 'Ungültiger Dateityp. Erlaubt: PDF, JPG, PNG, WebP. Erkannt: ' . $mimeType
             ];
         }
-        
+
+        // Inhalts-Verifikation passend zum MIME-Typ:
+        //  - PDF  → Magic-Bytes "%PDF-"
+        //  - Bild → muss als echtes Bild erkennbar sein (getimagesize)
+        if ($mimeType === 'application/pdf') {
+            $fh = @fopen($file['tmp_name'], 'rb');
+            $magic = $fh ? fread($fh, 5) : '';
+            if ($fh) { fclose($fh); }
+            if ($magic !== '%PDF-') {
+                return ['success' => false, 'path' => null, 'error' => 'Die Datei enthält keine gültigen PDF-Daten.'];
+            }
+        } else {
+            $imgInfo = @getimagesize($file['tmp_name']);
+            $allowedImgTypes = [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_WEBP];
+            if ($imgInfo === false || !in_array($imgInfo[2], $allowedImgTypes, true)) {
+                return ['success' => false, 'path' => null, 'error' => 'Die Datei ist kein gültiges Bild.'];
+            }
+        }
+
         // Determine upload directory
         $uploadDir = __DIR__ . '/../../' . self::UPLOAD_DIR;
         

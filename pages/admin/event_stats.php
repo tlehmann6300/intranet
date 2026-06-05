@@ -11,7 +11,7 @@ if (!Auth::check()) {
 $user     = Auth::user();
 $userRole = $_SESSION['user_role'] ?? 'mitglied';
 
-$allowedDocRoles = array_merge(Auth::BOARD_ROLES, ['alumni_vorstand']);
+$allowedDocRoles = array_merge(Auth::BOARD_ROLES, ['alumni_vorstand', 'ressortleiter']);
 if (!in_array($userRole, $allowedDocRoles)) {
     header('Location: ../events/index.php');
     exit;

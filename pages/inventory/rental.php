@@ -4,10 +4,16 @@ require_once __DIR__ . '/../../includes/models/Inventory.php';
 require_once __DIR__ . '/../../includes/database.php';
 require_once __DIR__ . '/../../src/MailService.php';
 require_once __DIR__ . '/../../includes/services/EasyVereinInventory.php';
+require_once __DIR__ . '/../../includes/handlers/CSRFHandler.php';
 
 if (!Auth::check()) {
     header('Location: ../auth/login.php');
     exit;
+}
+
+// CSRF-Schutz für alle state-ändernden POST-Aktionen dieser Seite
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    CSRFHandler::verifyToken($_POST['csrf_token'] ?? '');
 }
 
 $message = '';

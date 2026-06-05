@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_project'])) {
             'priority' => $_POST['priority'] ?? 'medium',
             'type' => $isInternal ? 'internal' : 'external',
             'status' => $status,
-            'max_consultants' => $isInternal ? null : max(1, intval($_POST['max_consultants'] ?? 1)),
+            'max_consultants' => max(1, intval($_POST['max_consultants'] ?? 1)),
             'requires_application' => $isInternal ? intval($_POST['requires_application'] ?? 1) : 1,
             'start_date' => !empty($_POST['start_date']) ? $_POST['start_date'] : null,
             'end_date' => !empty($_POST['end_date']) ? $_POST['end_date'] : null,
@@ -594,7 +594,7 @@ document.getElementById('deleteModal')?.addEventListener('click', (e) => {
         <!-- Required Consultants -->
         <div id="max_consultants_row">
             <label class="block w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Anzahl Berater <span class="text-red-500" id="max_consultants_required_star">*</span>
+                Teamgröße (Anzahl Berater) <span class="text-red-500" id="max_consultants_required_star">*</span>
             </label>
             <input 
                 type="number" 
@@ -1057,8 +1057,9 @@ document.getElementById('deleteModal')?.addEventListener('click', (e) => {
     }
 
     function applyInternalState(isInternal) {
-        if (consultantsRow) consultantsRow.style.display = isInternal ? 'none' : '';
-        if (consultantsInput) consultantsInput.required = !isInternal;
+        // Teamgröße (Anzahl Berater) ist immer wählbar – auch bei internen Projekten.
+        if (consultantsRow) consultantsRow.style.display = '';
+        if (consultantsInput) consultantsInput.required = true;
         // Show "Bewerbung erforderlich" only for internal projects
         if (requiresAppSection) requiresAppSection.style.display = isInternal ? '' : 'none';
     }

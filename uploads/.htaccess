@@ -1,0 +1,26 @@
+# ============================================================================
+#  Blanket-Schutz für ALLE Upload-Ordner (Sicherheitsnetz).
+#  Wirkt rekursiv auf Unterordner, falls dort eine .htaccess fehlen sollte.
+#  Einzelne Unterordner (z. B. newsletters, invoices, projects) verschärfen
+#  dies zusätzlich durch "Require all denied".
+#
+#  WICHTIG: php_flag strikt in <IfModule> kapseln – auf PHP-FPM-Hosts ist
+#  mod_php nicht geladen; ein ungekapseltes php_flag würde HTTP 500 für ALLE
+#  Requests in diesen Ordnern auslösen.
+# ============================================================================
+
+Options -Indexes -ExecCGI
+
+<IfModule mod_php5.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+
+# Selbst wenn eine *.php-Datei landen sollte: als Text/Binary ausliefern,
+# niemals interpretieren.
+AddType application/octet-stream .php .php3 .php4 .php5 .phtml .pHtml .phar

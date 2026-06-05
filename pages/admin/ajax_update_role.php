@@ -7,6 +7,7 @@ ini_set('display_errors', 0);
 
 require_once __DIR__ . '/../../src/Auth.php';
 require_once __DIR__ . '/../../includes/models/User.php';
+require_once __DIR__ . '/../../includes/handlers/CSRFHandler.php';
 
 try {
     // Check authentication and permission
@@ -26,6 +27,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     ]);
     exit;
 }
+
+// CSRF-Schutz (gibt bei ungültigem Token JSON-403 zurück, da Content-Type
+// application/json gesetzt ist)
+CSRFHandler::verifyToken($_POST['csrf_token'] ?? '');
 
 // Get POST data
 $userId = intval($_POST['user_id'] ?? 0);
@@ -89,7 +94,7 @@ if ($isOwnRole && $isBoardMember && in_array($newRole, ['mitglied', 'alumni'])) 
     if (!in_array($successor['role'], ['mitglied', 'ressortleiter'])) {
         echo json_encode([
             'success' => false,
-            'message' => 'Der gewählte Nachfolger muss die Rolle "Mitglied" oder "Ressortleiter" haben'
+            'message' => 'Der gewählte Nachfolger muss die Rolle "Mitglied" oder "ERW-Mitglied" haben'
         ]);
         exit;
     }

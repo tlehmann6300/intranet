@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../../src/Auth.php';
 require_once __DIR__ . '/../../includes/models/Inventory.php';
 require_once __DIR__ . '/../../includes/database.php';
+require_once __DIR__ . '/../../includes/handlers/CSRFHandler.php';
 
 if (!Auth::check()) {
     header('Location: ../auth/login.php');
@@ -389,6 +390,7 @@ ob_start();
                 ? 'Vorzeitige Rückgabe melden? Das Gerät wird sofort wieder freigegeben.'
                 : 'Rückgabe für diesen Artikel melden?'; ?>
             <form method="POST" action="rental.php" onsubmit="return confirm('<?php echo htmlspecialchars($confirmMsg, ENT_QUOTES, 'UTF-8'); ?>')">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(CSRFHandler::getToken(), ENT_QUOTES, 'UTF-8'); ?>">
                 <input type="hidden" name="request_return" value="1">
                 <input type="hidden" name="rental_id" value="<?php echo (int)$rental['id']; ?>">
                 <button type="submit" class="rent-return-btn <?php echo $isEarlyReturn ? 'rent-return-btn--red' : 'rent-return-btn--blue'; ?>">
@@ -400,6 +402,7 @@ ob_start();
                 ? 'Vorzeitige Rückgabe melden? Das Gerät wird sofort wieder freigegeben.'
                 : 'Rückgabe jetzt melden? Der Vorstand wird benachrichtigt.'; ?>
             <form method="POST" action="rental.php" onsubmit="return confirm('<?php echo htmlspecialchars($confirmMsg, ENT_QUOTES, 'UTF-8'); ?>')">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(CSRFHandler::getToken(), ENT_QUOTES, 'UTF-8'); ?>">
                 <input type="hidden" name="request_return_approved" value="1">
                 <input type="hidden" name="request_id" value="<?php echo (int)$rental['id']; ?>">
                 <button type="submit" class="rent-return-btn <?php echo $isEarlyReturn ? 'rent-return-btn--red' : 'rent-return-btn--orange'; ?>">

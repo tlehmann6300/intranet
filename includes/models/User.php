@@ -289,9 +289,11 @@ class User {
         // If no rows were affected, the user ID doesn't exist
         throw new Exception('Benutzer nicht gefunden');
     }
-    
+
     /**
-     * Get all users subscribed to the blog newsletter
+     * Get all users subscribed to newsletter email notifications.
+     * Uses the existing `blog_newsletter` flag (now means "notify me about
+     * new newsletters").
      * @return array List of users with id, email, first_name fields
      */
     public static function getNewsletterSubscribers() {
@@ -299,7 +301,7 @@ class User {
         $stmt = $db->query("SELECT id, email, first_name FROM users WHERE blog_newsletter = 1 AND deleted_at IS NULL");
         return $stmt->fetchAll();
     }
-    
+
     /**
      * Update theme preference for user
      * @param int $userId The ID of the user
