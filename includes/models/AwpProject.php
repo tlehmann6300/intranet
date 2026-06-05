@@ -4,20 +4,61 @@
  *
  * Liest/schreibt die Tabellen awp_projekte, bewerber, projekt_bewerbungen.
  * Diese Tabellen werden vom öffentlichen Karriere-Portal (Ordner `karriere/`)
- * befüllt und hier im Intranet verwaltet. Beide Anwendungen müssen auf
- * DIESELBE Datenbank zeigen – hier wird die Content-DB des Intranets genutzt.
+ * befüllt und hier im Intranet verwaltet. Beide Anwendungen verbinden sich auf
+ * DIESELBE Datenbank – die in der Intranet-.env als DB_KARRIERE_* hinterlegte
+ * Karriere-Datenbank.
  *
  * Alle Zugriffe ausschließlich über Prepared Statements.
  */
 
-require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../database.php'; // lädt config.php → _env()
 
 class AwpProject
 {
-    /** Liefert die gemeinsame DB-Verbindung (Content-DB). */
+    private static ?PDO $karrierePdo = null;
+
+    /** Liefert die Verbindung zur gemeinsamen Karriere-/AWP-Datenbank. */
     private static function db(): PDO
     {
-        return Database::getContentDB();
+        if (self::$karrierePdo instanceof PDO) {
+            return self::$karrierePdo;
+        }
+
+        $host = _env('DB_KARRIERE_HOST');
+        $port = _env('DB_KARRIERE_PORT', '3306');
+        $name = _env('DB_KARRIERE_NAME');
+        $user = _env('DB_KARRIERE_USER');
+        $pass = _env('DB_KARRIERE_PASS');
+
+        if ($host === '' || $user === '') {
+            throw new RuntimeException('Karriere-DB ist nicht konfiguriert (DB_KARRIERE_* in .env fehlen).');
+        }
+
+        $opts = [
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES   => false,
+        ];
+
+        // DB-Name automatisch ermitteln, falls nicht gesetzt (IONOS: 1 User = 1 DB).
+        if ($name === '') {
+            $boot = new PDO(sprintf('mysql:host=%s;port=%s;charset=utf8mb4', $host, $port), $user, $pass, $opts);
+            $name = (string) ($boot->query(
+                "SELECT schema_name FROM information_schema.schemata
+                 WHERE schema_name NOT IN ('information_schema','performance_schema','mysql','sys')
+                 ORDER BY schema_name LIMIT 1"
+            )->fetchColumn() ?: '');
+            $boot = null;
+            if ($name === '') {
+                throw new RuntimeException('Keine zugängliche Karriere-Datenbank gefunden.');
+            }
+        }
+
+        self::$karrierePdo = new PDO(
+            sprintf('mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4', $host, $port, $name),
+            $user, $pass, $opts
+        );
+        return self::$karrierePdo;
     }
 
     /**
