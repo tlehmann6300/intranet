@@ -36,11 +36,14 @@ if (!Auth::canAccessAdminArea()) {
 $currentUser = Auth::user();
 $flash = ['ok' => null, 'err' => null];
 
+// Schema-Anlage ist „best effort": Die Tabellen existieren i. d. R. bereits
+// (vom Karriere-Portal importiert). Schlägt CREATE fehl (z. B. fehlendes
+// CREATE-Recht), wird nur geloggt – die eigentliche DB-Erreichbarkeit zeigt
+// sich an den Datenabfragen weiter unten.
 try {
     AwpProject::ensureSchema();
 } catch (Throwable $e) {
-    error_log('AWP ensureSchema: ' . $e->getMessage());
-    $flash['err'] = 'Die AWP-Tabellen konnten nicht initialisiert werden. Bitte Datenbank-Konfiguration prüfen.';
+    error_log('AWP ensureSchema (nicht fatal): ' . $e->getMessage());
 }
 
 // Intranet-User für die Dropdowns (QM-Person / Projektleiter)
@@ -196,6 +199,10 @@ try {
     $applications = AwpProject::applicationsByProject();
 } catch (Throwable $e) {
     error_log('AWP load: ' . $e->getMessage());
+    if (empty($flash['err'])) {
+        $flash['err'] = 'Die Karriere-Datenbank ist derzeit nicht erreichbar. '
+            . 'Bitte DB_KARRIERE_* in der .env prüfen.';
+    }
 }
 
 $activeTab = ($_GET['tab'] ?? 'projekte') === 'bewerbungen' ? 'bewerbungen' : 'projekte';
