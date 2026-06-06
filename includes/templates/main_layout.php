@@ -940,6 +940,16 @@ if ($currentUser && isset($currentUser['id'])) {
                 </a>
                 <?php endif; ?>
 
+                <!-- Cronjob-Test (Vorstand/Admin) -->
+                <?php if (Auth::isBoard() || ($userRole ?? '') === 'admin'): ?>
+                <a href="<?php echo asset('pages/admin/cron_test.php'); ?>"
+                   class="sidebar-nav-item <?php echo is_nav_active('/admin/cron_test.php') ? 'sidebar-nav-item--active' : ''; ?>"
+                   <?php echo is_nav_active('/admin/cron_test.php') ? 'aria-current="page"' : ''; ?>>
+                    <i class="fas fa-clock sidebar-nav-icon" aria-hidden="true"></i>
+                    <span>Cronjob-Test</span>
+                </a>
+                <?php endif; ?>
+
             </nav>
         </div>
 
