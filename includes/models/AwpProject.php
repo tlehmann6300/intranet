@@ -161,6 +161,37 @@ class AwpProject
         return (int) $db->lastInsertId();
     }
 
+    /**
+     * Aktualisiert ein bestehendes AWP-Projekt. Bild/Datei werden nur
+     * überschrieben, wenn neue Pfade übergeben werden (sonst beibehalten).
+     */
+    public static function updateProject(int $id, array $data): bool
+    {
+        $sql = "UPDATE awp_projekte SET
+                    titel = :titel, beschreibung = :beschreibung, teamgroesse = :teamgroesse,
+                    qm_person_id = :qm, projektleiter_id = :leiter, kunde = :kunde";
+        $params = [
+            ':titel'        => $data['titel'],
+            ':beschreibung' => $data['beschreibung'],
+            ':teamgroesse'  => (int) $data['teamgroesse'],
+            ':qm'           => $data['qm_person_id'] !== null ? (int) $data['qm_person_id'] : null,
+            ':leiter'       => $data['projektleiter_id'] !== null ? (int) $data['projektleiter_id'] : null,
+            ':kunde'        => $data['kunde'] ?: null,
+            ':id'           => $id,
+        ];
+        if (!empty($data['projekt_bild'])) {
+            $sql .= ", projekt_bild = :bild";
+            $params[':bild'] = $data['projekt_bild'];
+        }
+        if (!empty($data['projekt_datei'])) {
+            $sql .= ", projekt_datei = :datei";
+            $params[':datei'] = $data['projekt_datei'];
+        }
+        $sql .= " WHERE id = :id";
+        $stmt = self::db()->prepare($sql);
+        return $stmt->execute($params);
+    }
+
     public static function setStatus(int $id, string $status): bool
     {
         if (!in_array($status, ['offen', 'geschlossen'], true)) {

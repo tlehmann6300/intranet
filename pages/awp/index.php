@@ -139,6 +139,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($flash['err'])) {
         }
     }
 
+    // ── Funktion A: AWP-Projekt bearbeiten ───────────────────────────────
+    if ($action === 'edit_awp') {
+        $pid          = (int) ($_POST['projekt_id'] ?? 0);
+        $titel        = clean_awp((string) ($_POST['titel'] ?? ''), 255);
+        $beschreibung = clean_awp((string) ($_POST['beschreibung'] ?? ''), 20000);
+        $teamgroesse  = (int) ($_POST['teamgroesse'] ?? 0);
+        $kunde        = clean_awp((string) ($_POST['kunde'] ?? ''), 255);
+        $qmId         = ($_POST['qm_person_id'] ?? '') !== '' ? (int) $_POST['qm_person_id'] : null;
+        $leiterId     = ($_POST['projektleiter_id'] ?? '') !== '' ? (int) $_POST['projektleiter_id'] : null;
+
+        $errs = [];
+        if ($pid <= 0)            { $errs[] = 'Ungültiges Projekt.'; }
+        if ($titel === '')        { $errs[] = 'Titel ist erforderlich.'; }
+        if ($beschreibung === '') { $errs[] = 'Beschreibung ist erforderlich.'; }
+        if ($teamgroesse < 1)     { $errs[] = 'Teamgröße muss mindestens 1 sein.'; }
+
+        $bildPath = null;
+        $dateiPath = null;
+        if (empty($errs) && isset($_FILES['projekt_bild']) && ($_FILES['projekt_bild']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+            $res = SecureImageUpload::uploadImage($_FILES['projekt_bild'], __DIR__ . '/../../uploads/awp', false);
+            if (!$res['success']) { $errs[] = 'Projektbild: ' . $res['error']; } else { $bildPath = $res['path']; }
+        }
+        if (empty($errs) && isset($_FILES['projekt_datei']) && ($_FILES['projekt_datei']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+            $res = Project::handleDocumentationUpload($_FILES['projekt_datei']);
+            if (!$res['success']) { $errs[] = 'Projektdatei: ' . $res['error']; } else { $dateiPath = $res['path']; }
+        }
+
+        if (empty($errs)) {
+            try {
+                AwpProject::updateProject($pid, [
+                    'titel' => $titel, 'beschreibung' => $beschreibung, 'teamgroesse' => $teamgroesse,
+                    'qm_person_id' => $qmId, 'projektleiter_id' => $leiterId, 'kunde' => $kunde,
+                    'projekt_bild' => $bildPath, 'projekt_datei' => $dateiPath,
+                ]);
+                $flash['ok'] = 'AWP-Projekt „' . $titel . '" wurde aktualisiert.';
+            } catch (Throwable $e) {
+                error_log('AWP updateProject: ' . $e->getMessage());
+                $flash['err'] = 'Das Projekt konnte nicht gespeichert werden.';
+            }
+        } else {
+            $flash['err'] = implode(' ', $errs);
+        }
+    }
+
     // ── Projekt-Status umschalten ────────────────────────────────────────
     if ($action === 'toggle_status') {
         $pid = (int) ($_POST['projekt_id'] ?? 0);
@@ -207,6 +251,17 @@ try {
 
 $activeTab = ($_GET['tab'] ?? 'projekte') === 'bewerbungen' ? 'bewerbungen' : 'projekte';
 
+// Bearbeiten-Modus: Projekt zum Vorbefüllen laden
+$editProject = null;
+if (isset($_GET['edit'])) {
+    try {
+        $editProject = AwpProject::getProject((int) $_GET['edit']);
+    } catch (Throwable $e) {
+        error_log('AWP edit load: ' . $e->getMessage());
+    }
+}
+$isEdit = $editProject !== null;
+
 /** Kleiner Säuberungs-Helfer (Steuerzeichen entfernen + Länge begrenzen). */
 function clean_awp(string $v, int $max): string
 {
@@ -266,31 +321,34 @@ ob_start();
 
     <?php if ($activeTab === 'projekte'): ?>
     <!-- ── Funktion A: Projekt anlegen ─────────────────────────────────── -->
-    <div class="awp-card">
-        <h2 style="font-size:1.05rem;font-weight:700;margin:0 0 1rem;">Neues AWP-Projekt anlegen</h2>
+    <div class="awp-card" id="awp-form">
+        <h2 style="font-size:1.05rem;font-weight:700;margin:0 0 1rem;">
+            <?= $isEdit ? 'AWP-Projekt bearbeiten' : 'Neues AWP-Projekt anlegen' ?>
+        </h2>
         <form method="POST" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="<?= e(CSRFHandler::getToken()) ?>">
-            <input type="hidden" name="action" value="create_awp">
+            <input type="hidden" name="action" value="<?= $isEdit ? 'edit_awp' : 'create_awp' ?>">
             <input type="hidden" name="tab" value="projekte">
+            <?php if ($isEdit): ?><input type="hidden" name="projekt_id" value="<?= (int) $editProject['id'] ?>"><?php endif; ?>
             <div class="awp-grid">
                 <div class="awp-field">
                     <label>Titel *</label>
-                    <input type="text" name="titel" required maxlength="255">
+                    <input type="text" name="titel" required maxlength="255" value="<?= $isEdit ? e($editProject['titel']) : '' ?>">
                 </div>
                 <div class="awp-field">
                     <label>Kunde</label>
-                    <input type="text" name="kunde" maxlength="255">
+                    <input type="text" name="kunde" maxlength="255" value="<?= $isEdit ? e($editProject['kunde'] ?? '') : '' ?>">
                 </div>
                 <div class="awp-field">
                     <label>Teamgröße *</label>
-                    <input type="number" name="teamgroesse" min="1" max="99" value="3" required>
+                    <input type="number" name="teamgroesse" min="1" max="99" value="<?= $isEdit ? (int) $editProject['teamgroesse'] : 3 ?>" required>
                 </div>
                 <div class="awp-field">
                     <label>QM-Person</label>
                     <select name="qm_person_id">
                         <option value="">– keine –</option>
                         <?php foreach ($intranetUsers as $u): ?>
-                        <option value="<?= (int) $u['id'] ?>"><?= e(trim($u['first_name'] . ' ' . $u['last_name'])) ?></option>
+                        <option value="<?= (int) $u['id'] ?>" <?= ($isEdit && (int) $editProject['qm_person_id'] === (int) $u['id']) ? 'selected' : '' ?>><?= e(trim($u['first_name'] . ' ' . $u['last_name'])) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -299,24 +357,27 @@ ob_start();
                     <select name="projektleiter_id">
                         <option value="">– keiner –</option>
                         <?php foreach ($intranetUsers as $u): ?>
-                        <option value="<?= (int) $u['id'] ?>"><?= e(trim($u['first_name'] . ' ' . $u['last_name'])) ?></option>
+                        <option value="<?= (int) $u['id'] ?>" <?= ($isEdit && (int) $editProject['projektleiter_id'] === (int) $u['id']) ? 'selected' : '' ?>><?= e(trim($u['first_name'] . ' ' . $u['last_name'])) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
                 <div class="awp-field">
-                    <label>Projekt-Vorschaubild (jpg/png)</label>
+                    <label>Projekt-Vorschaubild (jpg/png)<?= $isEdit && !empty($editProject['projekt_bild']) ? ' – vorhanden, leer lassen zum Behalten' : '' ?></label>
                     <input type="file" name="projekt_bild" accept=".jpg,.jpeg,.png,image/jpeg,image/png">
                 </div>
                 <div class="awp-field">
-                    <label>Projektdatei / Briefing (PDF)</label>
+                    <label>Projektdatei / Briefing (PDF)<?= $isEdit && !empty($editProject['projekt_datei']) ? ' – vorhanden, leer lassen zum Behalten' : '' ?></label>
                     <input type="file" name="projekt_datei" accept=".pdf,application/pdf">
                 </div>
             </div>
             <div class="awp-field">
                 <label>Beschreibung *</label>
-                <textarea name="beschreibung" rows="5" required></textarea>
+                <textarea name="beschreibung" rows="5" required><?= $isEdit ? e($editProject['beschreibung']) : '' ?></textarea>
             </div>
-            <button type="submit" class="awp-btn"><i class="fas fa-plus"></i> Projekt anlegen</button>
+            <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
+                <button type="submit" class="awp-btn"><?= $isEdit ? 'Änderungen speichern' : 'Projekt anlegen' ?></button>
+                <?php if ($isEdit): ?><a href="index.php?tab=projekte" class="awp-btn awp-btn--soft">Abbrechen</a><?php endif; ?>
+            </div>
         </form>
     </div>
 
@@ -346,14 +407,17 @@ ob_start();
                             <?php endif; ?>
                         </div>
                     </div>
-                    <form method="POST" style="margin:0;flex-shrink:0;">
-                        <input type="hidden" name="csrf_token" value="<?= e(CSRFHandler::getToken()) ?>">
-                        <input type="hidden" name="action" value="toggle_status">
-                        <input type="hidden" name="tab" value="projekte">
-                        <input type="hidden" name="projekt_id" value="<?= (int) $p['id'] ?>">
-                        <input type="hidden" name="new_status" value="<?= $p['status'] === 'offen' ? 'geschlossen' : 'offen' ?>">
-                        <button type="submit" class="awp-btn awp-btn--soft"><?= $p['status'] === 'offen' ? 'Schließen' : 'Öffnen' ?></button>
-                    </form>
+                    <div style="display:flex;gap:.4rem;flex-shrink:0;flex-wrap:wrap;">
+                        <a href="index.php?tab=projekte&edit=<?= (int) $p['id'] ?>#awp-form" class="awp-btn awp-btn--soft">Bearbeiten</a>
+                        <form method="POST" style="margin:0;">
+                            <input type="hidden" name="csrf_token" value="<?= e(CSRFHandler::getToken()) ?>">
+                            <input type="hidden" name="action" value="toggle_status">
+                            <input type="hidden" name="tab" value="projekte">
+                            <input type="hidden" name="projekt_id" value="<?= (int) $p['id'] ?>">
+                            <input type="hidden" name="new_status" value="<?= $p['status'] === 'offen' ? 'geschlossen' : 'offen' ?>">
+                            <button type="submit" class="awp-btn awp-btn--soft"><?= $p['status'] === 'offen' ? 'Schließen' : 'Öffnen' ?></button>
+                        </form>
+                    </div>
                 </div>
             </div>
         <?php endforeach; endif; ?>
