@@ -297,6 +297,36 @@ function fallbackPdoDump(string $label, string $host, string $port, string $dbna
     }
 }
 
+/**
+ * Ermittelt den Datenbanknamen automatisch, falls keiner konfiguriert ist
+ * (IONOS-Shared-Hosting: ein Benutzer = genau eine Datenbank).
+ * Gibt den konfigurierten Namen zurück, sonst die einzige Benutzer-DB, sonst ''.
+ */
+function resolveDbName(string $host, string $port, string $user, string $pass, string $configured): string {
+    if ($configured !== '') {
+        return $configured;
+    }
+    if ($host === '' || $user === '') {
+        return '';
+    }
+    try {
+        $pdo = new PDO(
+            "mysql:host={$host};port={$port};charset=utf8mb4",
+            $user, $pass,
+            [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+        );
+        $name = $pdo->query(
+            "SELECT schema_name FROM information_schema.schemata
+             WHERE schema_name NOT IN ('information_schema','performance_schema','mysql','sys')
+             ORDER BY schema_name LIMIT 1"
+        )->fetchColumn();
+        return is_string($name) ? $name : '';
+    } catch (PDOException $e) {
+        error_log("backup_database: DB-Namen-Auto-Erkennung fehlgeschlagen ({$host}): " . $e->getMessage());
+        return '';
+    }
+}
+
 // -------------------------------------------------------------------------
 // Main execution
 // -------------------------------------------------------------------------
@@ -308,11 +338,13 @@ if ($mysqldump) {
     echo "mysqldump not found – PHP fallback will be used.\n\n";
 }
 
+// Alle vom Intranet genutzten Datenbanken. KARRIERE nutzt keine Konstanten,
+// daher direkt aus der .env (_env). Ports: USER/CONTENT/NEWS/VCARD = 3306.
 $databases = [
     [
         'label'  => 'user',
         'host'   => DB_USER_HOST,
-        'port'   => '3306',  // no separate port constant defined for user DB (see config/config.php)
+        'port'   => '3306',
         'dbname' => DB_USER_NAME,
         'user'   => DB_USER_USER,
         'pass'   => DB_USER_PASS,
@@ -320,10 +352,18 @@ $databases = [
     [
         'label'  => 'content',
         'host'   => DB_CONTENT_HOST,
-        'port'   => '3306',  // no separate port constant defined for content DB (see config/config.php)
+        'port'   => '3306',
         'dbname' => DB_CONTENT_NAME,
         'user'   => DB_CONTENT_USER,
         'pass'   => DB_CONTENT_PASS,
+    ],
+    [
+        'label'  => 'news',
+        'host'   => DB_NEWS_HOST,
+        'port'   => '3306',
+        'dbname' => DB_NEWS_NAME,
+        'user'   => DB_NEWS_USER,
+        'pass'   => DB_NEWS_PASS,
     ],
     [
         'label'  => 'invoice',
@@ -333,7 +373,55 @@ $databases = [
         'user'   => DB_RECH_USER,
         'pass'   => DB_RECH_PASS,
     ],
+    [
+        'label'  => 'inventory',
+        'host'   => DB_INVENTORY_HOST,
+        'port'   => DB_INVENTORY_PORT,
+        'dbname' => DB_INVENTORY_NAME,
+        'user'   => DB_INVENTORY_USER,
+        'pass'   => DB_INVENTORY_PASS,
+    ],
+    [
+        'label'  => 'vcard',
+        'host'   => DB_VCARD_HOST,
+        'port'   => '3306',
+        'dbname' => DB_VCARD_NAME,
+        'user'   => DB_VCARD_USER,
+        'pass'   => DB_VCARD_PASS,
+    ],
+    [
+        'label'  => 'karriere',
+        'host'   => _env('DB_KARRIERE_HOST', ''),
+        'port'   => _env('DB_KARRIERE_PORT', '3306'),
+        'dbname' => _env('DB_KARRIERE_NAME', ''),
+        'user'   => _env('DB_KARRIERE_USER', ''),
+        'pass'   => _env('DB_KARRIERE_PASS', ''),
+    ],
 ];
+
+// Datenbanknamen auflösen (Auto-Erkennung bei leerem Namen, z. B. KARRIERE)
+// und Duplikate (gleicher Host + gleiche DB) überspringen.
+$seen = [];
+$resolved = [];
+foreach ($databases as $db) {
+    if ($db['host'] === '' || $db['user'] === '') {
+        echo "  [{$db['label']}] Übersprungen – nicht konfiguriert.\n";
+        continue;
+    }
+    $db['dbname'] = resolveDbName($db['host'], (string) $db['port'], $db['user'], $db['pass'], (string) $db['dbname']);
+    if ($db['dbname'] === '') {
+        echo "  [{$db['label']}] Übersprungen – kein Datenbankname ermittelbar.\n";
+        continue;
+    }
+    $key = strtolower($db['host'] . '|' . $db['dbname']);
+    if (isset($seen[$key])) {
+        echo "  [{$db['label']}] Übersprungen – identisch mit '{$seen[$key]}' ({$db['dbname']}).\n";
+        continue;
+    }
+    $seen[$key] = $db['label'];
+    $resolved[] = $db;
+}
+$databases = $resolved;
 
 $successCount = 0;
 $failCount    = 0;
