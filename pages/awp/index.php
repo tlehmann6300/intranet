@@ -112,19 +112,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($flash['err'])) {
                     'projekt_datei'    => $dateiPath,
                 ]);
 
-                // Auto-Verknüpfung: zugleich als internes Projekt anlegen
+                // Auto-Verknüpfung: zugleich als internes Projekt anlegen.
+                // AWP-Projekte: keine Bewerbung (requires_application=0) und
+                // Markierung is_awp=1 (Priorität wird als "AWP" angezeigt).
                 try {
-                    Project::create([
+                    $newProjId = Project::create([
                         'title'           => $titel,
                         'description'     => $beschreibung,
                         'client_name'     => $kunde ?: 'IBC intern',
                         'type'            => 'internal',
                         'status'          => 'open',
                         'max_consultants' => $teamgroesse,
-                        'requires_application' => 1,
+                        'requires_application' => 0,
                         'image_path'      => $bildPath,
                         'created_by'      => $currentUser['id'] ?? null,
                     ]);
+                    if ($newProjId) {
+                        Database::getContentDB()
+                            ->prepare("UPDATE projects SET is_awp = 1 WHERE id = ?")
+                            ->execute([(int) $newProjId]);
+                    }
                 } catch (Throwable $e) {
                     error_log('AWP auto-link Project::create: ' . $e->getMessage());
                 }

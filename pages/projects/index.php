@@ -17,22 +17,23 @@ if (!in_array($typeFilter, $validTypes)) $typeFilter = 'all';
 $searchQuery = trim($_GET['q'] ?? '');
 $db          = Database::getContentDB();
 $isAdmin     = Auth::isBoard() || Auth::hasPermission('manage_projects');
+$showArchive = ($_GET['archive'] ?? '') === '1';
 
-if ($typeFilter === 'all') {
-    if ($isAdmin) {
-        $stmt = $db->query("SELECT * FROM projects WHERE status != 'draft' ORDER BY created_at DESC");
-    } else {
-        $stmt = $db->query("SELECT * FROM projects WHERE status IN ('open','running','applying','completed') ORDER BY created_at DESC");
-    }
-} else {
-    if ($isAdmin) {
-        $stmt = $db->prepare("SELECT * FROM projects WHERE status != 'draft' AND type = ? ORDER BY created_at DESC");
-        $stmt->execute([$typeFilter]);
-    } else {
-        $stmt = $db->prepare("SELECT * FROM projects WHERE status IN ('open','running','applying','completed') AND type = ? ORDER BY created_at DESC");
-        $stmt->execute([$typeFilter]);
-    }
+// Archiv = abgeschlossene/archivierte/abgebrochene Projekte (bleiben in der DB,
+// werden nur getrennt vom aktiven Bereich angezeigt).
+$statusClause = $showArchive
+    ? "status IN ('completed','archived','cancelled')"
+    : "status NOT IN ('draft','completed','archived','cancelled')";
+
+$params = [];
+$sql = "SELECT * FROM projects WHERE $statusClause";
+if ($typeFilter !== 'all') {
+    $sql .= " AND type = ?";
+    $params[] = $typeFilter;
 }
+$sql .= " ORDER BY created_at DESC";
+$stmt = $db->prepare($sql);
+$stmt->execute($params);
 $projects = $stmt->fetchAll();
 
 $filteredProjects = array_map(fn($p) => Project::filterSensitiveData($p, $userRole, $user['id']), $projects);
@@ -363,7 +364,8 @@ ob_start();
 <!-- ── Filter + Search ────────────────────────────────────────── -->
 <div style="background:var(--bg-card);border:1.5px solid var(--border-color);border-radius:0.875rem;padding:0.875rem 1rem;margin-bottom:1.75rem;">
     <div style="display:flex;flex-direction:column;gap:0.75rem;">
-        <div class="proj-filter-bar" role="navigation" aria-label="Projekttyp filtern" style="flex-shrink:0;overflow-x:auto;">
+        <?php $archiveQs = $showArchive ? '&archive=1' : ''; ?>
+        <div class="proj-filter-bar" role="navigation" aria-label="Projektfilter" style="flex-shrink:0;overflow-x:auto;">
             <?php
             $chips = [
                 'all'      => ['icon'=>'fa-th-large',  'label'=>'Alle'],
@@ -372,15 +374,25 @@ ob_start();
             ];
             foreach ($chips as $val => $cfg):
             ?>
-            <a href="index.php?type=<?php echo $val; ?><?php echo $searchQuery ? '&q='.urlencode($searchQuery) : ''; ?>"
+            <a href="index.php?type=<?php echo $val; ?><?php echo $archiveQs; ?><?php echo $searchQuery ? '&q='.urlencode($searchQuery) : ''; ?>"
                class="proj-chip <?php echo $typeFilter === $val ? 'proj-chip--active' : ''; ?>">
                 <i class="fas <?php echo $cfg['icon']; ?>" style="font-size:0.7rem;" aria-hidden="true"></i>
                 <?php echo $cfg['label']; ?>
             </a>
             <?php endforeach; ?>
+            <span style="width:1px;align-self:stretch;background:var(--border-color);margin:0 0.15rem;"></span>
+            <a href="index.php?type=<?php echo urlencode($typeFilter); ?><?php echo $searchQuery ? '&q='.urlencode($searchQuery) : ''; ?>"
+               class="proj-chip <?php echo !$showArchive ? 'proj-chip--active' : ''; ?>">
+                <i class="fas fa-bolt" style="font-size:0.7rem;" aria-hidden="true"></i> Aktiv
+            </a>
+            <a href="index.php?type=<?php echo urlencode($typeFilter); ?>&archive=1<?php echo $searchQuery ? '&q='.urlencode($searchQuery) : ''; ?>"
+               class="proj-chip <?php echo $showArchive ? 'proj-chip--active' : ''; ?>">
+                <i class="fas fa-archive" style="font-size:0.7rem;" aria-hidden="true"></i> Archiv
+            </a>
         </div>
         <form method="get" action="index.php" style="width:100%;">
             <input type="hidden" name="type" value="<?php echo htmlspecialchars($typeFilter); ?>">
+            <?php if ($showArchive): ?><input type="hidden" name="archive" value="1"><?php endif; ?>
             <div class="proj-search-wrap">
                 <i class="fas fa-search proj-search-icon" aria-hidden="true"></i>
                 <input type="text"
@@ -414,15 +426,17 @@ ob_start();
     <?php foreach ($filteredProjects as $project):
         $status     = $project['status'] ?? 'open';
         $ss         = $statusStyles[$status] ?? $statusStyles['open'];
-        $isArchived = $status === 'archived';
-        $canApply   = in_array($status, ['open','applying']) && $userRole !== 'alumni';
+        $isArchived = in_array($status, ['archived','completed','cancelled'], true);
+        $isAwp      = !empty($project['is_awp']);
+        // AWP-Projekte: keine Bewerbung möglich.
+        $canApply   = !$isAwp && in_array($status, ['open','applying']) && $userRole !== 'alumni';
         $pType      = $project['type'] ?? 'internal';
 
-        // Presence check only – a fragile server-side realpath()/file_exists()
-        // check previously hid valid images on deployments where the uploads
-        // path doesn't resolve under the app root. We now trust the stored path
-        // and let the browser fall back to the placeholder via onerror.
-        $hasImage = !empty($project['image_path']);
+        // Default-Bild wie bei den Events: fehlt ein Bild, wird das IBC-Logo
+        // angezeigt; lädt es nicht, greift der Gradient-Platzhalter (onerror).
+        $imgSrc = !empty($project['image_path'])
+            ? BASE_URL . '/' . ltrim($project['image_path'], '/')
+            : BASE_URL . '/assets/img/ibc_logo_original.webp';
     ?>
     <a href="view.php?id=<?php echo (int)$project['id']; ?>"
        class="proj-card proj-card--<?php echo htmlspecialchars($status); ?> <?php echo $isArchived ? 'proj-card--archived' : ''; ?>">
@@ -430,38 +444,40 @@ ob_start();
         <!-- Accent bar -->
         <div class="proj-accent"></div>
 
-        <!-- Image / Placeholder -->
+        <!-- Image (mit Default-Bild + Gradient-Fallback) -->
         <div class="proj-img-wrap">
-            <?php if ($hasImage): ?>
-                <img src="<?php echo htmlspecialchars(BASE_URL . '/' . ltrim($project['image_path'], '/')); ?>"
-                     alt="<?php echo htmlspecialchars($project['title']); ?>"
-                     loading="lazy"
-                     onerror="this.style.display='none';var p=this.parentNode.querySelector('.proj-placeholder');if(p)p.style.display='';">
-                <div class="proj-placeholder" style="display:none;">
-                    <i class="fas fa-folder-open" style="font-size:2.75rem;color:rgba(255,255,255,0.22);margin-bottom:0.5rem;" aria-hidden="true"></i>
-                    <span style="font-size:0.6875rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.42);">Projekt</span>
-                </div>
-            <?php else: ?>
-                <div class="proj-placeholder">
-                    <i class="fas fa-folder-open" style="font-size:2.75rem;color:rgba(255,255,255,0.22);margin-bottom:0.5rem;" aria-hidden="true"></i>
-                    <span style="font-size:0.6875rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.42);">Projekt</span>
-                </div>
-            <?php endif; ?>
+            <img src="<?php echo htmlspecialchars($imgSrc); ?>"
+                 alt="<?php echo htmlspecialchars($project['title']); ?>"
+                 loading="lazy"
+                 onerror="this.style.display='none';var p=this.parentNode.querySelector('.proj-placeholder');if(p)p.style.display='';">
+            <div class="proj-placeholder" style="display:none;">
+                <i class="fas fa-folder-open" style="font-size:2.75rem;color:rgba(255,255,255,0.22);margin-bottom:0.5rem;" aria-hidden="true"></i>
+                <span style="font-size:0.6875rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.42);">Projekt</span>
+            </div>
 
             <!-- Top-left badges -->
             <div style="position:absolute;top:0.75rem;left:0.75rem;display:flex;flex-direction:column;gap:0.3rem;z-index:2;">
+                <?php if (!$isAwp): /* AWP-Projekte zeigen keinen Status (z. B. "Offen") */ ?>
                 <span class="proj-badge" style="background:<?php echo $ss['badge_bg']; ?>;">
                     <i class="fas <?php echo $ss['icon']; ?>" style="font-size:0.55rem;" aria-hidden="true"></i>
                     <?php echo $ss['label']; ?>
                 </span>
+                <?php endif; ?>
                 <span class="proj-badge" style="background:<?php echo $pType === 'internal' ? 'rgba(99,102,241,0.88)' : 'rgba(34,197,94,0.88)'; ?>;">
                     <i class="fas <?php echo $pType === 'internal' ? 'fa-building' : 'fa-users'; ?>" style="font-size:0.55rem;" aria-hidden="true"></i>
                     <?php echo $pType === 'internal' ? 'Intern' : 'Extern'; ?>
                 </span>
             </div>
 
-            <!-- Top-right priority -->
-            <?php if (!empty($project['priority']) && isset($priorityStyles[$project['priority']])): ?>
+            <!-- Top-right priority (AWP-Projekte: immer "AWP") -->
+            <?php if ($isAwp): ?>
+            <div style="position:absolute;top:0.75rem;right:0.75rem;z-index:2;">
+                <span class="proj-badge" style="background:rgba(124,58,237,0.9);">
+                    <i class="fas fa-graduation-cap" style="font-size:0.55rem;" aria-hidden="true"></i>
+                    AWP
+                </span>
+            </div>
+            <?php elseif (!empty($project['priority']) && isset($priorityStyles[$project['priority']])): ?>
             <?php $ps = $priorityStyles[$project['priority']]; ?>
             <div style="position:absolute;top:0.75rem;right:0.75rem;z-index:2;">
                 <span class="proj-badge" style="background:<?php echo $ps['badge_bg']; ?>;">

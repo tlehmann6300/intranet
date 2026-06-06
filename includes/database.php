@@ -142,6 +142,22 @@ class Database {
             }
         }
 
+        // projects.is_awp – markiert automatisch verknüpfte AWP-Projekte
+        // (keine Bewerbung möglich, Priorität wird als "AWP" angezeigt).
+        try {
+            $stmt = $db->prepare(
+                "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+                 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'projects' AND COLUMN_NAME = 'is_awp'"
+            );
+            $stmt->execute();
+            if (!$stmt->fetch()) {
+                $db->exec("ALTER TABLE projects ADD COLUMN is_awp TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1 = automatisch aus dem AWP-Modul verknuepftes Projekt'");
+                error_log("Content schema migration applied: added column 'is_awp' to projects");
+            }
+        } catch (PDOException $e) {
+            error_log("Content schema migration skipped for column 'is_awp': " . $e->getMessage());
+        }
+
         // Create the newsletters table if it does not exist yet
         try {
             $stmt = $db->prepare(

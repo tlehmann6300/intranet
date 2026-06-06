@@ -114,6 +114,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['complete_project'])) 
     }
 }
 
+// Vorstand: Projekt ins Archiv verschieben bzw. wiederherstellen.
+// Es wird NICHT gelöscht – nur der Status geändert (archived ↔ open).
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['archive_project'])) {
+    CSRFHandler::verifyToken($_POST['csrf_token'] ?? '');
+    if (!(Auth::isBoard() || Auth::hasPermission('manage_projects'))) {
+        $error = 'Du hast keine Berechtigung, dieses Projekt zu archivieren.';
+    } else {
+        try {
+            $reopen = ($_POST['archive_action'] ?? '') === 'reopen';
+            $newStatus = $reopen ? 'open' : 'archived';
+            Project::update($projectId, ['status' => $newStatus]);
+            $message = $reopen ? 'Projekt wurde wieder geöffnet.' : 'Projekt wurde ins Archiv verschoben.';
+            $project = Project::getById($projectId);
+            $project = Project::filterSensitiveData($project, $userRole, $user['id']);
+        } catch (Exception $e) {
+            $error = $e->getMessage();
+        }
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['apply'])) {
     CSRFHandler::verifyToken($_POST['csrf_token'] ?? '');
     
@@ -173,6 +193,19 @@ ob_start();
             <i class="fas fa-edit mr-2"></i>
             Projekt bearbeiten
         </a>
+        <?php endif; ?>
+        <?php if (Auth::isBoard() || Auth::hasPermission('manage_projects')): ?>
+            <?php $isArchivedNow = in_array($project['status'] ?? '', ['archived','completed','cancelled'], true); ?>
+            <form method="POST" style="display:inline;margin:0;"
+                  onsubmit="return confirm('<?php echo $isArchivedNow ? 'Projekt wieder öffnen?' : 'Projekt ins Archiv verschieben? Es wird nicht gelöscht.'; ?>');">
+                <input type="hidden" name="csrf_token" value="<?php echo CSRFHandler::getToken(); ?>">
+                <input type="hidden" name="archive_project" value="1">
+                <input type="hidden" name="archive_action" value="<?php echo $isArchivedNow ? 'reopen' : 'archive'; ?>">
+                <button type="submit" class="prv-edit-btn" style="border:none;cursor:pointer;">
+                    <i class="fas <?php echo $isArchivedNow ? 'fa-undo' : 'fa-archive'; ?> mr-2"></i>
+                    <?php echo $isArchivedNow ? 'Wiederherstellen' : 'Als abgeschlossen / Archiv'; ?>
+                </button>
+            </form>
         <?php endif; ?>
     </div>
     
