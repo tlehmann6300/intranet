@@ -199,6 +199,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($flash['err'])) {
         }
     }
 
+    // ── Bewerbungsphase global öffnen/schließen ──────────────────────────
+    if ($action === 'toggle_applications') {
+        $open = ($_POST['open'] ?? '') === '1';
+        try {
+            AwpProject::setApplicationsOpen($open);
+            $flash['ok'] = $open
+                ? 'Bewerbungsphase wurde geöffnet – das Karriere-Portal nimmt wieder Bewerbungen an.'
+                : 'Bewerbungsphase wurde geschlossen – das Karriere-Portal nimmt keine neuen Bewerbungen mehr an.';
+        } catch (Throwable $e) {
+            error_log('AWP toggle_applications: ' . $e->getMessage());
+            $flash['err'] = 'Die Bewerbungsphase konnte nicht umgeschaltet werden.';
+        }
+    }
+
     // ── Funktion B: Bewerber zuweisen + Bestätigungs-Mail ────────────────
     if ($action === 'assign' || $action === 'reject') {
         $bId = (int) ($_POST['bewerbung_id'] ?? 0);
@@ -245,7 +259,9 @@ if (!empty($_SESSION['awp_flash'])) {
 /* ── Daten fürs Rendering ───────────────────────────────────────────────── */
 $projects = [];
 $applications = [];
+$applicationsOpen = true;
 try {
+    $applicationsOpen = AwpProject::applicationsOpen();
     $projects = AwpProject::allProjects();
     $applications = AwpProject::applicationsByProject();
 } catch (Throwable $e) {
@@ -317,6 +333,37 @@ ob_start();
 
     <?php if (!empty($flash['ok'])): ?><div class="awp-flash awp-flash--ok"><?= e($flash['ok']) ?></div><?php endif; ?>
     <?php if (!empty($flash['err'])): ?><div class="awp-flash awp-flash--err"><?= e($flash['err']) ?></div><?php endif; ?>
+
+    <!-- Globale Bewerbungsphase -->
+    <div class="awp-card" style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+         border-color:<?= $applicationsOpen ? 'rgba(0,166,81,.4)' : 'rgba(239,68,68,.4)' ?>;">
+        <div>
+            <div style="font-weight:700;">
+                Bewerbungsphase:
+                <?php if ($applicationsOpen): ?>
+                    <span class="awp-badge awp-badge--open">OFFEN</span>
+                <?php else: ?>
+                    <span class="awp-badge" style="background:rgba(239,68,68,.18);color:#fca5a5;">GESCHLOSSEN</span>
+                <?php endif; ?>
+            </div>
+            <div style="font-size:.82rem;color:var(--text-muted);margin-top:.2rem;">
+                <?= $applicationsOpen
+                    ? 'Das öffentliche Karriere-Portal nimmt aktuell Bewerbungen an.'
+                    : 'Das öffentliche Karriere-Portal nimmt aktuell KEINE Bewerbungen an.' ?>
+            </div>
+        </div>
+        <form method="POST" style="margin:0;flex-shrink:0;"
+              onsubmit="return confirm('<?= $applicationsOpen ? 'Bewerbungsphase wirklich schließen? Das Portal nimmt dann keine Bewerbungen mehr an.' : 'Bewerbungsphase wieder öffnen?' ?>');">
+            <input type="hidden" name="csrf_token" value="<?= e(CSRFHandler::getToken()) ?>">
+            <input type="hidden" name="action" value="toggle_applications">
+            <input type="hidden" name="open" value="<?= $applicationsOpen ? '0' : '1' ?>">
+            <input type="hidden" name="tab" value="<?= e($activeTab) ?>">
+            <button type="submit" class="awp-btn <?= $applicationsOpen ? 'awp-btn--danger' : '' ?>">
+                <i class="fas <?= $applicationsOpen ? 'fa-lock' : 'fa-lock-open' ?>"></i>
+                <?= $applicationsOpen ? 'Bewerbungsphase schließen' : 'Bewerbungsphase öffnen' ?>
+            </button>
+        </form>
+    </div>
 
     <div class="awp-tabs">
         <a class="awp-tab <?= $activeTab === 'projekte' ? 'awp-tab--active' : '' ?>" href="?tab=projekte">Projekte verwalten</a>

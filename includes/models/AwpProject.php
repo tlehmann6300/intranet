@@ -102,6 +102,13 @@ class AwpProject
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
         );
         $db->exec(
+            "CREATE TABLE IF NOT EXISTS awp_settings (
+                setting_key   VARCHAR(64) PRIMARY KEY,
+                setting_value VARCHAR(255) NOT NULL,
+                updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+        );
+        $db->exec(
             "CREATE TABLE IF NOT EXISTS projekt_bewerbungen (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 bewerber_id INT,
@@ -114,6 +121,40 @@ class AwpProject
                 INDEX idx_status (status)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
         );
+    }
+
+    /* ── Globale Einstellungen (awp_settings) ────────────────────────────── */
+
+    public static function getSetting(string $key, string $default = ''): string
+    {
+        try {
+            $stmt = self::db()->prepare("SELECT setting_value FROM awp_settings WHERE setting_key = ?");
+            $stmt->execute([$key]);
+            $val = $stmt->fetchColumn();
+            return $val === false ? $default : (string) $val;
+        } catch (Throwable $e) {
+            return $default;
+        }
+    }
+
+    public static function setSetting(string $key, string $value): void
+    {
+        $stmt = self::db()->prepare(
+            "INSERT INTO awp_settings (setting_key, setting_value) VALUES (?, ?)
+             ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)"
+        );
+        $stmt->execute([$key, $value]);
+    }
+
+    /** Ist die Bewerbungsphase aktuell geöffnet? (Standard: offen) */
+    public static function applicationsOpen(): bool
+    {
+        return self::getSetting('applications_open', '1') === '1';
+    }
+
+    public static function setApplicationsOpen(bool $open): void
+    {
+        self::setSetting('applications_open', $open ? '1' : '0');
     }
 
     /* ── Projekte ────────────────────────────────────────────────────────── */
