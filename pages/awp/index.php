@@ -492,6 +492,9 @@ ob_start();
                     <div style="display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;align-items:flex-start;">
                         <div style="min-width:0;flex:1;">
                             <strong><?= e($b['name']) ?></strong>
+                            <?php if (!empty($b['prioritaet'])): ?>
+                                <span class="awp-badge" style="background:linear-gradient(135deg,var(--ibc-blue),var(--ibc-green));color:#fff;" title="Vom Bewerber gewählte Priorität für dieses Projekt">Prio <?= (int) $b['prioritaet'] ?></span>
+                            <?php endif; ?>
                             <span class="awp-badge <?= $b['bewerbung_status'] === 'zugeordnet' ? 'awp-badge--open' : 'awp-badge--closed' ?>"><?= e($b['bewerbung_status']) ?></span>
                             <div class="awp-app-meta">
                                 <span><i class="fas fa-envelope"></i> <?= e($b['email']) ?></span>

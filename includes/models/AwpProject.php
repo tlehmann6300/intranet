@@ -113,6 +113,7 @@ class AwpProject
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 bewerber_id INT,
                 projekt_id INT,
+                prioritaet TINYINT DEFAULT NULL,
                 motivationsschreiben TEXT NOT NULL,
                 status ENUM('eingegangen','zugeordnet','abgelehnt') DEFAULT 'eingegangen',
                 FOREIGN KEY (bewerber_id) REFERENCES bewerber(id) ON DELETE CASCADE,
@@ -121,6 +122,27 @@ class AwpProject
                 INDEX idx_status (status)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
         );
+
+        // Migration: prioritaet-Spalte für bereits bestehende Tabellen ergänzen.
+        self::ensurePriorityColumn($db);
+    }
+
+    /** Fügt die Spalte projekt_bewerbungen.prioritaet hinzu, falls sie fehlt. */
+    private static function ensurePriorityColumn(PDO $db): void
+    {
+        try {
+            $stmt = $db->prepare(
+                "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+                 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'projekt_bewerbungen'
+                   AND COLUMN_NAME = 'prioritaet'"
+            );
+            $stmt->execute();
+            if (!$stmt->fetch()) {
+                $db->exec("ALTER TABLE projekt_bewerbungen ADD COLUMN prioritaet TINYINT DEFAULT NULL AFTER projekt_id");
+            }
+        } catch (Throwable $e) {
+            error_log('AwpProject ensurePriorityColumn: ' . $e->getMessage());
+        }
     }
 
     /* ── Globale Einstellungen (awp_settings) ────────────────────────────── */
@@ -251,14 +273,14 @@ class AwpProject
     public static function applicationsByProject(): array
     {
         $stmt = self::db()->query(
-            "SELECT pb.id AS bewerbung_id, pb.projekt_id, pb.motivationsschreiben, pb.status AS bewerbung_status,
+            "SELECT pb.id AS bewerbung_id, pb.projekt_id, pb.prioritaet, pb.motivationsschreiben, pb.status AS bewerbung_status,
                     b.id AS bewerber_id, b.name, b.email, b.telefon, b.alter_jahre, b.geburtsdatum,
                     b.studiengang, b.semester, b.profilbild_pfad, b.lebenslauf_pdf_pfad, b.lebenslauf_text,
                     b.beworben_am, p.titel AS projekt_titel
              FROM projekt_bewerbungen pb
              JOIN bewerber b      ON b.id = pb.bewerber_id
              JOIN awp_projekte p  ON p.id = pb.projekt_id
-             ORDER BY p.titel ASC, b.name ASC"
+             ORDER BY p.titel ASC, (pb.prioritaet IS NULL), pb.prioritaet ASC, b.name ASC"
         );
         $grouped = [];
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
