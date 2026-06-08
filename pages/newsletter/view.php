@@ -211,7 +211,7 @@ ob_start();
                         id="newsletter-preview"
                         src="render.php?id=<?php echo $newsletterId; ?>"
                         class="w-full border-0 block"
-                        style="height:80vh; min-height:600px; max-height:none; display:block;"
+                        style="height:600px; min-height:300px; max-height:none; display:block;"
                         sandbox="allow-same-origin"
                         title="Newsletter Ansicht">
                     </iframe>
@@ -232,20 +232,28 @@ ob_start();
     var icon      = document.getElementById('toggle-icon');
     var label     = document.getElementById('toggle-label');
 
-    // Auto-resize the iframe to fit its content once it has loaded.
-    // We use a generous fixed height (80vh) so scrolling within the iframe works naturally.
+    // Auto-resize the iframe to exactly fit its content (grow AND shrink),
+    // so there is no large empty white area below short newsletters.
     if (iframe) {
-        iframe.addEventListener('load', function () {
+        var resizeIframe = function () {
             try {
-                var h = this.contentDocument.documentElement.scrollHeight;
-                // Only override if content is taller than the default 80vh
-                if (h > this.offsetHeight) {
-                    this.style.height = h + 'px';
+                var doc = iframe.contentDocument;
+                if (!doc) return;
+                var h = Math.max(
+                    doc.body ? doc.body.scrollHeight : 0,
+                    doc.documentElement ? doc.documentElement.scrollHeight : 0
+                );
+                if (h > 0) {
+                    iframe.style.height = Math.max(h + 4, 300) + 'px';
                 }
             } catch (e) {
-                // Same-origin restriction not met – keep the default 80vh height.
+                // Same-origin restriction not met – keep the default height.
             }
-        });
+        };
+        iframe.addEventListener('load', resizeIframe);
+        // Nach dem Laden von Bildern erneut anpassen
+        window.addEventListener('resize', resizeIframe);
+        setTimeout(resizeIframe, 600);
     }
 
     // Toggle preview visibility.

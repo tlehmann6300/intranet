@@ -124,12 +124,30 @@ header('Content-Security-Policy: default-src \'none\'; img-src data: blob:; styl
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-  body { margin: 0; padding: 12px; }
-  img  { max-width: 100%; height: auto; }
-  pre  { font-family: sans-serif; white-space: pre-wrap; word-wrap: break-word; padding: 16px; }
+  html, body { margin: 0; padding: 0; background: #eef1f5; }
+  /* E-Mail-Inhalt auf einem zentrierten weißen "Blatt" mit Innenabstand,
+     damit nichts am Rand abgeschnitten wird und nichts horizontal überläuft. */
+  .nl-body {
+      max-width: 860px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 28px 32px;
+      box-sizing: border-box;
+      color: #1f2937;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      word-wrap: break-word;
+  }
+  .nl-body img { max-width: 100%; height: auto; }
+  .nl-body table { max-width: 100%; }
+  .nl-body p, .nl-body div { text-indent: 0; }   /* hängende Einzüge von Outlook neutralisieren */
+  .nl-body pre { font-family: inherit; white-space: pre-wrap; word-wrap: break-word; margin: 0; }
+  @media (max-width: 600px) { .nl-body { padding: 18px 16px; } }
 </style>
 </head>
 <body>
+<div class="nl-body">
 <?php
 if ($htmlContent !== null) {
     echo $htmlContent;
@@ -140,5 +158,6 @@ if ($htmlContent !== null) {
     echo '</pre>';
 }
 ?>
+</div>
 </body>
 </html>
