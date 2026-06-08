@@ -68,6 +68,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     exit;
 }
 
+// Handle edit (Titel/Monat ändern, optional Datei ersetzen)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'edit' && $canManage) {
+    CSRFHandler::verifyToken($_POST['csrf_token'] ?? '');
+    $editId    = (int) ($_POST['newsletter_id'] ?? 0);
+    $nlTitle   = trim($_POST['title'] ?? '');
+    $monthYear = trim($_POST['month_year'] ?? '');
+    $existing  = $editId > 0 ? Newsletter::getById($editId) : false;
+
+    if (!$existing) {
+        $_SESSION['error_message'] = 'Newsletter nicht gefunden.';
+    } elseif ($nlTitle === '') {
+        $_SESSION['error_message'] = 'Bitte gib einen Titel an.';
+    } else {
+        try {
+            $newFile = null;
+            // Optionale neue Datei
+            if (isset($_FILES['newsletter_file']) && ($_FILES['newsletter_file']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+                $uploadResult = Newsletter::handleUpload($_FILES['newsletter_file']);
+                if (!$uploadResult['success']) {
+                    $_SESSION['error_message'] = $uploadResult['error'];
+                    header('Location: index.php');
+                    exit;
+                }
+                $newFile = $uploadResult['file_path'];
+            }
+
+            Newsletter::update($editId, $nlTitle, $monthYear !== '' ? $monthYear : null, $newFile);
+
+            // Alte Datei entfernen, wenn ersetzt
+            if ($newFile !== null && !empty($existing['file_path'])) {
+                $oldDir  = __DIR__ . '/../../uploads/newsletters/';
+                $oldFull = realpath($oldDir . basename($existing['file_path']));
+                if ($oldFull !== false && str_starts_with($oldFull, realpath($oldDir)) && $oldFull !== realpath($oldDir . basename($newFile))) {
+                    @unlink($oldFull);
+                }
+            }
+            $_SESSION['success_message'] = 'Newsletter erfolgreich aktualisiert.';
+        } catch (Exception $e) {
+            error_log('Newsletter edit: ' . $e->getMessage());
+            $_SESSION['error_message'] = 'Fehler beim Aktualisieren des Newsletters.';
+        }
+    }
+    header('Location: index.php');
+    exit;
+}
+
 // Handle newsletter subscription toggle (E-Mail-Benachrichtigung bei neuem Newsletter)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'toggle_subscription') {
     CSRFHandler::verifyToken($_POST['csrf_token'] ?? '');
@@ -443,6 +489,28 @@ krsort($grouped);
     border-color: rgba(239,68,68,0.35);
 }
 
+/* ── Inline-Bearbeitung ─────────────────────────────────────── */
+.nl-edit { display: none; margin: -0.25rem 0 0.5rem; }
+.nl-edit.nl-edit--open { display: block; }
+.nl-edit-form {
+    background: var(--bg-input);
+    border: 1.5px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+.nl-edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.nl-edit-label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.25rem; }
+.nl-edit-input {
+    width: 100%; padding: 0.5rem 0.7rem; font-size: 16px;
+    background: var(--bg-card); color: var(--text-main);
+    border: 1px solid var(--border-color); border-radius: 0.5rem;
+}
+.nl-edit-input:focus { outline: none; border-color: var(--ibc-blue); box-shadow: 0 0 0 3px rgba(0,102,179,0.2); }
+@media (max-width: 600px) { .nl-edit-grid { grid-template-columns: 1fr; } }
+
 .nl-flash {
     display: flex;
     align-items: center;
@@ -685,6 +753,10 @@ krsort($grouped);
                 Öffnen
             </a>
             <?php if ($canManage): ?>
+            <button type="button" class="nl-action-btn nl-edit-btn" aria-label="Bearbeiten"
+                    onclick="document.getElementById('nl-edit-<?php echo $nlId; ?>').classList.toggle('nl-edit--open')">
+                <i class="fas fa-edit" aria-hidden="true"></i>
+            </button>
             <form method="POST" action="index.php"
                   data-confirm="Newsletter „<?php echo htmlspecialchars($nl['title'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" wirklich löschen?"
                   class="delete-form" style="display:contents;">
@@ -698,6 +770,39 @@ krsort($grouped);
             <?php endif; ?>
         </div>
     </div>
+    <?php if ($canManage): ?>
+    <div id="nl-edit-<?php echo $nlId; ?>" class="nl-edit">
+        <form method="POST" action="index.php" enctype="multipart/form-data" class="nl-edit-form">
+            <input type="hidden" name="csrf_token" value="<?php echo CSRFHandler::getToken(); ?>">
+            <input type="hidden" name="action" value="edit">
+            <input type="hidden" name="newsletter_id" value="<?php echo $nlId; ?>">
+            <div class="nl-edit-grid">
+                <div>
+                    <label class="nl-edit-label">Titel</label>
+                    <input type="text" name="title" required
+                           value="<?php echo htmlspecialchars($nl['title'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                           class="nl-edit-input">
+                </div>
+                <div>
+                    <label class="nl-edit-label">Monat / Jahr (optional)</label>
+                    <input type="text" name="month_year"
+                           value="<?php echo htmlspecialchars($monthYear ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                           placeholder="z. B. März 2026" class="nl-edit-input">
+                </div>
+            </div>
+            <div>
+                <label class="nl-edit-label">Datei ersetzen (optional, .eml)</label>
+                <input type="file" name="newsletter_file" accept=".eml" class="nl-edit-input">
+                <p style="font-size:0.7rem;color:var(--text-muted);margin:0.25rem 0 0;">Leer lassen, um die bestehende Datei zu behalten.</p>
+            </div>
+            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.25rem;">
+                <button type="submit" class="nl-action-btn nl-open-btn"><i class="fas fa-save" aria-hidden="true"></i> Speichern</button>
+                <button type="button" class="nl-action-btn"
+                        onclick="document.getElementById('nl-edit-<?php echo $nlId; ?>').classList.remove('nl-edit--open')">Abbrechen</button>
+            </div>
+        </form>
+    </div>
+    <?php endif; ?>
     <?php endforeach; ?>
 </div>
 <?php endforeach; ?>

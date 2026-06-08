@@ -129,6 +129,28 @@ class Newsletter {
     }
 
     /**
+     * Aktualisiert Titel/Monat eines Newsletters. Wird $newFilePath übergeben,
+     * wird zusätzlich die hinterlegte Datei ersetzt (alte Datei löscht der Aufrufer).
+     *
+     * @param int         $id
+     * @param string      $title
+     * @param string|null $monthYear
+     * @param string|null $newFilePath  Neuer Dateiname (nur Basename) oder null = unverändert
+     * @return bool
+     */
+    public static function update(int $id, string $title, ?string $monthYear, ?string $newFilePath = null): bool {
+        $db = Database::getNewsletterDB();
+        if ($newFilePath !== null) {
+            $stmt = $db->prepare(
+                "UPDATE newsletters SET title = ?, month_year = ?, file_path = ? WHERE id = ?"
+            );
+            return $stmt->execute([$title, $monthYear, $newFilePath, $id]);
+        }
+        $stmt = $db->prepare("UPDATE newsletters SET title = ?, month_year = ? WHERE id = ?");
+        return $stmt->execute([$title, $monthYear, $id]);
+    }
+
+    /**
      * Remove a newsletter record and its associated file from disk.
      *
      * @param int $id
