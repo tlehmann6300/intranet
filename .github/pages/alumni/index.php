@@ -41,7 +41,7 @@ ob_start();
     background: var(--bg-body);
     border: 1.5px solid var(--border-color);
     border-radius: 9999px;
-    padding: 0.55rem 1rem 0.55rem 2.375rem;
+    padding: 0.55rem 1rem 0.55rem 2.75rem;
     font-size: 0.875rem;
     color: var(--text-main);
     outline: none;
@@ -150,7 +150,11 @@ ob_start();
     font-size: 0.6875rem;
     font-weight: 700;
     border: 1px solid transparent;
-    white-space: nowrap;
+    white-space: normal;          /* darf umbrechen, damit lange Rollen nicht aus der Karte ragen */
+    word-break: break-word;
+    line-height: 1.35;
+    text-align: center;
+    max-width: 100%;
     margin-bottom: 0.625rem;
 }
 .dir-info-snippet {
@@ -202,7 +206,7 @@ ob_start();
     justify-content: center;
     gap: 0.4rem;
     width: 100%;
-    padding: 0.55rem 0.875rem;
+    padding: 0.55rem 0.75rem;
     border-radius: 0.625rem;
     font-size: 0.8125rem;
     font-weight: 700;
@@ -213,7 +217,11 @@ ob_start();
     transition: opacity 0.18s, transform 0.18s;
     white-space: nowrap;
     min-height: 2.375rem;
+    min-width: 0;
 }
+.dir-view-btn > i { flex-shrink: 0; }
+.dir-view-btn > span,
+.dir-view-btn { overflow: hidden; text-overflow: ellipsis; }
 .dir-view-btn:hover { opacity: 0.9; transform: translateY(-1px); }
 
 /* ── Stagger ─────────────────────────────────────────────────── */
@@ -250,6 +258,17 @@ ob_start();
     background: rgba(0,166,81,0.08);
     border: 1.5px solid rgba(0,166,81,0.2);
     color: var(--ibc-green);
+}
+
+/* ── Responsive Polish ───────────────────────────────────────── */
+@media (max-width: 540px) {
+    .dir-search-input, .dir-select { font-size: 0.85rem; min-height: 2.625rem; }
+    /* Such-Inputs in einer Spalte stacken auf Phone */
+    form .dir-search-input + *, form .dir-select { width: 100%; }
+}
+@media (max-width: 380px) {
+    /* Subtitle darf umbrechen */
+    h1 + p { white-space: normal !important; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -300,18 +319,6 @@ ob_start();
                        class="dir-search-input"
                        aria-label="Alumni suchen">
             </div>
-            <!-- Industry select -->
-            <div style="position:relative;">
-                <i class="fas fa-industry" style="position:absolute;left:0.875rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.75rem;pointer-events:none;z-index:1;" aria-hidden="true"></i>
-                <select name="industry" class="dir-select" style="padding-left:2.25rem;width:100%;" aria-label="Branche filtern">
-                    <option value="">Alle Branchen</option>
-                    <?php foreach ($industries as $ind): ?>
-                    <option value="<?php echo htmlspecialchars($ind); ?>" <?php echo $industryFilter === $ind ? 'selected' : ''; ?>>
-                        <?php echo htmlspecialchars($ind); ?>
-                    </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
             <!-- Buttons -->
             <div style="display:flex;gap:0.5rem;flex-shrink:0;">
                 <button type="submit"
@@ -360,7 +367,7 @@ ob_start();
 
 <?php else: ?>
 <!-- ── Profiles Grid ──────────────────────────────────────────── -->
-<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,11rem),1fr));gap:1rem;">
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,12rem),1fr));gap:1rem;">
     <?php foreach ($profiles as $profile):
         $roleKey     = Auth::getPrimaryEntraRoleKey($profile['entra_roles'] ?? null, $profile['role'] ?? '');
         $rs          = $roleStyles[$roleKey] ?? $defaultStyle;

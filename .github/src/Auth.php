@@ -426,9 +426,26 @@ class Auth {
         if (!self::check()) {
             return false;
         }
-        
+
         $userRole = $_SESSION['user_role'] ?? '';
-        return in_array($userRole, array_merge(self::BOARD_ROLES, ['alumni_vorstand', 'alumni_finanz']));
+        // ERW-Mitglieder (ressortleiter) have board-equivalent access to the
+        // Administration & Statistics area (per request).
+        return in_array($userRole, array_merge(self::BOARD_ROLES, ['alumni_vorstand', 'alumni_finanz', 'ressortleiter']));
+    }
+
+    /**
+     * Check if user may enter the Administration / Statistics area.
+     * Board roles + ERW-Mitglieder (ressortleiter).
+     *
+     * @return bool
+     */
+    public static function canAccessAdminArea() {
+        if (!self::check()) {
+            return false;
+        }
+
+        $userRole = $_SESSION['user_role'] ?? '';
+        return in_array($userRole, array_merge(self::BOARD_ROLES, ['ressortleiter']));
     }
     
     /**
@@ -442,16 +459,16 @@ class Auth {
     
     /**
      * Check if user can create complex content (Events, Projects, Polls, Blog)
-     * 
-     * @return bool True if user has any board role
+     *
+     * @return bool True if user has any board role or is Ressortleiter
      */
     public static function canCreateComplexContent() {
         if (!self::check()) {
             return false;
         }
-        
+
         $userRole = $_SESSION['user_role'] ?? '';
-        return in_array($userRole, self::BOARD_ROLES);
+        return in_array($userRole, array_merge(self::BOARD_ROLES, ['ressortleiter']));
     }
     
     /**
@@ -505,9 +522,9 @@ class Auth {
         if (!self::check()) {
             return false;
         }
-        
+
         $userRole = $_SESSION['user_role'] ?? '';
-        return in_array($userRole, array_merge(self::BOARD_ROLES, ['alumni_vorstand', 'alumni_finanz']));
+        return in_array($userRole, array_merge(self::BOARD_ROLES, ['alumni_vorstand', 'alumni_finanz', 'ressortleiter']));
     }
     
     /**
@@ -533,9 +550,9 @@ class Auth {
         if (!self::check()) {
             return false;
         }
-        
+
         $userRole = $_SESSION['user_role'] ?? '';
-        return in_array($userRole, array_merge(self::BOARD_ROLES, ['alumni_vorstand', 'alumni_finanz']));
+        return in_array($userRole, array_merge(self::BOARD_ROLES, ['alumni_vorstand', 'alumni_finanz', 'ressortleiter']));
     }
     
     /**
@@ -703,7 +720,7 @@ class Auth {
             'alumni_vorstand'     => 'Alumni-Vorstand',
             'anwaerter'           => 'Anwärter',
             'mitglied'            => 'Mitglied',
-            'ressortleiter'       => 'Ressortleiter',
+            'ressortleiter'       => 'ERW-Mitglied',
             'ehrenmitglied'       => 'Ehrenmitglied',
             'vorstand_finanzen'   => 'Vorstand Finanzen und Recht',
             'vorstand_extern'     => 'Vorstand Extern',

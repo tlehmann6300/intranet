@@ -1,0 +1,4 @@
+{
+  "subject": "Einladung Schulung",
+  "content": "{Anrede},\n\nich möchte euch zu einer Schulung von {presentersName} einladen. Diese wird sich um die Themen Steuern als Student und Finanzgrundlagen drehen.\n\nStattfinden wird die Schulung am {eventDateDay}, den {eventDateDayOf} {eventDateMonth} um {EventDateHour} Uhr. Die Schulung wird im Raum C0.14 an der HFU sein. \n\nFalls ihr kommen wollt, tragt euch bitte hier ein: {trainingLink}\n\n\n\nWir freuen uns auf dich!\n\n\n\nViele Grüße\n\n{accountName}"
+}

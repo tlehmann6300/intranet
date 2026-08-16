@@ -120,7 +120,7 @@ ob_start();
     color:var(--text-muted); font-size:.9rem; pointer-events:none;
 }
 .vc-search-input {
-    width:100%; padding:.7rem 1rem .7rem 2.625rem; border-radius:.875rem;
+    width:100%; padding:.7rem 1rem .7rem 2.875rem; border-radius:.875rem;
     border:1.5px solid var(--border-color); background:var(--bg-card);
     color:var(--text-main); font-size:.9rem; outline:none; box-sizing:border-box;
     transition:border-color .2s, box-shadow .2s;
@@ -217,30 +217,34 @@ ob_start();
 
 /* Action buttons */
 .vc-card-footer {
-    padding:.875rem 1.25rem;
+    padding:.875rem 1rem;
     border-top:1px solid var(--border-color);
-    display:flex; gap:.5rem;
+    display:flex; flex-wrap:wrap; gap:.5rem;
     background:rgba(156,163,175,.03);
 }
+.vc-btn-label { white-space:nowrap; }
 .vc-btn-edit {
-    flex:1; display:inline-flex; align-items:center; justify-content:center; gap:.35rem;
-    padding:.5rem .75rem; font-size:.8rem; font-weight:600; border-radius:.625rem;
+    flex:1 1 calc(50% - .25rem); min-width:0;
+    display:inline-flex; align-items:center; justify-content:center; gap:.35rem;
+    padding:.5rem .65rem; font-size:.78rem; font-weight:600; border-radius:.625rem;
     background:rgba(59,130,246,.1); color:rgba(37,99,235,1); border:1px solid rgba(59,130,246,.25);
-    cursor:pointer; transition:background .2s, transform .15s, box-shadow .15s; min-height:36px;
+    cursor:pointer; transition:background .2s, transform .15s, box-shadow .15s; min-height:38px;
 }
 .vc-btn-edit:hover { background:rgba(59,130,246,.2); transform:translateY(-1px); box-shadow:0 3px 10px rgba(59,130,246,.2); }
 .vc-btn-delete {
-    flex:1; display:inline-flex; align-items:center; justify-content:center; gap:.35rem;
-    padding:.5rem .75rem; font-size:.8rem; font-weight:600; border-radius:.625rem;
+    flex:1 1 calc(50% - .25rem); min-width:0;
+    display:inline-flex; align-items:center; justify-content:center; gap:.35rem;
+    padding:.5rem .65rem; font-size:.78rem; font-weight:600; border-radius:.625rem;
     background:rgba(239,68,68,.1); color:rgba(185,28,28,1); border:1px solid rgba(239,68,68,.25);
-    cursor:pointer; transition:background .2s, transform .15s, box-shadow .15s; min-height:36px;
+    cursor:pointer; transition:background .2s, transform .15s, box-shadow .15s; min-height:38px;
 }
 .vc-btn-delete:hover { background:rgba(239,68,68,.2); transform:translateY(-1px); box-shadow:0 3px 10px rgba(239,68,68,.15); }
 .vc-btn-preview {
-    flex:1; display:inline-flex; align-items:center; justify-content:center; gap:.35rem;
-    padding:.5rem .75rem; font-size:.8rem; font-weight:600; border-radius:.625rem;
+    flex:1 1 calc(50% - .25rem); min-width:0;
+    display:inline-flex; align-items:center; justify-content:center; gap:.35rem;
+    padding:.5rem .65rem; font-size:.78rem; font-weight:600; border-radius:.625rem;
     background:rgba(13,148,136,.1); color:rgba(13,118,108,1); border:1px solid rgba(13,148,136,.25);
-    cursor:pointer; transition:background .2s, transform .15s, box-shadow .15s; min-height:36px;
+    cursor:pointer; transition:background .2s, transform .15s, box-shadow .15s; min-height:38px;
     text-decoration:none;
 }
 .vc-btn-preview:hover { background:rgba(13,148,136,.2); transform:translateY(-1px); box-shadow:0 3px 10px rgba(13,148,136,.2); color:rgba(13,118,108,1); text-decoration:none; }
@@ -250,10 +254,98 @@ ob_start();
 }
 .dark-mode .vc-btn-preview:hover { background:rgba(13,148,136,.28) !important; color:#5eead4 !important; }
 
-/* On very narrow widths stack the three footer buttons vertically for readability */
-@media (max-width:400px) {
-    .vc-card-footer { flex-direction:column; }
-    .vc-btn-edit, .vc-btn-delete, .vc-btn-preview { width:100%; }
+.vc-btn-history {
+    flex:1 1 calc(50% - .25rem); min-width:0;
+    display:inline-flex; align-items:center; justify-content:center; gap:.35rem;
+    padding:.5rem .65rem; font-size:.78rem; font-weight:600; border-radius:.625rem;
+    background:rgba(168,85,247,.1); color:rgba(126,34,206,1); border:1px solid rgba(168,85,247,.25);
+    cursor:pointer; transition:background .2s, transform .15s, box-shadow .15s; min-height:38px;
+}
+.vc-btn-history:hover { background:rgba(168,85,247,.2); transform:translateY(-1px); box-shadow:0 3px 10px rgba(168,85,247,.2); }
+.dark-mode .vc-btn-history { color:#d8b4fe !important; background:rgba(168,85,247,.16) !important; border-color:rgba(168,85,247,.35) !important; }
+.dark-mode .vc-btn-history:hover { background:rgba(168,85,247,.28) !important; color:#e9d5ff !important; }
+
+/* History-Liste wird komplett mit Tailwind-Utilities gerendert (siehe JS).
+   Hier nur noch der scrollbare Container und der Empty-State. */
+#historyList { max-height: min(60vh, 32rem); overflow-y: auto; padding: 0.25rem; }
+
+/* ── Responsive cascade ───────────────────────────────────────
+   Aufeinander aufbauende Breakpoints:
+     ≤900px : Grid 2 Spalten
+     ≤700px : Page-Header und Card-Texte etwas kleiner
+     ≤540px : Grid 1 Spalte
+     ≤480px : Action-Buttons werden Icon-only (Label ausgeblendet)
+     ≤380px : Page-Header stack (Titel + "Neue vCard" Button)
+   ──────────────────────────────────────────────────────────── */
+
+@media (max-width:900px) {
+    .vc-page-header { gap:.875rem; }
+    .vc-page-title { font-size:1.4rem; }
+    .vc-card-top { padding:1rem 1rem .75rem; gap:.75rem; }
+    .vc-avatar   { width:3rem; height:3rem; font-size:1rem; }
+    .vc-card-info { padding:.625rem 1rem; }
+    .vc-card-footer { padding:.75rem .875rem; }
+}
+
+@media (max-width:700px) {
+    .vc-page-title { font-size:1.25rem; }
+    .vc-page-sub   { font-size:.8rem; }
+    .vc-header-icon { width:2.5rem; height:2.5rem; }
+    .vc-header-icon i { font-size:.95rem !important; }
+    .vc-search-input { padding:.625rem 1rem .625rem 2.625rem; font-size:.85rem; }
+    .vc-search-count { font-size:.7rem; right:.875rem; }
+    .vc-card-name { font-size:.92rem;
+        overflow:hidden; text-overflow:ellipsis;
+        display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
+    }
+    .vc-rolle-badge { font-size:.65rem; padding:.15rem .55rem; }
+    .vc-info-row { font-size:.78rem; }
+}
+
+@media (max-width:540px) {
+    .vc-page { padding-bottom:1rem; }
+    .vc-search-count { display:none; }  /* Zähler ausblenden – sonst kollidiert mit langem Text */
+    .vc-card-footer { gap:.4rem; padding:.625rem .75rem; }
+    .vc-btn-edit, .vc-btn-delete, .vc-btn-preview, .vc-btn-history {
+        padding:.5rem .5rem; min-height:40px; font-size:.75rem;
+    }
+}
+
+@media (max-width:480px) {
+    /* Icon-only Buttons – Labels werden visuell ausgeblendet, bleiben für Screenreader erhalten */
+    .vc-btn-label {
+        position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+        overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+    }
+    .vc-btn-edit, .vc-btn-delete, .vc-btn-preview, .vc-btn-history {
+        gap:0; padding:.5rem; flex:1 1 calc(25% - .35rem); min-height:42px;
+    }
+    .vc-btn-edit i, .vc-btn-delete i, .vc-btn-preview i, .vc-btn-history i {
+        font-size:.95rem;
+    }
+    .vc-btn-new { padding:.55rem 1rem; font-size:.85rem; }
+    .vc-btn-new span:not(.vc-btn-label) { font-size:.85rem; }
+    /* Modal-Header etwas kompakter */
+    .vc-modal-header { padding:.875rem 1.125rem .75rem; }
+    .vc-modal-body   { padding:1rem 1.125rem; }
+    .vc-modal-footer { padding:.75rem 1.125rem 1rem; gap:.5rem; }
+    .vc-modal-title  { font-size:.975rem; }
+    .vc-modal-header-icon { width:2rem; height:2rem; }
+}
+
+@media (max-width:380px) {
+    /* Page-Header: Titel + Neuer-Button stapeln und Button volle Breite */
+    .vc-page-header { flex-direction:column; align-items:stretch; }
+    .vc-btn-new { width:100%; justify-content:center; }
+    .vc-page-title { font-size:1.125rem; }
+    .vc-search-input { font-size:.825rem; padding-left:2.5rem; }
+    /* Modal kompakter, Schließen-Button nicht abgeschnitten */
+    .vc-modal-header { padding:.75rem .875rem .6rem; gap:.5rem; }
+    .vc-modal-body   { padding:.875rem; }
+    .vc-modal-footer { padding:.625rem .875rem .875rem; }
+    .vc-modal-title  { font-size:.9rem; }
+    .vc-modal-header-icon { width:1.75rem; height:1.75rem; }
+    .vc-modal-close { width:2rem; height:2rem; }
 }
 
 /* ── Empty state ──────────────────────────────────────────────── */
@@ -342,6 +434,11 @@ ob_start();
     color:var(--text-main) !important;
     margin:0; line-height:1.25;
     letter-spacing:-.01em;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    min-width:0;
+    flex:1;
 }
 .vc-modal-close {
     width:2.25rem; height:2.25rem; border-radius:.625rem;
@@ -527,8 +624,8 @@ select.vc-field-input {
 .vc-confirm-delete:hover { opacity:.9; transform:translateY(-1px); box-shadow:0 4px 16px rgba(239,68,68,.5); }
 .vc-confirm-delete:active { transform:none; }
 
-/* ── Responsive: bottom sheet on mobile ─────────────────────── */
-@media (max-width:600px) {
+/* ── Responsive: bottom sheet nur auf echten Phones ─────────── */
+@media (max-width:480px) {
     .vc-modal-overlay { align-items:flex-end; padding:0; }
     .vc-modal, .vc-confirm-modal {
         border-radius:1.5rem 1.5rem 0 0; max-width:100%; max-height:92dvh;
@@ -573,13 +670,6 @@ select.vc-field-input {
 #vc-toast.open { opacity:1; pointer-events:auto; transform:translateY(0) scale(1); }
 @media (max-width:480px) {
     #vc-toast { left:1rem; right:1rem; min-width:0; bottom:1rem; }
-}
-
-
-@media (max-width:480px) {
-    .vc-page-title { font-size:1.35rem; }
-    .vc-page-header { flex-direction:column; }
-    .vc-btn-new { width:100%; justify-content:center; }
 }
 
 /* ── Dark mode specific ───────────────────────────────────────── */
@@ -773,7 +863,7 @@ select.vc-field-input {
        href="<?php echo htmlspecialchars($publicUrl); ?>"
        target="_blank" rel="noopener noreferrer"
        title="vCard in neuem Tab anzeigen">
-      <i class="fas fa-eye"></i>Anzeigen
+      <i class="fas fa-eye" aria-hidden="true"></i><span class="vc-btn-label">Anzeigen</span>
     </a>
     <?php
       // NB: we intentionally use data-* attributes instead of inline onclick
@@ -799,13 +889,22 @@ select.vc-field-input {
                     echo htmlspecialchars($pb, ENT_QUOTES, 'UTF-8');
                 }
             ?>">
-      <i class="fas fa-pen"></i>Bearbeiten
+      <i class="fas fa-pen" aria-hidden="true"></i><span class="vc-btn-label">Bearbeiten</span>
     </button>
     <button type="button" class="vc-btn-delete js-vc-delete"
             data-id="<?php echo (int)$card['id']; ?>"
-            data-name="<?php echo htmlspecialchars($fullName, ENT_QUOTES, 'UTF-8'); ?>">
-      <i class="fas fa-trash"></i>Löschen
+            data-name="<?php echo htmlspecialchars($fullName, ENT_QUOTES, 'UTF-8'); ?>"
+            aria-label="Löschen">
+      <i class="fas fa-trash" aria-hidden="true"></i><span class="vc-btn-label">Löschen</span>
     </button>
+    <?php if (!empty($card['rolle'])): ?>
+    <button type="button" class="vc-btn-history js-vc-history"
+            data-rolle="<?php echo htmlspecialchars($card['rolle'], ENT_QUOTES, 'UTF-8'); ?>"
+            title="Frühere Inhaber dieser Rolle anzeigen"
+            aria-label="History anschauen">
+      <i class="fas fa-history" aria-hidden="true"></i><span class="vc-btn-label">History</span>
+    </button>
+    <?php endif; ?>
   </div>
 
 </div><!-- .vc-card -->
@@ -940,6 +1039,32 @@ select.vc-field-input {
         </button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- ═══ History Modal ════════════════════════════════════════ -->
+<div id="historyModal" class="vc-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="historyModalTitle">
+  <div class="vc-modal">
+    <div class="vc-modal-header">
+      <div class="vc-modal-header-left">
+        <div class="vc-modal-header-icon" style="background:linear-gradient(135deg,rgba(168,85,247,1),rgba(124,58,237,1));">
+          <i class="fas fa-history" style="color:#fff;font-size:.85rem;"></i>
+        </div>
+        <h3 class="vc-modal-title" id="historyModalTitle">History</h3>
+      </div>
+      <button type="button" class="vc-modal-close" onclick="closeVcHistory()" aria-label="Schließen">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="vc-modal-body">
+      <p style="margin:0 0 1rem;color:var(--text-muted);font-size:.85rem;">
+        Alle Personen, die diese Rolle bisher innehatten – nach Jahr sortiert.
+      </p>
+      <div id="historyList" class="vc-history-list"></div>
+    </div>
+    <div class="vc-modal-footer">
+      <button type="button" onclick="closeVcHistory()" class="vc-modal-cancel">Schließen</button>
+    </div>
   </div>
 </div>
 
@@ -1340,6 +1465,124 @@ document.addEventListener('click', function (e) {
         );
         return;
     }
+    const historyBtn = e.target.closest('.js-vc-history');
+    if (historyBtn) {
+        openVcHistory(historyBtn.dataset.rolle || '');
+        return;
+    }
+});
+
+// ── History Modal ─────────────────────────────────────────────────
+const VCARD_HISTORY_API_URL = <?php echo json_encode(asset('api/admin/get_vcard_history.php')); ?>;
+
+async function openVcHistory(rolle) {
+    const overlay = document.getElementById('historyModal');
+    const listEl  = document.getElementById('historyList');
+    const titleEl = document.getElementById('historyModalTitle');
+    if (!overlay || !listEl) return;
+
+    titleEl.textContent = 'History: ' + rolle;
+    listEl.innerHTML = renderHistoryEmpty('<i class="fas fa-spinner fa-spin mr-2"></i>Lade Verlauf…');
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    try {
+        const url = VCARD_HISTORY_API_URL + '?rolle=' + encodeURIComponent(rolle);
+        const resp = await fetch(url, { credentials: 'same-origin' });
+        const data = await resp.json();
+        if (!data.success) {
+            listEl.innerHTML = renderHistoryEmpty('Konnte Verlauf nicht laden.');
+            return;
+        }
+        const items = Array.isArray(data.items) ? data.items : [];
+        if (items.length === 0) {
+            listEl.innerHTML = renderHistoryEmpty('Keine Einträge für diese Rolle.');
+            return;
+        }
+        const maxJahr = items.reduce((m, it) => Math.max(m, parseInt(it.jahr, 10) || 0), 0);
+        listEl.innerHTML = '<ul class="flex flex-col gap-2 sm:gap-3 list-none m-0 p-0">'
+            + items.map(it => renderHistoryItem(it, maxJahr)).join('')
+            + '</ul>';
+    } catch (err) {
+        listEl.innerHTML = renderHistoryEmpty('Fehler beim Laden des Verlaufs.');
+    }
+}
+
+function renderHistoryEmpty(html) {
+    return '<div class="py-8 px-4 text-center text-sm text-slate-400">' + html + '</div>';
+}
+
+function renderHistoryItem(it, maxJahr) {
+    const jahr = parseInt(it.jahr, 10);
+    const isLatest = jahr === maxJahr;
+    const fullName = ((it.vorname || '') + ' ' + (it.nachname || '')).trim() || '–';
+    const role = it.position || '';
+    const email = it.email || '';
+    const phone = it.telefon || '';
+
+    // Mobile: flex-col (gestapelt). sm+: flex-row mit Year-Badge links, Tag rechts.
+    const itemClass = [
+        'group flex flex-col gap-2 p-3',
+        'sm:flex-row sm:items-center sm:gap-4 sm:p-4',
+        'rounded-xl border bg-slate-800/60 border-slate-700/60',
+        isLatest ? 'ring-1 ring-amber-500/30' : ''
+    ].join(' ');
+
+    const yearBadgeClass = [
+        'inline-flex shrink-0 items-center justify-center',
+        'min-w-[3.25rem] px-2.5 py-1.5 rounded-lg text-sm font-extrabold tracking-tight',
+        isLatest ? 'bg-amber-500/15 text-amber-200' : 'bg-slate-700/60 text-slate-200'
+    ].join(' ');
+
+    const tag = isLatest
+        ? '<span class="self-start sm:self-center shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-200 text-[10px] font-bold uppercase tracking-wider"><i class="fas fa-history" aria-hidden="true"></i>Vorgänger</span>'
+        : '';
+
+    // Kontakt-Zeile: nur anzeigen, wenn etwas vorhanden ist; Mailto/Tel-Links.
+    const contactBits = [];
+    if (email) contactBits.push('<a href="mailto:' + escapeAttr(email) + '" class="hover:text-slate-200 hover:underline break-all">' + escapeHtml(email) + '</a>');
+    if (phone) contactBits.push('<a href="tel:' + escapeAttr(phone.replace(/\s+/g,'')) + '" class="hover:text-slate-200 hover:underline whitespace-nowrap">' + escapeHtml(phone) + '</a>');
+    const contactRow = contactBits.length
+        ? '<div class="text-xs text-slate-400 flex flex-wrap gap-x-3 gap-y-1 mt-0.5">' + contactBits.join('<span class="text-slate-600">·</span>') + '</div>'
+        : '';
+
+    return ''
+        + '<li class="' + itemClass + '">'
+        +   '<div class="flex items-start gap-3 sm:contents">'
+        +     '<div class="' + yearBadgeClass + '">' + escapeHtml(isNaN(jahr) ? '–' : String(jahr)) + '</div>'
+        +     '<div class="flex flex-col min-w-0 flex-1 gap-0.5">'
+        +       '<div class="font-bold text-slate-100 text-sm sm:text-base break-words">' + escapeHtml(fullName) + '</div>'
+        +       (role ? '<div class="text-xs text-slate-400 break-words">' + escapeHtml(role) + '</div>' : '')
+        +       contactRow
+        +     '</div>'
+        +   '</div>'
+        +   tag
+        + '</li>';
+}
+
+function escapeAttr(str) {
+    return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function closeVcHistory() {
+    const overlay = document.getElementById('historyModal');
+    if (!overlay) return;
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, ch => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[ch]);
+}
+
+document.addEventListener('click', e => {
+    const overlay = document.getElementById('historyModal');
+    if (overlay && e.target === overlay) closeVcHistory();
+});
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeVcHistory();
 });
 
 document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {

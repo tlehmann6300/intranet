@@ -1,2 +1,15 @@
-php_flag engine off
-AddType text/plain .php .php3 .phtml
+# Prevent PHP/script execution – only PDFs (and other static files) should be served.
+# php_flag MUST be wrapped in <IfModule>: on PHP-FPM hosts mod_php is not loaded
+# and an unguarded `php_flag` causes HTTP 500 for every request in this directory,
+# which silently breaks the Lebenslauf/Stellenausschreibung PDF link.
+Options -Indexes -ExecCGI
+<IfModule mod_php5.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+AddType application/octet-stream .php .php3 .php4 .php5 .phtml .pHtml

@@ -45,7 +45,7 @@ $defaultStyle = ['c'=>'var(--ibc-green)','b'=>'rgba(0,166,81,0.1)','border'=>'rg
 $roleOptions = [
     'anwaerter'         => 'Anwärter',
     'mitglied'          => 'Mitglieder',
-    'ressortleiter'     => 'Ressortleiter',
+    'ressortleiter'     => 'ERW-Mitglied',
     'vorstand_finanzen' => 'Vorstand Finanzen',
     'vorstand_intern'   => 'Vorstand Intern',
     'vorstand_extern'   => 'Vorstand Extern',
@@ -61,7 +61,7 @@ ob_start();
     background: var(--bg-body);
     border: 1.5px solid var(--border-color);
     border-radius: 9999px;
-    padding: 0.55rem 1rem 0.55rem 2.375rem;
+    padding: 0.55rem 1rem 0.55rem 2.75rem;
     font-size: 0.875rem;
     color: var(--text-main);
     outline: none;
@@ -187,7 +187,11 @@ ob_start();
     font-size: 0.6875rem;
     font-weight: 700;
     border: 1px solid transparent;
-    white-space: nowrap;
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.35;
+    text-align: center;
+    max-width: 100%;
     margin-bottom: 0.625rem;
 }
 .dir-info-snippet {
@@ -291,6 +295,21 @@ ob_start();
     .dir-card, .dir-card:nth-child(n) { animation: none; }
     .dir-card:hover { transform: none; }
 }
+
+/* ── Responsive Polish ───────────────────────────────────────── */
+@media (max-width: 540px) {
+    .mem-search-input, .mem-select { font-size: 0.85rem; min-height: 2.625rem; }
+    /* Search-Filter-Reihe: alle Inputs eine Zeile, Buttons darunter */
+    form > div { flex-direction: column !important; align-items: stretch !important; }
+    form > div > div { width: 100%; min-width: 0 !important; }
+    /* Submit/Reset-Button-Gruppe nimmt volle Breite und wrappt */
+    form > div > div:last-child { flex-wrap: wrap; }
+    form > div > div:last-child > button { flex: 1 1 auto; justify-content: center; }
+}
+@media (max-width: 380px) {
+    /* Header: vertikal stapeln */
+    h1 + p { white-space: normal !important; }
+}
 </style>
 
 <?php if (isset($_SESSION['success_message'])): ?>
@@ -338,7 +357,7 @@ ob_start();
             <!-- Role select -->
             <div style="position:relative;flex:1;min-width:9rem;">
                 <i class="fas fa-filter" style="position:absolute;left:0.875rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.75rem;pointer-events:none;z-index:1;" aria-hidden="true"></i>
-                <select name="role" class="mem-select" style="padding-left:2.25rem;" aria-label="Rolle filtern">
+                <select name="role" class="mem-select" style="padding-left:2.75rem;" aria-label="Rolle filtern">
                     <option value="">Alle Rollen</option>
                     <?php foreach ($roleOptions as $val => $label): ?>
                     <option value="<?php echo htmlspecialchars($val); ?>" <?php echo $roleFilter === $val ? 'selected' : ''; ?>>
@@ -414,7 +433,7 @@ ob_start();
 
 <?php else: ?>
 <!-- ── Members Grid ───────────────────────────────────────────── -->
-<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,11rem),1fr));gap:1rem;">
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,12rem),1fr));gap:1rem;">
     <?php foreach ($members as $member):
         $roleKey     = Auth::getPrimaryEntraRoleKey($member['entra_roles'] ?? null, $member['role']);
         $rs          = $roleStyles[$roleKey] ?? $defaultStyle;

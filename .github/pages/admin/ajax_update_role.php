@@ -89,7 +89,7 @@ if ($isOwnRole && $isBoardMember && in_array($newRole, ['mitglied', 'alumni'])) 
     if (!in_array($successor['role'], ['mitglied', 'ressortleiter'])) {
         echo json_encode([
             'success' => false,
-            'message' => 'Der gewählte Nachfolger muss die Rolle "Mitglied" oder "Ressortleiter" haben'
+            'message' => 'Der gewählte Nachfolger muss die Rolle "Mitglied" oder "ERW-Mitglied" haben'
         ]);
         exit;
     }

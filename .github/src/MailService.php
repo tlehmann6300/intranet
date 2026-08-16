@@ -1294,41 +1294,39 @@ class MailService {
     }
 
     /**
-     * Send blog newsletter email to a single subscriber
+     * Notify a subscriber that a new newsletter has been published.
      *
-     * @param string $toEmail Recipient email address
-     * @param string $firstName Recipient first name (for personalization)
-     * @param string $postTitle Title of the new blog post
-     * @param string $postExcerpt Short excerpt/preview of the post content
-     * @param int $postId ID of the new blog post
+     * @param string $toEmail       Recipient email address
+     * @param string $firstName     Recipient first name (for personalization)
+     * @param string $newsletterTitle Title of the new newsletter
+     * @param string $monthYear      Optional month/year label (e.g. "März 2026")
      * @return bool Success status
      */
-    public static function sendBlogNewsletter(string $toEmail, string $firstName, string $postTitle, string $postExcerpt, int $postId): bool {
+    public static function sendNewsletterNotification(string $toEmail, string $firstName, string $newsletterTitle, string $monthYear = ''): bool {
         if (self::isVendorMissing()) {
-            error_log("Cannot send blog newsletter: Composer vendor missing");
+            error_log("Cannot send newsletter notification: Composer vendor missing");
             return false;
         }
 
-        $subject = 'Neuer Blog-Artikel: ' . $postTitle;
-
+        $subject  = 'Neuer Newsletter: ' . $newsletterTitle;
         $greeting = !empty($firstName) ? 'Hallo ' . htmlspecialchars($firstName) . ',' : 'Hallo,';
 
         $bodyContent = '<p class="email-text">' . $greeting . '</p>
-        <p class="email-text">es gibt einen neuen Artikel im IBC Intranet Blog:</p>
-        <p class="email-text"><strong>' . htmlspecialchars($postTitle) . '</strong></p>
-        <p class="email-text">' . htmlspecialchars($postExcerpt) . '</p>';
+        <p class="email-text">es ist ein neuer IBC-Newsletter erschienen:</p>
+        <p class="email-text"><strong>' . htmlspecialchars($newsletterTitle) . '</strong>'
+            . ($monthYear !== '' ? ' <span style="color:#6b7280;">(' . htmlspecialchars($monthYear) . ')</span>' : '')
+            . '</p>';
 
-        $postLink = BASE_URL . '/pages/blog/view.php?id=' . $postId;
-        $callToAction = '<a href="' . htmlspecialchars($postLink) . '" class="button">Artikel lesen</a>';
+        $newsletterLink = BASE_URL . '/pages/newsletter/index.php';
+        $callToAction   = '<a href="' . htmlspecialchars($newsletterLink) . '" class="button">Newsletter ansehen</a>';
 
-        $settingsLink = BASE_URL . '/pages/auth/settings.php';
         $bodyContent .= '<p class="email-text" style="margin-top:20px;font-size:13px;color:#6b7280;">
-            Du erhältst diese E-Mail, weil du den Blog-Newsletter abonniert hast.
-            Du kannst diese Benachrichtigung jederzeit in deinen
-            <a href="' . htmlspecialchars($settingsLink) . '" style="color:#6D9744;">Profileinstellungen</a> deaktivieren.
+            Du erhältst diese E-Mail, weil du Newsletter-Benachrichtigungen abonniert hast.
+            Du kannst das Abo jederzeit oben auf der
+            <a href="' . htmlspecialchars($newsletterLink) . '" style="color:#6D9744;">Newsletter-Seite</a> beenden.
         </p>';
 
-        $htmlBody = self::getTemplate('Neuer Blog-Artikel', $bodyContent, $callToAction);
+        $htmlBody = self::getTemplate('Neuer Newsletter', $bodyContent, $callToAction);
 
         return self::sendEmailWithEmbeddedImage($toEmail, $subject, $htmlBody);
     }
@@ -1407,7 +1405,7 @@ class MailService {
             '<td style="padding:10px 15px"><a href="' . htmlspecialchars($intranetUrl, ENT_QUOTES, 'UTF-8') . '" style="color:#6D9744">' . htmlspecialchars($intranetUrl, ENT_QUOTES, 'UTF-8') . '</a></td></tr>' .
             '<tr><td style="padding:10px 15px;font-weight:bold">E-Mail</td><td style="padding:10px 15px">' . htmlspecialchars($toEmail, ENT_QUOTES, 'UTF-8') . '</td></tr>' .
             '</table>' .
-            '<p class="email-text">Im Anhang dieser E-Mail findest du den <strong>Alumni Vertrag</strong> (als PDF und DOCX). ' .
+            '<p class="email-text">Im Anhang dieser E-Mail findest du den aktuellen <strong>Alumni Vertrag</strong> als PDF. ' .
             'Bitte drucke den Vertrag aus, fülle ihn vollständig aus, unterschreibe ihn und sende das ausgefüllte Exemplar an den Vorstand:</p>' .
             '<p class="email-text" style="text-align:center;">' .
             '<a href="mailto:' . htmlspecialchars($vorstandEmail, ENT_QUOTES, 'UTF-8') . '" style="color:#6D9744;font-weight:bold;">' .
@@ -1454,21 +1452,13 @@ class MailService {
                 $mail->addEmbeddedImage($imagePath, 'ibc_logo');
             }
 
-            // Attach the alumni contract in both formats
+            // Aktuelle Version: nur PDF anhängen. Die alte DOCX bleibt auf der Platte
+            // (Archiv), wird aber nicht mehr mitversendet, da sie inhaltlich veraltet
+            // sein könnte und ein Mismatch zur PDF entstehen würde.
             if ($pdfExists) {
                 $mail->addAttachment($attachPdf, 'Alumni-Vertrag-IBC.pdf');
             } else {
                 error_log('sendNewAlumniWelcomeWithContract: PDF attachment not found at ' . $attachPdf);
-            }
-            if ($docxExists) {
-                $mail->addAttachment(
-                    $attachDocx,
-                    'Alumni-Vertrag-IBC.docx',
-                    'base64',
-                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-                );
-            } else {
-                error_log('sendNewAlumniWelcomeWithContract: DOCX attachment not found at ' . $attachDocx);
             }
 
             ob_start();

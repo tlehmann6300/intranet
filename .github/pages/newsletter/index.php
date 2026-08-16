@@ -50,6 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                             'file_path'   => $filename,
                             'uploaded_by' => $currentUser['id'],
                         ]);
+                        Newsletter::notifySubscribers($nlTitle, $monthYear !== '' ? $monthYear : null);
                         $_SESSION['success_message'] = 'Newsletter erfolgreich hochgeladen.';
                         header('Location: index.php');
                         exit;
@@ -77,6 +78,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
     header('Location: index.php');
     exit;
+}
+
+// Handle newsletter subscription toggle (E-Mail-Benachrichtigung bei neuem Newsletter)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'toggle_subscription') {
+    CSRFHandler::verifyToken($_POST['csrf_token'] ?? '');
+    $subscribe = ($_POST['subscribe'] ?? '0') === '1' ? 1 : 0;
+    try {
+        $stmt = Database::getUserDB()->prepare('UPDATE users SET blog_newsletter = ? WHERE id = ?');
+        $stmt->execute([$subscribe, (int) $currentUser['id']]);
+        $_SESSION['success_message'] = $subscribe
+            ? 'Du erhältst ab jetzt eine E-Mail, sobald ein neuer Newsletter erscheint.'
+            : 'Du erhältst keine Newsletter-Benachrichtigungen mehr.';
+    } catch (Exception $e) {
+        $_SESSION['error_message'] = 'Deine Abo-Einstellung konnte nicht gespeichert werden.';
+    }
+    header('Location: index.php');
+    exit;
+}
+
+// Current subscription status for the abo banner
+$isSubscribed = false;
+try {
+    $stmt = Database::getUserDB()->prepare('SELECT blog_newsletter FROM users WHERE id = ?');
+    $stmt->execute([(int) $currentUser['id']]);
+    $isSubscribed = (bool) $stmt->fetchColumn();
+} catch (Exception $e) {
+    // Non-fatal: default to "not subscribed" so the banner still invites opt-in
 }
 
 $newsletters = [];
@@ -149,6 +177,71 @@ krsort($grouped);
     background: rgba(0,102,179,0.1);
     color: var(--ibc-blue);
 }
+
+/* ── Abo-Banner ──────────────────────────────────────────── */
+.nl-sub-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    background: linear-gradient(135deg, rgba(0,102,179,0.10), rgba(0,166,81,0.08));
+    border: 1.5px solid rgba(0,102,179,0.25);
+    border-radius: 1rem;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+}
+.nl-sub-banner--on {
+    background: linear-gradient(135deg, rgba(0,166,81,0.12), rgba(0,166,81,0.05));
+    border-color: rgba(0,166,81,0.30);
+}
+.nl-sub-banner-info {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    min-width: 0;
+}
+.nl-sub-banner-info > i {
+    font-size: 1.35rem;
+    color: var(--ibc-blue);
+    flex-shrink: 0;
+}
+.nl-sub-banner--on .nl-sub-banner-info > i { color: var(--ibc-green); }
+.nl-sub-banner-title {
+    font-weight: 700;
+    font-size: 0.9375rem;
+    color: var(--text-main);
+    margin: 0;
+}
+.nl-sub-banner-sub {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    margin: 0.1rem 0 0;
+}
+.nl-sub-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.15rem;
+    border: 0;
+    border-radius: 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    color: #fff;
+    background: linear-gradient(135deg, var(--ibc-blue), #0088ee);
+    box-shadow: 0 3px 12px rgba(0,102,179,0.30);
+    transition: transform 0.15s, opacity 0.15s, box-shadow 0.15s;
+}
+.nl-sub-btn:hover { transform: translateY(-1px); opacity: 0.93; }
+.nl-sub-btn--off {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1.5px solid var(--border-color);
+    box-shadow: none;
+}
+.nl-sub-btn--off:hover { color: var(--text-main); border-color: var(--text-muted); }
 
 .nl-card {
     background: var(--bg-card);
@@ -466,6 +559,32 @@ krsort($grouped);
             <?php endif; ?>
         </p>
     </div>
+</div>
+
+<!-- ── Abo-Banner (E-Mail-Benachrichtigung bei neuem Newsletter) ───────── -->
+<div class="nl-sub-banner <?php echo $isSubscribed ? 'nl-sub-banner--on' : ''; ?>">
+    <div class="nl-sub-banner-info">
+        <i class="fas <?php echo $isSubscribed ? 'fa-bell' : 'fa-bell-slash'; ?>" aria-hidden="true"></i>
+        <div>
+            <p class="nl-sub-banner-title">
+                <?php echo $isSubscribed ? 'Newsletter abonniert' : 'Immer auf dem Laufenden'; ?>
+            </p>
+            <p class="nl-sub-banner-sub">
+                <?php echo $isSubscribed
+                    ? 'Du wirst per E-Mail benachrichtigt, sobald ein neuer Newsletter erscheint.'
+                    : 'Erhalte eine E-Mail-Benachrichtigung bei jedem neuen Newsletter.'; ?>
+            </p>
+        </div>
+    </div>
+    <form method="POST" style="margin:0;flex-shrink:0;">
+        <input type="hidden" name="csrf_token" value="<?php echo CSRFHandler::getToken(); ?>">
+        <input type="hidden" name="action" value="toggle_subscription">
+        <input type="hidden" name="subscribe" value="<?php echo $isSubscribed ? '0' : '1'; ?>">
+        <button type="submit" class="nl-sub-btn <?php echo $isSubscribed ? 'nl-sub-btn--off' : ''; ?>">
+            <i class="fas <?php echo $isSubscribed ? 'fa-bell-slash' : 'fa-envelope'; ?>" aria-hidden="true"></i>
+            <?php echo $isSubscribed ? 'Abbestellen' : 'Abonnieren'; ?>
+        </button>
+    </form>
 </div>
 
 <?php /* Flash messages */ ?>

@@ -8,7 +8,7 @@ require_once __DIR__ . '/../../src/Auth.php';
 require_once __DIR__ . '/../../src/Database.php';
 require_once __DIR__ . '/../../includes/handlers/CSRFHandler.php';
 
-if (!Auth::check() || !Auth::isBoard()) {
+if (!Auth::check() || !Auth::canAccessAdminArea()) {
     header('Location: ../auth/login.php');
     exit;
 }

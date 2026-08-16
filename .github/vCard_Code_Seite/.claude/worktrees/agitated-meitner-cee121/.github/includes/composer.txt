@@ -1,0 +1,37 @@
+Befehl zum Ausführen auf dem Server:
+
+    composer install --no-dev --optimize-autoloader
+
+Alternativ (nur für Entwicklungsumgebungen):
+
+    composer install
+
+Hintergrund:
+Das Verzeichnis vendor/ ist nicht im Git-Repository enthalten (.gitignore).
+Die folgenden Dienste benötigen die installierten Abhängigkeiten:
+
+  • MicrosoftGraphService (Entra/Azure-Einladungen, Rollenvergabe)
+    → guzzlehttp/guzzle, thenetworg/oauth2-azure
+
+  • MailService (SMTP-E-Mail-Versand)
+    → phpmailer/phpmailer
+
+  • AuthHandler (Microsoft OAuth2-Login)
+    → thenetworg/oauth2-azure
+
+  • ShopPaymentService (PayPal-Integration)
+    → paypal/paypal-checkout-sdk
+
+  • download_invoice.php (PDF-Rechnungserstellung)
+    → dompdf/dompdf
+
+  • NewsletterService / download_newsletter.php (Newsletter-Parsing, .eml/.msg)
+    → zbateson/mail-mime-parser
+    Installationsbefehl: composer require zbateson/mail-mime-parser
+
+Voraussetzungen:
+  - PHP >= 8.0 mit den Erweiterungen: curl, mbstring, openssl, pdo
+  - Composer >= 2.x (https://getcomposer.org)
+
+Nach der Installation wird vendor/ automatisch erstellt und alle oben
+genannten Dienste stehen ohne Fehler zur Verfügung.

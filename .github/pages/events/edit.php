@@ -165,8 +165,8 @@ $title = $isEdit ? 'Event bearbeiten - ' . htmlspecialchars($event['title'] ?? '
 ob_start();
 ?>
 
-<!-- Flatpickr CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<!-- Flatpickr CSS is loaded globally in main_layout.php (before theme.css, so the
+     IBC theme wins the cascade). No per-page include needed here. -->
 
 <style>
 /* ============================================================================
@@ -1322,7 +1322,7 @@ ob_start();
                             $ibcRoles = [
                                 'anwaerter'         => 'Anwärter',
                                 'mitglied'          => 'Mitglied',
-                                'ressortleiter'     => 'Ressortleiter',
+                                'ressortleiter'     => 'ERW-Mitglied',
                                 'board_roles'       => 'Vorstand (alle drei)',
                                 'ehrenmitglied'     => 'Ehrenmitglied',
                                 'alumni'            => 'Alumni',
@@ -1449,10 +1449,8 @@ ob_start();
     <?php endif; ?>
 </div>
 
-<!-- Flatpickr JavaScript -->
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/de.js"></script>
-
+<!-- Flatpickr library is loaded globally in main_layout.php (deferred). The init
+     below runs on DOMContentLoaded, by which time the deferred library is ready. -->
 <script>
 // Initialize Flatpickr for datetime inputs
 document.addEventListener('DOMContentLoaded', function() {

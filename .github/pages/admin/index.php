@@ -8,7 +8,7 @@ require_once __DIR__ . '/../../src/Auth.php';
 require_once __DIR__ . '/../../src/Database.php';
 
 // Check if user is a board member
-if (!Auth::check() || !Auth::isBoard()) {
+if (!Auth::check() || !Auth::canAccessAdminArea()) {
     header('Location: ../auth/login.php');
     exit;
 }

@@ -165,6 +165,43 @@ class Newsletter {
     }
 
     /**
+     * Email all subscribed users that a new newsletter has been published.
+     * Best-effort: failures are logged but never block the upload flow.
+     *
+     * @param string      $title     Title of the newly uploaded newsletter
+     * @param string|null $monthYear Optional month/year label
+     * @return void
+     */
+    public static function notifySubscribers(string $title, ?string $monthYear = null): void {
+        require_once __DIR__ . '/User.php';
+        require_once __DIR__ . '/../../src/MailService.php';
+
+        try {
+            $subscribers = User::getNewsletterSubscribers();
+        } catch (Exception $e) {
+            error_log('Newsletter::notifySubscribers – could not load subscribers: ' . $e->getMessage());
+            return;
+        }
+
+        foreach ($subscribers as $sub) {
+            $email = $sub['email'] ?? '';
+            if ($email === '') {
+                continue;
+            }
+            try {
+                MailService::sendNewsletterNotification(
+                    $email,
+                    $sub['first_name'] ?? '',
+                    $title,
+                    $monthYear ?? ''
+                );
+            } catch (Exception $e) {
+                error_log('Newsletter::notifySubscribers – send failed for ' . $email . ': ' . $e->getMessage());
+            }
+        }
+    }
+
+    /**
      * Validate an uploaded file and move it to the newsletters upload folder.
      *
      * @param array $file  $_FILES entry.

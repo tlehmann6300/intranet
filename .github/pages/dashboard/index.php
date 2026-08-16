@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../includes/models/Invoice.php';
 require_once __DIR__ . '/../../includes/helpers.php';
 require_once __DIR__ . '/../../includes/poll_helpers.php';
 require_once __DIR__ . '/../../includes/handlers/CSRFHandler.php';
-require_once __DIR__ . '/../../includes/models/BlogPost.php';
+require_once __DIR__ . '/../../includes/models/Newsletter.php';
 require_once __DIR__ . '/../../includes/models/Alumni.php';
 require_once __DIR__ . '/../../includes/models/Member.php';
 
@@ -25,6 +25,10 @@ if (!$currentUser) {
     header('Location: ../auth/login.php');
     exit;
 }
+
+// Halbjährlicher Studenten-Status-Check (01.04. / 01.08.)
+require_once __DIR__ . '/../../includes/handlers/StudentStatusCheck.php';
+StudentStatusCheck::enforce();
 
 // Check if profile is complete - if not, redirect to profile edit page
 // Only enforce for roles that need profiles (not for test/system accounts)
@@ -188,12 +192,12 @@ if ($canAccessInvoices) {
     }
 }
 
-// Get recent blog posts
-$recentBlogPosts = [];
+// Get latest newsletters ("Immer auf dem Laufenden")
+$recentNewsletters = [];
 try {
-    $recentBlogPosts = BlogPost::getAll(3, 0);
+    $recentNewsletters = array_slice(Newsletter::getAll(), 0, 3);
 } catch (Exception $e) {
-    error_log('dashboard: recent blog posts query failed: ' . $e->getMessage());
+    error_log('dashboard: recent newsletters query failed: ' . $e->getMessage());
 }
 
 // Calculate profile completeness for the gamification widget
@@ -243,7 +247,7 @@ $roleLabels = [
     'alumni_finanz'     => 'Alumni Finanzen',
     'alumni'            => 'Alumni',
     'mitglied'          => 'Mitglied',
-    'ressortleiter'     => 'Ressortleiter',
+    'ressortleiter'     => 'ERW-Mitglied',
     'anwaerter'         => 'Anwärter',
     'ehrenmitglied'     => 'Ehrenmitglied',
     'admin'             => 'Administrator',
@@ -955,6 +959,25 @@ ob_start();
         grid-template-columns: repeat(<?php echo $canAccessInvoices ? '4' : '3'; ?>, 1fr);
     }
 }
+
+/* ── Mobile-Polishing ──────────────────────────────────────────── */
+@media (max-width: 480px) {
+    /* Stats: 1 Spalte auf sehr schmalen Screens */
+    .d-stats-wrap { grid-template-columns: 1fr; gap: 0.75rem; }
+    .d-stat-card { padding: 1.125rem 1.25rem; }
+    /* Hero: kompakteres Padding */
+    .d-hero { padding: 1.5rem 1.25rem !important; }
+    .d-hero-avatar { width: 3rem !important; height: 3rem !important; font-size: 1rem !important; }
+    /* Quick-Actions kleiner */
+    .d-quick-action { padding: 0.4rem 0.75rem; font-size: 0.75rem; }
+    .d-quick-action i { font-size: 0.7rem !important; }
+    /* Section-Titel etwas reduziert */
+    .d-section-title { font-size: 0.95rem !important; }
+}
+@media (max-width: 360px) {
+    .d-hero-title { font-size: 1.35rem !important; }
+    .d-hero-subtitle { font-size: 0.85rem; }
+}
 </style>
 
 <?php if (!empty($user['prompt_profile_review']) && $user['prompt_profile_review'] == 1): ?>
@@ -1266,7 +1289,7 @@ function dismissProfileReviewPrompt() {
                             <i class="fas fa-calendar-alt" aria-hidden="true"></i>
                         </div>
                         <div>
-                            <div class="d-section-title">Meine nächsten Events</div>
+                            <div class="d-section-title">Nächste Events</div>
                             <div class="d-section-sub">Veranstaltungen, für die du angemeldet bist</div>
                         </div>
                     </div>
@@ -1579,77 +1602,62 @@ function dismissProfileReviewPrompt() {
     </div><!-- /.d-content-grid -->
 
     <!-- ── BLOG SECTION (full width) ─────────────────────────────────────── -->
-    <?php if (!empty($recentBlogPosts)): ?>
+    <?php if (!empty($recentNewsletters)): ?>
     <div class="d-blog-section">
         <div class="d-section-hdr">
             <div class="d-section-hdr-left">
                 <div class="d-section-icon" style="background:linear-gradient(135deg,#6366f1,#7c3aed);color:#fff;">
-                    <i class="fas fa-newspaper" aria-hidden="true"></i>
+                    <i class="fas fa-envelope-open-text" aria-hidden="true"></i>
                 </div>
                 <div>
-                    <div class="d-section-title">Neuigkeiten</div>
-                    <div class="d-section-sub">Aktuelle Beiträge aus dem Blog</div>
+                    <div class="d-section-title">Immer auf dem Laufenden</div>
+                    <div class="d-section-sub">Aktuelle Newsletter</div>
                 </div>
             </div>
-            <a href="../blog/index.php" class="d-section-link" style="color:#6366f1;">
-                Alle Artikel <i class="fas fa-arrow-right" aria-hidden="true"></i>
+            <a href="../newsletter/index.php" class="d-section-link" style="color:#6366f1;">
+                Alle Newsletter <i class="fas fa-arrow-right" aria-hidden="true"></i>
             </a>
         </div>
-        <?php
-        $blogCategoryColors = [
-            'Allgemein'          => ['bg' => 'rgba(107,114,128,0.1)', 'color' => 'var(--text-muted)'],
-            'IT'                 => ['bg' => 'rgba(59,130,246,0.1)',  'color' => '#3b82f6'],
-            'Marketing'          => ['bg' => 'rgba(168,85,247,0.1)', 'color' => '#a855f7'],
-            'Human Resources'    => ['bg' => 'rgba(34,197,94,0.1)',  'color' => '#22c55e'],
-            'Qualitätsmanagement'=> ['bg' => 'rgba(234,179,8,0.1)',  'color' => '#eab308'],
-            'Akquise'            => ['bg' => 'rgba(239,68,68,0.1)',  'color' => '#ef4444'],
-            'Vorstand'           => ['bg' => 'rgba(99,102,241,0.1)', 'color' => '#6366f1'],
-        ];
-        ?>
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;">
-            <?php foreach ($recentBlogPosts as $post):
-                $cat = $post['category'] ?? 'Allgemein';
-                $catStyle = $blogCategoryColors[$cat] ?? $blogCategoryColors['Allgemein'];
-                $postDate = new DateTime($post['created_at']);
-                $excerpt  = strip_tags($post['content'] ?? '');
-                $excerpt  = strlen($excerpt) > 110 ? substr($excerpt, 0, 110) . '…' : $excerpt;
-                $authorName = explode('@', $post['author_email'])[0];
+            <?php foreach ($recentNewsletters as $nl):
+                $nlId       = (int)($nl['id'] ?? 0);
+                $nlTitle    = $nl['title'] ?? 'Newsletter';
+                $nlMonth    = trim((string)($nl['month_year'] ?? ''));
+                $nlDate     = !empty($nl['created_at']) ? date('d.m.Y', strtotime($nl['created_at'])) : '';
+                $uploader   = trim(($nl['first_name'] ?? '') . ' ' . ($nl['last_name'] ?? ''));
             ?>
-            <a href="../blog/view.php?id=<?php echo (int)$post['id']; ?>" class="d-blog-card">
+            <a href="../newsletter/view.php?id=<?php echo $nlId; ?>" class="d-blog-card">
                 <div class="d-blog-img">
-                    <?php if (!empty($post['image_path']) && $post['image_path'] !== BlogPost::DEFAULT_IMAGE): ?>
-                        <img src="/<?php echo htmlspecialchars(ltrim($post['image_path'], '/')); ?>"
-                             alt="<?php echo htmlspecialchars($post['title']); ?>"
-                             loading="lazy">
-                    <?php else: ?>
-                        <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#4f46e5,#7c3aed);">
-                            <i class="fas fa-newspaper" style="color:rgba(255,255,255,0.25);font-size:2.5rem;" aria-hidden="true"></i>
-                        </div>
-                    <?php endif; ?>
+                    <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#4f46e5,#7c3aed);">
+                        <i class="fas fa-envelope-open-text" style="color:rgba(255,255,255,0.3);font-size:2.5rem;" aria-hidden="true"></i>
+                    </div>
                 </div>
                 <div style="padding:1rem;flex:1;display:flex;flex-direction:column;">
+                    <?php if ($nlMonth !== ''): ?>
                     <div style="margin-bottom:0.5rem;">
-                        <span style="padding:0.2rem 0.6rem;border-radius:9999px;font-size:0.7rem;font-weight:700;background:<?php echo $catStyle['bg']; ?>;color:<?php echo $catStyle['color']; ?>;">
-                            <?php echo htmlspecialchars($cat); ?>
+                        <span style="padding:0.2rem 0.6rem;border-radius:9999px;font-size:0.7rem;font-weight:700;background:rgba(99,102,241,0.1);color:#6366f1;">
+                            <?php echo htmlspecialchars($nlMonth); ?>
                         </span>
                     </div>
+                    <?php endif; ?>
                     <h3 class="d-line-clamp-2" style="font-weight:800;font-size:0.9375rem;color:var(--text-main);line-height:1.35;margin:0 0 0.35rem;">
-                        <?php echo htmlspecialchars($post['title']); ?>
+                        <?php echo htmlspecialchars($nlTitle); ?>
                     </h3>
+                    <?php if ($nlDate !== ''): ?>
                     <p style="font-size:0.75rem;color:var(--text-muted);margin:0 0 0.5rem;display:flex;align-items:center;gap:0.3rem;">
                         <i class="fas fa-calendar-alt" style="color:#6366f1;font-size:0.65rem;" aria-hidden="true"></i>
-                        <?php echo $postDate->format('d.m.Y'); ?>
+                        <?php echo htmlspecialchars($nlDate); ?>
                     </p>
-                    <p class="d-line-clamp-3" style="font-size:0.8125rem;color:var(--text-muted);line-height:1.55;flex:1;margin:0 0 0.75rem;">
-                        <?php echo htmlspecialchars($excerpt); ?>
-                    </p>
-                    <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.625rem;border-top:1px solid var(--border-color);font-size:0.75rem;color:var(--text-muted);">
+                    <?php endif; ?>
+                    <div style="margin-top:auto;display:flex;align-items:center;justify-content:space-between;padding-top:0.625rem;border-top:1px solid var(--border-color);font-size:0.75rem;color:var(--text-muted);">
                         <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:0.3rem;">
+                            <?php if ($uploader !== ''): ?>
                             <i class="fas fa-user-circle" style="color:#6366f1;font-size:0.65rem;" aria-hidden="true"></i>
-                            <?php echo htmlspecialchars($authorName); ?>
+                            <?php echo htmlspecialchars($uploader); ?>
+                            <?php endif; ?>
                         </span>
                         <span style="font-weight:700;color:#6366f1;display:flex;align-items:center;gap:0.3rem;flex-shrink:0;">
-                            Lesen <i class="fas fa-arrow-right" style="font-size:0.65rem;" aria-hidden="true"></i>
+                            Öffnen <i class="fas fa-arrow-right" style="font-size:0.65rem;" aria-hidden="true"></i>
                         </span>
                     </div>
                 </div>

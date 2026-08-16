@@ -13,6 +13,7 @@ require_once __DIR__ . '/../../src/Auth.php';
 require_once __DIR__ . '/../../src/Database.php';
 require_once __DIR__ . '/../../includes/models/User.php';
 require_once __DIR__ . '/../../includes/services/MicrosoftGraphService.php';
+require_once __DIR__ . '/../../includes/handlers/CSRFHandler.php';
 
 // Redirect path after successful role change
 define('REDIRECT_AFTER_ROLE_CHANGE', '/pages/dashboard/index.php');
@@ -36,6 +37,9 @@ try {
         ]);
         exit;
     }
+
+    // CSRF-Schutz (JSON-403 bei ungültigem Token)
+    CSRFHandler::verifyToken($_POST['csrf_token'] ?? '');
 
     $currentUser = Auth::user();
     $currentUserId = $currentUser['id'];

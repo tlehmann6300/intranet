@@ -42,6 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'file_path'   => $uploadResult['file_path'],
                     'uploaded_by' => $currentUser['id'],
                 ]);
+                Newsletter::notifySubscribers($title, $monthYear !== '' ? $monthYear : null);
                 $_SESSION['success_message'] = 'Newsletter erfolgreich hochgeladen.';
                 header('Location: index.php');
                 exit;

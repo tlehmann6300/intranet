@@ -95,7 +95,9 @@ ob_start();
 <style>
 .pcr-container {
     max-width: 56rem;
-    margin-left: auto;
+    /* Linksbündig: Inhalt schließt direkt an die Seitenleiste an,
+       statt zentriert eine große Lücke daneben zu lassen. */
+    margin-left: 0;
     margin-right: auto;
     animation: springFadeIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -243,14 +245,14 @@ ob_start();
 .pcr-checkbox-item {
     display: flex;
     align-items: center;
-    padding: 0.75rem;
+    padding: 0.5rem 0.75rem;
     background-color: var(--bg-card);
-    border-radius: 0.375rem;
+    border-radius: 0.5rem;
     cursor: pointer;
     transition: all 0.2s;
-    margin-bottom: 0.5rem;
-    gap: 0.75rem;
-    min-height: 44px;
+    margin-bottom: 0.35rem;
+    gap: 0.65rem;
+    min-height: 40px;
 }
 
 .pcr-checkbox-item:hover {
@@ -263,10 +265,11 @@ ob_start();
 
 .pcr-checkbox-item input[type="checkbox"],
 .pcr-checkbox-item input[type="radio"] {
-    min-height: 44px;
-    min-width: 44px;
+    width: 1.15rem;
+    height: 1.15rem;
     accent-color: var(--ibc-blue);
     flex-shrink: 0;
+    cursor: pointer;
 }
 
 .pcr-checkbox-label {
@@ -275,11 +278,11 @@ ob_start();
 }
 
 .pcr-visibility-box {
-    padding: 1rem;
+    padding: 0.75rem 0.875rem;
     background-color: rgba(59, 130, 246, 0.05);
     border: 1px solid rgba(59, 130, 246, 0.2);
     border-radius: 0.5rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.85rem;
     cursor: pointer;
     transition: all 0.2s;
 }
@@ -295,11 +298,12 @@ ob_start();
 }
 
 .pcr-visibility-box input[type="checkbox"] {
-    min-height: 44px;
-    min-width: 44px;
+    width: 1.15rem;
+    height: 1.15rem;
     accent-color: var(--ibc-blue);
-    margin-top: 0.25rem;
+    margin-top: 0.15rem;
     flex-shrink: 0;
+    cursor: pointer;
 }
 
 .pcr-visibility-title {
@@ -523,7 +527,7 @@ ob_start();
                         ['label' => 'Ehrenmitglied',      'value' => 'ehrenmitglied'],
                         ['label' => 'Mitglieder',         'value' => 'mitglied'],
                         ['label' => 'Anwärter',           'value' => 'anwaerter'],
-                        ['label' => 'Resortleiter',       'value' => 'ressortleiter'],
+                        ['label' => 'ERW-Mitglied',       'value' => 'ressortleiter'],
                     ];
                     $selectedTargetRoles = $_POST['target_roles'] ?? [];
                     foreach ($roleOptions as $opt):
