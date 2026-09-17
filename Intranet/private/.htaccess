@@ -1,2 +1,0 @@
-# Block direct HTTP access to all files in this directory.
-Require all denied
